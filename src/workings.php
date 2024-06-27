@@ -118,8 +118,8 @@
 </head>
 
 <body>
-<!-- Spinner Start -->
-<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+ <!-- Spinner Start -->
+ <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
@@ -128,22 +128,24 @@
 
     <!-- Navbar Start -->
     <div class="bgIndex mb-3" style="height: auto;">
-            <nav class="navbar navbar-expand-lg navbar-dark py-0 px-4">
+        <!-- <div style="background-color: rgba(0, 41, 87, 0.6);"> -->
+        <div class="d-flex justify-content-center">
+            <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
                 <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                    <img class="img-fluid" src="img/photoLogo.png" style="height: 60px;">
+                    <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto">
-                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                        <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการ</a>
+                            <a href="#" class="nav-link dropdown-toggle  active" data-bs-toggle="dropdown">รายการ</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
+                                <a href="search.php" class="dropdown-item ">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item active">ผลงงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item active">ผลงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
@@ -155,11 +157,11 @@
         </div>
         <!-- Navbar End -->
 
-
+        
         <!-- Header Start -->
-        <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
+         <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 p-5 mt-lg-5">
-                <h1 class="display-5 animated fadeIn text-white mb-4 f">ผลงงานช่างภาพ</h1>
+                <h1 class="display-5 animated fadeIn text-white mb-4 f">ผลงานช่างภาพ</h1>
                 <p class="text-white">คุณสามารถเลือกดูผลงานช่างภาพตามความสนใจของคุณได้</p>
             </div>
         </div>
@@ -203,6 +205,7 @@
         </div>
     </div>
     <!-- Search End -->
+
 
     <!-- Post Start -->
     <div class="col-5 container">

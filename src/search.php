@@ -153,7 +153,7 @@
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="search.php" class="dropdown-item active">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item">ผลงงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
@@ -222,8 +222,8 @@
     <!-- Search End -->
 
 
-    <!-- Property List Start -->
-    <div class="container-xxl py-5">
+   <!-- Examples of work Start -->
+   <div class="container-xxl py-5">
         <div class="container">
             <div class="row g-0 gx-5 align-items-end">
                 <div class="col-lg-6">
@@ -252,19 +252,6 @@
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="property-item rounded overflow-hidden">
                                 <div class="position-relative overflow-hidden">
-<<<<<<< HEAD
-                                    <a href=""><img class="img-fluid" src="img/po2.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-primary position-absolute start-0 bottom-0 mx-4 pt-1 px-3">ช่างภาพแนะนำ</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-primary mb-3 ">เรทราคาที่รับ</h5>
-                                    <a class="d-block h5 mb-2 f" href="">โซเฟีย</a>
-                                    <p><i class="fa fa-map-marker-alt text-primary me-2"></i>ประเทศไทย</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-star text-primary me-2"></i>คะแนน</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-comment-alt text-primary me-2"></i>รีวิวจากผู้ใช้งาน</small>
-=======
                                     <a href=""><img class="img-fluid property-img" src="img/graduation.jpg" alt=""></a>
                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานวันรับปริญญา</div>
                                 </div>
@@ -272,7 +259,6 @@
                                     <h5 class="text-dark mb-3">$0000</h5>
                                     <a class="d-block h5 mb-2" href="">ชื่อช่างภาพ</a>
                                     <p><i class="fa fa-map-marker-alt text-dark me-2"></i>จังหวัดขอนแก่น</p>
->>>>>>> 50eb1928a71fee07f1b19f04416816c741aa01db
                                 </div>
                             </div>
                         </div>
@@ -349,7 +335,6 @@
             </div>
         </div>
     </div>
-    <!-- Property List End -->
 
     
     <!-- Footer Start -->

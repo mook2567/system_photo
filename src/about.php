@@ -74,7 +74,7 @@
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item">ผลงงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link active">เกี่ยวกับ</a>
@@ -150,7 +150,7 @@
             <div class="row g-5 align-items-center">
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
                     <div class="about-img position-relative overflow-hidden p-5 pe-0">
-                        <img class="img-fluid w-100" src="img/about.jpg">
+                        <img class="img-fluid w-100" src="img/Photomatch.gif">
                     </div>
                 </div>
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">

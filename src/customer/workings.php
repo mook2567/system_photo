@@ -145,7 +145,7 @@
                     <div class="navbar-nav ms-auto f">
                         <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                         <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                        <a href="workings.php" class="nav-item nav-link active">ผลงงานช่างภาพ</a>
+                        <a href="workings.php" class="nav-item nav-link active">ผลงานช่างภาพ</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
                             <div class="dropdown-menu rounded-0 m-0">
@@ -175,7 +175,7 @@
         <!-- Header Start -->
         <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 p-5 mt-lg-5">
-                <h1 class="display-5 animated fadeIn text-white mb-4 f">ผลงงานช่างภาพ</h1>
+                <h1 class="display-5 animated fadeIn text-white mb-4 f">ผลงานช่างภาพ</h1>
                 <p class="text-white">คุณสามารถเลือกดูผลงานช่างภาพตามความสนใจของคุณได้</p>
             </div>
         </div>

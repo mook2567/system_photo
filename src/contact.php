@@ -74,7 +74,7 @@
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item">ผลงงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
