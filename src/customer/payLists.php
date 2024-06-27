@@ -206,7 +206,7 @@
         <!-- Header Start -->
         <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 ms-5 p-5">
-                <h1 class="display-5 animated fadeIn text-white f">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</h1>
+            <h1 class="display-5 animated fadeIn text-white f" style="font-size: 2rem;">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</h1>
                 <p class="text-white">สามารถตวจสอบการชำระเงินของท่านได้ในหน้าต่างนี้</p>
             </div>
         </div>
