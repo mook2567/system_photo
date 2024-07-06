@@ -21,7 +21,114 @@ $sql = "SELECT id, prefix, firstname, surname, phone, email, license, types
         ) AS users;";
 $result = $conn->query($sql);
 
-$conn->close();
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['submit_customer'])) {
+        // Handle cus license update if submitted
+        if (isset($_POST['license']) && isset($_POST['cus_id'])) {
+            $license = $_POST['license'];
+            $cus_id = $_POST['cus_id'];
+
+            $sql = "UPDATE `customer` SET cus_license = ? WHERE cus_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $license, $cus_id);
+
+            if ($stmt->execute()) {
+?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">บันทึกสิทธิ์การใช้งานสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+            <?php
+            } else {
+            ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกสิทธิ์การใช้งาน</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+            <?php
+            }
+            // Close the statement after usage
+            $stmt->close();
+        }
+    }
+    if (isset($_POST['submit_photographer'])) {
+        if (isset($_POST['license']) && isset($_POST['photographer_id'])) {
+            echo $license = $_POST['license'];
+            echo $photographer_id = $_POST['photographer_id'];
+
+            $sql = "UPDATE `photographer` SET photographer_license = ? WHERE photographer_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $license, $photographer_id);
+
+            if ($stmt->execute()) {
+            ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">บันทึกสิทธิ์การใช้งานสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+            <?php
+            } else {
+            ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกสิทธิ์การใช้งาน</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+<?php
+            }
+            // Close the statement after usage
+            $stmt->close();
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -333,7 +440,7 @@ $conn->close();
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                 <div class="circle">
-                                                                    <img id="userImage" src="../img/profile/<?php echo !empty($rowPhotographer['photographer_photo']) ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
+                                                                <img id="userImage" src="../img/profile/<?php echo $rowPhotographer['photographer_photo'] ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
                                                             <div class="mt-2">
@@ -493,7 +600,7 @@ $conn->close();
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md">
                                                                 <div class="circle">
-                                                                    <img id="userImage" src="../img/profile/<?php echo !empty($rowPhotographer['photographer_photo']) ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
+                                                                    <img id="userImage" src="../img/profile/<?php echo ($rowPhotographer['photographer_photo']) ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
                                                             <form method="post" action="">
@@ -814,7 +921,7 @@ $conn->close();
                                                                         ?>
                                                                     </select>
                                                                 </div>
-                                                                <input type="hidden" name="cus_id" value="<?php echo $rowCustomer['cus_id'] = $id; ?>">
+                                                                <input type="hidden" name="cus_id" value="<?php echo $rowCustomer['cus_id']; ?>">
                                                         </div>
                                                     </div>
                                                 </div>

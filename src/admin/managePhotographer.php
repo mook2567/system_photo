@@ -353,7 +353,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <div class="col-4 mt-5">
                                                         <div class="d-flex justify-content-center align-items-center md mt-2">
                                                             <div class="circle">
-                                                            <img id="userImage" src="../img/profile/<?php echo !empty($rowPhotographer['photographer_photo']) ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
+                                                            <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">
