@@ -260,7 +260,7 @@
             <div class="collapse navbar-collapse me-5" id="navbarCollapse">
                 <div class="navbar-nav ms-auto f">
                     <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพพ</a>
+                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
                     <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
