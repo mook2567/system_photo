@@ -259,7 +259,7 @@ $row = $result->fetch_assoc();
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Dashboard</h5>
-                <p class="text-dark">ยินดีต้อนรับสู่แดชบอร์ด Photo Match คุณสามารถดูภาพรวมประสิทธิภาพของระบบและสถิติผู้ใช้ได้ที่นี่</p>
+                <p class="text-dark">ยินดีต้อนรับสู่แดชบอร์ด <?php echo $row['information_name']; ?> คุณสามารถดูภาพรวมประสิทธิภาพของระบบและสถิติผู้ใช้ได้ที่นี่</p>
             </div>
         </div>
     </aside>

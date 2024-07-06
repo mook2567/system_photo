@@ -431,7 +431,7 @@ $result = $conn->query($sql);
         </div>
     </nav>
     <div class="mt-5 " style="height: 100%;">
-        <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;ข้อมูลประเภทงาน</b></div>
+        <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-briefcase"></i>&nbsp;&nbsp;ข้อมูลประเภทงาน</b></div>
         <div class="mt-3  col-7 container-fluid ">
             <div class="row ">
                 <div class="container-sm mt-2 table-responsive">

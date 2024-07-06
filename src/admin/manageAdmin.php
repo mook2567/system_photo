@@ -500,7 +500,7 @@ $conn->close();
     <!-- Navbar End -->
     <div style="height: 100%;">
         <div class="footer-box text-center mt-5" style="font-size: 18px;">
-            <b><i class="fa fa-user"></i>&nbsp;&nbsp;รายการข้อมูลผู้ดูแลระบบ</b>
+            <b><i class="fa fa-user-cog"></i>&nbsp;&nbsp;รายการข้อมูลผู้ดูแลระบบ</b>
         </div>
         <div class="container-sm mt-2 table-responsive col-7">
             <table class="table bg-white table-hover table-bordered-3">
