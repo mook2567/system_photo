@@ -349,7 +349,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 <div class="col-4 mt-5">
                                                                     <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                         <div class="circle">
-                                                                            <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
+                                                                            <img id="userImage" src="../img/profile/<?php echo $row['cus_photo'] ? $row['cus_photo'] : 'null.png'; ?>">
                                                                         </div>
                                                                     </div>
                                                                     <div class="mt-2">
@@ -465,7 +465,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                 <div class="circle">
-                                                                    <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
+                                                                    <img id="userImage" src="../img/profile/<?php echo $row['cus_photo'] ? $row['cus_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
                                                             <form method="post" action="">
