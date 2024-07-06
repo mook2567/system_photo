@@ -626,7 +626,7 @@ $conn->close();
                                                                 <div class="col-4 mt-5">
                                                                     <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                         <div class="circle">
-                                                                            <img src="../img/profile/<?php echo $rowAdmin['admin_photo']; ?>" alt="Your Image">
+                                                                        <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
                                                                         </div>
                                                                     </div>
                                                                     <div class="mt-2">
@@ -742,7 +742,7 @@ $conn->close();
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                 <div class="circle">
-                                                                    <img src="../img/profile/<?php echo $rowAdmin['admin_photo']; ?>" alt="Your Image">
+                                                                <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
                                                             <form method="post" action="">
@@ -875,7 +875,7 @@ $conn->close();
                                                             <div class="col-4 mt-5">
                                                                 <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                     <div class="circle">
-                                                                        <img src="../img/profile/<?php echo $rowAdmin['admin_photo']; ?>" alt="Your Image">
+                                                                    <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
                                                                     </div>
                                                                 </div>
                                                                 <div class="mt-2">

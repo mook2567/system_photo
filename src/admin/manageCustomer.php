@@ -349,7 +349,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <div class="col-4 mt-5">
                                                                 <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                     <div class="circle">
-                                                                        <img src="../img/profile/<?php echo $row['cus_photo']; ?>" alt="Your Image">
+                                                                    <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
                                                                     </div>
                                                                 </div>
                                                                 <div class="mt-2">
@@ -465,7 +465,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <div class="col-4 mt-5">
                                                         <div class="d-flex justify-content-center align-items-center md mt-2">
                                                             <div class="circle">
-                                                                <img src="../img/profile/<?php echo $row['cus_photo']; ?>" alt="Your Image">
+                                                            <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
                                                             </div>
                                                         </div>
                                                         <form method="post" action="">
@@ -596,6 +596,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 }
             }
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userImage = document.getElementById('userImage');
+
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!userImage.src || userImage.src.endsWith('/') || userImage.src.includes('null')) {
+                userImage.src = '../img/profile/null.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('photo');
+            const userImage = document.getElementById('userImage');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
     </script>
 </body>
 
