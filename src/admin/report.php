@@ -95,11 +95,11 @@
                         <a href="manageAdmin.php" class="dropdown-item">ข้อมูลผู้ดูแลระบบ</a>
                         <a href="manageCustomer.php" class="dropdown-item">ข้อมูลลูกค้า</a>
                         <a href="managePhotographer.php" class="dropdown-item">ข้อมูลช่างภาพ</a>
-                        <a href="manageType.php" class="dropdown-item">ข้อมูลประเภทงาน</a>
+                        <!-- <a href="manageType.php" class="dropdown-item">ข้อมูลประเภทงาน</a> -->
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link active">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link active">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">

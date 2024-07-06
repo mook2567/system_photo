@@ -182,11 +182,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
@@ -305,13 +305,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <?php
                                 if ($row['cus_license'] == '0') {
                                 ?>
-                                    <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                     <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                 <?php
                                 } else {
                                 ?>
                                     <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                    <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                 <?php
                                 }
                                 ?>

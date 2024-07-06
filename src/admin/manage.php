@@ -16,6 +16,13 @@ $sql = "SELECT 'information' AS table_name, COUNT(*) AS row_count FROM informati
 // Execute SQL query
 $result = $conn->query($sql);
 
+$sqlInformation = "SELECT * FROM `information`";
+$resultInformation = $conn->query($sqlInformation);
+
+if ($resultInformation->num_rows > 0) {
+    $rowInformation = $resultInformation->fetch_assoc();
+}
+
 // Check if query executed successfully
 if ($result) {
     // Fetch associative array
@@ -106,9 +113,9 @@ $conn->close();
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
         <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-            <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
+            <img class="img-fluid" src="../img/logo/<?php echo isset($rowInformation['information_icon']) ? $rowInformation['information_icon'] : ''; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
@@ -128,11 +135,11 @@ $conn->close();
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
@@ -208,7 +215,7 @@ $conn->close();
                         <div class="card-header"><b><i class="fa fa-briefcase"></i>&nbsp;&nbsp;ข้อมูลประเภทงาน</b></div>
                         <div class="card-body">
                             <h3 class="text-white">
-                                <?php echo $row_count_data[4]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง type -->
+                                <?php echo $row_count_data[4]['row_count']; ?> 
                             </h3>
                         </div>
                     </div>

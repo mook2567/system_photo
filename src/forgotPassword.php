@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <form action="" method="post">
+    <form action="sendOTP.php" method="post" method="post">
         <div class="container-fluid">
             <div class="row main-content text-center">
                 <div class="col-md-4 text-center company__info" style="background-color:#1E2045">
@@ -210,7 +210,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="col-md-8 col-xs-12 col-sm-12 login_form "><br>
                     <div class="container-fluid">
                         <br><br><br>
-                        <div class="row" style="color:#FF5733">
+                        <div class="row"  style="color:#FF5733">
                             <h2><b>ลืมรหัสผ่าน</b></h2>
                         </div>
                         <div class="row">

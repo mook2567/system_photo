@@ -2,6 +2,7 @@
 session_start();
 require_once 'config_db.php';
 require_once 'popup.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // รับข้อมูลจากฟอร์ม
     $prefix = $_POST["prefix"];
@@ -15,27 +16,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
+    // ตรวจสอบไฟล์รูปภาพ
     if (isset($_FILES["profileImage"])) {
         $image_file = $_FILES['profileImage']['name'];
-        $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
         $type = $_FILES['profileImage']['type'];
         $size = $_FILES['profileImage']['size'];
         $temp = $_FILES['profileImage']['tmp_name'];
 
-        $path = "img/profile/" . $new_name;
+        $path = "img/profile/" . date("d_m_Y_H_i_s") . '-' . $image_file;
         $directory = "img/profile/";
 
-        if ($image_file) {
-            if ($type == "image/jpg" || $type == 'image/jpeg' || $type == "image/png" || $type == "image/gif") {
-                if (!file_exists($path)) {
-                    if ($size < 5000000) {
-                        move_uploaded_file($temp, $path);
+        // ตรวจสอบชนิดของไฟล์รูปภาพ
+        if ($type == "image/jpg" || $type == 'image/jpeg' || $type == "image/png" || $type == "image/gif") {
+            // ตรวจสอบขนาดของไฟล์
+            if ($size < 5000000) { // 5MB
+                // ย้ายไฟล์รูปภาพไปยังโฟลเดอร์ที่กำหนด
+                if (move_uploaded_file($temp, $path)) {
 
-                        // Prepare SQL statement with parameterized query
-                        $stmt = $conn->prepare("INSERT INTO customer (cus_prefix, cus_name, cus_surname, cus_tell, cus_address, cus_district, cus_province, cus_zip_code, cus_email, cus_password, cus_Photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                        $stmt->bind_param("sssssssssss", $prefix, $firstName, $lastName, $tell, $address, $district, $province, $zipCode, $email, $password, $new_name);
-                        if ($stmt->execute()) {
+                    // ตรวจสอบว่า Email มีใช้งานอยู่แล้วหรือไม่
+                    $check_email_query = "SELECT admin_email AS email FROM admin WHERE admin_email = ? 
+                                        UNION 
+                                        SELECT cus_email AS email FROM customer WHERE cus_email = ?
+                                        UNION
+                                        SELECT photographer_email AS email FROM photographer WHERE photographer_email = ?";
+                    $stmt_check_email = $conn->prepare($check_email_query);
+                    $stmt_check_email->bind_param("sss", $email, $email, $email);
+                    $stmt_check_email->execute();
+                    $stmt_check_email->store_result();
+                    $count = $stmt_check_email->num_rows;
+                    $stmt_check_email->close();
+
+                    if ($count > 0) {
 ?>
+                        <script>
+                            setTimeout(function() {
+                                Swal.fire({
+                                    title: '<div class="t1">Email นี้มีผู้ใช้งานแล้ว</div>',
+                                    icon: 'error',
+                                    confirmButtonText: 'ออก',
+                                    allowOutsideClick: true,
+                                    allowEscapeKey: true,
+                                    allowEnterKey: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = '';
+                                    }
+                                });
+                            });
+                        </script>
+                        <?php
+                    } else {
+                        // เตรียมคำสั่ง SQL สำหรับการเพิ่มข้อมูลลูกค้า
+                        $stmt = $conn->prepare("INSERT INTO customer (cus_prefix, cus_name, cus_surname, cus_tell, cus_address, cus_district, cus_province, cus_zip_code, cus_email, cus_password, cus_Photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->bind_param("sssssssssss", $prefix, $firstName, $lastName, $tell, $address, $district, $province, $zipCode, $email, $password, $path);
+
+                        if ($stmt->execute()) {
+                        ?>
                             <script>
                                 setTimeout(function() {
                                     Swal.fire({
@@ -71,26 +107,91 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     });
                                 });
                             </script>
-<?php
+                    <?php
                         }
                         $stmt->close();
-                    } else {
-                        echo "Your file is too large, please upload a file less than 5MB";
                     }
                 } else {
-                    echo "File already exists... Check upload folder";
+                    ?>
+                    <script>
+                        setTimeout(function() {
+                            Swal.fire({
+                                title: '<div class="t1">มีปัญหาในการย้ายไฟล์รูปภาพ</div>',
+                                icon: 'error',
+                                confirmButtonText: 'ออก',
+                                allowOutsideClick: true,
+                                allowEscapeKey: true,
+                                allowEnterKey: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = "";
+                                }
+                            });
+                        });
+                    </script>
+                <?php
                 }
             } else {
-                echo "Upload JPG, JPEG, PNG & GIF formats...";
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">ไฟล์ของคุณใหญ่เกินไป โปรดอัปโหลดไฟล์ที่มีขนาดน้อยกว่า 5MB</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+            <?php
             }
         } else {
-            echo "No file uploaded";
+            ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    });
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "";
+                    }
+                });
+            </script>
+        <?php
         }
+    } else {
+        ?>
+        <script>setTimeout(function() {
+            Swal.fire({
+                title: '<div class="t1">ยังไม่มีไฟล์ที่อัปโหลด</div>',
+                icon: 'error',
+                confirmButtonText: 'ออก',
+                allowOutsideClick: true,
+                allowEscapeKey: true,
+                allowEnterKey: false
+            });}).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "";
+                    }
+                });
+        </script>
+<?php
     }
-    // ปิดการเชื่อมต่อ
-    $conn->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -245,10 +346,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             left: 0;
         }
     </style>
+    <script>
+        function validatePassword() {
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirm_password").value;
+            if (password != confirmPassword) {
+                Swal.fire({
+                    title: 'รหัสผ่านไม่ตรงกัน',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 
 <body>
-    <form action="" method="post" enctype="multipart/form-data">
+    <form action="" method="post" enctype="multipart/form-data" onsubmit="return validatePassword()">
         <div class="container-fluid">
             <div class="row main-content text-center">
                 <div class="col-md-4 text-center company__info" style="background-color:#1E2045">
@@ -279,7 +395,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <span style="color: black; margin-right: 5px;font-size: 13px; "> คำนำหน้า</span>
                                     <span style="color: red;">*</span>
                                 </label>
-                                <select class="form-select border-1" id="prefix" name="prefix">
+                                <select class="form-select border-1" required id="prefix" name="prefix">
+                                    <option value="">คำนำหน้า</option>
                                     <option value="นาย">นาย</option>
                                     <option value="นางสาว">นางสาว</option>
                                     <option value="นาง">นาง</option>
@@ -290,14 +407,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
                                     <span style="color: red;">*</span>
                                 </label>
-                                <input type="text" name="firstname" class="form-control" placeholder="กรุณากรอกชื่อ">
+                                <input type="text" name="firstname" class="form-control" placeholder="กรุณากรอกชื่อ" required>
                             </div>
                             <div class="col-5">
                                 <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; font-size: 13px;">นามสกุล</span>
+                                    <span style="color: black;margin-right: 5px; font-size: 13px;">นามสกุล</span>
                                     <span style="color: red;">*</span>
                                 </label>
-                                <input type="text" name="lastname" class="form-control" placeholder="กรุณากรอกนามสกุล">
+                                <input type="text" name="lastname" class="form-control" placeholder="กรุณากรอกนามสกุล" required>
                             </div>
                         </div>
                         <div class="mt-2">
@@ -306,7 +423,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <span style="color: red;">*</span>
                                 </lab>
                             </label>
-                            <input type="text" name="address" class="form-control" placeholder="กรุณากรอกที่อยู่">
+                            <input type="text" name="address" class="form-control" placeholder="กรุณากรอกที่อยู่" required>
                         </div>
                         <div class="row mt-2">
                             <div class="col-4">
@@ -315,69 +432,74 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <span style="color: red;">*</span>
                                     </lab>
                                 </label>
-                                <input type="text" id="district" name="district" class="form-control" placeholder="กรุณากรอกอำเภอ">
+                                <input type="text" id="district" name="district" class="form-control" placeholder="กรุณากรอกอำเภอ" required>
                             </div>
                             <div class="col-4">
                                 <label for="province" style="font-weight: bold; display: flex; align-items: center;">
                                     <span style="color: black; margin-right: 5px;font-size: 13px;">จังหวัด</span>
                                     <span style="color: red;">*</span>
                                 </label>
-                                <input type="text" name="province" class="form-control" placeholder="กรุณากรอกจังหวัด">
+                                <input type="text" name="province" class="form-control" placeholder="กรุณากรอกจังหวัด" required>
                             </div>
                             <div class="col-4">
                                 <label for="zipCode" style="font-weight: bold; display: flex; align-items: center;">
                                     <span style="color: black; margin-right: 5px;font-size: 13px;">รหัสไปรษณีย์</span>
                                     <span style="color: red;">*</span>
                                 </label>
-                                <input type="text" name="zipCode" class="form-control" placeholder="กรุณากรอกรหัสไปรษณีย์">
+                                <input type="text" name="zipCode" class="form-control" placeholder="กรุณากรอกรหัสไปรษณีย์" required>
                             </div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
                                 <label for="phone" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์</span>
+                                    <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
                                     <span style="color: red;">*</span>
-                                    </lab>
                                 </label>
-                                <input type="tel" id="phone" name="phone" class="form-control" placeholder="กรุณากรอกเบอร์โทรศัพท์">
+                                <input type="tel" id="phone" name="phone" class="form-control" placeholder="กรุณากรอกเบอร์โทรศัพท์" required>
                             </div>
-
                             <div class="col-6">
                                 <label for="email" style="font-weight: bold; display: flex; align-items: center;">
                                     <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
                                     <span style="color: red;">*</span>
                                     </lab>
                                 </label>
-                                <input type="email" id="email" name="email" class="form-control" placeholder="กรุณากรอกอีเมล">
+                                <input type="email" id="email" name="email" class="form-control" placeholder="กรุณากรอกอีเมล" required>
                             </div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
-                                <label for="province" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;">รหัสผ่าน</span>
+                                <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                    <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
                                     <span style="color: red;">*</span>
+                                    <span style="color: red;font-size: 13px;">(ต้องกรอกไม่น้อยกว่า 5 ตัว)</span>
                                 </label>
-                                <input type="password" id="password" name="password" class="form-control" placeholder="กรุณากรอกรหัสผ่าน">
+                                <div class="input-group">
+                                    <input type="password" id="password" minlength="5" name="password" class="form-control" placeholder="กรุณากรอกรหัสผ่าน" required>
+                                    <button type="button" style="color: #fff; width: 60px; background-color: #555555; border: none;" id="togglePassword">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="phone" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;">ยืนยันรหัสผ่าน</span>
+                                <label for="confirm_password" style="font-weight: bold; display: flex; align-items: center;">
+                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ยืนยันรหัสผ่าน</span>
                                     <span style="color: red;">*</span>
-                                    </lab>
                                 </label>
-                                <input type="password" id="password" name="password" class="form-control" placeholder="กรุณากรอกรหัสผ่าน">
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="กรุณายืนยันรหัสผ่าน" required>
                             </div>
                         </div>
                         <div class="row mt-3">
-                            <div class="col-6 align-items-center justify-content-center d-flex">
+                            <div class="col-7 align-items-center ">
                                 <div class="">
-                                    <div>
-                                        <label for="profileImage" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;">รูปภาพโปรไฟล์</span>
-                                            <span style="color: red;">*</span>
-                                        </label>
-                                    </div>
-                                    <input type="file" id="profileImage" name="profileImage" class="form-control">
+                                    <label for="profileImage" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
+                                        <span style="color: red;">*</span>
+                                        <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น)</span>
+                                    </label>
+                                    <input type="file" id="profileImage" name="profileImage" class="form-control" required>
                                 </div>
                             </div>
                         </div>
@@ -385,8 +507,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <div class="row justify-content-center mt-4">
                         <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary fw-bold m-1">สมัครสมาชิก
-                            </button>
+                            <button type="submit" class="btn btn-primary fw-bold m-1">สมัครสมาชิก</button>
                         </div><br>
                     </div>
     </form>
@@ -394,9 +515,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <p>คุณมีบัญชีผู้ใช้แล้ว? <a href="login.php" class="login-link">เช้าสู่ระบบ</a></p>
         </div>
-    </div>
-    </div>
-    </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -416,6 +534,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         window.location.href = "registerPhotographer.php";
                     }
                 });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('fa-eye-slash');
             });
         });
     </script>

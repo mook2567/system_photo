@@ -1,7 +1,11 @@
 <?php
 session_start();
 include '../config_db.php';
-$sql =""
+
+// Fetching data from 'admin' table
+$sql = "SELECT * FROM `information`";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -213,9 +217,9 @@ $sql =""
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
         <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-            <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
+            <img class="img-fluid" src="../img/logo/<?php echo $row['information_icon']; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
@@ -235,11 +239,11 @@ $sql =""
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>

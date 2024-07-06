@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     allowEnterKey: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = "managePhotographerDetails.php?id=<?php echo $id; ?>";
+                        window.location.href = "approvPhotographerDetails.php.php?id=<?php echo $id; ?>";
                     }
                 });
             });
@@ -182,12 +182,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link active">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <!-- Dropdown menu -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
                 </div>
@@ -307,13 +307,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <?php
                                 if ($row['photographer_license'] == '0') {
                                 ?>
-                                    <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                     <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                 <?php
                                 } else {
                                 ?>
                                     <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                    <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                 <?php
                                 }
                                 ?>
@@ -380,7 +380,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="row justify-content-center mt-5 mb-5">
                 <div class="col-md-12 text-center">
                     <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                    <button type="button" onclick="window.location.href='managePhotographer.php'" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                    <button type="button" onclick="window.location.href='approvMember.php'" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
                     <!-- <button onclick="window.location.href='manageCustomerEdite.php? id=<?php echo $row['photographer_id']; ?>'" class="btn btn-primary" style="width: 150px; height:45px;">แก้ไขสิทธิ์</button> -->
                     <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
                     <button id="saveButton" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>

@@ -177,7 +177,7 @@
                     <div class="navbar-nav ms-auto f">
                         <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                         <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                        <a href="workings.php" class="nav-item nav-link">ผลงงานช่างภาพ</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
                             <div class="dropdown-menu rounded-0 m-0">
@@ -206,7 +206,7 @@
         <!-- Header Start -->
         <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 ms-5 p-5">
-            <h1 class="display-5 animated fadeIn text-white f" style="font-size: 2rem;">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</h1>
+                <h1 class="display-5 animated fadeIn text-white f">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</h1>
                 <p class="text-white">สามารถตวจสอบการชำระเงินของท่านได้ในหน้าต่างนี้</p>
             </div>
         </div>

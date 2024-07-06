@@ -1,19 +1,141 @@
 <?php
 session_start();
 include '../config_db.php';
+require_once '../popup.php';
 
+// Fetch information
+$sqlInformation = "SELECT * FROM `information`";
+$resultInformation = $conn->query($sqlInformation);
+$rowInformation = $resultInformation->fetch_assoc();
+
+// Fetch users
 $sql = "SELECT id, prefix, firstname, surname, phone, email, license, types
-FROM (
-    SELECT photographer_id AS id, photographer_prefix AS prefix, photographer_name AS firstname, photographer_surname AS surname, photographer_tell AS phone, photographer_email AS email, photographer_license AS license, 'photographer' AS types
-    FROM photographer 
-    WHERE photographer_license = 0
-    UNION ALL
-    SELECT cus_id AS id, cus_prefix AS prefix, cus_name AS firstname, cus_surname AS surname, cus_tell AS phone, cus_email AS email, cus_license AS license, 'customer' AS types
-    FROM customer  
-    WHERE cus_license = 0
-) AS users;";
+        FROM (
+            SELECT photographer_id AS id, photographer_prefix AS prefix, photographer_name AS firstname, photographer_surname AS surname, photographer_tell AS phone, photographer_email AS email, photographer_license AS license, 'ช่างภาพ' AS types
+            FROM photographer 
+            WHERE photographer_license = '0'
+            UNION ALL
+            SELECT cus_id AS id, cus_prefix AS prefix, cus_name AS firstname, cus_surname AS surname, cus_tell AS phone, cus_email AS email, cus_license AS license, 'ลูกค้า' AS types
+            FROM customer  
+            WHERE cus_license = '0'
+        ) AS users;";
 $result = $conn->query($sql);
+
+// Check if user is a photographer or customer
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    // Check if user is a photographer
+    $sqlPhotographer = "SELECT * FROM `photographer` WHERE photographer_id = $id";
+    $resultPhotographer = $conn->query($sqlPhotographer);
+    if ($resultPhotographer->num_rows > 0) {
+        $rowPhotographer = $resultPhotographer->fetch_assoc();
+    }
+
+    // Check if user is a customer
+    $sqlCustomer = "SELECT * FROM `customer` WHERE cus_id = $id";
+    $resultCustomer = $conn->query($sqlCustomer);
+    if ($resultCustomer->num_rows > 0) {
+        $rowCustomer = $resultCustomer->fetch_assoc();
+    }
+}
+
+// Process form submission for photographer
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($rowPhotographer)) {
+    $license = $_POST['license'];
+    $cus_id = $id; // Assumes you pass the id as a GET parameter
+
+    $sql = "UPDATE photographer SET photographer_license = ? WHERE photographer_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $license, $cus_id);
+
+    if ($stmt->execute()) {
+        echo "<script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: '<div class=\"t1\">บันทึกสิทธิ์การใช้งานสำเร็จ</div>',
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง',
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'approvPhotographerDetails.php?id=$id';
+                    }
+                });
+            });
+        </script>";
+    } else {
+        echo "<script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: '<div class=\"t1\">เกิดข้อผิดพลาดในการสมัครใช้งาน</div>',
+                    icon: 'error',
+                    confirmButtonText: 'ออก',
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '';
+                    }
+                });
+            });
+        </script>";
+    }
+    $stmt->close();
+}
+
+// Process form submission for customer
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($rowCustomer)) {
+    $license = $_POST['license'];
+    $cus_id = $id; // Assumes you pass the id as a GET parameter
+
+    $sql = "UPDATE customer SET cus_license = ? WHERE cus_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $license, $cus_id);
+
+    if ($stmt->execute()) {
+        echo "<script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: '<div class=\"t1\">บันทึกสิทธิ์การใช้งานสำเร็จ</div>',
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง',
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'approvCustomerDetails.php?id=$id';
+                    }
+                });
+            });
+        </script>";
+    } else {
+        echo "<script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: '<div class=\"t1\">เกิดข้อผิดพลาดในการสมัครใช้งาน</div>',
+                    icon: 'error',
+                    confirmButtonText: 'ออก',
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '';
+                    }
+                });
+            });
+        </script>";
+    }
+    $stmt->close();
+}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -109,10 +231,12 @@ $result = $conn->query($sql);
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
         }
 
+        .table th:nth-child(1),
         .table th:nth-child(2),
         .table th:nth-child(3),
         .table th:nth-child(4),
         .table th:nth-child(5),
+        .table td:nth-child(1),
         .table td:nth-child(2),
         .table td:nth-child(3),
         .table td:nth-child(4),
@@ -120,6 +244,10 @@ $result = $conn->query($sql);
             width: 200px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
+        }
+
+        .table .btn {
+            width: 100px;
         }
     </style>
 </head>
@@ -135,9 +263,9 @@ $result = $conn->query($sql);
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
         <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-            <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
+            <img class="img-fluid" src="../img/logo/<?php echo isset($rowInformation['information_icon']) ? $rowInformation['information_icon'] : ''; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
@@ -157,11 +285,11 @@ $result = $conn->query($sql);
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link active ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
@@ -170,77 +298,79 @@ $result = $conn->query($sql);
         </div>
     </nav>
     <!-- Navbar End -->
-    <div class="footer-box mt-5 mb-3 text-center" style="font-size: 18px;"><b><i class="fa fa-user"></i>&nbsp;&nbsp;รายการผู้สมัครใช้งานระบบ</b></div>
-    </div>
-    <div class="container-sm mt-2 table-responsive">
-        <table class="table bg-white table-hover table-bordered-3">
-            <thead>
-                <tr>
-                    <th scope="col">รหัส</th>
-                    <th scope="col">ชื่อ</th>
-                    <th scope="col">นามสกุล</th>
-                    <th scope="col">เบอร์โทรศัพท์</th>
-                    <th scope="col">อีเมล</th>
-                    <th scope="col">ดำเนินการ</th>
-                </tr>
-            </thead>
-            <?php
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-            ?>
+    <div style="height: 100%;">
+        <div class="footer-box mt-5 mb-3 text-center" style="font-size: 18px;"><b><i class="fa fa-user"></i>&nbsp;&nbsp;รายการผู้สมัครใช้งานระบบ</b></div>
+        <div class="container-sm mt-2 table-responsive">
+            <table class="table bg-white table-hover table-bordered-3">
+                <thead>
                     <tr>
-                        <th scope="row"><?php echo $row['id']; ?></th>
-                        <td><?php echo $row['firstname']; ?></td>
-                        <td><?php echo $row['surname']; ?></td>
-                        <td><?php echo $row['phone']; ?></td>
-                        <td><?php echo $row['email']; ?></td>
-                        <td>
-                            <?php
-                            if ($row['types'] == 'customer') {
-                            ?>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='approvCustomerDetails.php?id=<?php echo $row['id']; ?>'">ดูเพิ่มเติม</button>
-                                <!-- <button type="button" class="btn btn-warning btn-sm" onclick="window.location.href='manageCustomerEdite.php?id=<?php echo $row['id']; ?>'">แก้ไข</button> -->
-                            <?php } else { ?>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='approvPhotographerDetails.php?id=<?php echo $row['id']; ?>'">ดูเพิ่มเติม</button>
-                                <!-- <button type="button" class="btn btn-warning btn-sm" onclick="window.location.href='managePhotographerEdite.php?id=<?php echo $row['id']; ?>'">แก้ไข</button> -->
-                            <?php } ?>
-                        </td>
+                        <!-- <th scope="col">รหัส</th> -->
+                        <th scope="col">ชื่อ</th>
+                        <th scope="col">นามสกุล</th>
+                        <th scope="col">เบอร์โทรศัพท์</th>
+                        <th scope="col">อีเมล</th>
+                        <th scope="col">สถานะ</th>
+                        <th scope="col">ดำเนินการ</th>
                     </tr>
-            <?php
+                </thead>
+                <?php
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                ?>
+                        <tr>
+                            <!-- <th scope="row"><?php echo $row['id']; ?></th> -->
+                            <td><?php echo $row['firstname']; ?></td>
+                            <td><?php echo $row['surname']; ?></td>
+                            <td><?php echo $row['phone']; ?></td>
+                            <td><?php echo $row['email']; ?></td>
+                            <td><?php echo $row['types']; ?></td>
+                            <td>
+                                <?php
+                                if ($row['types'] == 'customer') {
+                                ?>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileCustomerModal<?php echo $row['cus_id']; ?>">ดูเพิ่มเติม</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModalCustomer<?php echo $row['cus_id']; ?>">แก้ไข</button>
+                                <?php } else { ?>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailePhotographerModal<?php echo $row['photographer_id']; ?>">ดูเพิ่มเติม</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPhotographerModal<?php echo $row['photographer_id']; ?>">แก้ไข</button>
+                                <?php } ?>
+                            </td>
+                        </tr>
+                <?php
+                    }
+                } else {
+                    echo "<tr><td colspan='6'>ไม่พบข้อมูลผู้สมัครใช้งานระบบ</td></tr>";
                 }
-            } else {
-                echo "<tr><td colspan='6'>ไม่พบข้อมูลผู้สมัครใช้งานระบบ</td></tr>";
-            }
-            ?>
-            </tbody>
-        </table>
-    </div>
-    </div>
-    <div class="row justify-content-center mt-3 container-center text-center">
+                ?>
+                </tbody>
+            </table>
+        </div><div class="row justify-content-center mt-3 container-center text-center">
         <div class="col-md-12">
             <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-            <button type="button" class="btn btn-danger" onclick="window.location.href='manage.php'">ย้อนกลับ</button>
+            <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
         </div>
     </div>
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">หน้าหลัก</a>
-                        <a href="">คุกกี้</a>
-                        <a href="contact.php">ช่วยเหลือ</a>
-                        <a href="">ถามตอบ</a>
-                    </div>
+    </div>
+    
+  <!-- Footer Start -->
+<div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
+    <div class="copyright">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <div class="footer-menu">
+                    <a href="index.php">หน้าหลัก</a>
+                    <a href="">คุกกี้</a>
+                    <a href="contact.php">ช่วยเหลือ</a>
+                    <a href="">ถามตอบ</a>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Footer End -->
+</div>
+<!-- Footer End -->
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

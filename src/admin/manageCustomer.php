@@ -1,10 +1,71 @@
 <?php
 session_start();
 include '../config_db.php';
+require_once '../popup.php';
 
-$sql = "SELECT * FROM `customer`";
+$sql = "SELECT * FROM `customer` WHERE cus_license = '1'";
 $result = $conn->query($sql);
+
+// Fetching data from 'information' table
+$sqlInformation = "SELECT * FROM `information`";
+$resultInformation = $conn->query($sqlInformation);
+$rowInformation = $resultInformation->fetch_assoc();
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Handle cus license update if submitted
+    if (isset($_POST['license']) && isset($_POST['cus_id'])) {
+        $license = $_POST['license'];
+        $cus_id = $_POST['cus_id'];
+
+        $sql = "UPDATE `customer` SET cus_license = ? WHERE cus_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $license, $cus_id);
+
+        if ($stmt->execute()) {
 ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">บันทึกสิทธิ์การใช้งานสำเร็จ</div>',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+        <?php
+        } else {
+        ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกสิทธิ์การใช้งาน</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+<?php
+        }
+        // Close the statement after usage
+        $stmt->close();
+    }
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -93,25 +154,25 @@ $result = $conn->query($sql);
             /* สลับสีพื้นหลังแถว */
         }
 
-        .table th:nth-child(6),
-        .table td:nth-child(6) {
-            width: 400px;
+
+        .table th:nth-child(5),
+        .table td:nth-child(5) {
+            width: 600px;
             height: 50px;
             text-align: center;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
         }
 
-        .table th:nth-child(2),
-        .table th:nth-child(3),
-        .table th:nth-child(4),
-        .table th:nth-child(5),
+        .table td:nth-child(1),
         .table td:nth-child(2),
-        .table td:nth-child(3),
-        .table td:nth-child(4),
-        .table td:nth-child(5) {
+        .table td:nth-child(3) {
             width: 200px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
+        }
+
+        .table .btn {
+            width: 100px;
         }
     </style>
 </head>
@@ -127,9 +188,9 @@ $result = $conn->query($sql);
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
         <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-            <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
+            <img class="img-fluid" src="../img/logo/<?php echo isset($rowInformation['information_icon']) ? $rowInformation['information_icon'] : ''; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
@@ -149,11 +210,11 @@ $result = $conn->query($sql);
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
@@ -162,12 +223,13 @@ $result = $conn->query($sql);
         </div>
     </nav>
     <!-- Navbar End -->
+    <div style="height: 100%;">
     <div class="footer-box text-center mt-5" style="font-size: 18px;"><b><i class="fa fa-user"></i>&nbsp;&nbsp;รายการข้อมูลลูกค้า</b></div>
-    <div class="container-sm mt-2 table-responsive">
+    <div class="container-sm mt-2 table-responsive col-7">
         <table class="table bg-white table-hover table-bordered-3">
             <thead>
                 <tr>
-                    <th scope="col" class="text-center">รหัส</th>
+                    <!-- <th scope="col" class="text-center">รหัส</th> -->
                     <th scope="col">ชื่อ</th>
                     <th scope="col">นามสกุล</th>
                     <th scope="col">เบอร์โทรศัพท์</th>
@@ -181,27 +243,143 @@ $result = $conn->query($sql);
                     while ($row = $result->fetch_assoc()) {
                 ?>
                         <tr>
-                            <th class="text-center" scope="row"><?php echo $row['cus_id']; ?></th>
+                            <!-- <th class="text-center" scope="row"><?php echo $row['cus_id']; ?></th> -->
                             <td><?php echo $row['cus_name']; ?></td>
                             <td><?php echo $row['cus_surname']; ?></td>
                             <td><?php echo $row['cus_tell']; ?></td>
                             <td><?php echo $row['cus_email']; ?></td>
                             <td>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='manageCustomerDetails.php? id=<?php echo $row['cus_id']; ?>'">ดูเพิ่มเติม</button>
-                                <!-- <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['cus_id']; ?>">ดูเพิ่มเติม</button> -->
+                                <!-- <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='manageCustomerDetails.php? id=<?php echo $row['cus_id']; ?>'">ดูเพิ่มเติม</button> -->
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['cus_id']; ?>">ดูเพิ่มเติม</button>
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['cus_id']; ?>">แก้ไข</button>
                             </td>
                         </tr>
-
+                        <!-- Detail Modal -->
+                        <div class="modal fade" id="detaileModal<?php echo $row['cus_id']; ?>" tabindex="-1" aria-labelledby="detaileModalLabel<?php echo $row['cus_id']; ?>" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="detaileModalLabel<?php echo $row['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;รายละเอียดข้อมูลลูกค้า คุณ <?php echo $row['cus_name']; ?></b></h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mt-1 container-md ">
+                                            <div class="mt-1 col-md-12 container-fluid ">
+                                                <div class="mt-1 container-md">
+                                                    <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-user-cog"></i>&nbsp;&nbsp;ข้อมูลลูกค้า คุณ <?php echo $row['cus_name']; ?></b></div>
+                                                    <div class="mt-3 col-md-10 container-fluid">
+                                                        <div class="row">
+                                                            <div class="col-8">
+                                                                <div class="col-12">
+                                                                    <div class="row mt-2">
+                                                                        <div class="col-2">
+                                                                            <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
+                                                                            </label>
+                                                                            <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $row['cus_prefix']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-5">
+                                                                            <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                                                            </label>
+                                                                            <input type="text" name="name" class="form-control mt-1" value="<?php echo $row['cus_name']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-5">
+                                                                            <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; font-size: 13px;">นามสกุล</span>
+                                                                            </label>
+                                                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $row['cus_surname']; ?>" readonly>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 mt-2">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12 text-center">
+                                                                            <label for="address" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
+                                                                            </label>
+                                                                            <input type="text" name="address" class="form-control mt-1" value="<?php echo $row['cus_address']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12 mt-2">
+                                                                    <div class="row">
+                                                                        <div class="col-md-4">
+                                                                            <label for="district" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
+                                                                            </label>
+                                                                            <input type="text" name="district" class="form-control mt-1" value="<?php echo $row['cus_district']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="province" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
+                                                                            </label>
+                                                                            <input type="text" name="province" class="form-control mt-1" value="<?php echo $row['cus_province']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
+                                                                            </label>
+                                                                            <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $row['cus_zip_code']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12 mt-2">
+                                                                    <div class="row">
+                                                                        <div class="col-md-4">
+                                                                            <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
+                                                                            </label>
+                                                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $row['cus_tell']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
+                                                                            </label>
+                                                                            <input type="text" name="email" class="form-control mt-1" value="<?php echo $row['cus_email']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
+                                                                            </label>
+                                                                            <input type="password" name="password" class="form-control mt-1" value="<?php echo $row['cus_password']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4 mt-5">
+                                                                <div class="d-flex justify-content-center align-items-center md mt-2">
+                                                                    <div class="circle">
+                                                                        <img src="../img/profile/<?php echo $row['cus_photo']; ?>" alt="Your Image">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2">
+                                                                    <label for="license" style="font-weight: bold; display: flex; align-items: center;">
+                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
+                                                                    </label>
+                                                                    <input type="text" name="license" class="form-control mt-1" value="<?php echo ($row['cus_license'] == '1') ? 'มีสิทธิ์การเข้าใช้งาน' : 'รออนุมัติสิทธิ์การใช้งาน'; ?>" readonly style="resize: none;">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-center">
+                                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <!-- Modal -->
                         <div class="modal fade" id="editModal<?php echo $row['cus_id']; ?>" tabindex="-1" aria-labelledby="editModalLabel<?php echo $row['cus_id']; ?>" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="editModalLabel<?php echo $row['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;รายละเอียดข้อมูลลูกค้า คุณ <?php echo $row['cus_name']; ?></b></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body" style="height: 560px;">
-                                        <div class="mt-5 container-md">
+                                    <div class="modal-body">
+                                        <div class="container-md">
                                             <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;รายละเอียดข้อมูลลูกค้า คุณ <?php echo $row['cus_name']; ?></b></div>
                                             <div class="mt-3 col-md-10 container-fluid">
                                                 <div class="row">
@@ -285,53 +463,53 @@ $result = $conn->query($sql);
 
                                                     </div>
                                                     <div class="col-4 mt-5">
-                                                        <div class="d-flex justify-content-center align-items-center md">
+                                                        <div class="d-flex justify-content-center align-items-center md mt-2">
                                                             <div class="circle">
                                                                 <img src="../img/profile/<?php echo $row['cus_photo']; ?>" alt="Your Image">
                                                             </div>
                                                         </div>
-                                                        <form method="post" action="manageCustomerDetails.php?id=<?php echo $id; ?>">
+                                                        <form method="post" action="">
                                                             <div class="mt-1">
                                                                 <label for="license" style="font-weight: bold; display: flex; align-items: center;">
                                                                     <span style="color: black; margin-right: 5px;font-size: 13px;"> สิทธิ์การใช้งาน</span>
                                                                 </label>
-                                                                <select class="form-select border-1 mt-1" name="license" id="license">
+                                                                <select class="form-select border-1 mt-1" name="license">
                                                                     <?php
                                                                     if ($row['cus_license'] == '0') {
                                                                     ?>
-                                                                        <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                        <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                                                         <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                     <?php
                                                                     } else {
                                                                     ?>
                                                                         <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                        <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                                                     <?php
                                                                     }
                                                                     ?>
                                                                 </select>
                                                             </div>
+                                                            <input type="hidden" name="cus_id" value="<?php echo $row['cus_id']; ?>">
                                                     </div>
                                                 </div>
-                                                <div class="row justify-content-center mt-5">
-                                                    <div class="col-md-12 text-center">
-                                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="width: 150px; height:45px;">ปิด</button>
-                                                        <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
-                                                        <button type="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
-                                                    </div>
-                                                </div>
-                                                </form>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="modal-footer justify-content-center">
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="width: 150px; height:45px;">ปิด</button>
+                                        <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
+                                        <button type="submit" name="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
+                                    </div>
+                                    </form>
                                 </div>
                             </div>
-                    <?php
+                        </div>
+                <?php
                     }
                 } else {
                     echo "<tr><td colspan='6'>ไม่พบข้อมูลผู้ดูแลระบบ</td></tr>";
                 }
-                    ?>
+                ?>
             </tbody>
         </table>
     </div>
@@ -341,8 +519,9 @@ $result = $conn->query($sql);
             <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
         </div>
     </div>
+    </div>
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
+    <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">

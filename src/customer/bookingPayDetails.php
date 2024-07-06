@@ -88,7 +88,7 @@
                 <div class="navbar-nav ms-auto f">
                     <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
                     <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                    <a href="workings.php" class="nav-item nav-link">ผลงงานช่างภาพ</a>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
                         <div class="dropdown-menu rounded-0 m-0">

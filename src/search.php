@@ -117,10 +117,6 @@
             background-size: cover;
             /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
         }
-        .custom-img-size {
-            width: 40px;
-            height: auto;
-        }
     </style>
 </head>
 
@@ -153,7 +149,7 @@
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="search.php" class="dropdown-item active">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item">ผลงงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
@@ -222,8 +218,8 @@
     <!-- Search End -->
 
 
-   <!-- Examples of work Start -->
-   <div class="container-xxl py-5">
+    <!-- Property List Start -->
+    <div class="container-xxl py-5">
         <div class="container">
             <div class="row g-0 gx-5 align-items-end">
                 <div class="col-lg-6">
@@ -335,6 +331,7 @@
             </div>
         </div>
     </div>
+    <!-- Property List End -->
 
     
     <!-- Footer Start -->

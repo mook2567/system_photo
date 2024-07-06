@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         exit();
                     }
                 } else {
-                    $error = "คุณถูกตัดสิทธิ์การใช้งาน";
+                    $error = "รออนุมัติสิทธิ์การใช้งาน";
                 }
             } else {
                 $error = "รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง";
@@ -87,7 +87,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <script type="text/javascript">
+            function noBack(){
+                window.history.forward()
+            }
+             
+            noBack();
+            window.onload = noBack;
+            window.onpageshow = function(evt) { if (evt.persisted) noBack() }
+            window.onunload = function() { void (0) }
+        </script>
     <style>
         .main-content {
             width: 50%;
@@ -105,6 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             flex-direction: column;
             justify-content: center;
             color: #fff;
+            height: 600px;
         }
 
         .fa-android {
@@ -207,9 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="container-fluid">
             <div class="row main-content text-center">
                 <div class="col-md-4  text-center company__info" style="background-color:#1E2045">
-                    <span>
-                        <h2><span class="fa fa-android"></span></h2>
-                    </span>
+
                     <img class="imag-fluid" src="img/photomatchLogo.png" alt="">
                     <h4 class="company_title">ยินดีต้อนรับสู่หน้าเข้าระบบ</h4>
                     <h3><b>Photo Match</b></h3>
@@ -236,17 +244,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-11"><input type="password" name="password" class="form__input" placeholder="รหัสผ่าน" required></div>
                             </div>
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-6"><label><input type="checkbox"> จดจำฉันไว้</label></div>
                             <div class="col-6"><a href="forgotPassword.php">ลืมรหัสผ่าน</a></div>
-                        </div>
+                        </div> -->
                         <div class="row">
                             <div>
                                 <button type="submit" name="submit" value="เข้าสู่ระบบ" class="btn" >เข้าสู่ระบบ</button>
                             </div>
                             <br>
                         </div>
-                        <div class="Login-register">
+                        <div class="Login-register mb-5">
                             <div>
                                 <p>ยังไม่มีบัญชีผู้ใช้? <a href="registerCustomer.php" class="register-link" >สมัครสมาชิก</a></p>
                             </div>

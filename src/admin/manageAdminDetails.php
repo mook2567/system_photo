@@ -3,7 +3,7 @@ session_start();
 include "../config_db.php";
 require_once '../popup.php';
 $id = $_GET['id'];
-// $sql = "UPDATE * FROM `customer` WHERE cus_id = $id";
+
 $sql = "SELECT * FROM `admin` WHERE admin_id = $id";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $stmt->close();
             }
-?>
+                    ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -179,11 +179,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
@@ -275,8 +275,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
 
                 </div>
-                <div class="col-4">
-                    <div class="d-flex justify-content-center align-items-center md">
+                <div class="col-4 mt-5">
+                    <div class="d-flex justify-content-center align-items-center md mt-2">
                         <div class="circle">
                             <img src="../img/profile/<?php echo $row['admin_photo']; ?>" alt="Your Image">
                         </div>
@@ -293,26 +293,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                     </div> -->
                     <form method="post" action="manageAdminDetails.php?id=<?php echo $id; ?>">
-                    <div class="mt-2">
-                        <label for="license" style="font-weight: bold; display: flex; align-items: center;">
-                            <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
-                        </label>
-                        <select class="form-select border-1 mt-1" name="license">
-                        <?php
-                            if ($row['admin_license'] == '0') {
-                            ?>
-                                <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                            <?php
-                            } else {
-                            ?>
-                                <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                <option value="0">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                            <?php
-                            }
-                            ?>
-                        </select>
-                    </div>
+                        <div class="mt-2">
+                            <label for="license" style="font-weight: bold; display: flex; align-items: center;">
+                                <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
+                            </label>
+                            <select class="form-select border-1 mt-1" name="license">
+                                <?php
+                                if ($row['admin_license'] == '0') {
+                                ?>
+                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                    <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                <?php
+                                } else {
+                                ?>
+                                    <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                <?php
+                                }
+                                ?>
+                            </select>
+                        </div>
                 </div>
             </div>
             <div class="row justify-content-center mt-5">
@@ -323,7 +323,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <button type="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                 </div>
             </div>
-                        </form>
+            </form>
         </div>
     </div>
     <!-- Footer Start -->

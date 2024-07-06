@@ -280,15 +280,15 @@ $row = $result->fetch_assoc();
                         <a href="manageAdmin.php" class="dropdown-item">ข้อมูลผู้ดูแลระบบ</a>
                         <a href="manageCustomer.php" class="dropdown-item">ข้อมูลลูกค้า</a>
                         <a href="managePhotographer.php" class="dropdown-item">ข้อมูลช่างภาพ</a>
-                        <a href="manageType.php" class="dropdown-item">ข้อมูลประเภทงาน</a>
+                        <!-- <a href="manageType.php" class="dropdown-item">ข้อมูลประเภทงาน</a> -->
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <a href="report.php" class="nav-item nav-link ">รายงาน</a>
+                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
+                        <!-- <a href="profile.php" class="dropdown-item active">โปรไฟล์</a> -->
 
                         <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
