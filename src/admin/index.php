@@ -2,7 +2,6 @@
 session_start();
 include '../config_db.php';
 
-// Fetching data from 'admin' table
 $sql = "SELECT * FROM `information`";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
@@ -245,7 +244,7 @@ $row = $result->fetch_assoc();
                     <div class="dropdown-menu rounded-0 m-0">
                         <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
 
-                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
                 </div>
             </div>

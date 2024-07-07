@@ -1,8 +1,20 @@
 <?php
-$images = glob("images/*.{jpg,jpeg,png,gif}", GLOB_BRACE);
-if ($images === false) {
-    $images = [];
+session_start();
+include '../config_db.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+
+    // echo $rowPhoto['photographer_name'];
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -243,7 +255,7 @@ if ($images === false) {
         <div class="d-flex justify-content-center">
             <nav class="navbar navbar-expand-lg navbar-dark col-10">
                 <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                    <img class="img-fluid ms-3" src="../img/photoLogo.png" style="height: 60px;">
+                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -268,7 +280,7 @@ if ($images === false) {
                                 <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                                 <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                                 <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                             </div>
                         </div>
                     </div>
@@ -278,15 +290,15 @@ if ($images === false) {
         <!-- Navbar End -->
 
         <!-- Category Start -->
-        <div class="mb-3 mt-4 text-center mx-auto  wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
-                        <h1 class="f" style="color:aliceblue;">Photo Match</h1>
-                        <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
-                    </div>
+        <div class="mb-5 mt-4 text-center mx-auto  wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+            <h1 class="f" style="color:aliceblue;"><?php echo $rowInfo['information_name']; ?></h1>
+            <p style="color:aliceblue;"><?php echo $rowInfo['information_caption']; ?></p>
+        </div>
         <div class="col-12 container" style="height: 160px; border-radius: 10px; background-color: rgb(255,255,255, 0.7);">
             <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
                 <div class="d-flex align-items-center justify-content-center mt-3">
                     <div class="circle" style="width: 50px; height: 50px;">
-                        <img src="../img/dev3.jpg" alt="Your Image">
+                        <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                     </div>
                     <button type="button" data-bs-toggle="modal" data-bs-target="#post" class="btn text-start text-black ms-4" style="width: 80%; height: 45px; background-color: #F0F2F5; border-radius: 50px; font-size: 18px;">
                         วันนี้คุณถ่ายอะไร
@@ -296,11 +308,11 @@ if ($images === false) {
             <hr>
             <!-- Buttons for image and work type -->
             <div class="d-flex align-items-center justify-content-center me-5 ms-5 mb-1">
-                <button type="button" style="width: 45%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postPhoto">
+                <button type="button" class="justify-content-center" style="width: 45%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postPhoto">
                     <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
                     <p class="mb-0" style="margin-right: 5px;">ลงผลงาน</p>
                 </button>
-                <button type="button" style="width: 40%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postType">
+                <button type="button"class="justify-content-center" style="width: 40%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postType">
                     <i class="fa-solid fa-briefcase me-2" style="font-size: 30px; color: #E53935; cursor: pointer;"></i>
                     <p class="mb-0" style="margin-right: 5px;">ลงประเภทงานที่รับ</p>
                 </button>
@@ -914,7 +926,29 @@ if ($images === false) {
             showSlides(slideIndex += n);
         }
     </script>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userImage = document.getElementById('userImage');
 
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!userImage.src || userImage.src.endsWith('/') || userImage.src.includes('null')) {
+                userImage.src = '../img/profile/null.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('photo');
+            const userImage = document.getElementById('userImage');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
 </body>
