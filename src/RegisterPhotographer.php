@@ -682,29 +682,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                             <div class="row">
                                                                 <div class="col-6 justify-content-sm-start">
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="bangkok" name="work_area[]" value="bangkok" class="form-check-input" required>
+                                                                        <input type="checkbox" id="bangkok" name="work_area[]" value="กรุงเทพ" class="form-check-input" required>
                                                                         <label class="form-check-label ms-2 mb-0" for="bangkok">กรุงเทพฯ</label>
                                                                     </div>
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="central" name="work_area[]" value="central" class="form-check-input" required>
+                                                                        <input type="checkbox" id="central" name="work_area[]" value="ภาคกลาง" class="form-check-input" required>
                                                                         <label class="form-check-label ms-2 mb-0" for="central">ภาคกลาง</label>
                                                                     </div>
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="southern" name="work_area[]" value="southern" class="form-check-input" required>
+                                                                        <input type="checkbox" id="southern" name="work_area[]" value="ภาคใต้" class="form-check-input" required>
                                                                         <label class="form-check-label ms-2 mb-0" for="southern">ภาคใต้</label>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-6 justify-content-sm-start">
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="northern" name="work_area[]" value="northern" class="form-check-input" required>
+                                                                        <input type="checkbox" id="northern" name="work_area[]" value="ภาคเหนือ" class="form-check-input" required>
                                                                         <label class="form-check-label ms-2 mb-0" for="northern">ภาคเหนือ</label>
                                                                     </div>
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="northeastern" name="work_area[]" value="northeastern" class="form-check-input" required>
+                                                                        <input type="checkbox" id="northeastern" name="work_area[]" value="ภาคตตะวันออกเฉียงเหนือ" class="form-check-input" required>
                                                                         <label class="form-check-label ms-2 mb-0" for="northeastern">ภาคตะวันออกเฉียงเหนือ</label>
                                                                     </div>
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="other" name="work_area[]" value="other" class="form-check-input" required>
+                                                                        <input type="checkbox" id="other" name="work_area[]" value="อื่นๆ" class="form-check-input" required>
                                                                         <label class="form-check-label ms-2 mb-0" for="other">อื่นๆ</label>
                                                                     </div>
                                                                 </div>
@@ -727,23 +727,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     </label>
                                                     <div style="border: 1px solid black; padding: 10px; border-radius: 5px;" name="bank" required>
                                                         <div class="form-check d-flex align-items-center">
-                                                            <input class="form-check-input" type="radio" id="kbank" name="bank" value="kbank" required>
+                                                            <input class="form-check-input" type="radio" id="kbank" name="bank" value="ธนาคารกสิกรไทย" required>
                                                             <label class="form-check-label ms-2 mb-0" for="kbank">ธนาคารกสิกรไทย</label>
                                                         </div>
                                                         <div class="form-check d-flex align-items-center">
-                                                            <input class="form-check-input" type="radio" id="scb" name="bank" value="scb" required>
+                                                            <input class="form-check-input" type="radio" id="scb" name="bank" value="ธนาคารไทยพาณิชย์" required>
                                                             <label class="form-check-label ms-2 mb-0" for="scb">ธนาคารไทยพาณิชย์</label>
                                                         </div>
                                                         <div class="form-check d-flex align-items-center">
-                                                            <input class="form-check-input" type="radio" id="bbl" name="bank" value="bbl" required>
+                                                            <input class="form-check-input" type="radio" id="bbl" name="bank" value="ธนาคารกรุงเทพ" required>
                                                             <label class="form-check-label ms-2 mb-0" for="bbl">ธนาคารกรุงเทพ</label>
                                                         </div>
                                                         <div class="form-check d-flex align-items-center">
-                                                            <input class="form-check-input" type="radio" id="tmb" name="bank" value="tmb" required>
+                                                            <input class="form-check-input" type="radio" id="tmb" name="bank" value="ธนาคารทหารไทย" required>
                                                             <label class="form-check-label ms-2 mb-0" for="tmb">ธนาคารทหารไทย</label>
                                                         </div>
                                                         <div class="form-check d-flex align-items-center">
-                                                            <input class="form-check-input" type="radio" id="kcy" name="bank" value="kcy" required>
+                                                            <input class="form-check-input" type="radio" id="kcy" name="bank" value="ธนาคารกรุงศรีอยุธยา" required>
                                                             <label class="form-check-label ms-2 mb-0" for="kcy">ธนาคารกรุงศรีอยุธยา</label>
                                                         </div>
                                                         <!-- <div class="form-check d-flex align-items-center">
