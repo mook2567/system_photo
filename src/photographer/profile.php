@@ -7,6 +7,11 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
+$sql = "SELECT * FROM `type'";
+$resultInfo = $conn->query($sql);
+$rowType = $resultInfo->fetch_assoc();
+
+
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
@@ -31,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $accountNumber = $_POST["accountNumber"];
         $accountName = $_POST["accountName"];
         $profileImage = ""; // Initialize the profileImage variable
-        
+
         // Check if the profile image is uploaded
         if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
             $image_file = $_FILES['profileImage']['name'];
@@ -39,15 +44,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $type = $_FILES['profileImage']['type'];
             $size = $_FILES['profileImage']['size'];
             $temp = $_FILES['profileImage']['tmp_name'];
-            
+
             $path = "../img/profile/" . $new_name;
             $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
-            
+
             // Check if the directory exists, if not, create it
             if (!is_dir("img/profile")) {
                 mkdir("img/profile", 0777, true);
             }
-            
+
             // Validate image type and size
             if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
                 if (!file_exists($path)) {
@@ -136,9 +141,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             WHERE photographer_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssssssssssssssi", $name, $surname, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $bank, $accountName, $accountNumber, $photographer_id);
-        
+
         if ($stmt->execute()) {
-            ?>
+?>
             <script>
                 setTimeout(function() {
                     Swal.fire({
@@ -155,9 +160,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     });
                 });
             </script>
-            <?php
+        <?php
         } else {
-            ?>
+        ?>
             <script>
                 setTimeout(function() {
                     Swal.fire({
@@ -174,11 +179,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     });
                 });
             </script>
-            <?php
+<?php
         }
         // Close the statement after usage
         $stmt->close();
     }
+
+    if (isset($_POST['submit_portfolio'])) {
+        $photo = $_POST['photo'];
+        $caption = $_POST['option'];
+    }
+
+    if (isset($_POST['submit_type_of_work'])) {\
+        
+    }
+
 }
 ?>
 
@@ -774,7 +789,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title me-2" id="postLabel">โพสต์</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body" style="height: 645px;">
                                 <!-- Form for editing photographer's information -->
@@ -783,10 +798,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <form>
                                             <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
                                                 <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                                    <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                                 </div>
                                                 <div class="col-7">
-                                                    <p class="mb-0" style="margin-right: 5px;">ชื่อช่างภาพ</p>
+                                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
                                                 </div>
                                             </div>
                                             <div class="row col-12 ">
@@ -815,57 +830,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                     </div>
                 </div>
-                <!-- post photo -->
+                <!-- post portfolio -->
                 <div class="modal fade" id="postPhoto" tabindex="-1" aria-labelledby="postPhotoLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="postPhotolLabel">ลงผลงาน</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" style="height: 560px;">
-                                <!-- Form for editing photographer's information -->
-                                <div class="container">
-                                    <div class="form-container">
-                                        <form>
-                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                                <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                    <img src="../img/dev3.jpg" alt="Your Image">
-                                                </div>
-                                                <div>
-                                                    <p class="mb-0" style="margin-right: 5px;">ชื่อช่างภาพ</p>
+                            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
+                                <div class="modal-body" style="height: 560px;">
+                                    <!-- Form for editing photographer's information -->
+                                    <div class="container">
+                                        <div class="form-container">
+                                            <form>
+                                                <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                                    <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                        <img src="../img/dev3.jpg" alt="Your Image">
+                                                    </div>
                                                     <div>
-                                                        <select class="form-select border-1 py-1">
-                                                            <option selected>ประเภทงาน</option>
-                                                            <option value="1">งานแต่งงาน</option>
-                                                            <option value="2">งานพรีเวดดิ้ง</option>
-                                                            <option value="3">งานอีเว้นท์</option>
-                                                        </select>
+                                                        <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
+                                                        <div>
+                                                            <select class="form-select border-1 py-1">
+                                                                <option selected>ประเภทงาน</option>
+                                                                <option value="1">งานแต่งงาน</option>
+                                                                <option value="2">งานพรีเวดดิ้ง</option>
+                                                                <option value="3">งานอีเว้นท์</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div class="post-input-container">
+                                                    <textarea rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
+                                                </div>
+                                            </form>
+                                            <div class="post-image-preview">
+                                                <img src="../img/dev3-1.jpg" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
                                             </div>
-                                            <div class="post-input-container">
-                                                <textarea rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
-                                            </div>
-                                        </form>
-                                        <div class="post-image-preview">
-                                            <img src="../img/dev3-1.jpg" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
                                         </div>
-                                    </div>
-                                    <div class="bottom-bar">
-                                        <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
-                                            <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
-                                                <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                                                <input type="file" class="form-control" id="postImg" style="display: none;">
-                                                <p class="mb-0">เพิ่มรูปภาพ</p>
-                                            </button>
+                                        <div class="bottom-bar">
+                                            <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
+                                                <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
+                                                    <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
+                                                    <input type="file" name="photo" class="form-control" id="postImg" style="display: none;">
+                                                    <p class="mb-0">เพิ่มรูปภาพ</p>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -875,40 +892,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="postTypeLabel">ลงประเภทงานที่รับ</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" style="height: 390px;">
-                                <!-- Form for editing photographer's information -->
-                                <div class="container">
-                                    <form>
-                                        <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                            <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
+                                <div class="modal-body" style="height: 390px;">
+                                    <!-- Form for editing photographer's information -->
+                                    <div class="container">
+                                        <form>
+                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                                <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                                </div>
+                                                <div>
+                                                <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="mb-0" style="margin-right: 5px;">ชื่อช่างภาพ</p>
+                                            <div class="col-5 mt-4">
+                                                <select class="form-select border-1 py-2">
+                                                    <option selected>ประเภทงานที่รับ</option>
+                                                    <option value="1">งานแต่งงาน</option>
+                                                    <option value="2">งานพรีเวดดิ้ง</option>
+                                                    <option value="3">งานอีเว้นท์</option>
+                                                </select>
                                             </div>
-                                        </div>
-                                        <div class="col-5 mt-4">
-                                            <select class="form-select border-1 py-2">
-                                                <option selected>ประเภทงานที่รับ</option>
-                                                <option value="1">งานแต่งงาน</option>
-                                                <option value="2">งานพรีเวดดิ้ง</option>
-                                                <option value="3">งานอีเว้นท์</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-5 mt-4">
-                                            <input type="text" id="reat" placeholder="เรทราคาที่รับ" style="border: none; outline: none;">
-                                        </div>
-                                        <div class="post-input-container">
-                                            <textarea rows="3" placeholder="รายละเอียดการรับงาน"></textarea>
-                                        </div>
-                                    </form>
+                                            <div class="col-5 mt-4">
+                                                <input type="text" id="reat" placeholder="เรทราคาที่รับ" style="border: none; outline: none;">
+                                            </div>
+                                            <div class="post-input-container">
+                                                <textarea rows="3" placeholder="รายละเอียดการรับงาน"></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" name="submit_type_of_work" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -921,14 +940,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
                         <div class="d-flex align-items-center justify-content-start mt-3">
                             <div style="display: flex; align-items: center;">
-                                <div class="circle me-3" style="width: 50px; height: 50px;">
-                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                <div class="circle me-3" style="width: 60px; height: 60px;">
+                                    <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                 </div>
-                                <div style="flex-grow: 1;">
-                                    <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
-                                    <div>
-                                        <p style="margin-bottom: 0;">ประเภทงาน</p>
-                                    </div>
+                                <div class=" mt-2" style="flex-grow: 1;">
+                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
+                                    <p style="margin-bottom: 0;">ประเภทงาน</p>
                                 </div>
                             </div>
                         </div>
