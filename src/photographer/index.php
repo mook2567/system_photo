@@ -475,7 +475,7 @@ if (isset($_SESSION['photographer_login'])) {
                     <div class="row g-0 gx-5 align-items-end">
                         <div class="col-lg-6">
                             <div class="text-start mx-auto mb-5 wow slideInLeft" data-wow-delay="0.1s">
-                                <h1 class="mb-3 f">ผลงงานช่างภาพ</h1>
+                                <h1 class="mb-3 f">ผลงานช่างภาพ</h1>
                                 <!-- <p>คุณลองดูผลงานช่างภาพของเราสิ!!!</p> -->
                             </div>
                         </div>

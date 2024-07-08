@@ -38,82 +38,83 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Athiti', sans-serif;
-            background: #F0F2F5;
-        }
+       body {
+    font-family: 'Athiti', sans-serif;
+    background: #F0F2F5;
+    }
 
-        .f {
-            font-family: 'Athiti', sans-serif;
-        }
+    .f {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        p {
-            font-family: 'Athiti', sans-serif;
-        }
+    p {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        h1 {
-            font-family: 'Athiti', sans-serif;
-        }
+    h1 {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        h2 {
-            font-family: 'Athiti', sans-serif;
-        }
+    h2 {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        h3 {
-            font-family: 'Athiti', sans-serif;
-        }
+    h3 {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        h4 {
-            font-family: 'Athiti', sans-serif;
-        }
+    h4 {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        h5 {
-            font-family: 'Athiti', sans-serif;
-        }
+    h5 {
+        font-family: 'Athiti', sans-serif;
+    }
 
-        .circle {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            overflow: hidden;
-            position: relative;
-        }
+    .circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+    }
 
-        .circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+    .circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
 
-        .write-post-container {
-            width: 100%;
-            background: #fff;
-            border-radius: 4px;
-            padding: 20px;
-            color: #626262;
-        }
+    .write-post-container {
+        width: 100%;
+        background: #fff;
+        border-radius: 4px;
+        padding: 20px;
+        color: #626262;
+    }
 
-        .post-img {
-            width: 100%;
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
+    .post-img {
+        width: 100%;
+        border-radius: 4px;
+        margin-bottom: 5px;
+    }
 
-        .post-text {
-            color: #626262;
-            margin: 15px;
-            font-size: 15px;
-        }
+    .post-text {
+        color: #626262;
+        margin: 15px;
+        font-size: 15px;
+    }
 
-        .bgIndex {
-            background-image: url('../img/bgIndex6.jpg');
-            background-attachment: fixed;
-            background-size: cover;
-            /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
-        }
+    .bgIndex {
+    background-image: url('../img/bgIndex6.jpg');
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    }
     </style>
 </head>
 
@@ -143,7 +144,7 @@
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item active">ผลงงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item active">ผลงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
@@ -159,7 +160,7 @@
         <!-- Header Start -->
         <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 p-5 mt-lg-5">
-                <h1 class="display-5 animated fadeIn text-white mb-4 f">ผลงงานช่างภาพ</h1>
+                <h1 class="display-5 animated fadeIn text-white mb-4 f">ผลงานช่างภาพ</h1>
                 <p class="text-white">คุณสามารถเลือกดูผลงานช่างภาพตามความสนใจของคุณได้</p>
             </div>
         </div>
