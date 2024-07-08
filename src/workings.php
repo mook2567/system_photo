@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>Photo Match</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link rel="icon" type="image/png" href="img/icon-logo.png">
+    <link rel="icon" type="image/png" href="../img/icon-logo.png">
     <meta content="" name="keywords">
     <meta content="" name="description">
 
@@ -22,14 +22,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="lib/animate/animate.min.css" rel="stylesheet">
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../lib/animate/animate.min.css" rel="stylesheet">
+    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" />
 
     <!-- font awaysome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -38,89 +41,89 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <style>
-       body {
-    font-family: 'Athiti', sans-serif;
-    background: #F0F2F5;
-    }
+        body {
+            font-family: 'Athiti', sans-serif;
+            background: #F0F2F5;
+        }
 
-    .f {
-        font-family: 'Athiti', sans-serif;
-    }
+        .f {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    p {
-        font-family: 'Athiti', sans-serif;
-    }
+        p {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    h1 {
-        font-family: 'Athiti', sans-serif;
-    }
+        h1 {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    h2 {
-        font-family: 'Athiti', sans-serif;
-    }
+        h2 {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    h3 {
-        font-family: 'Athiti', sans-serif;
-    }
+        h3 {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    h4 {
-        font-family: 'Athiti', sans-serif;
-    }
+        h4 {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    h5 {
-        font-family: 'Athiti', sans-serif;
-    }
+        h5 {
+            font-family: 'Athiti', sans-serif;
+        }
 
-    .circle {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        overflow: hidden;
-        position: relative;
-    }
+        .circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+        }
 
-    .circle img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
+        .circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
-    .write-post-container {
-        width: 100%;
-        background: #fff;
-        border-radius: 4px;
-        padding: 20px;
-        color: #626262;
-    }
+        .write-post-container {
+            width: 100%;
+            background: #fff;
+            border-radius: 4px;
+            padding: 20px;
+            color: #626262;
+        }
 
-    .post-img {
-        width: 100%;
-        border-radius: 4px;
-        margin-bottom: 5px;
-    }
+        .post-img {
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
 
-    .post-text {
-        color: #626262;
-        margin: 15px;
-        font-size: 15px;
-    }
+        .post-text {
+            color: #626262;
+            margin: 15px;
+            font-size: 15px;
+        }
 
-    .bgIndex {
-    background-image: url('../img/bgIndex6.jpg');
-    background-attachment: fixed;
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-    }
+        .bgIndex {
+            background-image: url('../img/bgIndex6.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
+        }
     </style>
 </head>
 
 <body>
-<!-- Spinner Start -->
-<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
@@ -129,9 +132,11 @@
 
     <!-- Navbar Start -->
     <div class="bgIndex mb-3" style="height: auto;">
-            <nav class="navbar navbar-expand-lg navbar-dark py-0 px-4">
+        <!-- <div style="background-color: rgba(0, 41, 87, 0.6);"> -->
+        <div class="d-flex justify-content-center">
+            <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
                 <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                    <img class="img-fluid" src="img/photoLogo.png" style="height: 60px;">
+                    <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
