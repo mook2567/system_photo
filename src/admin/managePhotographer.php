@@ -262,7 +262,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="modal-dialog modal-dialog-centered modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="detailModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $row['photographer_name']; ?></b></h5>
+                                        <h5 class="modal-title" id="detailModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -434,7 +434,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="modal-dialog modal-dialog-centered modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $row['photographer_name']; ?></b></h5>
+                                        <h5 class="modal-title" id="editModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
