@@ -13,110 +13,88 @@ if (isset($_SESSION['photographer_login'])) {
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
 }
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
-        echo $photographer_id = $_POST["photographer_id"];
-        echo $name = $_POST["name"];
-        echo $surname = $_POST["surname"];
-        echo $address = $_POST["address"];
-        echo $district = $_POST["district"];
-        echo $province = $_POST["province"];
-        echo $zipcode = $_POST["zipcode"];
-        echo $tell = $_POST["tell"];
-        echo $email = $_POST["email"];
-        echo $password = $_POST["password"];
-        echo $work_area = $_POST["work_area"];
-        echo $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
-        echo $accountNumber = $_POST["accountNumber"];
-        echo $accountName = $_POST["accountName"];
-        echo $profileImage = "";
-        echo $portfolio = "";
-        echo $photographer_id = $_POST['photographer_id'];
-
-        $sql = "UPDATE `photographer` SET photographer_name, photographer_surname, photographer_tell, photographer_address, photographer_district, photographer_province, photographer_scope, photographer_zip_code, photographer_email, photographer_password, photographer_photo, photographer_bank, photographer_account_name, photographer_account_number WHERE photographer_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssssssssssi", $name, $sername, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $portfolio, $bank, $accountName, $accountNumber,$photographer_id);
-
-        if ($stmt->execute()) {
-?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกสิทธิ์การใช้งานสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกสิทธิ์การใช้งาน</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-<?php
-        }
-        // Close the statement after usage
-        $stmt->close();
-    }
-    // Upload profile image
-    if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
-        $image_file = $_FILES['profileImage']['name'];
-        $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
-        $type = $_FILES['profileImage']['type'];
-        $size = $_FILES['profileImage']['size'];
-        $temp = $_FILES['profileImage']['tmp_name'];
-
-        $path = "img/profile/" . $new_name;
-        $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
-
-        // Validate image type and size
-        if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
-            if (!file_exists($path)) {
-                if (move_uploaded_file($temp, $path)) {
-                    $profileImage = $new_name;
+        $photographer_id = $_POST["photographer_id"];
+        $name = $_POST["name"];
+        $surname = $_POST["surname"];
+        $address = $_POST["address"];
+        $district = $_POST["district"];
+        $province = $_POST["province"];
+        $zipcode = $_POST["zipcode"];
+        $tell = $_POST["tell"];
+        $email = $_POST["email"];
+        $password = $_POST["password"];
+        $work_area = $_POST["work_area"];
+        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
+        $accountNumber = $_POST["accountNumber"];
+        $accountName = $_POST["accountName"];
+        $profileImage = ""; // Initialize the profileImage variable
+        
+        // Check if the profile image is uploaded
+        if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
+            $image_file = $_FILES['profileImage']['name'];
+            $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
+            $type = $_FILES['profileImage']['type'];
+            $size = $_FILES['profileImage']['size'];
+            $temp = $_FILES['profileImage']['tmp_name'];
+            
+            $path = "../img/profile/" . $new_name;
+            $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
+            
+            // Check if the directory exists, if not, create it
+            if (!is_dir("img/profile")) {
+                mkdir("img/profile", 0777, true);
+            }
+            
+            // Validate image type and size
+            if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
+                if (!file_exists($path)) {
+                    if (move_uploaded_file($temp, $path)) {
+                        $profileImage = $new_name;
+                    } else {
+                        echo '
+                        <div>
+                            <script>
+                                Swal.fire({
+                                    title: "<div class=\"t1\">มีปัญหาในการย้ายไฟล์รูปภาพ</div>",
+                                    icon: "error",
+                                    confirmButtonText: "ออก",
+                                    allowOutsideClick: true,
+                                    allowEscapeKey: true,
+                                    allowEnterKey: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = "";
+                                    }
+                                });
+                            </script>
+                        </div>';
+                        exit();
+                    }
                 } else {
-                    echo '
-                    <div>
-                        <script>
-                            Swal.fire({
-                                title: "<div class=\"t1\">มีปัญหาในการย้ายไฟล์รูปภาพ</div>",
-                                icon: "error",
-                                confirmButtonText: "ออก",
-                                allowOutsideClick: true,
-                                allowEscapeKey: true,
-                                allowEnterKey: false
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = "";
-                                }
-                            });
-                        </script>
-                    </div>';
+                    echo "File already exists... Check upload folder<br>";
                     exit();
                 }
             } else {
-                echo "File already exists... Check upload folder<br>";
+                echo '
+                <div>
+                    <script>
+                        Swal.fire({
+                            title: "<div class=\"t1\">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น หรือขนาดไฟล์เกิน 5MB</div>",
+                            icon: "error",
+                            confirmButtonText: "ออก",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    </script>
+                </div>';
                 exit();
             }
         } else {
@@ -124,9 +102,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div>
                 <script>
                     Swal.fire({
-                        title: "<div class=\"t1\">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น หรือขนาดไฟล์เกิน 5MB</div>",
+                        title: "<div class=\"t1\">กรุณาอัพโหลดรูปโปรไฟล์</div>",
                         icon: "error",
-                        confirmButtonText: "ออก",
+                        confirmButtonText: "ตกลง",
                         allowOutsideClick: true,
                         allowEscapeKey: true,
                         allowEnterKey: false
@@ -139,29 +117,71 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>';
             exit();
         }
-    } else {
-        echo '
-        <div>
+
+        $sql = "UPDATE photographer SET 
+            photographer_name = ?, 
+            photographer_surname = ?, 
+            photographer_tell = ?, 
+            photographer_address = ?, 
+            photographer_district = ?, 
+            photographer_province = ?, 
+            photographer_scope = ?, 
+            photographer_zip_code = ?, 
+            photographer_email = ?, 
+            photographer_password = ?, 
+            photographer_photo = ?, 
+            photographer_bank = ?, 
+            photographer_account_name = ?, 
+            photographer_account_number = ? 
+            WHERE photographer_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssssssssssssi", $name, $surname, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $bank, $accountName, $accountNumber, $photographer_id);
+        
+        if ($stmt->execute()) {
+            ?>
             <script>
-                Swal.fire({
-                    title: "<div class=\"t1\">กรุณาอัพโหลดรูปโปรไฟล์</div>",
-                    icon: "error",
-                    confirmButtonText: "ตกลง",
-                    allowOutsideClick: true,
-                    allowEscapeKey: true,
-                    allowEnterKey: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "";
-                    }
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">บันทึกการแก้ไขสำเร็จ</div>',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
                 });
             </script>
-        </div>';
-        exit();
+            <?php
+        } else {
+            ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+            <?php
+        }
+        // Close the statement after usage
+        $stmt->close();
     }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -468,7 +488,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="col-12 mt-4">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="circle">
-                            <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'];?>">
+                            <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                         </div>
                     </div>
                     <div class="col-12 text-center md-3 py-3 px-4 mt-3">
