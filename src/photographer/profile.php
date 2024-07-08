@@ -7,17 +7,20 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-$sql = "SELECT * FROM `type'";
-$resultInfo = $conn->query($sql);
-$rowType = $resultInfo->fetch_assoc();
-
-
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
 }
+
+$sql = "SELECT * FROM `portfolio`";
+$resultPort = $conn->query($sql);
+$rowPort = $resultPort->fetch_assoc();
+
+$sql = "SELECT `type`.type_id, `type`.`type_work`, `type_of_work`.photographer_id FROM `type`INNER JOIN `type_of_work` ON `type`.type_id = `type_of_work`.`type_id`";
+$resultTypeWork = $conn->query($sql);
+$rowTypeWork = $resultTypeWork->fetch_assoc();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
@@ -185,18 +188,107 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
     }
 
-    if (isset($_POST['submit_portfolio'])) {
-        $photo = $_POST['photo'];
-        $caption = $_POST['option'];
-    }
+    if (isset($_POST['submit_post_portfolio'])) {
+        echo $photo = $_POST['photo'];
+        echo $caption = $_POST['caption'];
+        echo $workPost = $_POST["workPost"];
+        echo $date = date('Y-m-d H:i:s');
 
-    if (isset($_POST['submit_type_of_work'])) {\
+        $sql = "INSERT INTO `portfolio` (`portfolio_photo`, `portfolio_caption`, `type_of_work_id`, `portfolio_date`) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssss", $photo, $caption, $workPost, $date);
         
+        if ($stmt->execute()) {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">ลงผลงานสำเร็จ</div>",
+                        icon: "success",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+        } else {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงผลงาน</div>",
+                        icon: "error",
+                        confirmButtonText: "ออก",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+        }
     }
 
+
+    if (isset($_POST['submit_type_of_work'])) {
+        $details = $_POST['details'];
+        $rate_half = $_POST['rate_half'];
+        $rate_full = $_POST['rate_full'];
+        $photographer_id = $_POST['photographer_id'];
+        $type = $_POST['type'];
+
+        $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half`, `type_of_work_rate_full`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssss", $details, $rate_half, $rate_full, $photographer_id, $type);
+
+        if ($stmt->execute()) {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">ลงประเภทงานที่รับสำเร็จ</div>",
+                        icon: "success",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+        } else {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงประเภทงานที่รับ</div>",
+                        icon: "error",
+                        confirmButtonText: "ออก",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+        }
+    }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -550,7 +642,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <h3 class="modal-title" id="editModalLabel<?php echo $rowPhoto['photographer_id']; ?>"><b>แก้ไขโปรไฟล์</b></h3>
                                         <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
                                     </div>
-                                    <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data" onsubmit="return validatePassword()">
+                                    <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
                                         <div class="modal-body">
                                             <div class="container-md">
                                                 <div class="mt-3 col-md-12 container-fluid">
@@ -791,42 +883,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <h5 class="modal-title me-2" id="postLabel">โพสต์</h5>
                                 <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" style="height: 645px;">
+                            <div class="modal-body">
                                 <!-- Form for editing photographer's information -->
                                 <div class="container">
-                                    <div class="form-container">
-                                        <form>
-                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                                <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                    <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                                </div>
-                                                <div class="col-7">
-                                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
+                                    <div class="">
+
+                                        <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                            <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                            </div>
+                                            <div class="col-7">
+                                                <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
+                                            </div>
+                                        </div>
+                                        <div class="row col-12 ">
+                                            <div class="col-3 ms-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="postOption" id="postPhotoRadio" checked>
+                                                    <label class="form-check-label" for="postPhotoRadio">ลงผลงาน</label>
                                                 </div>
                                             </div>
-                                            <div class="row col-12 ">
-                                                <div class="col-3 ms-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="postOption" id="postPhotoRadio" checked>
-                                                        <label class="form-check-label" for="postPhotoRadio">ลงผลงาน</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-3">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="postOption" id="postTypeRadio">
-                                                        <label class="form-check-label" for="postTypeRadio">ประเภทงาน</label>
-                                                    </div>
+                                            <div class="col-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="postOption" id="postTypeRadio">
+                                                    <label class="form-check-label" for="postTypeRadio">ประเภทงาน</label>
                                                 </div>
                                             </div>
-                                            <div id="postContent">
-                                            </div>
-                                        </form>
+                                        </div>
+                                        <div id="postContent">
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <!-- <div class="modal-footer">
                                 <button type="button" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -834,53 +926,65 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="modal fade" id="postPhoto" tabindex="-1" aria-labelledby="postPhotoLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
                         <div class="modal-content">
-                            <div class="modal-header">
+                            <div class="modal-header justify-content-center">
                                 <h5 class="modal-title" id="postPhotolLabel">ลงผลงาน</h5>
                                 <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
-                                <div class="modal-body" style="height: 560px;">
+                            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
+                                <div class="modal-body" style="height:auto;">
                                     <!-- Form for editing photographer's information -->
                                     <div class="container">
                                         <div class="form-container">
-                                            <form>
-                                                <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                                    <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                        <img src="../img/dev3.jpg" alt="Your Image">
-                                                    </div>
+                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                                <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                                </div>
+                                                <div>
+                                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
                                                     <div>
-                                                        <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                                        <div>
-                                                            <select class="form-select border-1 py-1">
-                                                                <option selected>ประเภทงาน</option>
-                                                                <option value="1">งานแต่งงาน</option>
-                                                                <option value="2">งานพรีเวดดิ้ง</option>
-                                                                <option value="3">งานอีเว้นท์</option>
-                                                            </select>
-                                                        </div>
+                                                        <select class="form-select border-1 py-2" name="workPost" id="workPost">
+                                                            <option selected required>เลือกประเภทงานที่รับ</option>
+                                                            <?php
+                                                            // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
+                                                            $sql = "SELECT `type`.type_id, `type`.`type_work`, `type_of_work`.photographer_id 
+                                                                 FROM `type` 
+                                                                 INNER JOIN `type_of_work` ON `type`.type_id = `type_of_work`.`type_id`";
+                                                            $resultTypeWork = $conn->query($sql);
+
+                                                            // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
+                                                            if ($resultTypeWork->num_rows > 0) {
+                                                                while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                                }
+                                                            } else {
+                                                                echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
+                                                            }
+                                                            ?>
+                                                        </select>
+
                                                     </div>
                                                 </div>
-                                                <div class="post-input-container">
-                                                    <textarea rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
-                                                </div>
-                                            </form>
-                                            <div class="post-image-preview">
-                                                <img src="../img/dev3-1.jpg" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
                                             </div>
-                                        </div>
-                                        <div class="bottom-bar">
-                                            <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
-                                                <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
-                                                    <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                                                    <input type="file" name="photo" class="form-control" id="postImg" style="display: none;">
-                                                    <p class="mb-0">เพิ่มรูปภาพ</p>
-                                                </button>
+                                            <div class="post-input-container">
+                                                <textarea name="caption" rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
+                                            </div>
+                                            <div class="post-image-preview">
+                                                <img id="postImage" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;" src="../img/post/<?php echo $rowPort['portfolio_photo'] ? $rowPort['portfolio_photo'] : 'null.png'; ?>">
+                                            </div>
+                                            <div class="bottom-bar">
+                                                <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
+                                                    <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
+                                                        <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
+                                                        <input type="file" name="photo" class="form-control" id="postImg" style="display: none;">
+                                                        <p class="mb-0">เพิ่มรูปภาพ</p>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                    <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
                                 </div>
                             </form>
                         </div>
@@ -890,48 +994,85 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="modal fade" id="postType" tabindex="-1" aria-labelledby="postTypeLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="postTypeLabel">ลงประเภทงานที่รับ</h5>
+                            <div class="modal-header justify-content-center">
+                                <h5 class="modal-title justify-content-center" id="postTypeLabel">ลงประเภทงานที่รับ</h5>
                                 <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
-                                <div class="modal-body" style="height: 390px;">
+                                <div class="modal-body" style="height: 400px;">
                                     <!-- Form for editing photographer's information -->
                                     <div class="container">
-                                        <form>
-                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                                <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                                </div>
-                                                <div>
-                                                <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                                </div>
+                                        <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                            <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                             </div>
-                                            <div class="col-5 mt-4">
-                                                <select class="form-select border-1 py-2">
-                                                    <option selected>ประเภทงานที่รับ</option>
-                                                    <option value="1">งานแต่งงาน</option>
-                                                    <option value="2">งานพรีเวดดิ้ง</option>
-                                                    <option value="3">งานอีเว้นท์</option>
+                                            <div>
+                                                <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 mt-4">
+                                                <span style="color: black;">ประเภทงานที่รับ</span>
+                                            </div>
+                                            <div class="col-8 mt-2">
+                                                <select class="form-select border-1 py-2" name="type">
+                                                    <option selected required>เลือกประเภทงานที่รับ</option>
+                                                    <?php
+                                                    $sqlType = "SELECT * FROM `type` ";
+                                                    $resultType = $conn->query($sqlType);
+                                                    $rowType = $resultInfo->fetch_assoc();
+                                                    if ($resultType->num_rows > 0) {
+                                                        while ($rowType = $resultType->fetch_assoc()) {
+                                                            echo '<option value="' . htmlspecialchars($rowType['type_id']) . '">' . htmlspecialchars($rowType['type_work']) . '</option>';
+                                                        }
+                                                    } else {
+                                                        echo '<option value="">ไม่มีประเภทงาน</option>';
+                                                    }
+                                                    ?>
                                                 </select>
                                             </div>
-                                            <div class="col-5 mt-4">
-                                                <input type="text" id="reat" placeholder="เรทราคาที่รับ" style="border: none; outline: none;">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_half">
+                                                    <span style="color: black;">เรทราคาครึ่งวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
+                                                    </div>
+                                                </label>
                                             </div>
-                                            <div class="post-input-container">
-                                                <textarea rows="3" placeholder="รายละเอียดการรับงาน"></textarea>
+                                            <div class="col-8 mt-4">
+                                                <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                                             </div>
-                                        </form>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_full">
+                                                    <span style="color: black;">เรทราคาเต็มวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div class="col-8 mt-4">
+                                                <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                        </div>
+                                        <div class="post-input-container">
+                                            <span style="color: black;">รายละเอียดการรับงาน</span>
+                                            <span style="color: red;">*</span>
+                                            <textarea name="details" placeholder="รายละเอียดการรับงาน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" required></textarea>
+                                        </div>
                                     </div>
                                 </div>
+                                <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
                                 <div class="modal-footer">
-                                    <button type="button" name="submit_type_of_work" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                    <button type="submit" name="submit_type_of_work" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-
                 <!-- Other Posts -->
                 <div class="mt-3">
                     <p>โพสต์อื่น ๆ</p>
@@ -1121,16 +1262,69 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         // ในกรณีที่โพสต์ประเภทงานถูกเลือก
                         // แสดงเนื้อหาสำหรับโพสต์ประเภทงาน
                         postContentDiv.innerHTML = `
-                        <div class="col-5 mt-4">
-                            <select class="form-select border-1 py-2">
-                                <option selected>ประเภทงานที่รับ</option>
-                                <option value="1">งานแต่งงาน</option>
-                                <option value="2">งานพรีเวดดิ้ง</option>
-                                <option value="3">งานอีเว้นท์</option>
-                            </select>
-                        </div>
-                        <div class="post-input-container">
-                            <textarea rows="3" placeholder="รายละเอียดการรับงาน"></textarea>
+                        <div class="col-12 mt-4">
+                        <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
+                                        <div class="row">
+                                            <div class="col-4 mt-4">
+                                                <span style="color: black;">ประเภทงานที่รับ</span>
+                                            </div>
+                                            <div class="col-8 mt-2">
+                                                <select class="form-select border-1 py-2" name="type">
+                                                    <option selected>เลือกประเภทงานที่รับ</option>
+                                                    <?php
+                                                    $sqlType = "SELECT * FROM `type` ";
+                                                    $resultType = $conn->query($sqlType);
+                                                    $rowType = $resultInfo->fetch_assoc();
+
+                                                    if ($resultType->num_rows > 0) {
+                                                        while ($rowType = $resultType->fetch_assoc()) {
+                                                            echo '<option value="' . htmlspecialchars($rowType['type_id']) . '">' . htmlspecialchars($rowType['type_work']) . '</option>';
+                                                        }
+                                                    } else {
+                                                        echo '<option value="">ไม่มีประเภทงาน</option>';
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_half">
+                                                    <span style="color: black;">เรทราคาครึ่งวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div class="col-8 mt-4">
+                                                <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_full">
+                                                    <span style="color: black;">เรทราคาเต็มวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div class="col-8 mt-4">
+                                                <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                        </div>
+                                        <div class="post-input-container">
+                                            <span style="color: black;">รายละเอียดการรับงาน</span>
+                                            <span style="color: red;">*</span>
+                                            <textarea name="details" placeholder="รายละเอียดการรับงาน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
+                                <div class="mt-5">
+                                    <button type="submit" name="submit_type_of_work" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                </div>
+                            </form>
                         </div>`;
                     }
                 });
