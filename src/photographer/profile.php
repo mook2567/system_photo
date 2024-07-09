@@ -665,9 +665,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 text-start mt-2">
-                        <button type="button" class="btn" style="color: #424242; background-color: none;" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>"><i class="fa-solid fa-pencil"></i></button>
-                        <h5>ประเภทงานที่รับ</h5> 
+                    <div class="col-12  mt-2">
+                        <div class="row">
+                            <button type="button" class="btn" style="color: #424242; background-color: none;" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
+                                <h5 style="margin: 0 0 0 10px;">ประเภทงานที่รับ</h5><i class="fa-solid fa-pencil"></i>
+                            </button>
+                        </div>
                         <div class="col-12 text-start px-3">
                             <div class="d-flex align-items-center">
                                 <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
@@ -1297,34 +1300,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             `;
             document.getElementById('fileUploadT').addEventListener('change', function() {
-            const previewContainer = document.getElementById('preview-containerT');
-            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+                const previewContainer = document.getElementById('preview-containerT');
+                previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
 
-            const files = this.files; // ไฟล์ที่ถูกเลือก
+                const files = this.files; // ไฟล์ที่ถูกเลือก
 
-            if (files.length > 10) {
-                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
-                this.value = ''; // เคลียร์ไฟล์ที่เลือก
-                return;
-            }
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '150px';
-                    img.style.height = '150px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '10px';
-                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                if (files.length > 10) {
+                    alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                    this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                    return;
                 }
 
-                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
-            }
-        });
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '150px';
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '10px';
+                        previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                    }
+
+                    reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+                }
+            });
             // เพิ่ม Event Listener สำหรับ Radio Buttons
             postOptionRadios.forEach(function(radio) {
                 radio.addEventListener('change', function() {
@@ -1384,35 +1387,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </form>
                             
             </div>
-            `;document.getElementById('fileUploadT').addEventListener('change', function() {
-            const previewContainer = document.getElementById('preview-containerT');
-            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+            `;
+                        document.getElementById('fileUploadT').addEventListener('change', function() {
+                            const previewContainer = document.getElementById('preview-containerT');
+                            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
 
-            const files = this.files; // ไฟล์ที่ถูกเลือก
+                            const files = this.files; // ไฟล์ที่ถูกเลือก
 
-            if (files.length > 10) {
-                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
-                this.value = ''; // เคลียร์ไฟล์ที่เลือก
-                return;
-            }
+                            if (files.length > 10) {
+                                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                                this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                                return;
+                            }
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
+                            for (let i = 0; i < files.length; i++) {
+                                const file = files[i];
+                                const reader = new FileReader();
 
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '150px';
-                    img.style.height = '150px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '10px';
-                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
-                }
+                                reader.onload = function(e) {
+                                    const img = document.createElement('img');
+                                    img.src = e.target.result;
+                                    img.style.width = '150px';
+                                    img.style.height = '150px';
+                                    img.style.objectFit = 'cover';
+                                    img.style.borderRadius = '10px';
+                                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                                }
 
-                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
-            }
-        });
+                                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+                            }
+                        });
                     } else if (this.id === 'postTypeRadio' && this.checked) {
                         // ในกรณีที่โพสต์ประเภทงานถูกเลือก
                         // แสดงเนื้อหาสำหรับโพสต์ประเภทงาน
