@@ -666,8 +666,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                     </div>
                     <div class="col-12 text-start mt-2">
-                        <button type="button" class="btn" style="color: #424242; background-color: none;" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>"><i class="fa-solid fa-pencil"></i></button>
-                        <h5>ประเภทงานที่รับ</h5> 
+                        <button type="button" class="btn" style="color: #424242; background-color: none;" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>"><h5>ประเภทงานที่รับ</h5><i class="fa-solid fa-pencil"></i></button>
+                         
                         <div class="col-12 text-start px-3">
                             <div class="d-flex align-items-center">
                                 <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
