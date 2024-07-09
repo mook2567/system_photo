@@ -1161,7 +1161,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         ตารางงานสัปดาห์นี้
                     </div>
                     <div id="bookingStatus" class="col-12 text-center" style="border-radius: 10px; padding-top: 10px; padding-bottom: 10px;">
-                        <p class="mb-0 text-white">วันนที่จอง</p>
+                        <p class="mb-0 text-white">วันที่จอง</p>
                     </div>
                     <div class="justify-content-center py-4 text-center">
                         <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
