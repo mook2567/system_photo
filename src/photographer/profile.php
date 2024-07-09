@@ -14,14 +14,6 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $resultPhoto->fetch_assoc();
 }
 
-$sql = "SELECT * FROM `portfolio`";
-$resultPort = $conn->query($sql);
-$rowPort = $resultPort->fetch_assoc();
-
-$sql = "SELECT `type`.type_id, `type`.`type_work`, `type_of_work`.photographer_id FROM `type`INNER JOIN `type_of_work` ON `type`.type_id = `type_of_work`.`type_id`";
-$resultTypeWork = $conn->query($sql);
-$rowTypeWork = $resultTypeWork->fetch_assoc();
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
         $photographer_id = $_POST["photographer_id"];
@@ -188,55 +180,114 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
     }
 
-    if (isset($_POST['submit_post_portfolio'])) {
-        echo $photo = $_POST['photo'];
-        echo $caption = $_POST['caption'];
-        echo $workPost = $_POST["workPost"];
-        echo $date = date('Y-m-d H:i:s');
+    $sql = "SELECT * FROM `portfolio`";
+    $resultPort = $conn->query($sql);
+    $rowPort = $resultPort->fetch_assoc();
 
-        $sql = "INSERT INTO `portfolio` (`portfolio_photo`, `portfolio_caption`, `type_of_work_id`, `portfolio_date`) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssss", $photo, $caption, $workPost, $date);
-        
-        if ($stmt->execute()) {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">ลงผลงานสำเร็จ</div>",
-                        icon: "success",
-                        confirmButtonText: "ตกลง",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
+
+    if (isset($_POST['submit_post_portfolio'])) {
+
+
+        // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
+        if (!empty($_FILES['upload']['tmp_name'][0])) {
+            $supported = array('jpg', 'jpeg', 'png', 'gif');
+            $uploadedImages = [];
+
+            foreach ($_FILES['upload']['tmp_name'] as $key => $tmp_name) {
+                $file_name = $_FILES['upload']['name'][$key];
+                $file_tmp = $_FILES['upload']['tmp_name'][$key];
+                $file_size = $_FILES['upload']['size'][$key];
+                $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+                // ตรวจสอบว่าไฟล์อัปโหลดเป็นไฟล์รูปที่รองรับหรือไม่
+                if (in_array($file_ext, $supported)) {
+                    // สร้างชื่อไฟล์ใหม่
+                    $fileNewName = uniqid('img_') . '_' . time();
+                    $file_dest = '../img/post/' . $fileNewName . '.' . $file_ext;
+
+                    // อัปโหลดไฟล์
+                    if (move_uploaded_file($file_tmp, $file_dest)) {
+                        // บันทึกชื่อไฟล์ในอาร์เรย์ $uploadedImages
+                        $uploadedImages[] = $fileNewName . '.' . $file_ext;
+                    } else {
+                        echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์";
+                    }
+                } else {
+                    echo "ประเภทไฟล์ไม่รองรับ";
+                }
+            }
+
+            // Serialize อาร์เรย์ของชื่อไฟล์
+            $photo = serialize($uploadedImages);
+            // แปลงข้อมูลจาก serialize เป็น array
+            $files = unserialize($photo);
+
+            // สร้างรายการชื่อไฟล์ที่คั่นด้วยเครื่องหมาย ','
+            $fileNames = implode(', ', $files);
+
+
+            $caption = $_POST['caption'];
+            $workPost = $_POST["workPost"];
+            $date = date('Y-m-d H:i:s');
+
+            // เตรียมคำสั่ง SQL สำหรับ INSERT
+            $sql = "INSERT INTO `portfolio` (`portfolio_photo`, `portfolio_caption`, `type_of_work_id`, `portfolio_date`) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssss", $fileNames, $caption, $workPost, $date);
+
+            // ทำการ execute คำสั่ง SQL
+            if ($stmt->execute()) {
+                echo '
+                <div>
+                    <script>
+                        Swal.fire({
+                            title: "<div class=\"t1\">ลงผลงานสำเร็จ</div>",
+                            icon: "success",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    </script>
+                </div>';
+            } else {
+                echo '
+                <div>
+                    <script>
+                        Swal.fire({
+                            title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงผลงาน</div>",
+                            icon: "error",
+                            confirmButtonText: "ออก",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    </script>
+                </div>';
+            }
         } else {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงผลงาน</div>",
-                        icon: "error",
-                        confirmButtonText: "ออก",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
+            echo "กรุณาเลือกไฟล์ที่ต้องการอัปโหลด";
         }
     }
 
+    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id
+    FROM type t
+    INNER JOIN (
+        SELECT type_id, MAX(photographer_id) AS photographer_id
+        FROM type_of_work
+        GROUP BY type_id
+    ) AS tow_latest ON t.type_id = tow_latest.type_id;
+    ";
+    $resultTypeWork = $conn->query($sql);
+    $rowTypeWork = $resultTypeWork->fetch_assoc();
 
     if (isset($_POST['submit_type_of_work'])) {
         $details = $_POST['details'];
@@ -644,10 +695,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </div>
                                     <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
                                         <div class="modal-body">
-                                            <div class="container-md">
+                                            <div class="container-xxl">
                                                 <div class="mt-3 col-md-12 container-fluid">
                                                     <div class="row ">
-                                                        <div class="col-8">
+                                                        <div class="col-9">
                                                             <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลส่วนตัว</b></div>
 
                                                             <div class="col-12">
@@ -745,10 +796,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-4">
+                                                        <div class="col-3">
                                                             <div class="d-flex justify-content-center align-items-center md">
                                                                 <div class="circle">
-                                                                    <div class="circle">
+                                                                    <div style="width: 60px; height: 60px;">
                                                                         <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                                                     </div>
                                                                 </div>
@@ -790,14 +841,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         <span style="color: black; margin-right: 5px; font-size: 13px;">ประเภทงานที่รับ</span>
                                                                         <span style="color: red;">*</span>
                                                                     </label>
-                                                                    <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_type_of_work_']; ?>" required style="resize: none;">
-                                                                </div>
-                                                                <div class="mt-2">
-                                                                    <label for="Price " style="font-weight: bold; display: flex; align-items: center;">
-                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">ช่วงราคาที่รับงาน</span>
-                                                                        <span style="color: red;">*</span>
-                                                                    </label>
-                                                                    <input type="password" name="Price " class="form-control mt-1" placeholder="กรุณากรอกช่วงราคาที่รับงาน" style="resize: none;">
+                                                                    <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWork['photographer_type_of_work_']; ?>" required style="resize: none;">
                                                                 </div>
                                                                 <div class="mt-2">
                                                                     <label for="work_area" style="font-weight: bold; display: flex; align-items: center;">
@@ -877,17 +921,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
                 <!-- post -->
                 <div class="modal fade" id="post" tabindex="-1" aria-labelledby="postLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title me-2" id="postLabel">โพสต์</h5>
+                    <div class="modal-dialog modal-dialog-centered" style="width: 35%;">
+                        <div class="modal-content justify-content-center">
+                            <div class="modal-header justify-content-center">
+                                <h5 class="modal-title me-2 justify-content-center text-center" id="postLabel">โพสต์</h5>
                                 <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <!-- Form for editing photographer's information -->
                                 <div class="container">
                                     <div class="">
-
                                         <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
                                             <div class="circle me-3" style="width: 60px; height: 60px;">
                                                 <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
@@ -912,73 +955,67 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                         <div id="postContent">
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
-                            <!-- <div class="modal-footer">
-                                <button type="button" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                            </div> -->
                         </div>
                     </div>
                 </div>
                 <!-- post portfolio -->
                 <div class="modal fade" id="postPhoto" tabindex="-1" aria-labelledby="postPhotoLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
+                    <div class="modal-dialog modal-dialog-centered" style="width: 35%;">
                         <div class="modal-content">
                             <div class="modal-header justify-content-center">
                                 <h5 class="modal-title" id="postPhotolLabel">ลงผลงาน</h5>
                                 <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
+                            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
                                 <div class="modal-body" style="height:auto;">
                                     <!-- Form for editing photographer's information -->
                                     <div class="container">
                                         <div class="form-container">
-                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                            <div class="d-flex align-items-center justify-content-start mt-3">
                                                 <div class="circle me-3" style="width: 60px; height: 60px;">
                                                     <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                                 </div>
-                                                <div>
+                                                <div class="mt-2">
                                                     <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                                    <div>
-                                                        <select class="form-select border-1 py-2" name="workPost" id="workPost">
-                                                            <option selected required>เลือกประเภทงานที่รับ</option>
-                                                            <?php
-                                                            // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
-                                                            $sql = "SELECT `type`.type_id, `type`.`type_work`, `type_of_work`.photographer_id 
-                                                                 FROM `type` 
-                                                                 INNER JOIN `type_of_work` ON `type`.type_id = `type_of_work`.`type_id`";
-                                                            $resultTypeWork = $conn->query($sql);
 
-                                                            // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
-                                                            if ($resultTypeWork->num_rows > 0) {
-                                                                while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
-                                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
-                                                                }
-                                                            } else {
-                                                                echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
-                                                            }
-                                                            ?>
-                                                        </select>
-
-                                                    </div>
                                                 </div>
+                                            </div>
+                                            <div class="mt-4">
+                                                <select class="form-select border-1 py-2" name="workPost" id="workPost">
+                                                    <option required>เลือกประเภทงาน</option>
+                                                    <?php
+                                                    // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
+                                                    $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                                            FROM type t
+                                                            INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                            GROUP BY t.type_id, t.type_work;
+                                                            ";
+                                                    $resultTypeWork = $conn->query($sql);
+
+                                                    // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
+                                                    if ($resultTypeWork->num_rows > 0) {
+                                                        while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                            echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                        }
+                                                    } else {
+                                                        echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
+                                                    }
+                                                    ?>
+                                                </select>
                                             </div>
                                             <div class="post-input-container">
-                                                <textarea name="caption" rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
+                                                <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
                                             </div>
-                                            <div class="post-image-preview">
-                                                <img id="postImage" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;" src="../img/post/<?php echo $rowPort['portfolio_photo'] ? $rowPort['portfolio_photo'] : 'null.png'; ?>">
+                                            <div class="post-image-preview" id="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
                                             </div>
-                                            <div class="bottom-bar">
-                                                <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
-                                                    <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
-                                                        <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                                                        <input type="file" name="photo" class="form-control" id="postImg" style="display: none;">
-                                                        <p class="mb-0">เพิ่มรูปภาพ</p>
-                                                    </button>
-                                                </div>
+                                            <div class="mt-2">
+                                                <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
+                                                <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/*">
+                                                <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
+                                                <p id="loaded_n_total"></p>
                                             </div>
                                         </div>
                                     </div>
@@ -999,7 +1036,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
-                                <div class="modal-body" style="height: 400px;">
+                                <div class="modal-body" style="height: auto;">
                                     <!-- Form for editing photographer's information -->
                                     <div class="container">
                                         <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
@@ -1018,7 +1055,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <select class="form-select border-1 py-2" name="type">
                                                     <option selected required>เลือกประเภทงานที่รับ</option>
                                                     <?php
-                                                    $sqlType = "SELECT * FROM `type` ";
+                                                    $sqlType = "SELECT t.*
+                                                    FROM type t
+                                                    LEFT JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                    WHERE tow.photographer_id IS NULL;
+                                                    ";
                                                     $resultType = $conn->query($sqlType);
                                                     $rowType = $resultInfo->fetch_assoc();
                                                     if ($resultType->num_rows > 0) {
@@ -1026,7 +1067,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             echo '<option value="' . htmlspecialchars($rowType['type_id']) . '">' . htmlspecialchars($rowType['type_work']) . '</option>';
                                                         }
                                                     } else {
-                                                        echo '<option value="">ไม่มีประเภทงาน</option>';
+                                                        echo '<option value="">ไม่มีประเภทงาน คุณได้ลงประเภทงานครบแล้ว</option>';
                                                     }
                                                     ?>
                                                 </select>
@@ -1202,31 +1243,87 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // แสดงเนื้อหาสำหรับโพสต์รูปเป็นค่าเริ่มต้น
             postContentDiv.innerHTML = `
-            <div class="col-5 mt-4">
-                <select class="form-select border-1 py-2">
-                    <option selected>ประเภทงาน</option>
-                    <option value="1">งานแต่งงาน</option>
-                    <option value="2">งานพรีเวดดิ้ง</option>
-                    <option value="3">งานอีเว้นท์</option>
-                </select>
-            </div>
-            <div class="post-input-container">
-                <textarea rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
-            </div>
-            <div class="post-image-preview">
-                <img src="../img/dev3-1.jpg" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
-            </div>
-            <div class="bottom-bar">
-                <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
-                    <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
-                        <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                        <p class="mb-0">เพิ่มรูปภาพ</p>
-                        <input type="file" class="form-control" id="postImg" style="display: none;">
-                    </button>
-                </div>
+            <div class="col-12  mt-3">
+            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
+                                
+                                   
+                                        <div class="form-container">
+                                            
+                                                    <div>
+                                                        <select class="form-select border-1 py-2" name="workPost" id="workPost">
+                                                            <option required>เลือกประเภทงาน</option>
+                                                            <?php
+                                                            // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
+                                                            $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                                            FROM type t
+                                                            INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                            GROUP BY t.type_id, t.type_work;
+                                                            ";
+                                                            $resultTypeWork = $conn->query($sql);
+
+                                                            // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
+                                                            if ($resultTypeWork->num_rows > 0) {
+                                                                while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                                }
+                                                            } else {
+                                                                echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
+                                                            }
+                                                            ?>
+                                                        </select>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="post-input-container">
+                                                <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
+                                            </div>
+                                            <div class="post-image-preview" id="preview-containerT" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                            </div>
+                                            <div class="mt-2">
+                                                <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
+                                                <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUploadT"  accept="image/*">
+                                                <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
+                                                <p id="loaded_n_total"></p>
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                </div>
+                            </form>
             </div>
             `;
+            document.getElementById('fileUploadT').addEventListener('change', function() {
+            const previewContainer = document.getElementById('preview-containerT');
+            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
 
+            const files = this.files; // ไฟล์ที่ถูกเลือก
+
+            if (files.length > 10) {
+                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                }
+
+                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+            }
+        });
             // เพิ่ม Event Listener สำหรับ Radio Buttons
             postOptionRadios.forEach(function(radio) {
                 radio.addEventListener('change', function() {
@@ -1235,29 +1332,86 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         // ในกรณีที่โพสต์รูปถูกเลือก
                         // แสดงเนื้อหาสำหรับโพสต์รูป
                         postContentDiv.innerHTML = `
-                        <div class="col-5 mt-4">
-                            <select class="form-select border-1 py-2">
-                                <option selected>ประเภทงาน</option>
-                                <option value="1">งานแต่งงาน</option>
-                                <option value="2">งานพรีเวดดิ้ง</option>
-                                <option value="3">งานอีเว้นท์</option>
-                            </select>
-                        </div>
-                        <div class="post-input-container">
-                            <textarea rows="8" placeholder="วันนี้คุณถ่ายอะไร"></textarea>
-                        </div>
-                        <div class="post-image-preview">
-                            <img src="../img/dev3-1.jpg" alt="Uploaded Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
-                        </div>
-                        <div class="bottom-bar">
-                            <div class="bg-white post-input-container content-end" style="border-radius: 10px; border: 1px solid #C0C0C0; padding: 10px;">
-                                <button type="button" id="uploadImageButton" style="background: none; border: none; display: flex; align-items: center;">
-                                    <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                                    <p class="mb-0">เพิ่มรูปภาพ</p>
-                                    <input type="file" class="form-control" id="postImg" style="display: none;">
-                                </button>
-                            </div>
-                        </div>`;
+                        <div class="col-12  mt-3">
+            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
+                                
+                                   
+                                        <div class="form-container">
+                                            
+                                                    <div>
+                                                        <select class="form-select border-1 py-2" name="workPost" id="workPost">
+                                                            <option required>เลือกประเภทงาน</option>
+                                                            <?php
+                                                            // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
+                                                            $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                                            FROM type t
+                                                            INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                            GROUP BY t.type_id, t.type_work;
+                                                            ";
+                                                            $resultTypeWork = $conn->query($sql);
+
+                                                            // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
+                                                            if ($resultTypeWork->num_rows > 0) {
+                                                                while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                                }
+                                                            } else {
+                                                                echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
+                                                            }
+                                                            ?>
+                                                        </select>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="post-input-container">
+                                                <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
+                                            </div>
+                                            <div class="post-image-preview" id="preview-containerT" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                            </div>
+                                            <div class="mt-2">
+                                                <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
+                                                <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUploadT" accept="image/*">
+                                                <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
+                                                <p id="loaded_n_total"></p>
+                                            </div>
+                                        </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                                </div>
+                            </form>
+                            
+            </div>
+            `;document.getElementById('fileUploadT').addEventListener('change', function() {
+            const previewContainer = document.getElementById('preview-containerT');
+            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+
+            const files = this.files; // ไฟล์ที่ถูกเลือก
+
+            if (files.length > 10) {
+                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                }
+
+                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+            }
+        });
                     } else if (this.id === 'postTypeRadio' && this.checked) {
                         // ในกรณีที่โพสต์ประเภทงานถูกเลือก
                         // แสดงเนื้อหาสำหรับโพสต์ประเภทงาน
@@ -1272,7 +1426,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <select class="form-select border-1 py-2" name="type">
                                                     <option selected>เลือกประเภทงานที่รับ</option>
                                                     <?php
-                                                    $sqlType = "SELECT * FROM `type` ";
+                                                    $sqlType = "SELECT t.*
+                                                    FROM type t
+                                                    LEFT JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                    WHERE tow.photographer_id IS NULL;
+                                                    ";
                                                     $resultType = $conn->query($sqlType);
                                                     $rowType = $resultInfo->fetch_assoc();
 
@@ -1281,7 +1439,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             echo '<option value="' . htmlspecialchars($rowType['type_id']) . '">' . htmlspecialchars($rowType['type_work']) . '</option>';
                                                         }
                                                     } else {
-                                                        echo '<option value="">ไม่มีประเภทงาน</option>';
+                                                        echo '<option value="">ไม่มีประเภทงาน คุณได้ลงประเภทงานครบแล้ว</option>';
                                                     }
                                                     ?>
                                                 </select>
@@ -1361,21 +1519,63 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </script>
 
     <script>
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordField = document.getElementById('password');
-            const eyeIcon = document.getElementById('eye-icon');
-
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                eyeIcon.classList.remove('bi-eye');
-                eyeIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                eyeIcon.classList.remove('bi-eye-slash');
-                eyeIcon.classList.add('bi-eye');
+        document.getElementById('fileUpload').addEventListener('change', function() {
+            const previewContainer = document.getElementById('preview-container');
+            previewContainer.innerHTML = '';
+            const files = this.files;
+            if (files.length > 10) {
+                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                this.value = '';
+                return;
+            }
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(file);
             }
         });
     </script>
+    <script>
+        document.getElementById('fileUploadT').addEventListener('change', function() {
+            const previewContainer = document.getElementById('preview-containerT');
+            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+
+            const files = this.files; // ไฟล์ที่ถูกเลือก
+
+            if (files.length > 10) {
+                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                }
+
+                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+            }
+        });
+    </script>
+
 </body>
 
 </html>
