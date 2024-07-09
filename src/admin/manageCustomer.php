@@ -375,7 +375,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editModalLabel<?php echo $row['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;แก้ไขสิทธิ์การใช้งานลลูกค้า คุณ <?php echo $row['cus_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editModalLabel<?php echo $row['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp; กำหนดสิทธิ์การใช้งานลูกค้า คุณ <?php echo $row['cus_name']; ?></b></h5>
                                         </div>
                                         <div class="modal-body">
                                             <div class="container-md">
@@ -477,11 +477,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         ?>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         } else {
                                                                         ?>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         }
                                                                         ?>

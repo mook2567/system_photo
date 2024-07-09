@@ -652,7 +652,7 @@ $conn->close();
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;แก้ไขสิทธิ์การใช้งานผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp; กำหนดสิทธิ์การใช้งานผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
                                         </div>
                                         <div class="modal-body">
                                             <div class="container-md">
@@ -754,11 +754,13 @@ $conn->close();
                                                                         ?>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         } else {
                                                                         ?>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         }
                                                                         ?>
@@ -886,11 +888,13 @@ $conn->close();
                                                                         ?>
                                                                             <option value="0" selected disabled>รออนุมัติสิทธิ์การใช้งาน</option>
                                                                             <option value="1" disabled>มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         } else {
                                                                         ?>
                                                                             <option value="1" selected disabled>มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <option value="0" disabled>รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         }
                                                                         ?>

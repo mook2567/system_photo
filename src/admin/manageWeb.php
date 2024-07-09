@@ -263,6 +263,7 @@ $row = $result->fetch_assoc();
                                 <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
                                     <span style="color: black; margin-right: 5px; font-size: 13px;">แก้ไข logo</span>
                                     <span style="color: red;">*</span>
+                                    <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น)</span>
                                 </label>
                             <input type="file" required name="logoImage" class="form-control">
                         </div>
