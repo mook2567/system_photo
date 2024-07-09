@@ -542,7 +542,6 @@ $conn->close();
                                             <div class="mt-1 container-md ">
                                                 <div class="mt-1 col-md-12 container-fluid ">
                                                     <div class="mt-1 container-md">
-                                                        <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-user-cog"></i>&nbsp;&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></div>
                                                         <div class="mt-3 col-md-10 container-fluid">
                                                             <div class="row">
                                                                 <div class="col-8">
@@ -653,11 +652,10 @@ $conn->close();
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;แก้ไขสิทธิ์การใช้งานผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
                                         </div>
                                         <div class="modal-body">
                                             <div class="container-md">
-                                                <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-user-cog"></i>&nbsp;&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></div>
                                                 <div class="mt-3 col-md-10 container-fluid">
                                                     <div class="row">
                                                         <div class="col-8">

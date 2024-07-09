@@ -262,12 +262,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="modal-dialog modal-dialog-centered modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="detailModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></h5>
+                                        <h5 class="modal-title" id="detailModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;รายละเอียดข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="container-md">
-                                            <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;รายละเอียดข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></div>
                                             <div class="mt-3 col-md-12 container-fluid">
                                                 <div class="row ">
                                                     <div class="col-8">
@@ -434,12 +433,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="modal-dialog modal-dialog-centered modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;ข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></h5>
+                                        <h5 class="modal-title" id="editModalLabel<?php echo $row['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;แก้ไขสิทธิ์การใช้งานช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="container-md">
-                                            <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;รายละเอียดข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></div>
                                             <div class="mt-3 col-md-12 container-fluid">
                                                 <div class="row ">
                                                     <div class="col-8">
