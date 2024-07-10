@@ -12,6 +12,7 @@ if (isset($_SESSION['photographer_login'])) {
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -291,8 +292,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (isset($_POST['submit_type_of_work'])) {
         $details = $_POST['details'];
-        $rate_half = $_POST['rate_half'];
-        $rate_full = $_POST['rate_full'];
+        $rate_half = isset($_POST['rate_half']) && $_POST['rate_half'] !== '' ? $_POST['rate_half'] : 0.0;
+        $rate_full = isset($_POST['rate_full']) && $_POST['rate_full'] !== '' ? $_POST['rate_full'] : 0.0;
         $photographer_id = $_POST['photographer_id'];
         $type = $_POST['type'];
 
@@ -1122,34 +1123,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="mt-3">
                     <p>โพสต์อื่น ๆ</p>
                 </div>
-                <div class="col-12 bg-white container mt-2 mb-5" style="height: auto; border-radius: 10px;">
+                <?php
+                $sql = "SELECT 
+                po.portfolio_id, 
+                po.portfolio_photo, 
+                po.portfolio_caption, 
+                po.portfolio_date,
+                t.type_work
+                FROM 
+                portfolio po
+                JOIN 
+                type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                JOIN 
+                photographer p ON p.photographer_id = tow.photographer_id
+                JOIN 
+                `type` t ON t.type_id = tow.type_id
+                WHERE 
+                tow.photographer_id = $id_photographer;
+                ";
+                $resultPost = $conn->query($sql);
+                $rowPost = $resultPost->fetch_assoc();
+                ?>
+                
+
+                        <?php while ($rowPost = $resultPost->fetch_assoc()) : ?>
+                            <div class="col-12 bg-white container mt-2 mb-5" style="height: 500px; border-radius: 10px;">
                     <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
                         <div class="d-flex align-items-center justify-content-start mt-3">
                             <div style="display: flex; align-items: center;">
                                 <div class="circle me-3" style="width: 60px; height: 60px;">
                                     <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                 </div>
-                                <div class=" mt-2" style="flex-grow: 1;">
-                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                    <p style="margin-bottom: 0;">ประเภทงาน</p>
+                                <div class="mt-2" style="flex-grow: 1;">
+                                    <b><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></b>
+                                    <p style="margin-bottom: 0;"><?php echo $rowPost['type_work'] ?></p>
                                 </div>
                             </div>
                         </div>
-                        <p class="mt-3 post-text center">รายละเอียดผลงาน</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <a href="../img/dev3.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                                    <img class="post-img mb-2" src="../img/dev3.jpg" width="160" alt="img-post" />
-                                </a>
+                            <div>
+                                <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo $rowPost['portfolio_caption'] ?></p>
                             </div>
-                            <div class="col-md-6">
-                                <a href="../img/dev2.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                                    <img class="post-img mb-2" src="../img/dev2.jpg" width="160" alt="img-post" />
-                                </a>
+                            <div class="row">
+                                <?php
+                                $photos = explode(',', $rowPost['portfolio_photo']);
+                                foreach ($photos as $photo) : ?>
+                                    <div class="col-md-6">
+                                        <img class="post-img mb-2" style="display: flex; flex-wrap: wrap; gap: 10px;" src="../img/post/<?php echo trim($photo) ?>" width="160" alt="img-post" />
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-                        </div>
+                        
+
                     </div>
                 </div>
+                <?php endwhile; ?>
             </div>
             <!-- Weekly Schedule -->
             <div class="col-3 bg-white" style="border-radius: 10px; height: 450px;">

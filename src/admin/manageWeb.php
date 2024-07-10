@@ -175,6 +175,12 @@ $row = $result->fetch_assoc();
             background-position: center;
             /* ตำแหน่งภาพในหน้าจอ */
         }
+
+        .bgIconImg {
+            background-image: url('../img/bgIconImg.jpg');
+            
+            /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
+        }
     </style>
 </head>
 
@@ -248,14 +254,14 @@ $row = $result->fetch_assoc();
                 </div>
                 <div class="col-12">
                     <div class="row mt-2">
-                        <div class="col-6" >
+                        <div class="col-6 " >
                             <label for="information_icon" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px;font-size: 13px;">โลโก้</span>
                                 <span style="color: red;">*</span>
                             </label>
-                            <div class="d-flex justify-content-center align-items-center md"style="background-color: #cfd8dc;">
+                            <div class="d-flex bgIconImg justify-content-center align-items-center md" style="height: 115px;">
                                 <div class="mt-1 mb-1">
-                                    <img src="../img/logo/<?php echo $row['information_icon']; ?>" style="height: 50px; width: auto;" alt="Your Image">
+                                <img id="userImage" src="../img/logo/<?php echo $row['information_icon'] ? $row['information_icon'] : 'null.png'; ?>">
                                 </div>
                             </div>
                         </div>
@@ -356,6 +362,29 @@ $row = $result->fetch_assoc();
                 }
             }
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const previewImage = document.getElementById('previewImage');
+
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!previewImage.src || previewImage.src.endsWith('/') || previewImage.src.includes('null')) {
+                previewImage.src = '../img/icon/nullIcon.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('iconImage');
+            const previewImage = document.getElementById('previewImage');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
     </script>
 </body>
 
