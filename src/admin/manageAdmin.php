@@ -527,7 +527,7 @@ $conn->close();
                                 <td><?php echo $rowAdmin['admin_email']; ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $rowAdmin['admin_id']; ?>">ดูเพิ่มเติม</button>
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowAdmin['admin_id']; ?>">แก้ไข</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowAdmin['admin_id']; ?>">กำหนดสิทธิ์</button>
                                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $rowAdmin['admin_id']; ?>">ลบ</button>
                                 </td>
                             </tr>

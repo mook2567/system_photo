@@ -251,7 +251,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <td>
                                     <!-- <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='manageCustomerDetails.php? id=<?php echo $row['cus_id']; ?>'">ดูเพิ่มเติม</button> -->
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['cus_id']; ?>">ดูเพิ่มเติม</button>
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['cus_id']; ?>">แก้ไข</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['cus_id']; ?>">กำหนดสิทธิ์</button>
                                 </td>
                             </tr>
                             <!-- Detail Modal -->

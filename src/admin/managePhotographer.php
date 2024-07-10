@@ -254,7 +254,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <!-- <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='managePhotographerDetails.php? id=<?php echo $row['photographer_id']; ?>'">ดูเพิ่มเติม</button> -->
                                 <!-- <button type="button" class="btn btn-warning btn-sm" onclick="window.location.href='managePhotographerEdite.php? id=<?php echo $row['photographer_id']; ?>'">แก้ไข</button> -->
                                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['photographer_id']; ?>">ดูเพิ่มเติม</button>
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['photographer_id']; ?>">แก้ไข</button>
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['photographer_id']; ?>">กำหนดสิทธิ์</button>
                             </td>
                         </tr>
                         <!-- Detaile Modal -->
