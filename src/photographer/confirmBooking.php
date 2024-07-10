@@ -118,14 +118,14 @@
                                         <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                                     </div>
                                 </div>
-                                <a href="report.php" class="nav-item nav-link">รายงาน</a>
+                               <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                                     <div class="dropdown-menu rounded-0 m-0">
                                         <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                                         <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                                         <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                                        <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                                     </div>
                                 </div>
                             </div>

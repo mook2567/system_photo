@@ -115,7 +115,7 @@
                                 <a href="" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                             </div>
                         </div>
-                        <a href="report.php" class="nav-item nav-link">รายงาน</a>
+                       <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
                         <a href="contact.php" class="nav-item nav-link">ติดต่อ</a>
                         <div class="nav-item dropdown">
@@ -124,7 +124,7 @@
                                 <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
                                 <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                                 <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                             </div>
                         </div>
                     </div>
