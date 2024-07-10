@@ -7,6 +7,10 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
+$sql = "SELECT * FROM `portfolio`";
+$resultPort = $conn->query($sql);
+$rowPort = $resultPort->fetch_assoc();
+
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
@@ -1131,7 +1135,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 </div>
                                 <div class=" mt-2" style="flex-grow: 1;">
                                     <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                    <p style="margin-bottom: 0;">ประเภทงาน</p>
+                                    <p style="margin-bottom: 0;"><?php echo $rowTypeWork['type_id']?></p>
                                 </div>
                             </div>
                         </div>
