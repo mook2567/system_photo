@@ -628,6 +628,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">โปรไฟล์</a>
                         <div class="dropdown-menu rounded-0 m-0">
                             <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                            <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                             <a href="contact.php" class="dropdown-item">ติดต่อ</a>
                             <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
