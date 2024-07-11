@@ -325,14 +325,6 @@
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">หน้าหลัก</a>
-                        <a href="#">คุกกี้</a>
-                        <a href="contact.php">ช่วยเหลือ</a>
-                        <a href="#">ถามตอบ</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
