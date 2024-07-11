@@ -8,7 +8,7 @@ $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
 if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
+    echo $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
@@ -17,21 +17,21 @@ if (isset($_SESSION['photographer_login'])) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
-        $photographer_id = $_POST["photographer_id"];
-        $name = $_POST["name"];
-        $surname = $_POST["surname"];
-        $address = $_POST["address"];
-        $district = $_POST["district"];
-        $province = $_POST["province"];
-        $zipcode = $_POST["zipcode"];
-        $tell = $_POST["tell"];
-        $email = $_POST["email"];
-        $password = $_POST["password"];
-        $work_area = $_POST["work_area"];
-        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
-        $accountNumber = $_POST["accountNumber"];
-        $accountName = $_POST["accountName"];
-        $profileImage = ""; // Initialize the profileImage variable
+        echo $photographer_id = $_POST["photographer_id"];
+        echo $name = $_POST["name"];
+        echo $surname = $_POST["surname"];
+        echo $address = $_POST["address"];
+        echo $district = $_POST["district"];
+        echo $province = $_POST["province"];
+        echo $zipcode = $_POST["zipcode"];
+        echo $tell = $_POST["tell"];
+        echo $email = $_POST["email"];
+        echo $password = $_POST["password"];
+        echo $work_area = $_POST["work_area"];
+        echo $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
+        echo $accountNumber = $_POST["accountNumber"];
+        echo $accountName = $_POST["accountName"];
+        echo $profileImage = ""; // Initialize the profileImage variable
 
         // Check if the profile image is uploaded
         if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {

@@ -246,17 +246,16 @@ if (isset($_SESSION['photographer_login'])) {
                 </div>
             </div>
         </div>
-        </div>
-        </div>
-        <!-- Search End -->
+    </div>
+    <!-- Search End -->
 
-        <?php
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            if (isset($_POST['search'])) {
-                $type_id = $conn->real_escape_string($_POST['type']);
-                $budget = $conn->real_escape_string($_POST['budget']);
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['search'])) {
+            $type_id = $conn->real_escape_string($_POST['type']);
+            $budget = $conn->real_escape_string($_POST['budget']);
 
-                $sql = "SELECT 
+            $sql = "SELECT 
     photographer.photographer_prefix, 
     photographer.photographer_name, 
     photographer.photographer_surname, 
@@ -273,43 +272,43 @@ ON
     photographer.photographer_id = type_of_work.photographer_id
 WHERE 
 type_of_work.type_id = $type_id;";
-                $result = $conn->query($sql);
-        ?>
-                <!-- Examples of work Start -->
-                <div class="container-xxl py-5">
-                    <div class="container">
-                        <div class="tab-content">
-                            <div id="tab-1" class="tab-pane fade show p-0 active">
-                                <div class="row g-4">
-                                    <?php
-                                    if ($result->num_rows > 0) {
-                                        while ($row_photographer = $result->fetch_assoc()) {
-                                    ?>
-                                            <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                                <div class="property-item rounded overflow-hidden">
-                                                    <div class="position-relative overflow-hidden">
-                                                        <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
-                                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
-                                                            <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="p-4 pb-0">
-                                                        <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
-                                                        <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
-                                                        <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
-                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+            $result = $conn->query($sql);
+    ?>
+            <!-- Examples of work Start -->
+            <div class="container-xxl py-5">
+                <div class="container">
+                    <div class="tab-content">
+                        <div id="tab-1" class="tab-pane fade show p-0 active">
+                            <div class="row g-4">
+                                <?php
+                                if ($result->num_rows > 0) {
+                                    while ($row_photographer = $result->fetch_assoc()) {
+                                ?>
+                                        <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                            <div class="property-item rounded overflow-hidden">
+                                                <div class="position-relative overflow-hidden">
+                                                    <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                                        <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
                                                     </div>
                                                 </div>
+                                                <div class="p-4 pb-0">
+                                                    <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
+                                                    <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                    <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
+                                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                </div>
                                             </div>
+                                        </div>
                             <?php
-                                        }
-                                    } else {
-                                        echo "0 results";
                                     }
+                                } else {
+                                    echo "0 results";
                                 }
-                            } else {
-                                ?>
-                                <div class="container-xxl py-5">
+                            }
+                        } else {
+                            ?>
+                            <div class="container-xxl py-5">
                                 <div class="container">
                                     <div class="row g-0 gx-5 align-items-end">
                                         <div class="col-lg-6">
@@ -317,95 +316,94 @@ type_of_work.type_id = $type_id;";
                                                 <h1 class="mb-3 f">ช่างภาพแนะนำ</h1>
                                             </div>
                                         </div>
-                                        
                                     </div>
                                     <div class="tab-content">
-                            <div id="tab-1" class="tab-pane fade show p-0 active">
-                                <div class="row g-4">
-                                    <?php
-                                    $sql = "SELECT * FROM `photographer`";
-                                    $result = $conn->query($sql);
-                        
-                                    if ($result->num_rows > 0) {
-                                        while ($row_photographer = $result->fetch_assoc()) {
-                                            ?>
-                                            <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                                <div class="property-item rounded overflow-hidden">
-                                                    <div class="position-relative overflow-hidden">
-                                                        <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
-                                                        
-                                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
-                                                            <?php echo $row_photographer['photographer_prefix'].''.$row_photographer['photographer_name'].'   '.$row_photographer['photographer_surname']; ?>
+                                        <div id="tab-1" class="tab-pane fade show p-0 active">
+                                            <div class="row g-4">
+                                                <?php
+                                                $sql = "SELECT * FROM `photographer`";
+                                                $result = $conn->query($sql);
+
+                                                if ($result->num_rows > 0) {
+                                                    while ($row_photographer = $result->fetch_assoc()) {
+                                                ?>
+                                                        <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                                            <div class="property-item rounded overflow-hidden">
+                                                                <div class="position-relative overflow-hidden">
+                                                                    <a  href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+
+                                                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                                                        <?php echo $row_photographer['photographer_prefix'] . '' . $row_photographer['photographer_name'] . '   ' . $row_photographer['photographer_surname']; ?>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="p-4 pb-0">
+                                                                    <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
+                                                                    <a class="d-block mb-2" href="mailto://<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                                    <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
+                                                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="p-4 pb-0">
-                                                        <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
-                                                        <a class="d-block mb-2" href="mailto://<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
-                                                        <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
-                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
-                                                    </div>
-                                                </div>
-                                            </div>
                                             <?php
-                                        }
-                                    } else {
-                                        echo "0 results";
-                                    } }
-                                    ?>
+                                                    }
+                                                } else {
+                                                    echo "0 results";
+                                                }
+                                            }
+                                            ?>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <!-- Examples of work End -->
+
+                        <!-- Examples of work End -->
+
+                        <!-- Footer Start -->
+                        <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+                            <div class="copyright">
+                                <div class="row">
+                                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                                        &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Footer End -->
+
+
+                        <!-- Back to Top -->
+                        <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
                     </div>
-                </div>
-                <!-- Examples of work End -->
 
-                <!-- Examples of work End -->
+                    <!-- JavaScript Libraries -->
+                    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+                    <script src="../lib/wow/wow.min.js"></script>
+                    <script src="../lib/easing/easing.min.js"></script>
+                    <script src="../lib/waypoints/waypoints.min.js"></script>
+                    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-                <!-- Footer Start -->
-                <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
-                    <div class="copyright">
-                        <div class="row">
-                            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                                &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Footer End -->
+                    <!-- select date -->
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.js"></script>
+                    <script src="../js/main.js"></script>
+                    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+                    <!-- Fancybox JS -->
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+                    <script>
+                        flatpickr("#dateRangePicker", {
+                            mode: "range",
+                            dateFormat: "Y-m-d"
+                        });
+                    </script>
 
-
-                <!-- Back to Top -->
-                <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
-    </div>
-
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/wow/wow.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-
-    <!-- select date -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.js"></script>
-    <script src="../js/main.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
-    <!-- Fancybox JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    <script>
-        flatpickr("#dateRangePicker", {
-            mode: "range",
-            dateFormat: "Y-m-d"
-        });
-    </script>
-
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
+                    <!-- Template Javascript -->
+                    <script src="../js/main.js"></script>
 </body>
 
 </html>

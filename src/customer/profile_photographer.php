@@ -7,12 +7,21 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-    $id_photographer = $_GET['photographer_id'];
-    $sql = "SELECT * FROM photographer WHERE photographer_id = '$id_photographer'";
+$id_photographer = $_GET['photographer_id'];
+$sql = "SELECT * FROM photographer WHERE photographer_id = '$id_photographer'";
+$resultPhoto = $conn->query($sql);
+$rowPhoto = $resultPhoto->fetch_assoc();
+
+if (isset($_SESSION['cus_login'])) {
+    $email = $_SESSION['cus_login'];
+    $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_cus = $rowPhoto['cus_id'];
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
     if (isset($_POST['submit_photographer'])) {
         $photographer_id = $_POST["photographer_id"];
         $name = $_POST["name"];
@@ -621,34 +630,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <span class="navbar-toggler-icon text-primary"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
-                    <div class="navbar-nav ms-auto f">
-                        <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
-                        <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
-                                <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
-                                <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
-                            </div>
+                <div class="navbar-nav ms-auto f">
+                    <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
+                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                         </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
-                            </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>
                 </div>
-            </nav>
-        </div>
-        <!-- Navbar End -->
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
 
 
     <div>
@@ -961,7 +970,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <div class="row">
 
-                   
+
                     <!-- post -->
                     <div class="modal fade" id="post" tabindex="-1" aria-labelledby="postLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" style="width: 35%;">
