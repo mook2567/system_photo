@@ -604,9 +604,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Navbar Start -->
     <div class="bg-dark">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-            </a>
+        <a href="index.php">
+            <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+        </a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
             </button>
