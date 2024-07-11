@@ -1,3 +1,21 @@
+<?php
+session_start();
+include 'config_db.php';
+require_once 'popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,8 +78,8 @@
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
-                <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                    <img class="img-fluid" src="img/photoLogo.png" style="height: 60px;">
+                <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
+                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -193,42 +211,15 @@
 
 
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-        <div class="container py-5">
-            <div class="row g-5">
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 f">ติดต่อ</h5>
-                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>172/20 ม.6 ถ.ศรีจันทร์ ต.ในเมือน อ.เมือง จ.ขอนแก่น 40000</p>
-                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>096-825-4382</p>
-                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>photomatch@gmail.com</p>
+    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+        <div class="copyright">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 f">ลิงก์ด่วน</h5>
-                    <a class="btn btn-link text-white-50" href="">เกี่ยวกับพวกเรา</a>
-                    <a class="btn btn-link text-white-50" href="">ติดต่อเรา</a>
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="copyright">
-                <div class="row">
-                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                        &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
 
-                    </div>
-                    <div class="col-md-6 text-center text-md-end">
-                        <div class="footer-menu">
-                            <a href="">หน้าหลัก</a>
-                            <a href="">คุกกี้</a>
-                            <a href="">ช่วยเหลือ</a>
-                            <a href="">ถามตอบ</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Footer End -->
+
 
 
     <!-- Back to Top -->
