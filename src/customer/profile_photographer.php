@@ -620,35 +620,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
             </button>
-            <div class="collapse navbar-collapse m-4" id="navbarCollapse">
-                <div class="navbar-nav ms-auto">
-                    <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                    <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
-                            <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                            <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                            <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+            <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
+                    <div class="navbar-nav ms-auto f">
+                        <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                        <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
+                                <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                                <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                            </div>
                         </div>
-                    </div>
-                    <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                            <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-    </div>
-    <!-- Navbar End -->
+            </nav>
+        </div>
+        <!-- Navbar End -->
 
 
     <div>
@@ -664,7 +664,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                         <div class="col-12 text-center md-3 py-3 px-4 mt-3">
                             <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
-                            <button type="button" class="btn btn-sm" style="color: #424242; background-color: #f5f5f5; width: 150px; height:45px;" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowPhoto['photographer_id']; ?>"><i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลโปรไฟล์</button>
                         </div>
                         <div class="col-12 text-start mt-2">
                             <h5>ติดต่อ</h5>
@@ -682,7 +681,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="col-12 text-start mt-2">
                             <div class="col-12 text-start mt-2">
                                 <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                        <i class="fa-solid fa-pencil"></i>
                                     </button></h5></a>
                                 <div class="ms-4">
                                     <?php
@@ -717,7 +715,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                         <div class="col-12 text-start mt-2">
                             <h5>ขอบเขตพื้นที่รับงาน<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                    <i class="fa-solid fa-pencil"></i>
                                 </button></h5></a>
                             <div class=" ms-4">
                                 <div class="d-flex align-items-center">
@@ -964,32 +961,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <div class="row">
 
-                    <div class="col-12 card-header bg-white" style="border-radius: 10px; height: auto; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);">
-                        <div class="col-12 bg-white container" style="height: 160px; border-radius: 10px;">
-                            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                                <div class="d-flex align-items-center justify-content-center mt-3">
-                                    <div class="circle" style="width: 50px; height: 50px;">
-                                        <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                    </div>
-                                    <button type="button" data-bs-toggle="modal" data-bs-target="#post" class="btn text-start text-black ms-4" style="width: 80%; height: 45px; background-color: #F0F2F5; border-radius: 50px; font-size: 18px;">
-                                        วันนี้คุณถ่ายอะไร
-                                    </button>
-                                </div>
-                            </div>
-                            <hr>
-                            <!-- Buttons for image and work type -->
-                            <div class="d-flex align-items-center justify-content-center me-5 ms-5 mb-1">
-                                <button class=" justify-content-center " type="button" style="width: 45%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postPhoto">
-                                    <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                                    <p class="mb-0" style="margin-right: 5px;">ลงผลงาน</p>
-                                </button>
-                                <button class=" justify-content-center " type="button" style="width: 40%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postType">
-                                    <i class="fa-solid fa-briefcase me-2" style="font-size: 30px; color: #E53935; cursor: pointer;"></i>
-                                    <p class="mb-0" style="margin-right: 5px;">ลงประเภทงานที่รับ</p>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                   
                     <!-- post -->
                     <div class="modal fade" id="post" tabindex="-1" aria-labelledby="postLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" style="width: 35%;">
@@ -1292,7 +1264,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                     <div class="justify-content-center py-4 text-center">
                         <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
-                            <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                            <i class="fa-solid fa-magnifying-glass"></i> จองคิวช่างภาพ
                         </button>
                     </div>
                 </div>
