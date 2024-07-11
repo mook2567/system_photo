@@ -14,6 +14,8 @@ if (isset($_SESSION['cus_login'])) {
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -139,25 +141,21 @@ if (isset($_SESSION['cus_login'])) {
                 <div class="row mt-2">
                     <div class="col-2">
                         <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                            <span style="color: black; margin-right: 5px;font-size: 13px; "> คำนำหน้า</span>
+                            <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
                         </label>
-                        <select class="form-select border-1">
-                            <option value="1">นาย</option>
-                            <option value="2">นางสาว</option>
-                            <option value="3">นาง</option>
-                        </select>
+                        <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowCus['cus_prefix']; ?>" readonly>
                     </div>
                     <div class="col-5">
                         <label for="name" style="font-weight: bold; display: flex; align-items: center;">
                             <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
                         </label>
-                        <input type="text" name="name" class="form-control" placeholder="กรุณากรอกชื่อ">
+                        <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowCus['cus_name']; ?>" readonly>
                     </div>
                     <div class="col-5">
                         <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
                             <span style="color: black; font-size: 13px;">นามสกุล</span>
                         </label>
-                        <input type="text"  name="surname" class="form-control" placeholder="กรุณากรอกนามสกุล">
+                        <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowCus['cus_surname']; ?>" readonly>
                     </div>
                 </div>
             </div>
@@ -223,7 +221,7 @@ if (isset($_SESSION['cus_login'])) {
                             <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
                             <span style="color: red;">*</span>
                         </label>
-                        <input type="email"  name="email" class="form-control" placeholder="กรุณากรอกอีเมล" style="resize: none; width: 90%;">
+                        <input type="email" name="email" class="form-control" placeholder="กรุณากรอกอีเมล" style="resize: none; width: 90%;">
                     </div>
                 </div>
             </div>
@@ -234,69 +232,69 @@ if (isset($_SESSION['cus_login'])) {
                 <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
                 <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" onclick="window.location.href='bookingLists.php'">ย้อนกลับ</button>
                 <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
-                <button id="saveButton" class="btn btn-primary" style="width: 150px; height:45px;">ลบข้อมูลการจอง</button>
+                <button id="saveButton" class="btn btn-primary" style="width: 150px; height:45px;">รจอง</button>
             </div>
         </div>
     </div>
-        <!-- Footer End -->
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../lib/wow/wow.min.js"></script>
-        <script src="../lib/easing/easing.min.js"></script>
-        <script src="../lib/waypoints/waypoints.min.js"></script>
-        <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../lib/wow/wow.min.js"></script>
-        <script src="../lib/easing/easing.min.js"></script>
-        <script src="../lib/waypoints/waypoints.min.js"></script>
-        <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    <!-- Footer End -->
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/wow/wow.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/wow/wow.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-        <!-- Template Javascript -->
-        <script src="../js/main.js"></script>
-        <script>
-            // Mock data for charts
-            const overviewData = {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                datasets: [{
-                    label: 'Total Visits',
-                    backgroundColor: 'rgb(54, 162, 235)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    data: [1000, 1500, 2000, 1800, 2500, 2200, 3000],
-                }]
-            };
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
+    <script>
+        // Mock data for charts
+        const overviewData = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'Total Visits',
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: [1000, 1500, 2000, 1800, 2500, 2200, 3000],
+            }]
+        };
 
-            const userData = {
-                labels: ['Admin', 'Photographer', 'Customer'],
-                datasets: [{
-                    label: 'User Type',
-                    backgroundColor: ['#FF5733', '#FFC300', '#36A2EB'],
-                    borderColor: ['#FF5733', '#FFC300', '#36A2EB'],
-                    data: [500, 800, 1200],
-                }]
-            };
+        const userData = {
+            labels: ['Admin', 'Photographer', 'Customer'],
+            datasets: [{
+                label: 'User Type',
+                backgroundColor: ['#FF5733', '#FFC300', '#36A2EB'],
+                borderColor: ['#FF5733', '#FFC300', '#36A2EB'],
+                data: [500, 800, 1200],
+            }]
+        };
 
-            // Render charts
-            const overviewChartCtx = document.getElementById('overviewChart').getContext('2d');
-            const overviewChart = new Chart(overviewChartCtx, {
-                type: 'line',
-                data: overviewData,
-            });
+        // Render charts
+        const overviewChartCtx = document.getElementById('overviewChart').getContext('2d');
+        const overviewChart = new Chart(overviewChartCtx, {
+            type: 'line',
+            data: overviewData,
+        });
 
-            const userChartCtx = document.getElementById('userChart').getContext('2d');
-            const userChart = new Chart(userChartCtx, {
-                type: 'bar',
-                data: userData,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+        const userChartCtx = document.getElementById('userChart').getContext('2d');
+        const userChart = new Chart(userChartCtx, {
+            type: 'bar',
+            data: userData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
-        </script>
+            }
+        });
+    </script>
 </body>
 
 </html>
