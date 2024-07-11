@@ -1,20 +1,3 @@
-<?php
-session_start();
-include '../config_db.php';
-require_once '../popup.php';
-
-$sql = "SELECT * FROM `information`";
-$resultInfo = $conn->query($sql);
-$rowInfo = $resultInfo->fetch_assoc();
-
-if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,53 +43,39 @@ if (isset($_SESSION['photographer_login'])) {
         .f {
             font-family: 'Athiti', sans-serif;
         }
-
         @media (max-width: 768px) {
-
-            .col-md-3,
-            .col-md-6,
-            .col-md-2 {
+            .col-md-3, .col-md-6, .col-md-2 {
                 width: 100% !important;
             }
-
             .mb-3-md {
                 margin-bottom: 1rem !important;
             }
-
             .me-2-md {
                 margin-right: 0.5rem !important;
             }
-
             .ms-2-md {
                 margin-left: 0.5rem !important;
             }
-
             .py-3-md {
                 padding-top: 1rem !important;
                 padding-bottom: 1rem !important;
             }
-
             .px-4-md {
                 padding-left: 1.5rem !important;
                 padding-right: 1.5rem !important;
             }
-
             .text-center-md {
                 text-align: center !important;
             }
-
             .text-start-md {
                 text-align: start !important;
             }
-
             .text-end-md {
                 text-align: end !important;
             }
-
             .justify-content-center-md {
                 justify-content: center !important;
             }
-
             .align-items-center-md {
                 align-items: center !important;
             }
@@ -126,9 +95,10 @@ if (isset($_SESSION['photographer_login'])) {
 
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
-                <a href="index.php">
-                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
+                    <a href="index.php">
+                        <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+                    </a>
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -149,7 +119,7 @@ if (isset($_SESSION['photographer_login'])) {
                                         <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                                     </div>
                                 </div>
-                                <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
+                               <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                                     <div class="dropdown-menu rounded-0 m-0">
