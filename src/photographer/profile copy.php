@@ -638,7 +638,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="">
         <div class="row mt-3">
             <div class="col-3">
-                <div class="col-8 card-body bg-white" style="border-radius: 10px; height: auto;">
+                <div class="col-8 card-body bg-white" style="border-radius: 10px; height: auto; min-height: 700px;">
                     <div class="row mt-2 mb-2">
                         <div class="d-flex justify-content-center align-items-center">
                             <div class="circle">
@@ -648,7 +648,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="col-12 text-center md-3 py-3 px-4 mt-3">
                             <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
                             <button type="button" class="btn btn-sm" style="color: #424242; background-color: #f5f5f5; width: 150px; height:45px;" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowPhoto['photographer_id']; ?>"><i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลโปรไฟล์</button>
-
                         </div>
                         <div class="col-12 text-start mt-2">
                             <h5>ติดต่อ</h5>
@@ -667,7 +666,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button></h5></a>
-                            <div class=" ms-4">
+                            <div class="ms-4">
                                 <div class="d-flex align-items-center">
                                     <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
                                     <p class="mb-0">ประเภทงาน1</p>
@@ -686,9 +685,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                     </div>
-                    <div class="mt-5">
-                        &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
-                    </div>
+                </div>
+                <div class="mt-5 footer">
+                    &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
             </div>
             <div class="col-5" style="overflow-y: auto; height: 90vh;">
@@ -708,11 +707,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <hr>
                             <!-- Buttons for image and work type -->
                             <div class="d-flex align-items-center justify-content-center me-5 ms-5 mb-1">
-                                <button type="button" style="width: 45%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postPhoto">
+                                <button class=" justify-content-center " type="button" style="width: 45%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postPhoto">
                                     <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
                                     <p class="mb-0" style="margin-right: 5px;">ลงผลงาน</p>
                                 </button>
-                                <button type="button" style="width: 40%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postType">
+                                <button class=" justify-content-center " type="button" style="width: 40%; background: none; border: none; display: flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#postType">
                                     <i class="fa-solid fa-briefcase me-2" style="font-size: 30px; color: #E53935; cursor: pointer;"></i>
                                     <p class="mb-0" style="margin-right: 5px;">ลงประเภทงานที่รับ</p>
                                 </button>
@@ -728,7 +727,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
             <div class="col-3 flex-fill" style="margin-left: auto;">
-                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); margin-left: auto;">
+                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
                     <div class="d-flex justify-content-center align-items-center mt-3">
                         <h4>ตารางงาน</h4>
                     </div>
