@@ -229,78 +229,25 @@ if (isset($_SESSION['photographer_login'])) {
     </div>
     <!-- Search End -->
 
-    <!-- Post Start -->
-    <div class="col-5 container">
-        <div class=" bg-white container mb-3 shadow-md" style="height: auto; border-radius: 10px;">
-            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                <div class="d-flex align-items-center justify-content-start mt-3">
-                    <div style="display: flex; align-items: center;">
-                        <div class="circle me-3" style="width: 50px; height: 50px;">
-                            <img src="../img/dev3.jpg" alt="Your Image">
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <p style="margin-bottom: 0;">ชื่อช่างภาพ</p>
-                            <div>
-                                <p style="margin-bottom: 0;">ประเภทงาน</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <p class="mt-3 post-text center">รายละเอียดผลงาน</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <a href="../img/dev3.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev3.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="../img/dev2.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev2.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class=" bg-white container mb-3 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]" style="height: auto; border-radius: 10px;">
-            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                <div class="d-flex align-items-center justify-content-start mt-3">
-                    <div style="display: flex; align-items: center;">
-                        <div class="circle me-3" style="width: 50px; height: 50px;">
-                            <img src="../img/dev3.jpg" alt="Your Image">
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <p style="margin-bottom: 0;">ชื่อช่างภาพ</p>
-                            <div>
-                                <p style="margin-bottom: 0;">ประเภทงาน</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <p class="mt-3 post-text center">รายละเอียดผลงาน</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <a href="../img/dev3.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev3.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="../img/dev2.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev2.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+     
 
-   
- <!-- Footer Start -->
- <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+    <script>
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true
+        })
+    </script>
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer End -->
 
