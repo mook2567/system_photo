@@ -588,11 +588,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- <div style="background-color: rgba(	0, 41, 87, 0.6);"> -->
         <div class="d-flex justify-content-center">
             <nav class="navbar navbar-expand-lg navbar-dark col-10">
-                <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                    <a href="index.php">
-                        <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-                    </a>
-                </a>
+            <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
+                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+            </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>

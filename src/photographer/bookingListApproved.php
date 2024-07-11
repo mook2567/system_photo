@@ -1,3 +1,20 @@
+<?php
+session_start();
+include '../config_db.php';
+require_once '../popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -174,11 +191,10 @@
 
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
                     <a href="index.php">
                         <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                     </a>
-                </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>
@@ -218,8 +234,8 @@
         <div class="row g-1 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-4 p-5 mt-lg-5">
                 <br><br>
-                <h1 class="display-7 animated fadeIn mb-1 text-white f text-md-end">รายการจองที่อนุมัติแล้ว</h1>
-                <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ชื่อช่างภาพ</h1>
+                <h1 class="display-7 animated fadeIn mb-1 mt-4 text-white f text-md-end">รายการจองที่อนุมัติแล้ว</h1>
+                <!-- <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ชื่อช่างภาพ</h1> -->
             </div>
         </div>
     </div>
