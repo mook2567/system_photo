@@ -15,331 +15,6 @@ if (isset($_SESSION['photographer_login'])) {
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['submit_photographer'])) {
-        $photographer_id = $_POST["photographer_id"];
-        $name = $_POST["name"];
-        $surname = $_POST["surname"];
-        $address = $_POST["address"];
-        $district = $_POST["district"];
-        $province = $_POST["province"];
-        $zipcode = $_POST["zipcode"];
-        $tell = $_POST["tell"];
-        $email = $_POST["email"];
-        $password = $_POST["password"];
-        $work_area = $_POST["work_area"];
-        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
-        $accountNumber = $_POST["accountNumber"];
-        $accountName = $_POST["accountName"];
-        $profileImage = ""; // Initialize the profileImage variable
-
-        // Check if the profile image is uploaded
-        if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
-            $image_file = $_FILES['profileImage']['name'];
-            $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
-            $type = $_FILES['profileImage']['type'];
-            $size = $_FILES['profileImage']['size'];
-            $temp = $_FILES['profileImage']['tmp_name'];
-
-            $path = "../img/profile/" . $new_name;
-            $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
-
-            // Check if the directory exists, if not, create it
-            if (!is_dir("img/profile")) {
-                mkdir("img/profile", 0777, true);
-            }
-
-            // Validate image type and size
-            if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
-                if (!file_exists($path)) {
-                    if (move_uploaded_file($temp, $path)) {
-                        $profileImage = $new_name;
-                    } else {
-                        echo '
-                        <div>
-                            <script>
-                                Swal.fire({
-                                    title: "<div class=\"t1\">มีปัญหาในการย้ายไฟล์รูปภาพ</div>",
-                                    icon: "error",
-                                    confirmButtonText: "ออก",
-                                    allowOutsideClick: true,
-                                    allowEscapeKey: true,
-                                    allowEnterKey: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = "";
-                                    }
-                                });
-                            </script>
-                        </div>';
-                        exit();
-                    }
-                } else {
-                    echo "File already exists... Check upload folder<br>";
-                    exit();
-                }
-            } else {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น หรือขนาดไฟล์เกิน 5MB</div>",
-                            icon: "error",
-                            confirmButtonText: "ออก",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-                exit();
-            }
-        } else {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">กรุณาอัพโหลดรูปโปรไฟล์</div>",
-                        icon: "error",
-                        confirmButtonText: "ตกลง",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
-            exit();
-        }
-
-        $sql = "UPDATE photographer SET 
-            photographer_name = ?, 
-            photographer_surname = ?, 
-            photographer_tell = ?, 
-            photographer_address = ?, 
-            photographer_district = ?, 
-            photographer_province = ?, 
-            photographer_scope = ?, 
-            photographer_zip_code = ?, 
-            photographer_email = ?, 
-            photographer_password = ?, 
-            photographer_photo = ?, 
-            photographer_bank = ?, 
-            photographer_account_name = ?, 
-            photographer_account_number = ? 
-            WHERE photographer_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssssssssi", $name, $surname, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $bank, $accountName, $accountNumber, $photographer_id);
-
-        if ($stmt->execute()) {
-?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกการแก้ไขสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-<?php
-        }
-        // Close the statement after usage
-        $stmt->close();
-    }
-
-    $sql = "SELECT * FROM `portfolio`";
-    $resultPort = $conn->query($sql);
-    $rowPort = $resultPort->fetch_assoc();
-
-
-    if (isset($_POST['submit_post_portfolio'])) {
-
-
-        // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
-        if (!empty($_FILES['upload']['tmp_name'][0])) {
-            $supported = array('jpg', 'jpeg', 'png', 'gif');
-            $uploadedImages = [];
-
-            foreach ($_FILES['upload']['tmp_name'] as $key => $tmp_name) {
-                $file_name = $_FILES['upload']['name'][$key];
-                $file_tmp = $_FILES['upload']['tmp_name'][$key];
-                $file_size = $_FILES['upload']['size'][$key];
-                $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-                // ตรวจสอบว่าไฟล์อัปโหลดเป็นไฟล์รูปที่รองรับหรือไม่
-                if (in_array($file_ext, $supported)) {
-                    // สร้างชื่อไฟล์ใหม่
-                    $fileNewName = uniqid('img_') . '_' . time();
-                    $file_dest = '../img/post/' . $fileNewName . '.' . $file_ext;
-
-                    // อัปโหลดไฟล์
-                    if (move_uploaded_file($file_tmp, $file_dest)) {
-                        // บันทึกชื่อไฟล์ในอาร์เรย์ $uploadedImages
-                        $uploadedImages[] = $fileNewName . '.' . $file_ext;
-                    } else {
-                        echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์";
-                    }
-                } else {
-                    echo "ประเภทไฟล์ไม่รองรับ";
-                }
-            }
-
-            // Serialize อาร์เรย์ของชื่อไฟล์
-            $photo = serialize($uploadedImages);
-            // แปลงข้อมูลจาก serialize เป็น array
-            $files = unserialize($photo);
-
-            // สร้างรายการชื่อไฟล์ที่คั่นด้วยเครื่องหมาย ','
-            $fileNames = implode(', ', $files);
-
-
-            $caption = $_POST['caption'];
-            $workPost = $_POST["workPost"];
-            $date = date('Y-m-d H:i:s');
-
-            // เตรียมคำสั่ง SQL สำหรับ INSERT
-            $sql = "INSERT INTO `portfolio` (`portfolio_photo`, `portfolio_caption`, `type_of_work_id`, `portfolio_date`) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssss", $fileNames, $caption, $workPost, $date);
-
-            // ทำการ execute คำสั่ง SQL
-            if ($stmt->execute()) {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">ลงผลงานสำเร็จ</div>",
-                            icon: "success",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-            } else {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงผลงาน</div>",
-                            icon: "error",
-                            confirmButtonText: "ออก",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-            }
-        } else {
-            echo "กรุณาเลือกไฟล์ที่ต้องการอัปโหลด";
-        }
-    }
-
-    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id
-    FROM type t
-    INNER JOIN (
-        SELECT type_id, MAX(photographer_id) AS photographer_id
-        FROM type_of_work
-        GROUP BY type_id
-    ) AS tow_latest ON t.type_id = tow_latest.type_id;
-    ";
-    $resultTypeWork = $conn->query($sql);
-    $rowTypeWork = $resultTypeWork->fetch_assoc();
-
-    if (isset($_POST['submit_type_of_work'])) {
-        $details = $_POST['details'];
-        $rate_half = isset($_POST['rate_half']) && $_POST['rate_half'] !== '' ? $_POST['rate_half'] : 0.0;
-        $rate_full = isset($_POST['rate_full']) && $_POST['rate_full'] !== '' ? $_POST['rate_full'] : 0.0;
-        $photographer_id = $_POST['photographer_id'];
-        $type = $_POST['type'];
-
-        $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half`, `type_of_work_rate_full`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $details, $rate_half, $rate_full, $photographer_id, $type);
-
-        if ($stmt->execute()) {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">ลงประเภทงานที่รับสำเร็จ</div>",
-                        icon: "success",
-                        confirmButtonText: "ตกลง",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
-        } else {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงประเภทงานที่รับ</div>",
-                        icon: "error",
-                        confirmButtonText: "ออก",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -588,9 +263,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- <div style="background-color: rgba(	0, 41, 87, 0.6);"> -->
         <div class="d-flex justify-content-center">
             <nav class="navbar navbar-expand-lg navbar-dark col-10">
-            <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
-                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-            </a>
+                <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
+                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+                </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>
@@ -852,9 +527,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Category End -->
 
 
-    <div class="container mb-5 mt-2" style="height: 100%">
+    <div class=" mb-5 mt-2" style="height: 100%">
         <div class="container-lg mt-3">
-
             <!-- Examples of work Start -->
             <div class="container-xxl mt-4">
                 <div class="container">
@@ -865,7 +539,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <!-- <p>คุณลองดูผลงานช่างภาพของเราสิ!!!</p> -->
                             </div>
                         </div>
-                        <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
+                        <!-- <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
                             <ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
                                 <li class="nav-item me-2">
                                     <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#tab-1">Featured</a>
@@ -877,7 +551,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-3">For Rent</a>
                                 </li>
                             </ul>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="tab-content">
                         <div id="tab-1" class="tab-pane fade show p-0 active">
@@ -1211,29 +885,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- Examples of work End -->
-
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">หน้าหลัก</a>
-                        <a href="">คุกกี้</a>
-                        <a href="contact.php">ช่วยเหลือ</a>
-                        <a href="">ถามตอบ</a>
+        </div><!-- Footer Start -->
+        <div class="container-fluid bg-dark text-white-50 footer mt-5 wow fadeIn">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <div class="footer-menu">
+                            <a href="index.php">หน้าหลัก</a>
+                            <a href="">คุกกี้</a>
+                            <a href="contact.php">ช่วยเหลือ</a>
+                            <a href="">ถามตอบ</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Footer End -->
     </div>
-    <!-- Footer End -->
+    <!-- Examples of work End -->
+
+
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

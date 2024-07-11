@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config_db.php';
+require_once '../popup.php';
 
 $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
@@ -11,10 +12,336 @@ if (isset($_SESSION['photographer_login'])) {
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
 
-    // echo $rowPhoto['photographer_name'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['submit_photographer'])) {
+        $photographer_id = $_POST["photographer_id"];
+        $name = $_POST["name"];
+        $surname = $_POST["surname"];
+        $address = $_POST["address"];
+        $district = $_POST["district"];
+        $province = $_POST["province"];
+        $zipcode = $_POST["zipcode"];
+        $tell = $_POST["tell"];
+        $email = $_POST["email"];
+        $password = $_POST["password"];
+        $work_area = $_POST["work_area"];
+        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
+        $accountNumber = $_POST["accountNumber"];
+        $accountName = $_POST["accountName"];
+        $profileImage = ""; // Initialize the profileImage variable
+
+        // Check if the profile image is uploaded
+        if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
+            $image_file = $_FILES['profileImage']['name'];
+            $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
+            $type = $_FILES['profileImage']['type'];
+            $size = $_FILES['profileImage']['size'];
+            $temp = $_FILES['profileImage']['tmp_name'];
+
+            $path = "../img/profile/" . $new_name;
+            $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
+
+            // Check if the directory exists, if not, create it
+            if (!is_dir("img/profile")) {
+                mkdir("img/profile", 0777, true);
+            }
+
+            // Validate image type and size
+            if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
+                if (!file_exists($path)) {
+                    if (move_uploaded_file($temp, $path)) {
+                        $profileImage = $new_name;
+                    } else {
+                        echo '
+                        <div>
+                            <script>
+                                Swal.fire({
+                                    title: "<div class=\"t1\">มีปัญหาในการย้ายไฟล์รูปภาพ</div>",
+                                    icon: "error",
+                                    confirmButtonText: "ออก",
+                                    allowOutsideClick: true,
+                                    allowEscapeKey: true,
+                                    allowEnterKey: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = "";
+                                    }
+                                });
+                            </script>
+                        </div>';
+                        exit();
+                    }
+                } else {
+                    echo "File already exists... Check upload folder<br>";
+                    exit();
+                }
+            } else {
+                echo '
+                <div>
+                    <script>
+                        Swal.fire({
+                            title: "<div class=\"t1\">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น หรือขนาดไฟล์เกิน 5MB</div>",
+                            icon: "error",
+                            confirmButtonText: "ออก",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    </script>
+                </div>';
+                exit();
+            }
+        } else {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">กรุณาอัพโหลดรูปโปรไฟล์</div>",
+                        icon: "error",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+            exit();
+        }
+
+        $sql = "UPDATE photographer SET 
+            photographer_name = ?, 
+            photographer_surname = ?, 
+            photographer_tell = ?, 
+            photographer_address = ?, 
+            photographer_district = ?, 
+            photographer_province = ?, 
+            photographer_scope = ?, 
+            photographer_zip_code = ?, 
+            photographer_email = ?, 
+            photographer_password = ?, 
+            photographer_photo = ?, 
+            photographer_bank = ?, 
+            photographer_account_name = ?, 
+            photographer_account_number = ? 
+            WHERE photographer_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssssssssssssi", $name, $surname, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $bank, $accountName, $accountNumber, $photographer_id);
+
+        if ($stmt->execute()) {
+?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">บันทึกการแก้ไขสำเร็จ</div>',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+        <?php
+        } else {
+        ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+<?php
+        }
+        // Close the statement after usage
+        $stmt->close();
+    }
+
+    $sql = "SELECT * FROM `portfolio`";
+    $resultPort = $conn->query($sql);
+    $rowPort = $resultPort->fetch_assoc();
+
+
+    if (isset($_POST['submit_post_portfolio'])) {
+
+
+        // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
+        if (!empty($_FILES['upload']['tmp_name'][0])) {
+            $supported = array('jpg', 'jpeg', 'png', 'gif');
+            $uploadedImages = [];
+
+            foreach ($_FILES['upload']['tmp_name'] as $key => $tmp_name) {
+                $file_name = $_FILES['upload']['name'][$key];
+                $file_tmp = $_FILES['upload']['tmp_name'][$key];
+                $file_size = $_FILES['upload']['size'][$key];
+                $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+                // ตรวจสอบว่าไฟล์อัปโหลดเป็นไฟล์รูปที่รองรับหรือไม่
+                if (in_array($file_ext, $supported)) {
+                    // สร้างชื่อไฟล์ใหม่
+                    $fileNewName = uniqid('img_') . '_' . time();
+                    $file_dest = '../img/post/' . $fileNewName . '.' . $file_ext;
+
+                    // อัปโหลดไฟล์
+                    if (move_uploaded_file($file_tmp, $file_dest)) {
+                        // บันทึกชื่อไฟล์ในอาร์เรย์ $uploadedImages
+                        $uploadedImages[] = $fileNewName . '.' . $file_ext;
+                    } else {
+                        echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์";
+                    }
+                } else {
+                    echo "ประเภทไฟล์ไม่รองรับ";
+                }
+            }
+
+            // Serialize อาร์เรย์ของชื่อไฟล์
+            $photo = serialize($uploadedImages);
+            // แปลงข้อมูลจาก serialize เป็น array
+            $files = unserialize($photo);
+
+            // สร้างรายการชื่อไฟล์ที่คั่นด้วยเครื่องหมาย ','
+            $fileNames = implode(', ', $files);
+
+
+            $caption = $_POST['caption'];
+            $workPost = $_POST["workPost"];
+            $date = date('Y-m-d H:i:s');
+
+            // เตรียมคำสั่ง SQL สำหรับ INSERT
+            $sql = "INSERT INTO `portfolio` (`portfolio_photo`, `portfolio_caption`, `type_of_work_id`, `portfolio_date`) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssss", $fileNames, $caption, $workPost, $date);
+
+            // ทำการ execute คำสั่ง SQL
+            if ($stmt->execute()) {
+                echo '
+                <div>
+                    <script>
+                        Swal.fire({
+                            title: "<div class=\"t1\">ลงผลงานสำเร็จ</div>",
+                            icon: "success",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    </script>
+                </div>';
+            } else {
+                echo '
+                <div>
+                    <script>
+                        Swal.fire({
+                            title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงผลงาน</div>",
+                            icon: "error",
+                            confirmButtonText: "ออก",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    </script>
+                </div>';
+            }
+        } else {
+            echo "กรุณาเลือกไฟล์ที่ต้องการอัปโหลด";
+        }
+    }
+
+    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id
+    FROM type t
+    INNER JOIN (
+        SELECT type_id, MAX(photographer_id) AS photographer_id
+        FROM type_of_work
+        GROUP BY type_id
+    ) AS tow_latest ON t.type_id = tow_latest.type_id;
+    ";
+    $resultTypeWork = $conn->query($sql);
+    $rowTypeWork = $resultTypeWork->fetch_assoc();
+
+    if (isset($_POST['submit_type_of_work'])) {
+        $details = $_POST['details'];
+        $rate_half = isset($_POST['rate_half']) && $_POST['rate_half'] !== '' ? $_POST['rate_half'] : 0.0;
+        $rate_full = isset($_POST['rate_full']) && $_POST['rate_full'] !== '' ? $_POST['rate_full'] : 0.0;
+        $photographer_id = $_POST['photographer_id'];
+        $type = $_POST['type'];
+
+        $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half`, `type_of_work_rate_full`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssss", $details, $rate_half, $rate_full, $photographer_id, $type);
+
+        if ($stmt->execute()) {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">ลงประเภทงานที่รับสำเร็จ</div>",
+                        icon: "success",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+        } else {
+            echo '
+            <div>
+                <script>
+                    Swal.fire({
+                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงประเภทงานที่รับ</div>",
+                        icon: "error",
+                        confirmButtonText: "ออก",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                </script>
+            </div>';
+        }
+    }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -247,10 +574,10 @@ if (isset($_SESSION['photographer_login'])) {
     <!-- Navbar Start -->
     <div class="bg-dark">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <a href="index.php">
-                        <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-                    </a>
-                </a>
+            <a href="index.php">
+                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+            </a>
+            </a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
             </button>
@@ -293,131 +620,135 @@ if (isset($_SESSION['photographer_login'])) {
     </div> -->
 
     <div class="container-sm mt-3 bg-white" style="height: 100%; border-radius: 10px; border: 10px solid white;">
-    <div class="mt-5 container-md ">
-        <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;รายละเอียดข้อมูลช่างภาพ คุณ <?php echo $row['photographer_name']; ?></b></div>
-        <div class="mt-3 col-md-10 container-fluid ">
-            <div class="row ">
-                <div class="col-8">
-                    <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลส่วนตัว</b></div>
-                    <div class="col-12">
-                        <div class="row mt-3">
-                            <div class="col-2">
-                                <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
-                                </label>
-                                <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $row['photographer_prefix']; ?>" readonly>
+        <div class="mt-5">
+            <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;แก้ไขข้อมูทั้งหมดเกี่ยวกับคุณ</b></div>
+            <div class="mt-3 col-md-12 container-fluid">
+                <div class="row ">
+                    <div class="col-9">
+                        <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลส่วนตัว</b></div>
+                        <div class="col-12">
+                            <div class="row mt-3">
+                                <div class="col-2">
+                                    <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
+                                    </label>
+                                    <input type="text" name="prefix" class="form-control mt-2" value="<?php echo $rowPhoto['photographer_prefix']; ?>" readonly>
+                                </div>
+                                <div class="col-5">
+                                    <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_name']; ?>" required>
+                                </div>
+                                <div class="col-5">
+                                    <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">นามสกุล</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="surname" class="form-control" value="<?php echo $rowPhoto['photographer_surname']; ?>" required>
+                                </div>
                             </div>
-                            <div class="col-5">
-                                <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                </label>
-                                <input type="text" name="name" class="form-control mt-1" value="<?php echo $row['photographer_name']; ?>" readonly>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <label for="address" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_address']; ?>" required style="resize: none;">
+                                </div>
                             </div>
-                            <div class="col-5">
-                                <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                </label>
-                                <input type="text" name="surname" class="form-control" value="<?php echo $row['photographer_surname']; ?>" readonly>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="district" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_district']; ?>" required style="resize: none;">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="province" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_province']; ?>" required style="resize: none;">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_zip_code']; ?>" required style="resize: none;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_tell']; ?>" required style="resize: none;">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_email']; ?>" required style="resize: none;">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
+                                        <span style="color: red;">*</span>
+                                        <span style="color: red;font-size: 13px;">(ต้องกรอกไม่น้อยกว่า 5 ตัว)</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" name="password" minlength="5" id="password" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_password']; ?>" required style="resize: none;">
+                                        <button type="button" style="color: #fff; width: 60px; background-color: #555555; border: none;" id="togglePassword">
+                                            <svg xmlns="http://www.w3.org/2000/svg" id="eye-icon" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 mt-2">
-                        <div class="row">
-                            <div class="col-md-12 text-center">
-                                <label for="address" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
-                                    <span style="color: red;">*</span>
-                                </label>
-                                <input type="text" name="address" class="form-control mt-1" value="<?php echo $row['photographer_address']; ?>" readonly style="resize: none;">
+                    <div class="col-3">
+                        <div class="d-flex justify-content-center align-items-center md">
+                            <div class="circle">
+                                <div style="width: 60px; height: 60px;">
+                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="district" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
-                                </label>
-                                <input type="text" name="district" class="form-control mt-1" value="<?php echo $row['photographer_district']; ?>" readonly style="resize: none;">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="province" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
-                                </label>
-                                <input type="text" name="province" class="form-control mt-1" value="<?php echo $row['photographer_province']; ?>" readonly style="resize: none;">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
-                                </label>
-                                <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $row['photographer_zip_code']; ?>" readonly style="resize: none;">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
-                                </label>
-                                <input type="text" name="tell" class="form-control mt-1" value="<?php echo $row['photographer_tell']; ?>" readonly style="resize: none;">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
-                                </label>
-                                <input type="text" name="email" class="form-control mt-1" value="<?php echo $row['photographer_email']; ?>" readonly style="resize: none;">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="password" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
-                                </label>
-                                <input type="password" name="password" class="form-control mt-1" value="<?php echo $row['photographer_password']; ?>" readonly style="resize: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4 mt-5">
-                    <div class="d-flex justify-content-center align-items-center md">
-                        <div class="circle">
-                            <img src="../img/profile/<?php echo $row['photographer_photo']; ?>" alt="Your Image">
-                        </div>
-                    </div>
-                    <!-- <div class="align-items-center justify-content-center d-flex">
-                        <div class="">
+                        <div class="align-items-center justify-content-center d-flex">
                             <div>
-                                <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
-                                    <span style="color: red;">*</span>
-                                </label>
+                                <div>
+                                    <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                </div>
+                                <input type="file" id="photo" name="profileImage" class="form-control" onchange="updateImage()">
+                                <div class="">
+                                    <label for="confirm_password" style="font-weight: bold; display: flex; align-items: center;">
+                                        <span style="color: black; margin-right: 5px; font-size: 13px;">ยืนยันรหัสผ่าน</span>
+                                        <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="password" minlength="5" name="confirm_password" id="confirm_password" class="form-control mt-1" onchange="validatePassword()" placeholder="กรุณายืนยันรหัสผ่าน" value="<?php echo $rowPhoto['photographer_password']; ?>" required style="resize: none;">
+                                </div>
                             </div>
-                            <input type="file" name="photo" name="profileImage" class="form-control">
                         </div>
-                    </div> -->
-                    <form method="post" action="managePhotographerDetails.php?id=<?php echo $id; ?>">
-                        <div class="mt-1">
-                            <label for="license" style="font-weight: bold; display: flex; align-items: center;">
-                                <span style="color: black; margin-right: 5px;font-size: 13px;"> สิทธิ์การใช้งาน</span>
-                            </label>
-                            <select class="form-select border-1 mt-1" name="license">
-                                <?php
-                                if ($row['photographer_license'] == '0') {
-                                ?>
-                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
-                                    <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                <?php
-                                } else {
-                                ?>
-                                    <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
-                                <?php
-                                }
-                                ?>
-                            </select>
-                        </div>
-                </div>
-                <hr class="mt-4">
-                <div class="row justify-content-center">
+                    </div>
+                    <hr class="mt-4">
                     <div class="col-md-5 mt-0">
                         <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลเกี่ยวกับงาน</b></div>
                         <div class="mt-3">
@@ -425,65 +756,61 @@ if (isset($_SESSION['photographer_login'])) {
                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ไฟล์แฟ้มสะสมผลงาน</span>
                             </label>
                             <div class="input-group">
-                                <input type="text" name="portfolio" class="form-control" value="<?php echo $row['photographer_portfolio']; ?>" readonly>
-                                <a href="../portfolio/<?php echo $row['photographer_portfolio']; ?>" target="_blank" class="btn btn-primary">ดูไฟล์ PDF</a>
+                                <input type="text" name="portfolio" class="form-control" value="<?php echo $rowPhoto['photographer_portfolio']; ?>" readonly>
+                                <a href="../portfolio/<?php echo $rowPhoto['photographer_portfolio']; ?>" target="_blank" class="btn btn-primary">ดูไฟล์ PDF</a>
                             </div>
                         </div>
-                        <!-- <div class="mt-2">
+                        <div class="mt-2">
                             <label for="workid" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ประเภทงานที่รับ</span>
+                                <span style="color: red;">*</span>
                             </label>
-                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $row['photographer_']; ?>" readonly style="resize: none;">
-                        </div> -->
-                        <!-- <div class="mt-2">
-                            <label for="Price " style="font-weight: bold; display: flex; align-items: center;">
-                                <span style="color: black; margin-right: 5px; font-size: 13px;">ช่วงราคาที่รับงาน</span>
-                            </label>
-                            <input type="password" name="Price " class="form-control mt-1" placeholder="กรุณากรอกช่วงราคาที่รับงาน" style="resize: none;">
-                        </div> -->
+                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWork['photographer_type_of_work_']; ?>" required style="resize: none;">
+                        </div>
                         <div class="mt-2">
-                            <label for="scope" style="font-weight: bold; display: flex; align-items: center;">
+                            <label for="work_area" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ขอบเขตพื้นที่ที่รับงาน</span>
+                                <span style="color: red;">*</span>
                             </label>
-                            <input type="text" name="scope" class="form-control mt-1" value="<?php echo $row['photographer_scope']; ?>" readonly style="resize: none;">
+                            <input type="text" name="work_area" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_scope']; ?>" required style="resize: none;">
                         </div>
                     </div>
-                    <div class="col-md-2 mt-0 col-divider justify-content-center">
-                    </div>
+                    <hr class="mt-4">
                     <div class="col-md-5 mt-0">
                         <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลรับชำระเงิน</b></div>
                         <div class="mt-3">
                             <label for="workid" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อธนาคาร</span>
+                                <span style="color: red;">*</span>
                             </label>
-                            <input type="text" name="bank" class="form-control mt-1" value="<?php echo $row['photographer_bank']; ?>" readonly style="resize: none;">
+                            <input type="text" name="bank" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_bank']; ?>" required style="resize: none;">
                         </div>
                         <div class="mt-2">
                             <label for="accountname" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อบัญชี</span>
+                                <span style="color: red;">*</span>
                             </label>
-                            <input type="text" name="accountname" class="form-control mt-1" value="<?php echo $row['photographer_account_name']; ?>" readonly style="resize: none;">
+                            <input type="text" name="accountName" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_account_name']; ?>" required style="resize: none;">
                         </div>
                         <div class="mt-2">
-                            <label for="accountnumber" style="font-weight: bold; display: flex; align-items: center;">
+                            <label for="accountNumber" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px; font-size: 13px;">เลขที่บัญชี</span>
+                                <span style="color: red;">*</span>
                             </label>
-                            <input type="text" name="accountnumber" class="form-control mt-1" value="<?php echo $row['photographer_account_number']; ?>" readonly style="resize: none;">
+                            <input type="text" name="accountNumber" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_account_number']; ?>" required style="resize: none;">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center mt-5 mb-5">
-                <div class="col-md-12 text-center">
-                    <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                    <button type="button" onclick="window.location.href='Profile.php'" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
-                    <!-- <button onclick="window.location.href='manageCustomerEdite.php? id=<?php echo $row['photographer_id']; ?>'" class="btn btn-primary" style="width: 150px; height:45px;">แก้ไขสิทธิ์</button> -->
-                    <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
-                    <button id="saveButton" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
-                </div>
-            </div>
-            </form>
         </div>
+    </div>
+    <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
+    <div class="modal-footer mt-2 justify-content-center">
+        <button type="button" onclick="window.location.href='profile.php'" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+        <button type="submit" name="submit_photographer" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
+    </div>
+    </form>
+    </div>
     </div>
 
     </div>
