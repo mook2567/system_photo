@@ -7,12 +7,12 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
+if (isset($_SESSION['cus_login'])) {
+    $email = $_SESSION['cus_login'];
+    $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
+    $resultCus = $conn->query($sql);
+    $rowCus = $resultCus->fetch_assoc();
+    $id_cus = $rowCus['cus_id'];
 }
 
 ?>

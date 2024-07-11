@@ -15,9 +15,9 @@ $rowPhoto = $resultPhoto->fetch_assoc();
 if (isset($_SESSION['cus_login'])) {
     $email = $_SESSION['cus_login'];
     $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_cus = $rowPhoto['cus_id'];
+    $resultCus = $conn->query($sql);
+    $rowCus = $resultCus->fetch_assoc();
+    $id_cus = $rowCus['cus_id'];
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
