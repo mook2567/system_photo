@@ -16,7 +16,6 @@ if (isset($_SESSION['cus_login'])) {
     $email = $_SESSION['cus_login'];
     $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
     $resultCus = $conn->query($sql);
-    $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
 
@@ -1285,6 +1284,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <h5 class="modal-title" id="detailsLabel"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิว</b></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form action=""></form>
                 <div class="modal-body" style="height: 560px;">
                     <div class="mt-2 container-md">
                         <div class="mt-3 col-md-12 container-fluid">
