@@ -14,7 +14,7 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $resultPhoto->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 }
-
+$fullcalendar_path = "fullcalendar-4.4.2/packages/";
 ?>
 <!DOCTYPE html>
 <html lang='en'>

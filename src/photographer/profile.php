@@ -616,7 +616,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <!-- Navbar Start -->
     <div class="bg-dark">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar me-5 ms-5 navbar-expand-lg navbar-dark bg-dark">
             <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
                 <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
             </a>
@@ -683,7 +683,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                         <div class="col-12 text-start mt-2">
-                            
                             <div class="col-12 text-start mt-2">
                                 <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
                                         <i class="fa-solid fa-pencil"></i>
