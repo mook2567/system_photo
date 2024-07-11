@@ -521,7 +521,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             if ($resultTypeWorkDetail->num_rows > 0) {
                                                 while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
                                             ?>
-                                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;">
+                                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;" readonly>
                                             <?php
                                             }
                                             }?>
@@ -560,7 +560,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
                 <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
                 <div class="modal-footer mt-2 justify-content-center">
-                    <button type="button" onclick="window.location.href='profile.php'" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                    <button type="button" onclick="window.location.href='profile.php'" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ย้อนกลับ</button>
                     <button type="submit" name="submit_photographer" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                 </div>
             </form>
