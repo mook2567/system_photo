@@ -274,7 +274,6 @@ if (isset($_SESSION['photographer_login'])) {
                         <td>john@example.com</td>
                         <td>
                             <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details">ดูเพิ่มเติม</button>
-                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#edite">แก้ไข</button>
                         </td>
                     </tr>
                 </tbody>
