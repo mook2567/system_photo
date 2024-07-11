@@ -238,7 +238,7 @@ if (isset($_SESSION['photographer_login'])) {
             <div class="col-md-4 p-5 mt-lg-5">
                 <br><br>
                 <h1 class="display-7 animated fadeIn mb-1 text-white f text-md-end">รายการจองที่อนุมัติแล้ว</h1>
-                <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ชื่อช่างภาพ</h1>
+                <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ของคุณ</h1>
             </div>
         </div>
     </div>
