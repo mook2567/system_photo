@@ -332,12 +332,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                 ?>
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileCustomerModal<?php echo $row['id']; ?>">ดูเพิ่มเติม</button>
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editCustomerModal<?php echo $row['id']; ?>">แก้ไข</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editCustomerModal<?php echo $row['id']; ?>">กำหนดสิทธิ์</button>
                                 <?php } else {
 
                                 ?>
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detailePhotographerModal<?php echo $row['id']; ?>">ดูเพิ่มเติม</button>
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPhotographerModal<?php echo $row['id']; ?>">แก้ไข</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPhotographerModal<?php echo $row['id']; ?>">กำหนดสิทธิ์</button>
                                 <?php } ?>
                             </td>
                         </tr>
@@ -508,7 +508,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editPhotographerModalLabel<?php echo $rowPhotographer['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;แก้ไขสิทธิ์การใช้งานช่างภาพ คุณ  <?php echo $rowPhotographer['photographer_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editPhotographerModalLabel<?php echo $rowPhotographer['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;กำหนดสิทธิ์การใช้งานช่างภาพ คุณ  <?php echo $rowPhotographer['photographer_name']; ?></b></h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -612,11 +612,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         ?>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         } else {
                                                                         ?>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+
                                                                         <?php
                                                                         }
                                                                         ?>
@@ -805,7 +808,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editCustomerModalLabel<?php echo $rowCustomer['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;แก้ไขสิทธิ์การใช้งานลูกค้า คุณ <?php echo $rowCustomer['cus_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editCustomerModalLabel<?php echo $rowCustomer['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;กำหนดสิทธิ์การใช้งานลูกค้า คุณ <?php echo $rowCustomer['cus_name']; ?></b></h5>
                                         </div>
                                         <div class="modal-body">
                                             <div class="container-md">
@@ -907,11 +910,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         ?>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option value="1">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         } else {
                                                                         ?>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                            <option value="1">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         }
                                                                         ?>
