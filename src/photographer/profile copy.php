@@ -575,16 +575,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             margin-top: 20px;
             /* เพิ่มช่องว่างด้านบน */
         }
-        .row-scroll {
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch; /* เพื่อการเลื่อนสามารถทำงานได้ดีบนอุปกรณ์มือถือ iOS */
-}
 
-.col-md-4 {
-    flex: 0 0 calc(33.33% - 10px);
-    max-width: calc(33.33% - 10px);
-}
+        .row-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            /* เพื่อการเลื่อนสามารถทำงานได้ดีบนอุปกรณ์มือถือ iOS */
+        }
+
+        .col-md-4 {
+            flex: 0 0 calc(33.33% - 10px);
+            max-width: calc(33.33% - 10px);
+        }
     </style>
     <script>
         function validatePassword() {
@@ -745,7 +747,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <p>โพสต์อื่น ๆ</p>
                     </div>
                     <!-- POST -->
-                     
+
                     <?php
                     $sql = "SELECT 
                     po.portfolio_id, 
@@ -780,28 +782,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <div class="mt-2" style="flex-grow: 1;">
                                             <b><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></b>
                                             <p style="margin-bottom: 0;"><?php
-    // แปลงวันที่ในรูปแบบของ portfolio_date ให้เป็นภาษาไทย
-    $months_th = array(
-        '01' => 'มกราคม',
-        '02' => 'กุมภาพันธ์',
-        '03' => 'มีนาคม',
-        '04' => 'เมษายน',
-        '05' => 'พฤษภาคม',
-        '06' => 'มิถุนายน',
-        '07' => 'กรกฎาคม',
-        '08' => 'สิงหาคม',
-        '09' => 'กันยายน',
-        '10' => 'ตุลาคม',
-        '11' => 'พฤศจิกายน',
-        '12' => 'ธันวาคม'
-    );
-    
-    $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
-                 $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
-                 (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
-                 
-    echo $rowPost['type_work'] . ' (Post เมื่อ ' . $date_thai . ')';
-?></p>
+                                                                            // แปลงวันที่ในรูปแบบของ portfolio_date ให้เป็นภาษาไทย
+                                                                            $months_th = array(
+                                                                                '01' => 'มกราคม',
+                                                                                '02' => 'กุมภาพันธ์',
+                                                                                '03' => 'มีนาคม',
+                                                                                '04' => 'เมษายน',
+                                                                                '05' => 'พฤษภาคม',
+                                                                                '06' => 'มิถุนายน',
+                                                                                '07' => 'กรกฎาคม',
+                                                                                '08' => 'สิงหาคม',
+                                                                                '09' => 'กันยายน',
+                                                                                '10' => 'ตุลาคม',
+                                                                                '11' => 'พฤศจิกายน',
+                                                                                '12' => 'ธันวาคม'
+                                                                            );
+
+                                                                            $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
+                                                                                $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
+                                                                                (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
+
+                                                                            echo $rowPost['type_work'] . ' (Post เมื่อ ' . $date_thai . ')';
+                                                                            ?></p>
 
                                         </div>
                                     </div>
@@ -810,17 +812,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo $rowPost['portfolio_caption'] ?></p>
                                 </div>
                                 <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
-    <?php
-    $photos = explode(',', $rowPost['portfolio_photo']);
-    $max_photos = min(10, count($photos)); // จำกัดจำนวนภาพไม่เกิน 10
-    for ($i = 0; $i < $max_photos; $i++) : ?>
-        <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
-            <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]) ?>">
-                <img class="post-img" style="max-width: 100%; height: auto;" src="../img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
-            </a>
-        </div>
-    <?php endfor; ?>
-</div>
+                                    <?php
+                                    $photos = explode(',', $rowPost['portfolio_photo']);
+                                    $max_photos = min(10, count($photos)); // จำกัดจำนวนภาพไม่เกิน 10
+                                    for ($i = 0; $i < $max_photos; $i++) : ?>
+                                        <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
+                                            <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]) ?>">
+                                                <img class="post-img" style="max-width: 100%; height: auto;" src="../img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
+                                            </a>
+                                        </div>
+                                    <?php endfor; ?>
+                                </div>
 
 
                             </div>

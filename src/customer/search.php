@@ -210,7 +210,7 @@ if (isset($_SESSION['photographer_login'])) {
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white f">ค้นหาช่างภาพ</h2>
-                    <div class="col-md-3">
+                    <div class="col-md-5">
                         <select class="form-select border-0 py-3">
                             <option selected>ประเภทงาน</option>
                             <option value="1">งานแต่งงาน</option>
@@ -218,10 +218,10 @@ if (isset($_SESSION['photographer_login'])) {
                             <option value="3">งานอีเว้นท์</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-5">
                         <input class="border-0 py-3" type="text" name="reat" placeholder="  งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
                     </div>
-                    <div class="col-md-2">
+                    <!-- <div class="col-md-2">
                         <select class="form-select border-0 py-3">
                             <option selected>ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
@@ -237,7 +237,7 @@ if (isset($_SESSION['photographer_login'])) {
                             <option value="4">ภาคตะวันออก</option>
                             <option value="6">ภาคตะวันตก</option>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="col-md-2">
                         <form action="search.php" method="GET">
                             <button type="submit" class="btn btn-primary border-0 w-100 py-3"  name="search">ค้นหา</button>
