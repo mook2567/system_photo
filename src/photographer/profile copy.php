@@ -634,9 +634,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
     <!-- Navbar End -->
 
-    <!-- Profile Start -->
-    <div class="">
+
+    <div>
         <div class="row mt-3">
+            <!-- Profile Start -->
             <div class="col-3">
                 <div class="col-8 card-body bg-white" style="border-radius: 10px; height: auto; min-height: 700px;">
                     <div class="row mt-2 mb-2">
@@ -685,12 +686,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="mt-5 footer">
-                    &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
+                    <div class="mt-5 footer">
+                        &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
+                    </div>
                 </div>
             </div>
-            <div class="col-5" style="overflow-y: auto; height: 90vh;">
+
+            <!-- post -->
+            <div class="col-5" style="overflow-y: scroll; height: 89vh; scrollbar-width: none; -ms-overflow-style: none;">
                 <div class="row">
                     <div class="col-12 card-header bg-white" style="border-radius: 10px; height: auto; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);">
                         <div class="col-12 bg-white container" style="height: 160px; border-radius: 10px;">
@@ -722,10 +725,66 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <p>โพสต์อื่น ๆ</p>
                     </div>
                     <!-- POST -->
-                    <div class="col-12 card-body bg-white mt-1 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: 800px; ">
+                    <?php
+                $sql = "SELECT 
+                po.portfolio_id, 
+                po.portfolio_photo, 
+                po.portfolio_caption, 
+                po.portfolio_date,
+                t.type_work
+                FROM 
+                portfolio po
+                JOIN 
+                type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                JOIN 
+                photographer p ON p.photographer_id = tow.photographer_id
+                JOIN 
+                `type` t ON t.type_id = tow.type_id
+                WHERE 
+                tow.photographer_id = $id_photographer;
+                ";
+                $resultPost = $conn->query($sql);
+                $rowPost = $resultPost->fetch_assoc();
+                ?>
+                <?php while ($rowPost = $resultPost->fetch_assoc()) : ?>
+                    <div class="col-12 card-body bg-white mt-2 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: 650px; ">
+                        <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
+                            <div class="d-flex align-items-center justify-content-start mt-3">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="circle me-3" style="width: 60px; height: 60px;">
+                                        <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                    </div>
+                                    <div class="mt-2" style="flex-grow: 1;">
+                                        <b><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></b>
+                                        <p style="margin-bottom: 0;"><?php echo $rowPost['type_work'] ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo $rowPost['portfolio_caption'] ?></p>
+                            </div>
+                            <div class="row">
+                                <?php
+                                $photos = explode(',', $rowPost['portfolio_photo']);
+                                foreach ($photos as $photo) : ?>
+                                    <div class="col-md-6">
+                                        <img class="post-img mb-2" style="display: flex; flex-wrap: wrap; gap: 10px;" src="../img/post/<?php echo trim($photo) ?>" width="160" alt="img-post" />
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+
+
+                        </div>
                     </div>
+
+                <?php endwhile; ?>
+              
                 </div>
             </div>
+
+
+
+            <!-- ตารางงาน -->
             <div class="col-3 flex-fill" style="margin-left: auto;">
                 <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
                     <div class="d-flex justify-content-center align-items-center mt-3">
@@ -746,6 +805,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
     </div>
+
     <!-- Profile End -->
 
     <!-- Footer Start -->
