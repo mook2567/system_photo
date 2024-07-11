@@ -1,3 +1,22 @@
+<?php
+session_start();
+include '../config_db.php';
+require_once '../popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -74,8 +93,8 @@
         <!-- <div style="background-color: rgba(0, 41, 87, 0.6);"> -->
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
-                <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
-                    <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
+                <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
+                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -332,7 +351,7 @@
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                             <div class="property-item rounded overflow-hidden">
                                 <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/p10.jpg" alt=""></a>
+                                    <a href=""><img class="img-fluid" src="../img/p1.jpg" alt=""></a>
                                     <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Shop</div>
                                 </div>
@@ -353,8 +372,8 @@
                         <div class="col-lg-4 col-md-6">
                             <div class="property-item rounded overflow-hidden">
                                 <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-1.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
+                                    <a href=""><img class="img-fluid" src="../img/p4.jpg" alt=""></a>
+                                    
                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Appartment</div>
                                 </div>
                                 <div class="p-4 pb-0">
@@ -602,17 +621,7 @@
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">หน้าหลัก</a>
-                        <a href="">คุกกี้</a>
-                        <a href="contact.php">ช่วยเหลือ</a>
-                        <a href="">ถามตอบ</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
     <!-- Footer End -->
 
     <!-- JavaScript Libraries -->

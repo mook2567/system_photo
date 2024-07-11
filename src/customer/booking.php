@@ -1,3 +1,22 @@
+<?php
+session_start();
+include '../config_db.php';
+require_once '../popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -78,8 +97,8 @@
     <!-- Navbar Start -->
     <div class="bg-dark">
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-            <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
-                <img class="img-fluid ms-5" src="../img/photoLogo.png" style="height: 60px;">
+            <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
+                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
             </a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
@@ -97,15 +116,6 @@
                             <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
                             <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
                             <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
-                        </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,22 @@
+<?php
+session_start();
+include '../config_db.php';
+require_once '../popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -78,8 +97,8 @@
     <!-- Navbar Start -->
     <div class="bg-dark">
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-            <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
-                <img class="img-fluid ms-5" src="../img/photoLogo.png" style="height: 60px;">
+             <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
+                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
             </a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
@@ -202,14 +221,6 @@
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">หน้าหลัก</a>
-                        <a href="">คุกกี้</a>
-                        <a href="contact.php">ช่วยเหลือ</a>
-                        <a href="">ถามตอบ</a>
-                    </div>
                 </div>
             </div>
         </div>

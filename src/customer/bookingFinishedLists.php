@@ -1,3 +1,23 @@
+<?php
+session_start();
+include '../config_db.php';
+require_once '../popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -258,14 +278,6 @@
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">หน้าหลัก</a>
-                        <a href="">คุกกี้</a>
-                        <a href="contact.php">ช่วยเหลือ</a>
-                        <a href="">ถามตอบ</a>
-                    </div>
                 </div>
             </div>
         </div>
