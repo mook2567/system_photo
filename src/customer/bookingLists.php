@@ -14,6 +14,8 @@ if (isset($_SESSION['cus_login'])) {
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
+$sql = "SELECT * FROM `booking`";
+$resultBooking = $conn->query($sql);
 
 ?>
 
@@ -263,32 +265,44 @@ if (isset($_SESSION['cus_login'])) {
                         <th colspan="10" class="table-heading text-center bg-white">รายการจองคิวช่างภาพ</th>
                     </tr>
                     <tr>
-                        <th class="text-center">รหัส</th>
+                        <!-- <th class="text-center">รหัส</th> -->
                         <th>ชื่อ</th>
                         <th>นามสกุล</th>
                         <th>วันที่เริ่มจอง</th>
                         <th>เวลา</th>
                         <th>วันที่สิ้นสุด</th>
-                        <th>ราคา</th>
+                        <!-- <th>ราคา</th> -->
                         <th>สถานที่</th>
                         <th>การจัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
+                <?php
+                    if ($resultBooking->num_rows > 0) {
+                        while ($rowBooking = $resultBooking->fetch_assoc()
+                        ) {
+                            $account_id = $rowBooking['cus_id'];
+                            $sql1 = "SELECT * FROM `customer` WHERE cus_id = $account_id";
+                            $resultCuss = $conn->query($sql1);
+                            $rowCuss = $resultCuss->fetch_assoc();
+                    ?>
                     <tr>
-                        <th class="text-center" scope="row">1</th>
-                        <td>mook</td>
-                        <td>ky</td>
-                        <td>21/04/46</td>
-                        <td>ครึ่งวัน</td>
-                        <td>12.00</td>
-                        <td>5000</td>
+                        <!-- <th class="text-center" scope="row">1</th> -->
+                        <td><?php echo $rowCuss['cus_name']; ?></td>
+                        <td><?php echo $rowCuss['cus_surname']; ?></td>
+                        <td><?php echo $rowBooking['booking_start_date']; ?></td>
+                        <td><?php echo $rowBooking['booking_start_time']; ?></td>
+                        <td><?php echo $rowBooking['booking_end_date']; ?></td>
+                        <td><?php echo $rowBooking['booking_location']; ?></td>
                         <td>ขอนแก่น</td>
                         <td>
                             <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details">ดูเพิ่มเติม</button>
                             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#edite">แก้ไข</button>
                         </td>
                     </tr>
+                    <?php
+                        }}
+                    ?>
                 </tbody>
             </table>
         </div>

@@ -14,6 +14,8 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $resultPhoto->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 }
+$sql = "SELECT * FROM `booking` where photographer_id = $id_photographer";
+$resultBooking = $conn->query($sql);
 
 ?>
 
@@ -265,17 +267,32 @@ if (isset($_SESSION['photographer_login'])) {
                     </tr>
                 </thead>
                 <tbody>
+                <?php
+                    if ($resultBooking->num_rows > 0) {
+                        while ($rowBooking = $resultBooking->fetch_assoc()
+                        ) {
+                            $account_id = $rowBooking['cus_id'];
+                            $sql1 = "SELECT * FROM `customer` WHERE cus_id = $account_id";
+                            $resultCuss = $conn->query($sql1);
+                            $rowCuss = $resultCuss->fetch_assoc();
+                    ?>
                     <tr>
-                        <th scope="row">1</th>
-                        <td>John</td>
-                        <td>Doe</td>
-                        <td>0812345678</td>
-                        <td>john@example.com</td>
+                        <!-- <th class="text-center" scope="row">1</th> -->
+                        <td><?php echo $rowCuss['cus_name']; ?></td>
+                        <td><?php echo $rowCuss['cus_surname']; ?></td>
+                        <td><?php echo $rowBooking['booking_start_date']; ?></td>
+                        <td><?php echo $rowBooking['booking_start_time']; ?></td>
+                        <td><?php echo $rowBooking['booking_end_date']; ?></td>
+                        <td><?php echo $rowBooking['booking_location']; ?></td>
+                        <td>ขอนแก่น</td>
                         <td>
                             <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details">ดูเพิ่มเติม</button>
                             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#edite">แก้ไข</button>
                         </td>
                     </tr>
+                    <?php
+                        }}
+                    ?>
                 </tbody>
             </table>
         </div>

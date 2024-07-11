@@ -8,7 +8,7 @@ $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
 if (isset($_SESSION['photographer_login'])) {
-    echo $email = $_SESSION['photographer_login'];
+    $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
