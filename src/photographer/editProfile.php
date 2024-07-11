@@ -7,6 +7,21 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
+$sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
+FROM type t
+INNER JOIN (
+    SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
+    FROM type_of_work
+    WHERE (type_id, photographer_id) IN (
+        SELECT type_id, MAX(photographer_id)
+        FROM type_of_work
+        GROUP BY type_id
+    )
+) AS tow_latest ON t.type_id = tow_latest.type_id";
+$resultTypeWorkDetail = $conn->query($sql);
+$rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc();
+
+
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
@@ -18,125 +33,29 @@ if (isset($_SESSION['photographer_login'])) {
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
         $photographer_id = $_POST["photographer_id"];
-        $name = $_POST["name"];
-        $surname = $_POST["surname"];
         $address = $_POST["address"];
         $district = $_POST["district"];
         $province = $_POST["province"];
         $zipcode = $_POST["zipcode"];
-        $tell = $_POST["tell"];
-        $email = $_POST["email"];
         $password = $_POST["password"];
         $work_area = $_POST["work_area"];
         $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
         $accountNumber = $_POST["accountNumber"];
         $accountName = $_POST["accountName"];
-        $profileImage = ""; // Initialize the profileImage variable
-
-        // Check if the profile image is uploaded
-        if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
-            $image_file = $_FILES['profileImage']['name'];
-            $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
-            $type = $_FILES['profileImage']['type'];
-            $size = $_FILES['profileImage']['size'];
-            $temp = $_FILES['profileImage']['tmp_name'];
-
-            $path = "../img/profile/" . $new_name;
-            $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
-
-            // Check if the directory exists, if not, create it
-            if (!is_dir("img/profile")) {
-                mkdir("img/profile", 0777, true);
-            }
-
-            // Validate image type and size
-            if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
-                if (!file_exists($path)) {
-                    if (move_uploaded_file($temp, $path)) {
-                        $profileImage = $new_name;
-                    } else {
-                        echo '
-                        <div>
-                            <script>
-                                Swal.fire({
-                                    title: "<div class=\"t1\">มีปัญหาในการย้ายไฟล์รูปภาพ</div>",
-                                    icon: "error",
-                                    confirmButtonText: "ออก",
-                                    allowOutsideClick: true,
-                                    allowEscapeKey: true,
-                                    allowEnterKey: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = "";
-                                    }
-                                });
-                            </script>
-                        </div>';
-                        exit();
-                    }
-                } else {
-                    echo "File already exists... Check upload folder<br>";
-                    exit();
-                }
-            } else {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น หรือขนาดไฟล์เกิน 5MB</div>",
-                            icon: "error",
-                            confirmButtonText: "ออก",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-                exit();
-            }
-        } else {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">กรุณาอัพโหลดรูปโปรไฟล์</div>",
-                        icon: "error",
-                        confirmButtonText: "ตกลง",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
-            exit();
-        }
 
         $sql = "UPDATE photographer SET 
-            photographer_name = ?, 
-            photographer_surname = ?, 
-            photographer_tell = ?, 
             photographer_address = ?, 
             photographer_district = ?, 
             photographer_province = ?, 
             photographer_scope = ?, 
             photographer_zip_code = ?, 
-            photographer_email = ?, 
             photographer_password = ?, 
-            photographer_photo = ?, 
             photographer_bank = ?, 
             photographer_account_name = ?, 
             photographer_account_number = ? 
             WHERE photographer_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssssssssi", $name, $surname, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $bank, $accountName, $accountNumber, $photographer_id);
+        $stmt->bind_param("sssssssssi", $address, $district, $province, $work_area, $zipcode, $password, $bank, $accountName, $accountNumber, $photographer_id);
 
         if ($stmt->execute()) {
 ?>
@@ -179,166 +98,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         // Close the statement after usage
         $stmt->close();
-    }
-
-    $sql = "SELECT * FROM `portfolio`";
-    $resultPort = $conn->query($sql);
-    $rowPort = $resultPort->fetch_assoc();
-
-
-    if (isset($_POST['submit_post_portfolio'])) {
-
-
-        // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
-        if (!empty($_FILES['upload']['tmp_name'][0])) {
-            $supported = array('jpg', 'jpeg', 'png', 'gif');
-            $uploadedImages = [];
-
-            foreach ($_FILES['upload']['tmp_name'] as $key => $tmp_name) {
-                $file_name = $_FILES['upload']['name'][$key];
-                $file_tmp = $_FILES['upload']['tmp_name'][$key];
-                $file_size = $_FILES['upload']['size'][$key];
-                $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-                // ตรวจสอบว่าไฟล์อัปโหลดเป็นไฟล์รูปที่รองรับหรือไม่
-                if (in_array($file_ext, $supported)) {
-                    // สร้างชื่อไฟล์ใหม่
-                    $fileNewName = uniqid('img_') . '_' . time();
-                    $file_dest = '../img/post/' . $fileNewName . '.' . $file_ext;
-
-                    // อัปโหลดไฟล์
-                    if (move_uploaded_file($file_tmp, $file_dest)) {
-                        // บันทึกชื่อไฟล์ในอาร์เรย์ $uploadedImages
-                        $uploadedImages[] = $fileNewName . '.' . $file_ext;
-                    } else {
-                        echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์";
-                    }
-                } else {
-                    echo "ประเภทไฟล์ไม่รองรับ";
-                }
-            }
-
-            // Serialize อาร์เรย์ของชื่อไฟล์
-            $photo = serialize($uploadedImages);
-            // แปลงข้อมูลจาก serialize เป็น array
-            $files = unserialize($photo);
-
-            // สร้างรายการชื่อไฟล์ที่คั่นด้วยเครื่องหมาย ','
-            $fileNames = implode(', ', $files);
-
-
-            $caption = $_POST['caption'];
-            $workPost = $_POST["workPost"];
-            $date = date('Y-m-d H:i:s');
-
-            // เตรียมคำสั่ง SQL สำหรับ INSERT
-            $sql = "INSERT INTO `portfolio` (`portfolio_photo`, `portfolio_caption`, `type_of_work_id`, `portfolio_date`) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssss", $fileNames, $caption, $workPost, $date);
-
-            // ทำการ execute คำสั่ง SQL
-            if ($stmt->execute()) {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">ลงผลงานสำเร็จ</div>",
-                            icon: "success",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-            } else {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงผลงาน</div>",
-                            icon: "error",
-                            confirmButtonText: "ออก",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-            }
-        } else {
-            echo "กรุณาเลือกไฟล์ที่ต้องการอัปโหลด";
-        }
-    }
-
-    // โชว์ ประเถทงานที่รับของช่างภาพ
-    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id
-    FROM type t
-    INNER JOIN (
-        SELECT type_id, MAX(photographer_id) AS photographer_id
-        FROM type_of_work
-        GROUP BY type_id
-    ) AS tow_latest ON t.type_id = tow_latest.type_id;
-    ";
-    $resultTypeWork = $conn->query($sql);
-    $rowTypeWork = $resultTypeWork->fetch_assoc();
-
-    if (isset($_POST['submit_type_of_work'])) {
-        $details = $_POST['details'];
-        $rate_half = isset($_POST['rate_half']) && $_POST['rate_half'] !== '' ? $_POST['rate_half'] : 0.0;
-        $rate_full = isset($_POST['rate_full']) && $_POST['rate_full'] !== '' ? $_POST['rate_full'] : 0.0;
-        $photographer_id = $_POST['photographer_id'];
-        $type = $_POST['type'];
-
-        $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half`, `type_of_work_rate_full`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $details, $rate_half, $rate_full, $photographer_id, $type);
-
-        if ($stmt->execute()) {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">ลงประเภทงานที่รับสำเร็จ</div>",
-                        icon: "success",
-                        confirmButtonText: "ตกลง",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
-        } else {
-            echo '
-            <div>
-                <script>
-                    Swal.fire({
-                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในลงประเภทงานที่รับ</div>",
-                        icon: "error",
-                        confirmButtonText: "ออก",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                </script>
-            </div>';
-        }
     }
 }
 ?>
@@ -622,16 +381,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div>
         <div class="container-xxl card-body bg-white mt-4" style="min-height: 800px;border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);">
-            <center><h2 class="mt-2"><i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลเกี่ยวกับคุณ</h2></center>
+            <center>
+                <h2 class="mt-2"><i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลเกี่ยวกับคุณ</h2>
+            </center>
             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
                 <div class="modal-body">
                     <div class="container-xxl">
                         <div class="mt-3 col-md-12 container-fluid">
                             <div class="row ">
-                                <div class="col-9">
+                                <div class="col-12">
                                     <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลส่วนตัว</b></div>
-
-                                    <div class="col-12">
+                                    <!-- <div class="col-12">
                                         <div class="row mt-3">
                                             <div class="col-2">
                                                 <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
@@ -654,7 +414,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <input type="text" name="surname" class="form-control" value="<?php echo $rowPhoto['photographer_surname']; ?>" required>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="col-12 mt-2">
                                         <div class="row">
                                             <div class="col-md-12 text-center">
@@ -693,21 +453,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </div>
                                     <div class="col-md-12 mt-2">
                                         <div class="row">
-                                            <div class="col-md-4">
-                                                <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
-                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
-                                                    <span style="color: red;">*</span>
-                                                </label>
-                                                <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_tell']; ?>" required style="resize: none;">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
-                                                    <span style="color: red;">*</span>
-                                                </label>
-                                                <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_email']; ?>" required style="resize: none;">
-                                            </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                                 <label for="password" style="font-weight: bold; display: flex; align-items: center;">
                                                     <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
                                                     <span style="color: red;">*</span>
@@ -723,27 +469,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     </button>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="d-flex justify-content-center align-items-center md">
-                                        <div class="circle">
-                                            <div style="width: 60px; height: 60px;">
-                                                <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div>
-                                            <!-- <div>
-                                                <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
-                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
-                                                    <span style="color: red;">*</span>
-                                                </label>
-                                                <input type="file" id="photo" name="profileImage" class="form-control" onchange="updateImage()">
-                                            </div> -->
-                                            <div>
+                                            <div class="col-md-6">
                                                 <label for="confirm_password" style="font-weight: bold; display: flex; align-items: center;">
                                                     <span style="color: black; margin-right: 5px; font-size: 13px;">ยืนยันรหัสผ่าน</span>
                                                     <span style="color: red;">*</span>
@@ -774,14 +500,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             <input type="text" name="work_area" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_scope']; ?>" required style="resize: none;">
                                         </div>
                                         <div class="mt-2">
-                                            <?php
-                                                
-                                            ?>
                                             <label for="workid" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ประเภทงานที่รับ</span>
                                                 <span style="color: red;">*</span>
                                             </label>
-                                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWork['photographer_type_of_work_']; ?>" required style="resize: none;">
+                                            <?php
+                                            $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
+                                            FROM type t
+                                            INNER JOIN (
+                                                SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
+                                                FROM type_of_work
+                                                WHERE (type_id, photographer_id) IN (
+                                                    SELECT type_id, MAX(photographer_id)
+                                                    FROM type_of_work
+                                                    GROUP BY type_id
+                                                )
+                                            ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                            $resultTypeWorkDetail = $conn->query($sql);
+                                            
+                                            if ($resultTypeWorkDetail->num_rows > 0) {
+                                                while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                            ?>
+                                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;">
+                                            <?php
+                                            }
+                                            }?>
                                         </div>
                                     </div>
                                     <div class="col-md-2 mt-0 col-divider justify-content-center">
