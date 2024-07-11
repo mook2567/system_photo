@@ -135,7 +135,7 @@
         <!-- <div style="background-color: rgba(0, 41, 87, 0.6);"> -->
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
-                <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+                <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
                     <img class="img-fluid" src="../img/photoLogo.png" style="height: 60px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
