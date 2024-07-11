@@ -1,3 +1,22 @@
+<?php
+session_start();
+include 'config_db.php';
+require_once 'popup.php';
+
+$sql = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql);
+$rowInfo = $resultInfo->fetch_assoc();
+
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql);
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,13 +55,26 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <style>
-        body {
+         body {
             font-family: 'Athiti', sans-serif;
-            background: #F0F2F5;
+            overflow-x: hidden;
         }
 
         .f {
             font-family: 'Athiti', sans-serif;
+        }
+
+        .nav-bar {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            padding: 0;
+
         }
 
         p {
@@ -69,9 +101,98 @@
             font-family: 'Athiti', sans-serif;
         }
 
+        @media (max-width: 768px) {
+
+            .col-md-3,
+            .col-md-6,
+            .col-md-2 {
+                width: 100% !important;
+            }
+
+            .mb-3-md {
+                margin-bottom: 1rem !important;
+            }
+
+            .me-2-md {
+                margin-right: 0.5rem !important;
+            }
+
+            .ms-2-md {
+                margin-left: 0.5rem !important;
+            }
+
+            .py-3-md {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+            }
+
+            .px-4-md {
+                padding-left: 1.5rem !important;
+                padding-right: 1.5rem !important;
+            }
+
+            .text-center-md {
+                text-align: center !important;
+            }
+
+            .text-start-md {
+                text-align: start !important;
+            }
+
+            .text-end-md {
+                text-align: end !important;
+            }
+
+            .justify-content-center-md {
+                justify-content: center !important;
+            }
+
+            .align-items-center-md {
+                align-items: center !important;
+            }
+        }
+
+        .nav-bar {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            padding: 0;
+
+        }
+
+
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .bgIndex {
+            background-image: url('../img/bgIndex1.png');
+            background-attachment: fixed;
+            background-size: cover;
+            /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
+        }
+
+        body {
+            font-family: 'Athiti', sans-serif;
+            background: #fff;
+            overflow-x: hidden;
+        }
+
+        .f {
+            font-family: 'Athiti', sans-serif;
+        }
+
         .circle {
-            width: 200px;
-            height: 200px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             overflow: hidden;
             position: relative;
@@ -86,31 +207,11 @@
             left: 0;
         }
 
-        .write-post-container {
-            width: 100%;
-            background: #fff;
-            border-radius: 4px;
-            padding: 20px;
-            color: #626262;
-        }
-
-        .post-img {
-            width: 100%;
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
-
-        .post-text {
-            color: #626262;
-            margin: 15px;
-            font-size: 15px;
-        }
-
-        .bgIndex {
-            background-image: url('../img/bgIndex3.png');
-            background-attachment: fixed;
-            background-size: cover;
-            /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
+        body {
+            font-family: 'Athiti', sans-serif;
+            background: #f0f0f0;
+            /* Change background color to gray */
+            overflow-x: hidden;
         }
     </style>
 </head>
@@ -129,8 +230,8 @@
         <!-- Navbar Start -->
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark bg-dark col-10">
-                <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                    <img class="img-fluid" src="img/photoLogo.png" style="height: 60px;">
+                <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
+                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -237,42 +338,15 @@
     </div>
     <!-- Category End -->
 
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-        <div class="container py-5">
-            <div class="row g-5">
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 f">ติดต่อ</h5>
-                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>172/20 ม.6 ถ.ศรีจันทร์ ต.ในเมือน อ.เมือง จ.ขอนแก่น 40000</p>
-                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>096-825-4382</p>
-                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>photomatch@gmail.com</p>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 f">ลิงก์ด่วน</h5>
-                    <a class="btn btn-link text-white-50" href="">เกี่ยวกับพวกเรา</a>
-                    <a class="btn btn-link text-white-50" href="">ติดต่อเรา</a>
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="copyright">
-                <div class="row">
-                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                        &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
 
-                    </div>
-                    <div class="col-md-6 text-center text-md-end">
-                        <div class="footer-menu">
-                            <a href="">หน้าหลัก</a>
-                            <a href="">คุกกี้</a>
-                            <a href="">ช่วยเหลือ</a>
-                            <a href="">ถามตอบ</a>
-                        </div>
-                    </div>
+         <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+        <div class="copyright">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
-            </div>
-        </div>
-    </div>
+
     <!-- Footer End -->
 
 
