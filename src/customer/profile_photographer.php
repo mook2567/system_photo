@@ -7,13 +7,10 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $id_photographer = $_GET['photographer_id'];
+    $sql = "SELECT * FROM photographer WHERE photographer_id = '$id_photographer'";
     $resultPhoto = $conn->query($sql);
     $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
-}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
@@ -616,7 +613,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <!-- Navbar Start -->
     <div class="bg-dark">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar me-5 ms-5 navbar-expand-lg navbar-dark bg-dark">
             <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
                 <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
             </a>
@@ -683,14 +680,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                         <div class="col-12 text-start mt-2">
-                            <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button></h5></a>
-                            <div class="ms-4">
-                                <div class="d-flex align-items-center">
-                                    <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
-                                    <p class="mb-0">ประเภทงาน1</p>
+                            <div class="col-12 text-start mt-2">
+                                <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
+                                        <i class="fa-solid fa-pencil"></i>
+                                    </button></h5></a>
+                                <div class="ms-4">
+                                    <?php
+                                    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
+                                            FROM type t
+                                            INNER JOIN (
+                                                SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
+                                                FROM type_of_work
+                                                WHERE (type_id, photographer_id) IN (
+                                                    SELECT type_id, MAX(photographer_id)
+                                                    FROM type_of_work
+                                                    GROUP BY type_id
+                                                )
+                                            ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                    $resultTypeWorkDetail = $conn->query($sql);
+
+                                    if ($resultTypeWorkDetail->num_rows > 0) {
+                                        while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                    ?>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
+                                                <p class="mb-0"><?php echo $rowTypeWorkDetail['type_work']; ?></p>
+                                            </div>
+                                    <?php
+                                        }
+                                    } ?>
                                 </div>
+                            </div>
+                            <div class="ms-4">
+
                             </div>
                         </div>
                         <div class="col-12 text-start mt-2">
@@ -866,7 +888,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <span style="color: black; margin-right: 5px; font-size: 13px;">ประเภทงานที่รับ</span>
                                                             <span style="color: red;">*</span>
                                                         </label>
-                                                        <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWork['photographer_type_of_work_']; ?>" required style="resize: none;">
+                                                        <?php
+                                                        $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
+                                            FROM type t
+                                            INNER JOIN (
+                                                SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
+                                                FROM type_of_work
+                                                WHERE (type_id, photographer_id) IN (
+                                                    SELECT type_id, MAX(photographer_id)
+                                                    FROM type_of_work
+                                                    GROUP BY type_id
+                                                )
+                                            ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                                        $resultTypeWorkDetail = $conn->query($sql);
+
+                                                        if ($resultTypeWorkDetail->num_rows > 0) {
+                                                            while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                                        ?>
+                                                                <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;">
+                                                        <?php
+                                                            }
+                                                        } ?>
                                                     </div>
                                                     <div class="mt-2">
                                                         <label for="work_area" style="font-weight: bold; display: flex; align-items: center;">
@@ -1205,6 +1247,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                                                             echo $rowPost['type_work'] . ' (Post เมื่อ ' . $date_thai . ')';
                                                                             ?></p>
+
                                         </div>
                                     </div>
                                 </div>
@@ -1228,8 +1271,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                     <?php endwhile; ?>
+
+
                 </div>
             </div>
+
+
+
             <!-- ตารางงาน -->
             <div class="col-3 flex-fill" style="margin-left: auto;">
                 <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">

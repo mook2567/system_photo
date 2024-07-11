@@ -209,7 +209,7 @@ if (isset($_SESSION['photographer_login'])) {
         <!-- Category End -->
 
         <!-- การค้นหาช่างภาพ -->
-        <div class="mt-5 wow fadeIn" style="background-color: rgba(	250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
+        <!-- <div class="mt-5 wow fadeIn" style="background-color: rgba(	250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white f">ค้นหาช่างภาพ</h2>
@@ -248,7 +248,7 @@ if (isset($_SESSION['photographer_login'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     <!-- Search End -->
 
@@ -276,7 +276,7 @@ if (isset($_SESSION['photographer_login'])) {
                     <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                         <div class="property-item rounded overflow-hidden">
                             <div class="position-relative overflow-hidden">
-                                <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                <a href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
                                 
                                 <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
                                     <?php echo $row_photographer['photographer_prefix'].''.$row_photographer['photographer_name'].'   '.$row_photographer['photographer_surname']; ?>

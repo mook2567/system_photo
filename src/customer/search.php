@@ -136,10 +136,13 @@ if (isset($_SESSION['photographer_login'])) {
             background-size: cover;
             /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
         }
+
         .property-item img {
             width: 100%;
-            height: 250px; /* กำหนดความสูงตามที่คุณต้องการ */
-            object-fit: cover; /* ทำให้รูปภาพครอบคลุมพื้นที่ */
+            height: 250px;
+            /* กำหนดความสูงตามที่คุณต้องการ */
+            object-fit: cover;
+            /* ทำให้รูปภาพครอบคลุมพื้นที่ */
         }
     </style>
 </head>
@@ -206,401 +209,177 @@ if (isset($_SESSION['photographer_login'])) {
         <!-- Header End -->
 
         <!-- Search Start -->
-        <div class="mt-5 wow fadeIn" style="background-color: rgba(	250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
-                    <h2 class="text-white f">ค้นหาช่างภาพ</h2>
+                    <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-5">
-                        <select class="form-select border-0 py-3">
-                            <option selected>ประเภทงาน</option>
-                            <option value="1">งานแต่งงาน</option>
-                            <option value="2">งานพรีเวดดิ้ง</option>
-                            <option value="3">งานอีเว้นท์</option>
-                        </select>
+                        <form action="" method="POST">
+                            <select class="form-select border-0 py-3" name="type" required>
+                                <option selected>ประเภทงาน</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
+                                FROM type t
+                                INNER JOIN (
+                                    SELECT type_id, MAX(photographer_id) AS photographer_id
+                                    FROM type_of_work
+                                    GROUP BY type_id
+                                ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                $resultTypeWorkDetail = $conn->query($sql);
+
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                <?php
+                                    }
+                                } ?>
+                            </select>
                     </div>
                     <div class="col-md-5">
-                        <input class="border-0 py-3" type="text" name="reat" placeholder="  งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
                     </div>
-                    <!-- <div class="col-md-2">
-                        <select class="form-select border-0 py-3">
-                            <option selected>ช่วงเวลา</option>
-                            <option value="1">เต็มวัน</option>
-                            <option value="2">ครึ่งวัน</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
-                            <option selected>สถานที่</option>
-                            <option value="1">ภาคกลาง</option>
-                            <option value="2">ภาคตะวันออกเฉียงเหนือ</option>
-                            <option value="3">ภาคใต้</option>
-                            <option value="4">ภาคตะวันออก</option>
-                            <option value="6">ภาคตะวันตก</option>
-                        </select>
-                    </div> -->
                     <div class="col-md-2">
-                        <form action="search.php" method="GET">
-                            <button type="submit" class="btn btn-primary border-0 w-100 py-3"  name="search">ค้นหา</button>
-                        </form>
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Search End -->
+        </div>
+        </div>
+        <!-- Search End -->
 
-   <!-- Examples of work Start -->
-   <div class="container-xxl py-5">
-        <div class="container">
-        <div class="tab-content">
-                        <div id="tab-1" class="tab-pane fade show p-0 active">
-                            <div class="row g-4">
-                                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div class="property-item rounded overflow-hidden">
-                                        <div class="position-relative overflow-hidden">
-                                            <a href=""><img class="img-fluid" src="../img/m01.jpg" alt=""></a>
-                                            <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">ภาพบุคคล</div>
-                                        </div>
-                                        <div class="p-4 pb-0">
-                                            <h5 class="text-dark mb-3">$5000</h5>
-                                            <a class="d-block h5 mb-2" href="">ช่างภาพ คุณ...</a>
-                                            <p><i class="fa fa-map-marker-alt text-dark me-2"></i>จังหวัดขอนแก่น</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                                    <div class="property-item rounded overflow-hidden">
-                                        <div class="position-relative overflow-hidden">
-                                            <a href=""><img class="img-fluid" src="../img/m02.jpg" alt=""></a>
-                                            <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">ภาพบุคคล</div>
-                                        </div>
-                                        <div class="p-4 pb-0">
-                                            <h5 class="text-dark mb-3">$4000</h5>
-                                            <a class="d-block h5 mb-2" href="">ช่างภาพ คุณ.....</a>
-                                            <p><i class="fa fa-map-marker-alt text-dark me-2"></i>ภาคกลาง</p>
-                                    </div>
-                                </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div class="property-item rounded overflow-hidden">
-                                        <div class="position-relative overflow-hidden">
-                                            <a href=""><img class="img-fluid" src="../img/m03.jpg" alt=""></a>
-                                            <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">ภาพบุคคล</div>
-                                        </div>
-                                        <div class="p-4 pb-0">
-                                            <h5 class="text-dark mb-3">$6000</h5>
-                                            <a class="d-block h5 mb-2" href="">ช่างภาพ คุณ ....</a>
-                                            <p><i class="fa fa-map-marker-alt text-dark me-2"></i>กลางภาค</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                                    <div class="property-item rounded overflow-hidden">
-                                        <div class="position-relative overflow-hidden">
-                                            <a href=""><img class="img-fluid" src="../img/d2.jpg" alt=""></a>
-                                            <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานพรีเวดดิ้ง</div>
-                                        </div>
-                                        <div class="p-4 pb-0">
-                                            <h5 class="text-dark mb-3">$12,345</h5>
-                                            <a class="d-block h5 mb-2" href="">ช่างภาพ คุณ...</a>
-                                            <p><i class="fa fa-map-marker-alt text-dark me-2"></i>ภาคกลาง</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                                    <div class="property-item rounded overflow-hidden">
-                                        <div class="position-relative overflow-hidden">
-                                            <a href=""><img class="img-fluid" src="../img/dev18.jpg" alt=""></a>
-                                            <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานบวช</div>
-                                        </div>
-                                        <div class="p-4 pb-0">
-                                            <h5 class="text-dark mb-3">$5000</h5>
-                                            <a class="d-block h5 mb-2" href="">ช่างภาพ คุณ...</a>
-                                            <p><i class="fa fa-map-marker-alt text-dark me-2"></i>กลางภาค</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                                    <div class="property-item rounded overflow-hidden">
-                                        <div class="position-relative overflow-hidden">
-                                            <a href=""><img class="img-fluid" src="../img/dev17.jpg" alt=""></a>
-                                            <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานวันรับปริญญา</div>
-                                        </div>
-                                        <div class="p-4 pb-0">
-                                            <h5 class="text-dark mb-3">$5000</h5>
-                                            <a class="d-block h5 mb-2" href="">ช่างภาพ คุณ...</a>
-                                            <p><i class="fa fa-map-marker-alt text-dark me-2"></i>กลางภาค</p>
-                                        </div>
+        <?php
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST['search'])) {
+                $type_id = $conn->real_escape_string($_POST['type']);
+                $budget = $conn->real_escape_string($_POST['budget']);
 
+                $sql = "SELECT 
+    photographer.photographer_prefix, 
+    photographer.photographer_name, 
+    photographer.photographer_surname, 
+    photographer.photographer_tell, 
+    photographer.photographer_address, 
+    photographer.photographer_email, 
+    photographer.photographer_scope, 
+    photographer.photographer_photo
+FROM 
+    photographer 
+INNER JOIN 
+    type_of_work 
+ON 
+    photographer.photographer_id = type_of_work.photographer_id
+WHERE 
+type_of_work.type_id = $type_id;";
+                $result = $conn->query($sql);
+        ?>
+                <!-- Examples of work Start -->
+                <div class="container-xxl py-5">
+                    <div class="container">
+                        <div class="tab-content">
+                            <div id="tab-1" class="tab-pane fade show p-0 active">
+                                <div class="row g-4">
+                                    <?php
+                                    if ($result->num_rows > 0) {
+                                        while ($row_photographer = $result->fetch_assoc()) {
+                                    ?>
+                                            <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                                <div class="property-item rounded overflow-hidden">
+                                                    <div class="position-relative overflow-hidden">
+                                                        <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                                            <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-4 pb-0">
+                                                        <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
+                                                        <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                        <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
+                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                            <?php
+                                        }
+                                    } else {
+                                        echo "0 results";
+                                    }
+                                }
+                            } else {
+                                ?>
+                                <div class="container-xxl py-5">
+                                <div class="container">
+                                    <div class="row g-0 gx-5 align-items-end">
+                                        <div class="col-lg-6">
+                                            <div class="text-start mx-auto mb-5 wow slideInLeft" data-wow-delay="0.1s">
+                                                <h1 class="mb-3 f">ช่างภาพแนะนำ</h1>
+                                            </div>
+                                        </div>
+                                        
                                     </div>
-                                </div>
-                                <div class="col-12 text-center wow fadeInUp" data-wow-delay="0.1s">
-                                    <a class="btn btn-dark py-3 px-5" href="">ดูเพิ่มเติม</a>
-                                </div>
-                            </div>
-                        </div>
-                <div id="tab-2" class="tab-pane fade show p-0">
-                    <div class="row g-4">
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-1.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Appartment</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-2.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Villa</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
+                                    <div class="tab-content">
+                            <div id="tab-1" class="tab-pane fade show p-0 active">
+                                <div class="row g-4">
+                                    <?php
+                                    $sql = "SELECT * FROM `photographer`";
+                                    $result = $conn->query($sql);
+                        
+                                    if ($result->num_rows > 0) {
+                                        while ($row_photographer = $result->fetch_assoc()) {
+                                            ?>
+                                            <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                                <div class="property-item rounded overflow-hidden">
+                                                    <div class="position-relative overflow-hidden">
+                                                        <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                                        
+                                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                                            <?php echo $row_photographer['photographer_prefix'].''.$row_photographer['photographer_name'].'   '.$row_photographer['photographer_surname']; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-4 pb-0">
+                                                        <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
+                                                        <a class="d-block mb-2" href="mailto://<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                        <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
+                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php
+                                        }
+                                    } else {
+                                        echo "0 results";
+                                    } }
+                                    ?>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-3.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Office</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
+                    
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-4.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Building</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-5.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Home</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-6.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Shop</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 text-center">
-                            <a class="btn btn-dark py-3 px-5" href="">ดูเพิ่มเติม</a>
                         </div>
                     </div>
                 </div>
-                <div id="tab-3" class="tab-pane fade show p-0">
-                    <div class="row g-4">
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-1.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Appartment</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
+                <!-- Examples of work End -->
+
+                <!-- Examples of work End -->
+
+                <!-- Footer Start -->
+                <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+                    <div class="copyright">
+                        <div class="row">
+                            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                                &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                             </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-2.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Villa</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-3.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Office</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-4.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Building</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-5.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Sell</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Home</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid" src="../img/property-6.jpg" alt=""></a>
-                                    <div class="bg-dark rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For Rent</div>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">Shop</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">Golden Urban House For Sell</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>123 Street, New York, USA</p>
-                                </div>
-                                <div class="d-flex border-top">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-dark me-2"></i>1000 Sqft</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-dark me-2"></i>3 Bed</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-bath text-dark me-2"></i>2 Bath</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 text-center">
-                            <a class="btn btn-dark py-3 px-5" href="">ดูเพิ่มเติม</a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!-- Examples of work End -->
-
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Footer End -->
+                <!-- Footer End -->
 
 
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
+                <!-- Back to Top -->
+                <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
     </div>
 
     <!-- JavaScript Libraries -->
