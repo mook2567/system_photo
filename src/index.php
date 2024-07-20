@@ -9,7 +9,6 @@ $rowInfo = $resultInfo->fetch_assoc();
 
 $sql = "SELECT * FROM `type`";
 $resultType = $conn->query($sql);
-$rowType = $resultType->fetch_assoc();
 
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
@@ -114,7 +113,7 @@ if (isset($_SESSION['photographer_login'])) {
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
-                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+                    <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -147,79 +146,23 @@ if (isset($_SESSION['photographer_login'])) {
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
-                    <?php
-                    if ($resultAdmin->num_rows > 0) {
-                        while ($rowAdmin = $resultAdmin->fetch_assoc()) {
-                    ?>
-                            <div class="row g-4">
+                    <div class="row g-5 mt-2">
+                        <?php
+                        if ($resultType->num_rows > 0) {
+                            while ($rowType = $resultType->fetch_assoc()) {
+                        ?>
                                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <a class="cat-item bg-light text-center" href="">
                                         <div class="rounded p-4" style="font-size: 60.9px;">
-                                            <img src="../img/icon/<?php echo $rowType['type_icon'];?>"style="height: 40px; width: 40px;"></img>
-                                            <h6 class="f"><?php echo $rowType['type_work'];?></h6>
+                                            <img src="img/icon/<?php echo $rowType['type_icon'];?>" style="height: 75px; width: 75px;"></img>
+                                            <h6 class="f mt-3"><?php echo $rowType['type_work'];?></h6>
                                         </div>
                                     </a>
                                 </div>
-                                <!-- <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-ring text-dark"></i>
-                                    <h6 class="f">งานแต่งงาน</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-calendar-week text-dark"></i>
-                                    <h6 class="f">งานอีเว้นท์</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-person-praying text-dark"></i>
-                                    <h6 class="f">งานบวช</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-user-graduate text-dark"></i>
-                                    <h6 class="f">งานวันรับปริญญา</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-person text-dark"></i>
-                                    <h6 class="f">ภาพบุคคล</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-gift text-dark"></i>
-                                    <h6 class="f">ภาพสินค้า</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-utensils text-dark"></i>
-                                    <h6 class="f">ภาพอาหาร</h6>
-                                </div>
-                            </a>
-                        </div> -->
                         <?php
-                        }
-                    } ?>
-                            </div>
+                            }
+                        } ?>
+                    </div>
                 </div>
             </div>
         </div>
