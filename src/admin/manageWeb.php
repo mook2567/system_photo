@@ -261,7 +261,7 @@ $row = $result->fetch_assoc();
                             </label>
                             <div class="d-flex bgIconImg justify-content-center align-items-center md" style="height: 115px;">
                                 <div class="mt-1 mb-1">
-                                <img id="userImage" src="../img/logo/<?php echo $row['information_icon'] ? $row['information_icon'] : 'null.png'; ?>">
+                                <img id="userImage" src="../img/logo/<?php echo $row['information_icon'] ? $row['information_icon'] : 'null.png'; ?>"style="height: 115px;>
                                 </div>
                             </div>
                         </div>
