@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config_db.php';
-require_once '../popup.php';
+include 'config_db.php';
+require_once 'popup.php';
 
 $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="utf-8">
     <title>Photo Match</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link rel="icon" type="image/png" href="../img/icon-logo.png">
+    <link rel="icon" type="image/png" href="img/icon-logo.png">
     <meta content="" name="keywords">
     <meta content="" name="description">
 
@@ -105,14 +105,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="../lib/animate/animate.min.css" rel="stylesheet">
-    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 
     <!-- font awaysome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -353,8 +353,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Navbar Start -->
     <div class="bg-dark">
         <nav class="navbar me-5 ms-5 navbar-expand-lg navbar-dark bg-dark">
-            <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+            <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
+                <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
             </a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
@@ -380,7 +380,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                             <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                             <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                            <a href="index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>
                 </div>
@@ -388,6 +388,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </nav>
     </div>
     <!-- Navbar End -->
+
 
     <div>
         <div class="row mt-3">
@@ -469,209 +470,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 </div>
             </div>
+            
 
             <!-- post -->
             <div class="col-6" style="overflow-y: scroll; height: 89vh; scrollbar-width: none; -ms-overflow-style: none;">
 
                 <div class="row">
-
-
-                    <!-- post -->
-                    <div class="modal fade" id="post" tabindex="-1" aria-labelledby="postLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" style="width: 35%;">
-                            <div class="modal-content justify-content-center">
-                                <div class="modal-header justify-content-center">
-                                    <h5 class="modal-title me-2 justify-content-center text-center" id="postLabel">โพสต์</h5>
-                                    <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- Form for editing photographer's information -->
-                                    <div class="container">
-                                        <div class="">
-                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                                <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                    <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                                </div>
-                                                <div class="col-7">
-                                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="row col-12 ">
-                                                <div class="col-3 ms-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="postOption" id="postPhotoRadio" checked>
-                                                        <label class="form-check-label" for="postPhotoRadio">ลงผลงาน</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-3">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="postOption" id="postTypeRadio">
-                                                        <label class="form-check-label" for="postTypeRadio">ประเภทงาน</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="postContent">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- post portfolio -->
-                    <div class="modal fade" id="postPhoto" tabindex="-1" aria-labelledby="postPhotoLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" style="width: 35%;">
-                            <div class="modal-content">
-                                <div class="modal-header justify-content-center">
-                                    <h5 class="modal-title" id="postPhotolLabel">ลงผลงาน</h5>
-                                    <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
-                                    <div class="modal-body" style="height:auto;">
-                                        <!-- Form for editing photographer's information -->
-                                        <div class="container">
-                                            <div class="form-container">
-                                                <div class="d-flex align-items-center justify-content-start mt-3">
-                                                    <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                        <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-
-                                                    </div>
-                                                </div>
-                                                <div class="mt-4">
-                                                    <select class="form-select border-1 py-2" name="workPost" id="workPost">
-                                                        <option required>เลือกประเภทงาน</option>
-                                                        <?php
-                                                        // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
-                                                        $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                                            FROM type t
-                                                            INNER JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                            GROUP BY t.type_id, t.type_work;
-                                                            ";
-                                                        $resultTypeWork = $conn->query($sql);
-
-                                                        // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
-                                                        if ($resultTypeWork->num_rows > 0) {
-                                                            while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
-                                                                echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
-                                                            }
-                                                        } else {
-                                                            echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </div>
-                                                <div class="post-input-container">
-                                                    <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
-                                                </div>
-                                                <div class="post-image-preview" id="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                                </div>
-                                                <div class="mt-2">
-                                                    <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
-                                                    <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/*">
-                                                    <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
-                                                    <p id="loaded_n_total"></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- post type -->
-                    <div class="modal fade" id="postType" tabindex="-1" aria-labelledby="postTypeLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
-                            <div class="modal-content">
-                                <div class="modal-header justify-content-center">
-                                    <h5 class="modal-title justify-content-center" id="postTypeLabel">ลงประเภทงานที่รับ</h5>
-                                    <button type="button" onclick="window.location.href='profile.php'" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
-                                    <div class="modal-body" style="height: auto;">
-                                        <!-- Form for editing photographer's information -->
-                                        <div class="container">
-                                            <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
-                                                <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                    <img id="userImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                                </div>
-                                                <div>
-                                                    <p><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4 mt-4">
-                                                    <span style="color: black;">ประเภทงานที่รับ</span>
-                                                </div>
-                                                <div class="col-8 mt-2">
-                                                    <select class="form-select border-1 py-2" name="type">
-                                                        <option selected required>เลือกประเภทงานที่รับ</option>
-                                                        <?php
-                                                        $sqlType = "SELECT t.*
-                                                    FROM type t
-                                                    LEFT JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                    WHERE tow.photographer_id IS NULL;
-                                                    ";
-                                                        $resultType = $conn->query($sqlType);
-                                                        $rowType = $resultInfo->fetch_assoc();
-                                                        if ($resultType->num_rows > 0) {
-                                                            while ($rowType = $resultType->fetch_assoc()) {
-                                                                echo '<option value="' . htmlspecialchars($rowType['type_id']) . '">' . htmlspecialchars($rowType['type_work']) . '</option>';
-                                                            }
-                                                        } else {
-                                                            echo '<option value="">ไม่มีประเภทงาน คุณได้ลงประเภทงานครบแล้ว</option>';
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4 mt-4">
-                                                    <label for="rate_half">
-                                                        <span style="color: black;">เรทราคาครึ่งวัน</span>
-                                                        <div class="row">
-                                                            <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                                <div class="col-8 mt-4">
-                                                    <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4 mt-4">
-                                                    <label for="rate_full">
-                                                        <span style="color: black;">เรทราคาเต็มวัน</span>
-                                                        <div class="row">
-                                                            <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                                <div class="col-8 mt-4">
-                                                    <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                                                </div>
-                                            </div>
-                                            <div class="post-input-container">
-                                                <span style="color: black;">รายละเอียดการรับงาน</span>
-                                                <span style="color: red;">*</span>
-                                                <textarea name="details" placeholder="รายละเอียดการรับงาน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" required></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
-                                    <div class="modal-footer">
-                                        <button type="submit" name="submit_type_of_work" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="col-12 mt-3">
                         <p>โพสต์อื่น ๆ</p>
                     </div>
@@ -706,7 +510,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="d-flex align-items-center justify-content-start mt-3">
                                     <div style="display: flex; align-items: center;">
                                         <div class="circle me-3" style="width: 60px; height: 60px;">
-                                            <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
+                                            <img src="img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                                         </div>
                                         <div class="mt-2" style="flex-grow: 1;">
                                             <b><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></b>
@@ -746,8 +550,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     $max_photos = min(10, count($photos)); // จำกัดจำนวนภาพไม่เกิน 10
                                     for ($i = 0; $i < $max_photos; $i++) : ?>
                                         <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
-                                            <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]) ?>">
-                                                <img class="post-img" style="max-width: 100%; height: 100%;" src="../img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
+                                            <a data-fancybox="gallery" href="img/post/<?php echo trim($photos[$i]) ?>">
+                                                <img class="post-img" style="max-width: 100%; height: 100%;" src="img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
                                             </a>
                                         </div>
                                     <?php endfor; ?>
@@ -784,120 +588,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
     </div>
     <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailsLabel"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;จองคิวช่างภาพ</b></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="mt-3">
+                    <i class="fas fa-exclamation-triangle fa-3x text-danger"></i> <!-- Error icon -->
+                    <h2 class="mt-3">คุณไม่สามารถทำรายการนี้ได้</h2>
+                    <h5>หากต้องการจองคิวโปรดเข้าสู่ระบบก่อน</h5>
                 </div>
-                <form action="" method="POST">
-                    <div class="modal-body" style="height: 560px;">
-                        <div class="mt-2 container-md">
-                            <div class="mt-3 col-md-12 container-fluid">
-                                <div class="col-12">
-                                    <div class="row mt-2">
-                                        <div class="col-2">
-                                            <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
-                                            </label>
-                                            <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowCus['cus_prefix']; ?>" readonly>
-                                        </div>
-                                        <div class="col-5">
-                                            <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                            </label>
-                                            <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowCus['cus_name']; ?>" readonly>
-                                        </div>
-                                        <div class="col-5">
-                                            <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                            </label>
-                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowCus['cus_surname']; ?>" readonly>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mt-3">
-                                    <div class="row">
-                                        <div class="col-md-4 text-center">
-                                            <label for="booking-start-date" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
-                                            </label>
-                                            <input type="date" name="start_date" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                            </label>
-                                            <input type="time" name="start_time" class="form-control mt-1" style="resize: none;">
-                                        </div>
-
-                                        <div class="col-md-4 text-center">
-                                            <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
-                                            </label>
-                                            <input type="date" name="end_date" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <label for="booking-end-time" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
-                                            </label>
-                                            <input type="time" name="end_time" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mt-3">
-                                    <div class="row">
-                                        <div class="col-md-12 text-center">
-                                            <label for="location" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
-
-                                            </label>
-                                            <input type="text" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 mt-3 text-center">
-                                    <label for="Information_caption" style="font-weight: bold; display: flex; align-items: center;">
-                                        <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
-                                    </label>
-                                    <textarea name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;"></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <div class="row mt-3">
-                                        <div class="col-5">
-                                            <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
-                                            </label>
-                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowCus['cus_tell']; ?>" style="resize: none;">
-                                        </div>
-                                        <div class="col-5 text-center">
-                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
-                                            </label>
-                                            <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowCus['cus_email']; ?>" style="resize: none;">
-                                        </div>
-                                        <div class="col-2">
-                                            <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
-                                            </label>
-                                            <input type="date" name="date" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" name="cus_id" value="<?php echo $rowCus['cus_id']; ?>">
-                            <div class="modal-footer mt-5 justify-content-center">
-                                <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
-                                <button type="submit" name="submit_book" class="btn btn-primary" style="width: 150px; height:45px;">จองคิว</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary" style="width: 150px; height:45px;" onclick="redirectToLogin()">ไปยังหน้าเข้าสู่ระบบ</button>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Profile End -->
 
@@ -963,7 +669,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // ถ้าไม่ว่างให้เป็นสีแดง
         }
     </script>
-
+<script>
+function redirectToLogin() {
+    window.location.href = 'login.php';
+}
+</script>
 
 
 </body>

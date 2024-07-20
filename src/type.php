@@ -265,10 +265,7 @@ $resultType = $conn->query($sql);
             <div class="mt-4 d-flex justify-content-center align-items-center" style="border-radius: 10px;">
                 <div class="container-xxl py-5">
                     <div class="container">
-                        <div class="mb-3 mt-4 text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
-                            <h1 class="f" style="color:aliceblue;">Photo Match</h1>
-                            <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
-                        </div>
+                        
                         <div class="row g-5 mt-2 justify-content-center">
                             <?php
                             if ($resultType->num_rows > 0) {

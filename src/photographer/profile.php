@@ -17,21 +17,21 @@ if (isset($_SESSION['photographer_login'])) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
-         $photographer_id = $_POST["photographer_id"];
-         $name = $_POST["name"];
-         $surname = $_POST["surname"];
-         $address = $_POST["address"];
-         $district = $_POST["district"];
-         $province = $_POST["province"];
-         $zipcode = $_POST["zipcode"];
-         $tell = $_POST["tell"];
-         $email = $_POST["email"];
-         $password = $_POST["password"];
-         $work_area = $_POST["work_area"];
-         $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
-         $accountNumber = $_POST["accountNumber"];
-         $accountName = $_POST["accountName"];
-         $profileImage = ""; // Initialize the profileImage variable
+        $photographer_id = $_POST["photographer_id"];
+        $name = $_POST["name"];
+        $surname = $_POST["surname"];
+        $address = $_POST["address"];
+        $district = $_POST["district"];
+        $province = $_POST["province"];
+        $zipcode = $_POST["zipcode"];
+        $tell = $_POST["tell"];
+        $email = $_POST["email"];
+        $password = $_POST["password"];
+        $work_area = $_POST["work_area"];
+        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
+        $accountNumber = $_POST["accountNumber"];
+        $accountName = $_POST["accountName"];
+        $profileImage = ""; // Initialize the profileImage variable
 
         // Check if the profile image is uploaded
         if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
@@ -690,16 +690,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="ms-4">
                                     <?php
                                     $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-                                            FROM type t
-                                            INNER JOIN (
-                                                SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
-                                                FROM type_of_work
-                                                WHERE (type_id, photographer_id) IN (
-                                                    SELECT type_id, MAX(photographer_id)
-                                                    FROM type_of_work
-                                                    GROUP BY type_id
-                                                )
-                                            ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                    FROM type t
+                                    INNER JOIN (
+                                        SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half, type_of_work_rate_full
+                                        FROM type_of_work
+                                        WHERE (type_id, photographer_id) IN (
+                                            SELECT type_id, MAX(photographer_id)
+                                            FROM type_of_work
+                                            GROUP BY type_id
+                                        )
+                                    ) AS tow_latest ON t.type_id = tow_latest.type_id
+                                    WHERE tow_latest.photographer_id = $id_photographer;";
                                     $resultTypeWorkDetail = $conn->query($sql);
 
                                     if ($resultTypeWorkDetail->num_rows > 0) {
@@ -893,16 +894,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         </label>
                                                         <?php
                                                         $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-                                            FROM type t
-                                            INNER JOIN (
-                                                SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
-                                                FROM type_of_work
-                                                WHERE (type_id, photographer_id) IN (
-                                                    SELECT type_id, MAX(photographer_id)
-                                                    FROM type_of_work
-                                                    GROUP BY type_id
-                                                )
-                                            ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                                        FROM type t
+                                                        INNER JOIN (
+                                                            SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half, type_of_work_rate_full
+                                                            FROM type_of_work
+                                                            WHERE (type_id, photographer_id) IN (
+                                                                SELECT type_id, MAX(photographer_id)
+                                                                FROM type_of_work
+                                                                GROUP BY type_id
+                                                            )
+                                                        ) AS tow_latest ON t.type_id = tow_latest.type_id
+                                                        WHERE tow_latest.photographer_id = $id_photographer;";
                                                         $resultTypeWorkDetail = $conn->query($sql);
 
                                                         if ($resultTypeWorkDetail->num_rows > 0) {
@@ -1063,10 +1065,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <?php
                                                         // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
                                                         $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                                            FROM type t
+                                                            FROM `type` t
                                                             INNER JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                            GROUP BY t.type_id, t.type_work;
-                                                            ";
+                                                            WHERE tow.photographer_id = $id_photographer
+                                                            GROUP BY t.type_id, t.type_work;";
                                                         $resultTypeWork = $conn->query($sql);
 
                                                         // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
@@ -1080,6 +1082,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         ?>
                                                     </select>
                                                 </div>
+
                                                 <div class="post-input-container">
                                                     <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
                                                 </div>
@@ -1130,10 +1133,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <option selected required>เลือกประเภทงานที่รับ</option>
                                                         <?php
                                                         $sqlType = "SELECT t.*
-                                                    FROM type t
-                                                    LEFT JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                    WHERE tow.photographer_id IS NULL;
-                                                    ";
+                                                        FROM `type` t
+                                                        LEFT JOIN type_of_work tow ON t.type_id = tow.type_id AND tow.photographer_id = $id_photographer
+                                                        WHERE tow.type_id IS NULL;";
                                                         $resultType = $conn->query($sqlType);
                                                         $rowType = $resultInfo->fetch_assoc();
                                                         if ($resultType->num_rows > 0) {
@@ -1469,20 +1471,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         postContentDiv.innerHTML = `
                         <div class="col-12  mt-3">
             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
-                                
-                                   
-                                        <div class="form-container">
-                                            
-                                                    <div>
+                                <div class="form-container">
+                                            <div>
                                                         <select class="form-select border-1 py-2" name="workPost" id="workPost">
                                                             <option required>เลือกประเภทงาน</option>
                                                             <?php
                                                             // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
                                                             $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                                            FROM type t
+                                                            FROM `type` t
                                                             INNER JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                            GROUP BY t.type_id, t.type_work;
-                                                            ";
+                                                            WHERE tow.photographer_id = $id_photographer
+                                                            GROUP BY t.type_id, t.type_work;";
+                                                        $resultTypeWork = $conn->query($sql);
                                                             $resultTypeWork = $conn->query($sql);
 
                                                             // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
@@ -1563,10 +1563,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <option selected>เลือกประเภทงานที่รับ</option>
                                                     <?php
                                                     $sqlType = "SELECT t.*
-                                                    FROM type t
-                                                    LEFT JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                    WHERE tow.photographer_id IS NULL;
-                                                    ";
+                                                    FROM `type` t
+                                                    LEFT JOIN type_of_work tow ON t.type_id = tow.type_id AND tow.photographer_id = $id_photographer
+                                                    WHERE tow.type_id IS NULL;";
                                                     $resultType = $conn->query($sqlType);
                                                     $rowType = $resultInfo->fetch_assoc();
 

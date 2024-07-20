@@ -330,7 +330,7 @@ type_of_work.type_id = $type_id;";
                                                         <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                                                             <div class="property-item rounded overflow-hidden">
                                                                 <div class="position-relative overflow-hidden">
-                                                                    <a  href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                                                    <a href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
 
                                                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
                                                                         <?php echo $row_photographer['photographer_prefix'] . '' . $row_photographer['photographer_name'] . '   ' . $row_photographer['photographer_surname']; ?>
@@ -354,7 +354,6 @@ type_of_work.type_id = $type_id;";
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                             </div>

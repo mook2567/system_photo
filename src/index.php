@@ -88,6 +88,14 @@ $resultType = $conn->query($sql);
             /* or any desired height */
             object-fit: cover;
         }
+        .caption {
+  white-space: nowrap; /* ทำให้ข้อความไม่ขึ้นบรรทัดใหม่ */
+  overflow: hidden; /* ซ่อนข้อความที่ล้น */
+  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความล้น */
+  width: 100%; /* ตั้งค่าความกว้างตามที่ต้องการ */
+  display: block; /* ทำให้พารากราฟเป็นบล็อค */
+}
+
     </style>
 </head>
 
@@ -230,8 +238,6 @@ $resultType = $conn->query($sql);
     </div> -->
     <!-- Header End -->
 
-
-
     <!-- About Start -->
     <div class="container-xxl py-5">
         <div class="container">
@@ -281,9 +287,10 @@ $resultType = $conn->query($sql);
             </div>
             <div class="row g-4">
                 <?php
-                $sql = "SELECT 
+                $sql1 = "SELECT 
                         po.portfolio_id, 
                         po.portfolio_photo, 
+                        po.portfolio_caption, 
                         t.type_work,
                         t.type_icon,
                         p.photographer_id,
@@ -292,30 +299,30 @@ $resultType = $conn->query($sql);
                         p.photographer_name,
                         p.photographer_surname,
                         p.photographer_scope
-                        FROM 
-                        portfolio po
-                        JOIN 
+                    FROM 
+                        portfolio po 
+                    LEFT JOIN 
                         type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
-                        JOIN 
+                    LEFT JOIN 
                         photographer p ON p.photographer_id = tow.photographer_id
-                        JOIN 
-                        `type` t ON t.type_id = tow.type_id
-                        ORDER BY po.portfolio_id DESC
-                        LIMIT 6;
-                        ";
-                $resultPost = $conn->query($sql);
+                    LEFT JOIN 
+                        type t ON t.type_id = tow.type_id
+                    ORDER BY 
+                        po.portfolio_id DESC;";
+                $resultPost = $conn->query($sql1);
                 if ($resultPost->num_rows > 0) {
                     while ($rowPost = $resultPost->fetch_assoc()) {
                 ?>
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <div class="property-item rounded overflow-hidden">
+                            <div class="property-item rounded overflow-hidden bg-white" >
                                 <div class="position-relative overflow-hidden">
                                     <a><img class="img-fluid property-img" src="img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
                                 </div>
                                 <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-1"><i class="fa-solid fa-money-bill me-2"></i><?php echo $rate = $rowPost['rate_half'] == 0 ? $rowPost['rate_full'] : $rowPost['rate_half']; ?> บาท</h5>
-                                    <a class="d-block h5 mb-2" href=""><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
+                                    <!-- <h5 class="text-dark mb-1"><i class="fa-solid fa-money-bill me-2"></i><?php echo $rate = $rowPost['rate_half'] == 0 ? $rowPost['rate_full'] : $rowPost['rate_half']; ?> บาท</h5> -->
+                                    <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
+                                    <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
                                     <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
                                 </div>
                             </div>
