@@ -7,6 +7,10 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
+$sql = "SELECT * FROM `type`";
+$resultType = $conn->query($sql);
+$rowType = $resultType->fetch_assoc();
+
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
@@ -143,16 +147,20 @@ if (isset($_SESSION['photographer_login'])) {
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
-                    <div class="row g-4">
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <a class="cat-item bg-light text-center" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-heart text-dark"></i>
-                                    <h6 class="f">งานพรีเวดดิ้ง</h6>
+                    <?php
+                    if ($resultAdmin->num_rows > 0) {
+                        while ($rowAdmin = $resultAdmin->fetch_assoc()) {
+                    ?>
+                            <div class="row g-4">
+                                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                                    <a class="cat-item bg-light text-center" href="">
+                                        <div class="rounded p-4" style="font-size: 60.9px;">
+                                            <img src="../img/icon/<?php echo $rowType['type_icon'];?>"style="height: 40px; width: 40px;"></img>
+                                            <h6 class="f"><?php echo $rowType['type_work'];?></h6>
+                                        </div>
+                                    </a>
                                 </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                                <!-- <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
                             <a class="cat-item bg-light text-center rounded" href="">
                                 <div class="rounded p-4" style="font-size: 60.9px;">
                                     <i class="fa-solid fa-ring text-dark"></i>
@@ -207,8 +215,11 @@ if (isset($_SESSION['photographer_login'])) {
                                     <h6 class="f">ภาพอาหาร</h6>
                                 </div>
                             </a>
-                        </div>
-                    </div>
+                        </div> -->
+                        <?php
+                        }
+                    } ?>
+                            </div>
                 </div>
             </div>
         </div>
@@ -562,7 +573,7 @@ if (isset($_SESSION['photographer_login'])) {
                     <a class="btn btn-link text-white-50" href="">เกี่ยวกับพวกเรา</a>
                     <a class="btn btn-link text-white-50" href="">ติดต่อเรา</a>
                 </div>-->
-                <!-- <div class="col-lg-3 col-md-6">
+    <!-- <div class="col-lg-3 col-md-6">
                     <h5 class="text-white mb-4">Photo Gallery</h5>
                     <div class="row g-2 pt-2">
                         <div class="col-4">
@@ -585,7 +596,7 @@ if (isset($_SESSION['photographer_login'])) {
                         </div>
                     </div>
                 </div> -->
-                <!-- <div class="col-lg-3 col-md-6">
+    <!-- <div class="col-lg-3 col-md-6">
                     <h5 class="text-white mb-4">Newsletter</h5>
                     <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
                     <div class="position-relative mx-auto" style="max-width: 400px;">
@@ -593,7 +604,7 @@ if (isset($_SESSION['photographer_login'])) {
                         <button type="button" class="btn btn-dark py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
                     </div>
                 </div> -->
-             <!-- Footer Start -->
+    <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
@@ -601,23 +612,23 @@ if (isset($_SESSION['photographer_login'])) {
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
 
-    <!-- Footer End -->
+                <!-- Footer End -->
 
 
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
-    </div>
+                <!-- Back to Top -->
+                <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
+            </div>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/wow/wow.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+            <!-- JavaScript Libraries -->
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="lib/wow/wow.min.js"></script>
+            <script src="lib/easing/easing.min.js"></script>
+            <script src="lib/waypoints/waypoints.min.js"></script>
+            <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+            <!-- Template Javascript -->
+            <script src="js/main.js"></script>
 </body>
 
 </html>
