@@ -7,15 +7,11 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
-}
+$sql = "SELECT * FROM `type`";
+$resultType = $conn->query($sql);
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +51,7 @@ if (isset($_SESSION['photographer_login'])) {
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <style>
-         body {
+        body {
             font-family: 'Athiti', sans-serif;
             overflow-x: hidden;
         }
@@ -231,7 +227,7 @@ if (isset($_SESSION['photographer_login'])) {
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark bg-dark col-10">
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
-                    <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+                    <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -266,80 +262,39 @@ if (isset($_SESSION['photographer_login'])) {
             </div>
 
             <!-- Category Start -->
-
-            <div class="row g-4">
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <a class="cat-item bg-light text-center" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-heart text-dark"></i>
-                            <h6 class="f">งานพรีเวดดิ้ง</h6>
+            <div class="mt-4 d-flex justify-content-center align-items-center" style="border-radius: 10px;">
+                <div class="container-xxl py-5">
+                    <div class="container">
+                        <div class="mb-3 mt-4 text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                            <h1 class="f" style="color:aliceblue;">Photo Match</h1>
+                            <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                         </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-ring text-dark"></i>
-                            <h6 class="f">งานแต่งงาน</h6>
+                        <div class="row g-5 mt-2 justify-content-center">
+                            <?php
+                            if ($resultType->num_rows > 0) {
+                                while ($rowType = $resultType->fetch_assoc()) {
+                            ?>
+                                    <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                                        <a class="cat-item bg-light text-center" href="">
+                                            <div class="rounded p-4" style="font-size: 60.9px;">
+                                                <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
+                                                <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
+                                            </div>
+                                        </a>
+                                    </div>
+                            <?php
+                                }
+                            } ?>
                         </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-calendar-week text-dark"></i>
-                            <h6 class="f">งานอีเว้นท์</h6>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-person-praying text-dark"></i>
-                            <h6 class="f">งานบวช</h6>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-user-graduate text-dark"></i>
-                            <h6 class="f">งานวันรับปริญญา</h6>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-person text-dark"></i>
-                            <h6 class="f">ภาพบุคคล</h6>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-gift text-dark"></i>
-                            <h6 class="f">ภาพสินค้า</h6>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                    <a class="cat-item bg-light text-center rounded" href="">
-                        <div class="rounded p-4" style="font-size: 60.9px;">
-                            <i class="fa-solid fa-utensils text-dark"></i>
-                            <h6 class="f">ภาพอาหาร</h6>
-                        </div>
-                    </a>
+                    </div>
                 </div>
             </div>
+            <!-- Category End -->
         </div>
     </div>
-    </div>
-    <!-- Category End -->
 
 
-         <!-- Footer Start -->
+    <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
@@ -347,23 +302,23 @@ if (isset($_SESSION['photographer_login'])) {
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
 
-    <!-- Footer End -->
+                <!-- Footer End -->
 
 
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
-    </div>
+                <!-- Back to Top -->
+                <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
+            </div>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/wow/wow.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+            <!-- JavaScript Libraries -->
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="lib/wow/wow.min.js"></script>
+            <script src="lib/easing/easing.min.js"></script>
+            <script src="lib/waypoints/waypoints.min.js"></script>
+            <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+            <!-- Template Javascript -->
+            <script src="js/main.js"></script>
 </body>
 
 </html>

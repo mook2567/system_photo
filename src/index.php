@@ -10,14 +10,6 @@ $rowInfo = $resultInfo->fetch_assoc();
 $sql = "SELECT * FROM `type`";
 $resultType = $conn->query($sql);
 
-if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -113,7 +105,7 @@ if (isset($_SESSION['photographer_login'])) {
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
-                    <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+                    <img class="img-fluid" src="/img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -146,7 +138,7 @@ if (isset($_SESSION['photographer_login'])) {
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
-                    <div class="row g-5 mt-2">
+                    <div class="row g-5 mt-2 justify-content-center">
                         <?php
                         if ($resultType->num_rows > 0) {
                             while ($rowType = $resultType->fetch_assoc()) {
@@ -154,8 +146,8 @@ if (isset($_SESSION['photographer_login'])) {
                                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <a class="cat-item bg-light text-center" href="">
                                         <div class="rounded p-4" style="font-size: 60.9px;">
-                                            <img src="img/icon/<?php echo $rowType['type_icon'];?>" style="height: 75px; width: 75px;"></img>
-                                            <h6 class="f mt-3"><?php echo $rowType['type_work'];?></h6>
+                                            <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
+                                            <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
                                         </div>
                                     </a>
                                 </div>
@@ -169,46 +161,59 @@ if (isset($_SESSION['photographer_login'])) {
         <!-- Category End -->
 
         <!-- Search Start -->
-        <div class="mt-5 mb-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
-            <div class="container">
-                <div class="row flex-row g-2 align-items-center">
-                    <h2 class="text-white f">ค้นหาช่างภาพ</h2>
-                    <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
-                            <option selected>ประเภทงาน</option>
-                            <option value="1">งานแต่งงาน</option>
-                            <option value="2">งานพรีเวดดิ้ง</option>
-                            <option value="3">งานอีเว้นท์</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input class="border-0 py-3" type="text" id="reat" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-select border-0 py-3">
-                            <option selected>ช่วงเวลา</option>
-                            <option value="1">เต็มวัน</option>
-                            <option value="2">ครึ่งวัน</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
-                            <option selected>สถานที่</option>
-                            <option value="1">ภาคกลาง</option>
-                            <option value="2">ภาคตะวันออกเฉียงเหนือ</option>
-                            <option value="3">ภาคใต้</option>
-                            <option value="4">ภาคตะวันออก</option>
-                            <option value="6">ภาคตะวันตก</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <form action="search.php" method="GET">
+        <form action="search.php" method="POST">
+            <div class="mt-5 mb-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
+                <div class="container">
+                    <div class="row flex-row g-2 align-items-center">
+                        <h2 class="text-white f">ค้นหาช่างภาพ</h2>
+                        <?php
+                        $sql = "SELECT * FROM `type`";
+                        $resultType = $conn->query($sql);
+                        if ($resultType->num_rows > 0) {
+                        ?>
+                            <div class="col-md-3">
+                                <select class="form-select border-0 py-3 ">
+                                    <option selected>ประเภทงาน</option>
+                                    <?php
+                                    while ($rowType = $resultType->fetch_assoc()) {
+                                    ?>
+                                        <option value="<?php echo $rowType['type_work']; ?>"><?php echo $rowType['type_work']; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php
+                        }
+                        ?>
+                        <div class="col-md-2">
+                            <input class="border-0 py-3" type="text" id="reat" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select border-0 py-3">
+                                <option selected>ช่วงเวลา</option>
+                                <option value="1">เต็มวัน</option>
+                                <option value="2">ครึ่งวัน</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select border-0 py-3">
+                                <option selected>สถานที่</option>
+                                <option value="กรุงเทพฯ">กรุงเทพฯ</option>
+                                <option value="ภาคกลาง">ภาคกลาง</option>
+                                <option value="ภาคใต้">ภาคใต้</option>
+                                <option value="ภาคเหนือ">ภาคเหนือ</option>
+                                <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                                <option value="ภาคตะวันตก">ภาคตะวันตก</option>
+                            </select>
+                        </div>
+                        <div class="col-2 mt-2">
                             <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
     <!-- Search End -->
 
@@ -233,7 +238,7 @@ if (isset($_SESSION['photographer_login'])) {
             <div class="row g-5 align-items-center">
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
                     <div class="about-img position-relative overflow-hidden p-5 pe-0">
-                        <img class="img-fluid w-100" src="../img/Photomatch.gif">
+                        <img class="img-fluid w-100" src="img/Photomatch.gif">
                     </div>
                 </div>
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
@@ -260,109 +265,72 @@ if (isset($_SESSION['photographer_login'])) {
                         <p>คุณลองดูผลงานช่างภาพของเราสิ!!!</p>
                     </div>
                 </div>
-                <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
-                    <ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
-                        <li class="nav-item me-2">
-                            <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#tab-1">Featured</a>
-                        </li>
-                        <li class="nav-item me-2">
-                            <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-2">For Sell</a>
-                        </li>
-                        <li class="nav-item me-0">
-                            <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-3">For Rent</a>
-                        </li>
-                    </ul>
-                </div>
+                <!-- <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
+                <ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#tab-1">Featured</a>
+                    </li>
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-2">For Sell</a>
+                    </li>
+                    <li class="nav-item me-0">
+                        <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-3">For Rent</a>
+                    </li>
+                </ul>
+            </div> -->
             </div>
-            <div class="tab-content">
-                <div id="tab-1" class="tab-pane fade show p-0 active">
-                    <div class="row g-4">
+            <div class="row g-4">
+                <?php
+                $sql = "SELECT 
+                        po.portfolio_id, 
+                        po.portfolio_photo, 
+                        t.type_work,
+                        t.type_icon,
+                        p.photographer_id,
+                        CAST( tow.type_of_work_rate_half  AS UNSIGNED) AS rate_half,
+                        CAST( tow.type_of_work_rate_full AS UNSIGNED) AS rate_full,
+                        p.photographer_name,
+                        p.photographer_surname,
+                        p.photographer_scope
+                        FROM 
+                        portfolio po
+                        JOIN 
+                        type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                        JOIN 
+                        photographer p ON p.photographer_id = tow.photographer_id
+                        JOIN 
+                        `type` t ON t.type_id = tow.type_id
+                        ORDER BY po.portfolio_id DESC
+                        LIMIT 6;
+                        ";
+                $resultPost = $conn->query($sql);
+                if ($resultPost->num_rows > 0) {
+                    while ($rowPost = $resultPost->fetch_assoc()) {
+                ?>
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="property-item rounded overflow-hidden">
                                 <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid property-img" src="img/graduation.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานวันรับปริญญา</div>
+                                    <a><img class="img-fluid property-img" src="img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
+                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
                                 </div>
                                 <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$0000</h5>
-                                    <a class="d-block h5 mb-2" href="">ชื่อช่างภาพ</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>จังหวัดขอนแก่น</p>
+                                    <h5 class="text-dark mb-1"><i class="fa-solid fa-money-bill me-2"></i><?php echo $rate = $rowPost['rate_half'] == 0 ? $rowPost['rate_full'] : $rowPost['rate_half']; ?> บาท</h5>
+                                    <a class="d-block h5 mb-2" href=""><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
+                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid property-img" src="img/widding.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งาน</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$00000</h5>
-                                    <a class="d-block h5 mb-2" href="">ชื่อช่างภาพ</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>จังหวัดขอนแก่น</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid property-img" src="img/dev8.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานบวช</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$0000</h5>
-                                    <a class="d-block h5 mb-2" href="">ชื่อช่างภาพ</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>จังหวัดขอนแก่น</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid property-img" src="img/dev10.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">ภาพอาหาร</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$0000</h5>
-                                    <a class="d-block h5 mb-2" href="">Augustinus Martinus Noppé</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>ประเทศไทย</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid property-img" src="img/dev13.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานวันรับปริญญา</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$0000</h5>
-                                    <a class="d-block h5 mb-2" href="">ชื่อช่างภาพ</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>ประเทศไทย</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                            <div class="property-item rounded overflow-hidden">
-                                <div class="position-relative overflow-hidden">
-                                    <a href=""><img class="img-fluid property-img" src="img/dev14.jpg" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">งานบวช</div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <h5 class="text-dark mb-3">$12,345</h5>
-                                    <a class="d-block h5 mb-2" href="">ชื่อช่างภาพ</a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i>จังหวัดขอนแก่น</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php
+                    }
+                }
+                ?>
             </div>
             <div class="col-12 text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
-                <a class="btn btn-dark py-3 px-5" href="">ดูเพิ่มเติม</a>
+                <a class="btn btn-dark py-3 px-5" href="workings.php">ดูเพิ่มเติม</a>
             </div>
         </div>
     </div>
+    <!-- Examples of work End -->
 
     <!-- Call to Action Start -->
     <!-- <div class="container-xxl py-5">

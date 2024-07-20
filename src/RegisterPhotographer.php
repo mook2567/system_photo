@@ -704,8 +704,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                         <label class="form-check-label ms-2 mb-0" for="northeastern">ภาคตะวันออกเฉียงเหนือ</label>
                                                                     </div>
                                                                     <div class="form-check d-flex align-items-center">
-                                                                        <input type="checkbox" id="other" name="work_area[]" value="อื่นๆ" class="form-check-input" required>
-                                                                        <label class="form-check-label ms-2 mb-0" for="other">อื่นๆ</label>
+                                                                        <input type="checkbox" id="other" name="work_area[]" value="ภาคตตะวันตก" class="form-check-input" required>
+                                                                        <label class="form-check-label ms-2 mb-0" for="other">ภาคตตะวันตก</label>
                                                                     </div>
                                                                 </div>
                                                             </div>
