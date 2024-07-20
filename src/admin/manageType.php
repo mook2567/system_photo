@@ -11,6 +11,10 @@ if ($resultInformation->num_rows > 0) {
 } else {
     $rowInformation = ['information_icon' => ''];
 }
+
+
+
+
 // Handle form submission to insert new type_work
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type_work = $_POST['type_work'];
