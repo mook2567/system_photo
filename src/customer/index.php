@@ -7,6 +7,9 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
+$sql = "SELECT * FROM `type`";
+$resultType = $conn->query($sql);
+
 if (isset($_SESSION['cus_login'])) {
     $email = $_SESSION['cus_login'];
     $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
@@ -70,12 +73,14 @@ if (isset($_SESSION['cus_login'])) {
             background-size: cover;
             /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
         }
+
         .property-item img {
             width: 100%;
-            height: 250px; /* กำหนดความสูงตามที่คุณต้องการ */
-            object-fit: cover; /* ทำให้รูปภาพครอบคลุมพื้นที่ */
+            height: 250px;
+            /* กำหนดความสูงตามที่คุณต้องการ */
+            object-fit: cover;
+            /* ทำให้รูปภาพครอบคลุมพื้นที่ */
         }
-
     </style>
 </head>
 
@@ -133,122 +138,88 @@ if (isset($_SESSION['cus_login'])) {
         <div class="mt-4 d-flex justify-content-center align-items-center" style="border-radius: 10px;">
             <div class="container-xxl py-5">
                 <div class="container">
-                    <div class="mb-3 mt-4 text-center mx-auto  wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                    <div class="mb-3 mt-4 text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
-                    <div class="row g-4">
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <a class="cat-item bg-light text-center " href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-heart text-dark"></i>
-                                    <h6 class="f">งานพรีเวดดิ้ง</h6>
+                    <div class="row g-5 mt-2 justify-content-center">
+                        <?php
+                        if ($resultType->num_rows > 0) {
+                            while ($rowType = $resultType->fetch_assoc()) {
+                        ?>
+                                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                                    <a class="cat-item bg-light text-center" href="">
+                                        <div class="rounded p-4" style="font-size: 60.9px;">
+                                            <img src="../img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
+                                            <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
+                                        </div>
+                                    </a>
                                 </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-ring text-dark"></i>
-                                    <h6 class="f">งานแต่งงาน</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-calendar-week text-dark"></i>
-                                    <h6 class="f">งานอีเว้นท์</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-person-praying text-dark"></i>
-                                    <h6 class="f">งานบวช</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-user-graduate text-dark"></i>
-                                    <h6 class="f">งานวันรับปริญญา</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-person text-dark"></i>
-                                    <h6 class="f">ภาพบุคคล</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-gift text-dark"></i>
-                                    <h6 class="f">ภาพสินค้า</h6>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                            <a class="cat-item bg-light text-center rounded" href="">
-                                <div class="rounded p-4" style="font-size: 60.9px;">
-                                    <i class="fa-solid fa-utensils text-dark"></i>
-                                    <h6 class="f">ภาพอาหาร</h6>
-                                </div>
-                            </a>
-                        </div>
+                        <?php
+                            }
+                        } ?>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Category End -->
 
-        <!-- การค้นหาช่างภาพ -->
-        <!-- <div class="mt-5 wow fadeIn" style="background-color: rgba(	250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
+        <!-- Search Start -->
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
-                    <h2 class="text-white f">ค้นหาช่างภาพ</h2>
+                    <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
-                            <option selected>ประเภทงาน</option>
-                            <option value="1">งานแต่งงาน</option>
-                            <option value="2">งานพรีเวดดิ้ง</option>
-                            <option value="3">งานอีเว้นท์</option>
-                        </select>
+                        <form action="search.php" method="POST">
+                            <select class="form-select border-0 py-3  mt-3" name="type" required>
+                                <option selected>ประเภทงาน</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
+                                FROM type t
+                                INNER JOIN (
+                                    SELECT type_id, MAX(photographer_id) AS photographer_id
+                                    FROM type_of_work
+                                    GROUP BY type_id
+                                ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                $resultTypeWorkDetail = $conn->query($sql);
+
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                <?php
+                                    }
+                                } ?>
+                            </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="text" id="reat" placeholder="  งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder=" งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3">
+                        <select class="form-select border-0 py-3" required>
                             <option selected>ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
+                        <select class="form-select border-0 py-3" required>
                             <option selected>สถานที่</option>
-                            <option value="1">ภาคกลาง</option>
-                            <option value="2">ภาคตะวันออกเฉียงเหนือ</option>
-                            <option value="3">ภาคใต้</option>
-                            <option value="4">ภาคตะวันออก</option>
-                            <option value="6">ภาคตะวันตก</option>
+                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
+                            <option value="ภาคกลาง">ภาคกลาง</option>
+                            <option value="ภาคใต้">ภาคใต้</option>
+                            <option value="ภาคเหนือ">ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="ภาคตะวันตก">ภาคตะวันตก</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <form action="search.php" method="GET">
-                            <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search"onclick="window.location.href='search.php'">ค้นหา</button>
-                        </form>
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
                     </div>
+                    </form>
                 </div>
             </div>
-        </div> -->
+        </div>
     </div>
     <!-- Search End -->
 
@@ -261,48 +232,47 @@ if (isset($_SESSION['cus_login'])) {
                         <h1 class="mb-3 f">ช่างภาพแนะนำ</h1>
                     </div>
                 </div>
-                
+
             </div>
             <div class="tab-content">
-    <div id="tab-1" class="tab-pane fade show p-0 active">
-        <div class="row g-4">
-            <?php
-            $sql = "SELECT * FROM `photographer`";
-            $result = $conn->query($sql);
+                <div id="tab-1" class="tab-pane fade show p-0 active">
+                    <div class="row g-4">
+                        <?php
+                        $sql = "SELECT * FROM `photographer` LIMIT 6";
+                        $result = $conn->query($sql);
 
-            if ($result->num_rows > 0) {
-                while ($row_photographer = $result->fetch_assoc()) {
-                    ?>
-                    <div class="bg-white col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="property-item rounded overflow-hidden">
-                            <div class="position-relative overflow-hidden">
-                                <a href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
-                                
-                                <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
-                                    <?php echo $row_photographer['photographer_prefix'].''.$row_photographer['photographer_name'].'   '.$row_photographer['photographer_surname']; ?>
+                        if ($result->num_rows > 0) {
+                            while ($row_photographer = $result->fetch_assoc()) {
+                        ?>
+                                <div class="col-lg-6  wow fadeInUp" data-wow-delay="0.1s">
+                                    <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
+                                        <div class="row">
+                                            <div class="col-5 position-relative overflow-hidden">
+                                                <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                                <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                                    <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
+                                                </div>
+                                            </div>
+                                            <div class="col-7 p-4 pb-0">
+                                                <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
+                                                <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
+                                                <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="p-4 pb-0">
-                                <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
-                                <a class="d-block mb-2" href="mailto://<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
-                                <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
-                                <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
-                            </div>
-                        </div>
+                        <?php
+                            }
+                        } else {
+                            echo "0 results";
+                        }
+                        ?>
                     </div>
-                    <?php
-                }
-            } else {
-                echo "0 results";
-            }
-            ?>
-        </div>
-    </div>
-</div>
-
-                       
-                    
-                
+                </div>
+                <div class="col-12 text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
+                    <a class="btn btn-dark py-3 px-5" href="search.php">ดูเพิ่มเติม</a>
+                </div>
             </div>
         </div>
     </div>
@@ -316,18 +286,18 @@ if (isset($_SESSION['cus_login'])) {
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
 
-    <!-- Footer End -->
+                <!-- Footer End -->
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/wow/wow.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+                <!-- JavaScript Libraries -->
+                <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="../lib/wow/wow.min.js"></script>
+                <script src="../lib/easing/easing.min.js"></script>
+                <script src="../lib/waypoints/waypoints.min.js"></script>
+                <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
+                <!-- Template Javascript -->
+                <script src="../js/main.js"></script>
 </body>
 
 </html>

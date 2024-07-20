@@ -169,59 +169,61 @@ $resultType = $conn->query($sql);
         <!-- Category End -->
 
         <!-- Search Start -->
-        <form action="search.php" method="POST">
-            <div class="mt-5 mb-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
-                <div class="container">
-                    <div class="row flex-row g-2 align-items-center">
-                        <h2 class="text-white f">ค้นหาช่างภาพ</h2>
-                        <?php
-                        $sql = "SELECT * FROM `type`";
-                        $resultType = $conn->query($sql);
-                        if ($resultType->num_rows > 0) {
-                        ?>
-                            <div class="col-md-3">
-                                <select class="form-select border-0 py-3 ">
-                                    <option selected>ประเภทงาน</option>
-                                    <?php
-                                    while ($rowType = $resultType->fetch_assoc()) {
-                                    ?>
-                                        <option value="<?php echo $rowType['type_work']; ?>"><?php echo $rowType['type_work']; ?></option>
-                                    <?php
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row flex-row g-2 align-items-center">
+                    <h2 class="text-white">ค้นหาช่างภาพ</h2>
+                    <div class="col-md-3">
+                        <form action="search.php" method="POST">
+                            <select class="form-select border-0 py-3  mt-3" name="type" required>
+                                <option selected>ประเภทงาน</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
+                                FROM type t
+                                INNER JOIN (
+                                    SELECT type_id, MAX(photographer_id) AS photographer_id
+                                    FROM type_of_work
+                                    GROUP BY type_id
+                                ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                $resultTypeWorkDetail = $conn->query($sql);
+
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                <?php
                                     }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php
-                        }
-                        ?>
-                        <div class="col-md-2">
-                            <input class="border-0 py-3" type="text" id="reat" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
-                        </div>
-                        <div class="col-md-2">
-                            <select class="form-select border-0 py-3">
-                                <option selected>ช่วงเวลา</option>
-                                <option value="1">เต็มวัน</option>
-                                <option value="2">ครึ่งวัน</option>
+                                } ?>
                             </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select border-0 py-3">
-                                <option selected>สถานที่</option>
-                                <option value="กรุงเทพฯ">กรุงเทพฯ</option>
-                                <option value="ภาคกลาง">ภาคกลาง</option>
-                                <option value="ภาคใต้">ภาคใต้</option>
-                                <option value="ภาคเหนือ">ภาคเหนือ</option>
-                                <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
-                                <option value="ภาคตะวันตก">ภาคตะวันตก</option>
-                            </select>
-                        </div>
-                        <div class="col-2 mt-2">
-                            <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                        </div>
                     </div>
+                    <div class="col-md-2">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder=" งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select border-0 py-3" required>
+                            <option selected>ช่วงเวลา</option>
+                            <option value="1">เต็มวัน</option>
+                            <option value="2">ครึ่งวัน</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select border-0 py-3" required>
+                            <option selected>สถานที่</option>
+                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
+                            <option value="ภาคกลาง">ภาคกลาง</option>
+                            <option value="ภาคใต้">ภาคใต้</option>
+                            <option value="ภาคเหนือ">ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="ภาคตะวันตก">ภาคตะวันตก</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
+                    </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
     <!-- Search End -->
 
@@ -287,7 +289,7 @@ $resultType = $conn->query($sql);
             </div>
             <div class="row g-4">
                 <?php
-                $sql1 = "SELECT 
+                $sql = "SELECT 
                         po.portfolio_id, 
                         po.portfolio_photo, 
                         po.portfolio_caption, 
@@ -309,7 +311,7 @@ $resultType = $conn->query($sql);
                         type t ON t.type_id = tow.type_id
                     ORDER BY 
                         po.portfolio_id DESC;";
-                $resultPost = $conn->query($sql1);
+                $resultPost = $conn->query($sql);
                 if ($resultPost->num_rows > 0) {
                     while ($rowPost = $resultPost->fetch_assoc()) {
                 ?>
@@ -320,7 +322,6 @@ $resultType = $conn->query($sql);
                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
                                 </div>
                                 <div class="p-4 pb-0">
-                                    <!-- <h5 class="text-dark mb-1"><i class="fa-solid fa-money-bill me-2"></i><?php echo $rate = $rowPost['rate_half'] == 0 ? $rowPost['rate_full'] : $rowPost['rate_half']; ?> บาท</h5> -->
                                     <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
                                     <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
                                     <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
