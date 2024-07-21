@@ -21,7 +21,7 @@ if (isset($_SESSION['photographer_login'])) {
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
+<meta charset="utf-8">
     <title>Photo Match</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link rel="icon" type="image/png" href="../img/icon-logo.png">
@@ -136,6 +136,18 @@ if (isset($_SESSION['photographer_login'])) {
             background-size: cover;
             /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
         }
+
+        .row-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            /* เพื่อการเลื่อนสามารถทำงานได้ดีบนอุปกรณ์มือถือ iOS */
+        }
+
+        .col-md-4 {
+            flex: 0 0 calc(33.33% - 10px);
+            max-width: calc(33.33% - 10px);
+        }
     </style>
 </head>
 
@@ -191,6 +203,7 @@ if (isset($_SESSION['photographer_login'])) {
         <!-- Navbar End -->
 
 
+
         <!-- Header Start -->
         <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 p-5 mt-lg-5">
@@ -199,109 +212,285 @@ if (isset($_SESSION['photographer_login'])) {
             </div>
         </div>
         <!-- Header End -->
-
         <!-- Search Start -->
-        <div class="mt-5 wow fadeIn" style="background-color: rgba(	250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
                     <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
-                            <option selected>ประเภทงาน</option>
-                            <option value="1">งานแต่งงาน</option>
-                            <option value="2">งานพรีเวดดิ้ง</option>
-                            <option value="3">งานอีเว้นท์</option>
-                        </select>
+                        <form action="" method="POST">
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
+                                <option value="" disabled selected>ประเภทงาน</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
+                        FROM type t
+                        INNER JOIN (
+                            SELECT type_id, MAX(photographer_id) AS photographer_id
+                            FROM type_of_work
+                            GROUP BY type_id
+                        ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                $resultTypeWorkDetail = $conn->query($sql);
+
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                <?php
+                                    }
+                                } ?>
+                            </select>
                     </div>
                     <div class="col-md-4">
-                        <input type="text" id="dateRangePicker" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์">
+                        <input type="text" id="dateRangePicker" name="date_range" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์">
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select border-0 py-3">
-                            <option selected>คะแนนช่างภาพ</option>
-                            <option value="1">คะแนนจากมากไปน้อย</option>
-                            <option value="1">คะแนนจากน้อยไปมาก</option>
-                            <option value="2">5</option>
-                            <option value="3">4</option>
-                            <option value="4">3</option>
-                            <option value="6">2</option>
-                            <option value="6">1</option>
+                        <select name="score" class="form-select border-0 py-3">
+                            <option value="" disabled selected>คะแนนช่างภาพ</option>
+                            <option value="desc">คะแนนจากมากไปน้อย</option>
+                            <option value="asc">คะแนนจากน้อยไปมาก</option>
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <form action="search.php" method="GET">
-                            <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                        </form>
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
                     </div>
                 </div>
             </div>
         </div>
+        </form>
     </div>
     <!-- Search End -->
 
-    <!-- Post Start -->
-    <div class="col-5 container">
-        <div class=" bg-white container mb-3 shadow-md" style="height: auto; border-radius: 10px;">
-            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                <div class="d-flex align-items-center justify-content-start mt-3">
-                    <div style="display: flex; align-items: center;">
-                        <div class="circle me-3" style="width: 50px; height: 50px;">
-                            <img src="../img/dev3.jpg" alt="Your Image">
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <p style="margin-bottom: 0;">ชื่อช่างภาพ</p>
-                            <div>
-                                <p style="margin-bottom: 0;">ประเภทงาน</p>
+    <div style="display: flex; justify-content: center;">
+        <!-- post -->
+        <div class="col-md-6 justify-content-center">
+            <div class="row">
+                <?php
+                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search'])) {
+                    // Sanitize and assign POST data
+                    $type_id = !empty($_POST['type']) ? intval($conn->real_escape_string($_POST['type'])) : null;
+                    $date_range = !empty($_POST['date_range']) ? $conn->real_escape_string($_POST['date_range']) : null;
+                    $score = !empty($_POST['score']) ? $conn->real_escape_string($_POST['score']) : null;
+
+                    // Parse date range if provided
+                    $date_filter = '';
+                    if ($date_range) {
+                        $dates = explode(' - ', $date_range);
+                        if (count($dates) == 2) {
+                            $start_date = date('Y-m-d', strtotime($dates[0]));
+                            $end_date = date('Y-m-d', strtotime($dates[1]));
+                            $date_filter = "AND po.portfolio_date BETWEEN '$start_date' AND '$end_date'";
+                        }
+                    }
+
+                    // Score filtering
+                    $score_filter = '';
+                    if ($score) {
+                        if ($score == 'asc' || $score == 'desc') {
+                            $score_filter = "ORDER BY p.photographer_score $score";
+                        } else {
+                            $score_filter = "HAVING AVG(p.photographer_score) = $score";
+                        }
+                    }
+
+                    // Combined SQL query to join all required tables with filtering
+                    $sql = "SELECT 
+                                po.portfolio_id, 
+                                po.portfolio_photo, 
+                                po.portfolio_caption, 
+                                po.portfolio_date,
+                                t.type_work,
+                                p.photographer_id,
+                                p.photographer_name,
+                                p.photographer_surname,
+                                p.photographer_photo
+                            FROM 
+                                portfolio po
+                            JOIN 
+                                type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                            JOIN 
+                                photographer p ON p.photographer_id = tow.photographer_id
+                            JOIN 
+                                `type` t ON t.type_id = tow.type_id
+                            WHERE 
+                                1 = 1" . ($type_id ? " AND t.type_id = $type_id" : "") . " $date_filter
+                            GROUP BY 
+                                po.portfolio_id
+                            $score_filter";
+                    $resultPost = $conn->query($sql);
+
+                    if (!$resultPost) {
+                        echo "Error: " . $conn->error;
+                    }
+                ?>
+
+                    <?php while ($rowPost = $resultPost->fetch_assoc()) : ?>
+                        <div class="col-12 card-body bg-white mt-2 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
+                            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
+                                <div class="d-flex align-items-center justify-content-start mt-3">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="circle me-3" style="width: 60px; height: 60px;">
+                                            <img src="../img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
+                                        </div>
+                                        <div class="mt-2" style="flex-grow: 1;">
+                                            <b>
+                                                <a href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>" class="text-dark">
+                                                    <?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?>
+                                                </a>
+                                            </b>
+                                            <p style="margin-bottom: 0;">
+                                                <?php
+                                                // Convert date to Thai format
+                                                $months_th = array(
+                                                    '01' => 'มกราคม',
+                                                    '02' => 'กุมภาพันธ์',
+                                                    '03' => 'มีนาคม',
+                                                    '04' => 'เมษายน',
+                                                    '05' => 'พฤษภาคม',
+                                                    '06' => 'มิถุนายน',
+                                                    '07' => 'กรกฎาคม',
+                                                    '08' => 'สิงหาคม',
+                                                    '09' => 'กันยายน',
+                                                    '10' => 'ตุลาคม',
+                                                    '11' => 'พฤศจิกายน',
+                                                    '12' => 'ธันวาคม'
+                                                );
+
+                                                $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
+                                                    $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
+                                                    (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
+
+                                                echo htmlspecialchars($rowPost['type_work']) . ' โพสต์เมื่อ ' . $date_thai;
+                                                ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo htmlspecialchars($rowPost['portfolio_caption']); ?></p>
+                                </div>
+                                <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
+                                    <?php
+                                    $photos = explode(',', $rowPost['portfolio_photo']);
+                                    $max_photos = min(10, count($photos)); // Limit to 10 photos
+                                    for ($i = 0; $i < $max_photos; $i++) : ?>
+                                        <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
+                                            <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]); ?>">
+                                                <img class="post-img" style="max-width: 100%; height: auto;" src="../img/post/<?php echo trim($photos[$i]); ?>" alt="Post image <?php echo $i + 1; ?>">
+                                            </a>
+                                        </div>
+                                    <?php endfor; ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <p class="mt-3 post-text center">รายละเอียดผลงาน</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <a href="../img/dev3.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev3.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="../img/dev2.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev2.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class=" bg-white container mb-3 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]" style="height: auto; border-radius: 10px;">
-            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                <div class="d-flex align-items-center justify-content-start mt-3">
-                    <div style="display: flex; align-items: center;">
-                        <div class="circle me-3" style="width: 50px; height: 50px;">
-                            <img src="../img/dev3.jpg" alt="Your Image">
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <p style="margin-bottom: 0;">ชื่อช่างภาพ</p>
-                            <div>
-                                <p style="margin-bottom: 0;">ประเภทงาน</p>
+                    <?php endwhile; ?>
+                <?php } else { ?><div style="display: flex; justify-content: center;">
+                        <!-- post -->
+                        <div class="justify-content-center">
+                            <div class="row">
+                                <!-- POST -->
+                                <?php
+                                // Combined SQL query to join all required tables
+                                $sql = "SELECT 
+                                            po.portfolio_id, 
+                                            po.portfolio_photo, 
+                                            po.portfolio_caption, 
+                                            po.portfolio_date,
+                                            t.type_work,
+                                            p.photographer_id,
+                                            p.photographer_name,
+                                            p.photographer_surname,
+                                            p.photographer_photo
+                                        FROM 
+                                            portfolio po
+                                        JOIN 
+                                            type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                                        JOIN 
+                                            photographer p ON p.photographer_id = tow.photographer_id
+                                        JOIN 
+                                            `type` t ON t.type_id = tow.type_id
+                                        ORDER BY 
+                                            po.portfolio_id DESC";
+                                $resultPost = $conn->query($sql);
+
+                                if (!$resultPost) {
+                                    echo "Error: " . $conn->error;
+                                }
+                                ?>
+                                <?php while ($rowPost = $resultPost->fetch_assoc()) : ?>
+                                    <div class="col-12 card-body bg-white mt-2 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
+                                        <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
+                                            <div class="d-flex align-items-center justify-content-start mt-3">
+                                                <div style="display: flex; align-items: center;">
+                                                    <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                        <img src="../img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
+                                                    </div>
+                                                    <div class="mt-2" style="flex-grow: 1;">
+                                                        <b>
+                                                            <a href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>" class="text-dark">
+                                                                <?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?>
+                                                            </a>
+                                                        </b>
+                                                        <p style="margin-bottom: 0;">
+                                                            <?php
+                                                            // Convert date to Thai format
+                                                            $months_th = array(
+                                                                '01' => 'มกราคม',
+                                                                '02' => 'กุมภาพันธ์',
+                                                                '03' => 'มีนาคม',
+                                                                '04' => 'เมษายน',
+                                                                '05' => 'พฤษภาคม',
+                                                                '06' => 'มิถุนายน',
+                                                                '07' => 'กรกฎาคม',
+                                                                '08' => 'สิงหาคม',
+                                                                '09' => 'กันยายน',
+                                                                '10' => 'ตุลาคม',
+                                                                '11' => 'พฤศจิกายน',
+                                                                '12' => 'ธันวาคม'
+                                                            );
+
+                                                            $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
+                                                                $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
+                                                                (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
+
+                                                            echo htmlspecialchars($rowPost['type_work']) . ' โพสต์เมื่อ ' . $date_thai;
+                                                            ?>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo htmlspecialchars($rowPost['portfolio_caption']); ?></p>
+                                            </div>
+                                            <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
+                                                <?php
+                                                $photos = explode(',', $rowPost['portfolio_photo']);
+                                                $max_photos = min(10, count($photos)); // Limit to 10 photos
+                                                for ($i = 0; $i < $max_photos; $i++) : ?>
+                                                    <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
+                                                        <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]); ?>">
+                                                            <img class="post-img" style="max-width: 100%; height: auto;" src="../img/post/<?php echo trim($photos[$i]); ?>" alt="Post image <?php echo $i + 1; ?>">
+                                                        </a>
+                                                    </div>
+                                                <?php endfor; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endwhile; ?>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <p class="mt-3 post-text center">รายละเอียดผลงาน</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <a href="../img/dev3.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev3.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a href="../img/dev2.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                            <img class="post-img mb-2" src="../img/dev2.jpg" width="160" alt="img-post" />
-                        </a>
-                    </div>
-                </div>
+                    </div><?php } ?>
             </div>
         </div>
     </div>
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
@@ -314,11 +503,6 @@ if (isset($_SESSION['photographer_login'])) {
     </div>
     <!-- Footer End -->
 
-
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
-    </div>
-
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -329,11 +513,6 @@ if (isset($_SESSION['photographer_login'])) {
 
     <!-- select date -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.js"></script>
-    <script src="../js/main.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
-    <!-- Fancybox JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
     <script>
         flatpickr("#dateRangePicker", {
             mode: "range",
