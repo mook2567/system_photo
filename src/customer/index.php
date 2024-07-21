@@ -155,10 +155,10 @@ if (isset($_SESSION['cus_login'])) {
                             while ($rowType = $resultType->fetch_assoc()) {
                         ?>
                                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <a class="cat-item bg-light text-center" href="">
+                                    <a class="cat-item bg-light text-center" href="workings.php?type_id=<?php echo $rowType['type_id']; ?>">
                                         <div class="rounded p-4" style="font-size: 60.9px;">
                                             <img src="../img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
-                                            <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
+                                            <h6 class="f mt-2"><?php echo $rowType['type_work']; ?></h6>
                                         </div>
                                     </a>
                                 </div>
