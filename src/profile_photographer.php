@@ -361,27 +361,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
                 <div class="navbar-nav ms-auto f">
-                    <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
-                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
-                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
-                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                <div class="navbar-nav ms-auto">
+                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการ</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
+                                <a href="type.php" class="dropdown-item">ประเภทงาน</a>
+                                <a href="workings.php" class="dropdown-item active">ผลงานช่างภาพ</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="index.php" class="dropdown-item">ออกจากระบบ</a>
-                        </div>
+                        <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
+                        <a href="contact.php" class="nav-item nav-link">ติดต่อ</a>
+                        <a onclick="window.location.href='login.php'" class="nav-item nav-link">เข้าสู่ระบบ<i class="ms-1 fa-solid fa-right-to-bracket"></i></a>
                     </div>
                 </div>
             </div>
@@ -423,19 +415,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </button></h5></a>
                                 <div class="ms-4">
                                     <?php
-                                    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-                                    FROM type t
-                                    INNER JOIN (
-                                        SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half, type_of_work_rate_full
-                                        FROM type_of_work
-                                        WHERE (type_id, photographer_id) IN (
-                                            SELECT type_id, MAX(photographer_id)
-                                            FROM type_of_work
-                                            GROUP BY type_id
+                                    $sql = "SELECT 
+                                    t.type_id, 
+                                    t.type_work, 
+                                    tow_latest.photographer_id, 
+                                    tow_latest.type_of_work_details, 
+                                    tow_latest.type_of_work_rate_half, 
+                                    tow_latest.type_of_work_rate_full
+                                FROM 
+                                    type t
+                                INNER JOIN (
+                                    SELECT 
+                                        type_id, 
+                                        photographer_id, 
+                                        type_of_work_details, 
+                                        type_of_work_rate_half, 
+                                        type_of_work_rate_full
+                                    FROM 
+                                        type_of_work
+                                    WHERE 
+                                        photographer_id = $id_photographer
+                                        AND (type_id, photographer_id) IN (
+                                            SELECT 
+                                                type_id, 
+                                                MAX(photographer_id) AS photographer_id
+                                            FROM 
+                                                type_of_work
+                                            WHERE 
+                                                photographer_id = $id_photographer
+                                            GROUP BY 
+                                                type_id
                                         )
-                                    ) AS tow_latest ON t.type_id = tow_latest.type_id
-                                    WHERE tow_latest.photographer_id = $id_photographer;
-                                    ";
+                                ) AS tow_latest 
+                                ON 
+                                    t.type_id = tow_latest.type_id;
+                                ";
                                     $resultTypeWorkDetail = $conn->query($sql);
 
                                     if ($resultTypeWorkDetail->num_rows > 0) {
@@ -443,15 +457,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     ?>
                                             <div class="d-flex align-items-center">
                                                 <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
-                                                <p class="mb-0"><?php echo $rowTypeWorkDetail['type_work']; ?></p>
+                                                <b><?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?></b>
+                                            </div>
+                                            <div class="ms-3">
+                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_half'] > 0) { ?>
+                                                    <?php echo 'ราคาครึ่งวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_half'], 0) . ' บาท'; ?>
+                                                <?php } ?>
+                                            </div>
+                                            <div class="ms-3">
+                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_full'] > 0) { ?>
+                                                    <?php echo ' ราคาเต็มวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_full'], 0) . ' บาท'; ?>
+                                                <?php } ?>
                                             </div>
                                     <?php
                                         }
                                     } ?>
                                 </div>
-                            </div>
-                            <div class="ms-4">
-
                             </div>
                         </div>
                         <div class="col-12 text-start mt-2">
@@ -470,15 +491,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 </div>
             </div>
-            
+
 
             <!-- post -->
             <div class="col-6" style="overflow-y: scroll; height: 89vh; scrollbar-width: none; -ms-overflow-style: none;">
 
                 <div class="row">
-                    <div class="col-12 mt-3">
+                    <!-- <div class="col-12 mt-3">
                         <p>โพสต์อื่น ๆ</p>
-                    </div>
+                    </div> -->
                     <!-- POST -->
 
                     <?php
@@ -505,7 +526,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     ?>
                     <?php while ($rowPost = $resultPost->fetch_assoc()) : ?>
 
-                        <div class="col-12 card-body bg-white mt-2 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650; ">
+                        <div class="col-12 card-body bg-white  mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650; ">
                             <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
                                 <div class="d-flex align-items-center justify-content-start mt-3">
                                     <div style="display: flex; align-items: center;">
@@ -588,22 +609,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
     </div>
     <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body text-center">
-                <div class="mt-3">
-                    <i class="fas fa-exclamation-triangle fa-3x text-danger"></i> <!-- Error icon -->
-                    <h2 class="mt-3">คุณไม่สามารถทำรายการนี้ได้</h2>
-                    <h5>หากต้องการจองคิวโปรดเข้าสู่ระบบก่อน</h5>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-primary" style="width: 150px; height:45px;" onclick="redirectToLogin()">ไปยังหน้าเข้าสู่ระบบ</button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="mt-3">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger"></i> <!-- Error icon -->
+                        <h2 class="mt-3">คุณไม่สามารถทำรายการนี้ได้</h2>
+                        <h5>หากต้องการจองคิวโปรดเข้าสู่ระบบก่อน</h5>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="button" class="btn btn-primary" style="width: 150px; height:45px;" onclick="redirectToLogin()">ไปยังหน้าเข้าสู่ระบบ</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <!-- Profile End -->
 
@@ -669,11 +690,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // ถ้าไม่ว่างให้เป็นสีแดง
         }
     </script>
-<script>
-function redirectToLogin() {
-    window.location.href = 'login.php';
-}
-</script>
+    <script>
+        function redirectToLogin() {
+            window.location.href = 'login.php';
+        }
+    </script>
 
 
 </body>

@@ -640,7 +640,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">โปรไฟล์</a>
                         <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                            <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
                             <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                             <a href="contact.php" class="dropdown-item">ติดต่อ</a>
@@ -685,22 +685,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="col-12 text-start mt-2">
                             <div class="col-12 text-start mt-2">
                                 <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                        <i class="fa-solid fa-pencil"></i>
                                     </button></h5></a>
                                 <div class="ms-4">
                                     <?php
-                                    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-                                    FROM type t
-                                    INNER JOIN (
-                                        SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half, type_of_work_rate_full
-                                        FROM type_of_work
-                                        WHERE (type_id, photographer_id) IN (
-                                            SELECT type_id, MAX(photographer_id)
-                                            FROM type_of_work
-                                            GROUP BY type_id
+                                    $sql = "SELECT 
+                                    t.type_id, 
+                                    t.type_work, 
+                                    tow_latest.photographer_id, 
+                                    tow_latest.type_of_work_details, 
+                                    tow_latest.type_of_work_rate_half, 
+                                    tow_latest.type_of_work_rate_full
+                                FROM 
+                                    type t
+                                INNER JOIN (
+                                    SELECT 
+                                        type_id, 
+                                        photographer_id, 
+                                        type_of_work_details, 
+                                        type_of_work_rate_half, 
+                                        type_of_work_rate_full
+                                    FROM 
+                                        type_of_work
+                                    WHERE 
+                                        photographer_id = $id_photographer
+                                        AND (type_id, photographer_id) IN (
+                                            SELECT 
+                                                type_id, 
+                                                MAX(photographer_id) AS photographer_id
+                                            FROM 
+                                                type_of_work
+                                            WHERE 
+                                                photographer_id = $id_photographer
+                                            GROUP BY 
+                                                type_id
                                         )
-                                    ) AS tow_latest ON t.type_id = tow_latest.type_id
-                                    WHERE tow_latest.photographer_id = $id_photographer;";
+                                ) AS tow_latest 
+                                ON 
+                                    t.type_id = tow_latest.type_id;
+                                ";
                                     $resultTypeWorkDetail = $conn->query($sql);
 
                                     if ($resultTypeWorkDetail->num_rows > 0) {
@@ -708,15 +730,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     ?>
                                             <div class="d-flex align-items-center">
                                                 <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
-                                                <p class="mb-0"><?php echo $rowTypeWorkDetail['type_work']; ?></p>
+                                                <b><?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?></b>
+                                            </div>
+                                            <div class="ms-3">
+                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_half'] > 0) { ?>
+                                                    <?php echo 'ราคาครึ่งวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_half'], 0) . ' บาท'; ?>
+                                                <?php } ?>
+                                            </div>
+                                            <div class="ms-3">
+                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_full'] > 0) { ?>
+                                                    <?php echo ' ราคาเต็มวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_full'], 0) . ' บาท'; ?>
+                                                <?php } ?>
                                             </div>
                                     <?php
                                         }
                                     } ?>
                                 </div>
-                            </div>
-                            <div class="ms-4">
-
                             </div>
                         </div>
                         <div class="col-12 text-start mt-2">
@@ -893,18 +922,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <span style="color: red;">*</span>
                                                         </label>
                                                         <?php
-                                                        $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-                                                        FROM type t
-                                                        INNER JOIN (
-                                                            SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half, type_of_work_rate_full
-                                                            FROM type_of_work
-                                                            WHERE (type_id, photographer_id) IN (
-                                                                SELECT type_id, MAX(photographer_id)
-                                                                FROM type_of_work
-                                                                GROUP BY type_id
+                                                        $sql = "SELECT 
+                                                        t.type_id, 
+                                                        t.type_work, 
+                                                        tow_latest.photographer_id, 
+                                                        tow_latest.type_of_work_details, 
+                                                        tow_latest.type_of_work_rate_half, 
+                                                        tow_latest.type_of_work_rate_full
+                                                    FROM 
+                                                        type t
+                                                    INNER JOIN (
+                                                        SELECT 
+                                                            type_id, 
+                                                            photographer_id, 
+                                                            type_of_work_details, 
+                                                            type_of_work_rate_half, 
+                                                            type_of_work_rate_full
+                                                        FROM 
+                                                            type_of_work
+                                                        WHERE 
+                                                            photographer_id = $id_photographer
+                                                            AND (type_id, photographer_id) IN (
+                                                                SELECT 
+                                                                    type_id, 
+                                                                    MAX(photographer_id) AS photographer_id
+                                                                FROM 
+                                                                    type_of_work
+                                                                WHERE 
+                                                                    photographer_id = $id_photographer
+                                                                GROUP BY 
+                                                                    type_id
                                                             )
-                                                        ) AS tow_latest ON t.type_id = tow_latest.type_id
-                                                        WHERE tow_latest.photographer_id = $id_photographer;";
+                                                    ) AS tow_latest 
+                                                    ON 
+                                                        t.type_id = tow_latest.type_id;
+                                                    ";
                                                         $resultTypeWorkDetail = $conn->query($sql);
 
                                                         if ($resultTypeWorkDetail->num_rows > 0) {
@@ -1392,10 +1444,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <?php
                                                             // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
                                                             $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                                            FROM type t
+                                                            FROM `type` t
                                                             INNER JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                            GROUP BY t.type_id, t.type_work;
-                                                            ";
+                                                            WHERE tow.photographer_id = $id_photographer
+                                                            GROUP BY t.type_id, t.type_work;";
                                                             $resultTypeWork = $conn->query($sql);
 
                                                             // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
@@ -1482,7 +1534,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                                             WHERE tow.photographer_id = $id_photographer
                                                             GROUP BY t.type_id, t.type_work;";
-                                                        $resultTypeWork = $conn->query($sql);
                                                             $resultTypeWork = $conn->query($sql);
 
                                                             // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่

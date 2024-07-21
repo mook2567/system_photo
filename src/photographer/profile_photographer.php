@@ -12,70 +12,6 @@ $sql = "SELECT * FROM photographer WHERE photographer_id = '$id_photographer'";
 $resultPhoto = $conn->query($sql);
 $rowPhoto = $resultPhoto->fetch_assoc();
 
-if (isset($_SESSION['customer_login'])) {
-    $email = $_SESSION['customer_login'];
-    $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
-    $resultCus = $conn->query($sql);
-    $rowCus = $resultCus->fetch_assoc();
-    $id_cus = $rowCus['cus_id'];
-}
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['submit_book'])) {
-        $location = $_POST["location"];
-        $details = $_POST['details'];
-        $start_date = $_POST['start_date'];
-        $end_date = $_POST['end_date'];
-        $start_time = $_POST["start_time"];
-        $end_time = $_POST["end_time"];
-        $cus_id = $_POST['cus_id'];
-        $date = $_POST["date"];
-
-        // Insert new admin data into admin table
-        $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssssss", $location, $details, $start_date, $end_date, $start_time, $end_time,  $date, $id_photographer, $cus_id);
-        if ($stmt->execute()) { ?>
-
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "bookingLists.php";
-                        }
-                    });
-                });
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-<?php
-        }
-        $stmt->close();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -359,28 +295,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
-                <div class="navbar-nav ms-auto f">
-                    <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
-                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                    <a href="workings.php" class="nav-item nav-link active">ผลงานช่างภาพ</a>
+            <div class="collapse navbar-collapse m-4" id="navbarCollapse">
+                <div class="navbar-nav ms-auto">
+                    <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                    <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
                     <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                        <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
                         <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
-                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
-                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                            <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
+                            <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
+                            <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                            <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                         </div>
                     </div>
+                    <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
                     <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                        <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                         <div class="dropdown-menu rounded-0 m-0">
                             <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                            <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
                             <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
                             <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                            <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>
                 </div>
@@ -390,7 +326,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Navbar End -->
 
     <div>
-        <div class="row mt-3">
+        <div class="row mt-3 justify-content-center">
+
             <!-- Profile Start -->
             <div class="col-3">
                 <div class="col-8 card-body bg-white" style="border-radius: 10px; height: auto; min-height: 700px;">
@@ -586,144 +523,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                     <?php endwhile; ?>
-
-
                 </div>
-            </div>
-
-            <!-- ตารางงาน -->
-            <div class="col-3 flex-fill" style="margin-left: auto;">
-                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-                    <div class="d-flex justify-content-center align-items-center mt-3">
-                        <h4>ตารางงาน</h4>
-                    </div>
-                    <div class="ms-2">
-                        ตารางงานสัปดาห์นี้
-                    </div>
-                    <div id="bookingStatus" class="col-12 text-center" style="border-radius: 10px; padding-top: 10px; padding-bottom: 10px;">
-                        <p class="mb-0 text-white">วันที่จอง</p>
-                    </div>
-                    <div class="justify-content-center py-4 text-center">
-                        <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#details">
-                            <i class="fa-solid fa-magnifying-glass"></i> จองคิวช่างภาพ
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailsLabel"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;จองคิวช่างภาพ</b></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="POST">
-                    <div class="modal-body" style="height: 560px;">
-                        <div class="mt-2 container-md">
-                            <div class="mt-3 col-md-12 container-fluid">
-                                <div class="col-12">
-                                    <div class="row mt-2">
-                                        <div class="col-2">
-                                            <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
-                                            </label>
-                                            <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowCus['cus_prefix']; ?>" readonly>
-                                        </div>
-                                        <div class="col-5">
-                                            <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                            </label>
-                                            <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowCus['cus_name']; ?>" readonly>
-                                        </div>
-                                        <div class="col-5">
-                                            <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                            </label>
-                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowCus['cus_surname']; ?>" readonly>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mt-3">
-                                    <div class="row">
-                                        <div class="col-md-4 text-center">
-                                            <label for="booking-start-date" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
-                                            </label>
-                                            <input type="date" name="start_date" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                            </label>
-                                            <input type="time" name="start_time" class="form-control mt-1" style="resize: none;">
-                                        </div>
-
-                                        <div class="col-md-4 text-center">
-                                            <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
-                                            </label>
-                                            <input type="date" name="end_date" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <label for="booking-end-time" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
-                                            </label>
-                                            <input type="time" name="end_time" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mt-3">
-                                    <div class="row">
-                                        <div class="col-md-12 text-center">
-                                            <label for="location" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
-
-                                            </label>
-                                            <input type="text" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 mt-3 text-center">
-                                    <label for="Information_caption" style="font-weight: bold; display: flex; align-items: center;">
-                                        <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
-                                    </label>
-                                    <textarea name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;"></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <div class="row mt-3">
-                                        <div class="col-5">
-                                            <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
-                                            </label>
-                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowCus['cus_tell']; ?>" style="resize: none;">
-                                        </div>
-                                        <div class="col-5 text-center">
-                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
-                                            </label>
-                                            <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowCus['cus_email']; ?>" style="resize: none;">
-                                        </div>
-                                        <div class="col-2">
-                                            <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
-                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
-                                            </label>
-                                            <input type="date" name="date" class="form-control mt-1" style="resize: none;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" name="cus_id" value="<?php echo $rowCus['cus_id']; ?>">
-                            <div class="modal-footer mt-5 justify-content-center">
-                                <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
-                                <button type="submit" name="submit_book" class="btn btn-primary" style="width: 150px; height:45px;">จองคิว</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
