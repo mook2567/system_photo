@@ -141,7 +141,7 @@ $rowInfo = $resultInfo->fetch_assoc();
 
 <body>
 
-<div class="bgIndex" style="height: auto;">
+    <div class="bgIndex" style="height: auto;">
         <!-- Spinner Start -->
         <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
@@ -179,71 +179,71 @@ $rowInfo = $resultInfo->fetch_assoc();
         </div>
         <!-- Navbar End -->
 
-    <!-- Header Start -->
-    <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
-        <div class="col-md-6 p-5 mt-lg-5">
-            <h1 class="display-5 animated fadeIn text-white mb-4 f">ค้นหาช่างภาพ</h1>
-            <p class="text-white">คุณสามารถค้นหาช่างภาพตามความสนใจของคุณได้</p>
+        <!-- Header Start -->
+        <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
+            <div class="col-md-6 p-5 mt-lg-5">
+                <h1 class="display-5 animated fadeIn text-white mb-4 f">ค้นหาช่างภาพ</h1>
+                <p class="text-white">คุณสามารถค้นหาช่างภาพตามความสนใจของคุณได้</p>
+            </div>
         </div>
-    </div>
-    <!-- Header End -->
+        <!-- Header End -->
 
-    <!-- Search Start -->
-    <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
-        <div class="container">
-            <div class="row flex-row g-2 align-items-center">
-                <h2 class="text-white">ค้นหาช่างภาพ</h2>
-                <div class="col-md-3">
-                    <form action="" method="POST">
-                        <select class="form-select border-0 py-3 mt-3" name="type" required>
-                            <option selected>ประเภทงาน</option>
-                            <?php
-                            $sql = "SELECT t.type_id, t.type_work
+        <!-- Search Start -->
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row flex-row g-2 align-items-center">
+                    <h2 class="text-white">ค้นหาช่างภาพ</h2>
+                    <div class="col-md-3">
+                        <form action="" method="POST">
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
+                                <option selected>ประเภทงาน</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
                                 FROM type t
                                 INNER JOIN (
                                     SELECT type_id, MAX(photographer_id) AS photographer_id
                                     FROM type_of_work
                                     GROUP BY type_id
                                 ) AS tow_latest ON t.type_id = tow_latest.type_id";
-                            $resultTypeWorkDetail = $conn->query($sql);
+                                $resultTypeWorkDetail = $conn->query($sql);
 
-                            if ($resultTypeWorkDetail->num_rows > 0) {
-                                while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
-                            ?>
-                                    <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
-                            <?php
-                                }
-                            } ?>
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                <?php
+                                    }
+                                } ?>
+                            </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select border-0 py-3" name="time" required>
+                            <option selected>ช่วงเวลา</option>
+                            <option value="1">เต็มวัน</option>
+                            <option value="2">ครึ่งวัน</option>
                         </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="scope" class="form-select border-0 py-3" required>
+                            <option selected>สถานที่</option>
+                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
+                            <option value="ภาคกลาง">ภาคกลาง</option>
+                            <option value="ภาคใต้">ภาคใต้</option>
+                            <option value="ภาคเหนือ">ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="ภาคตะวันตก">ภาคตะวันตก</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
+                    </div>
+                    </form>
                 </div>
-                <div class="col-md-2">
-                    <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select border-0 py-3" name="time" required>
-                        <option selected>ช่วงเวลา</option>
-                        <option value="1">เต็มวัน</option>
-                        <option value="2">ครึ่งวัน</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="scope" class="form-select border-0 py-3" required>
-                        <option selected>สถานที่</option>
-                        <option value="กรุงเทพฯ">กรุงเทพฯ</option>
-                        <option value="ภาคกลาง">ภาคกลาง</option>
-                        <option value="ภาคใต้">ภาคใต้</option>
-                        <option value="ภาคเหนือ">ภาคเหนือ</option>
-                        <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
-                        <option value="ภาคตะวันตก">ภาคตะวันตก</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                </div>
-                </form>
             </div>
         </div>
-    </div>
     </div>
     <!-- Search End -->
 
@@ -301,27 +301,33 @@ $rowInfo = $resultInfo->fetch_assoc();
                                         <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                             <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                                 <div class="row">
-                                                    <div class="col-5 position-relative overflow-hidden">
+                                                    <div class="col-6 position-relative overflow-hidden">
                                                         <a href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo isset($row_photographer['photographer_photo']) ? $row_photographer['photographer_photo'] : 'default.jpg'; ?>" alt=""></a>
                                                         <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
                                                             <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
                                                         </div>
                                                     </div>
-                                                    <div class="col-7 p-4 pb-0">
+                                                    <div class="col-6 p-2 pb-0">
                                                         <?php if (isset($row_photographer['type_work'])) { ?>
                                                             <p class="text-dark mb-3">
-                                                                <?php echo $row_photographer['type_work']; ?>
+                                                            <div class="d-flex align-items-center">
+                                                                <b><?php echo $row_photographer['type_work']; ?> </b>
+                                                            </div>
+                                                            <div class="ms-3 mt-1">
                                                                 <?php if ($row_photographer['type_of_work_rate_half'] > 0) { ?>
-                                                                    <?php echo 'ราคาครึ่งวัน', number_format($row_photographer['type_of_work_rate_half'], 0); ?>
+                                                                    <b>ราคาครึ่งวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_half'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
+                                                            </div>
+                                                            <div class="ms-3 mt-1">
                                                                 <?php if ($row_photographer['type_of_work_rate_full'] > 0) { ?>
-                                                                    <?php echo 'ราคาเต็มวัน', number_format($row_photographer['type_of_work_rate_full'], 0); ?>
+                                                                    <b>ราคาเต็มวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_full'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
+                                                            </div>
                                                             </p>
                                                         <?php } else { ?>
-                                                            <p class="text-dark mb-3">Type work not available</p>
+                                                            <p class="text-dark mb-3">ยังไม่ได้ลงประเภทงาน</p>
                                                         <?php } ?>
-                                                        <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                        <a class="d-block mb-3" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
                                                         <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
                                                         <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
                                                     </div>
@@ -332,9 +338,9 @@ $rowInfo = $resultInfo->fetch_assoc();
                                     }
                                 } else {
                                     ?>
-                                    <div class="card-body bg-white" style="height: 132px; width:auto;">
+                                    <div class="card-body bg-white" style="height: 148px; width:auto;">
                                         <center>
-                                            <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                                            <i class="mt-3 fas fa-exclamation-triangle fa-3x text-danger"></i>
                                             <h1 class="">ไม่พบข้อมูลที่คุณต้องการ</h1>
                                         </center>
                                     </div>
@@ -411,7 +417,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                                     <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                         <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                             <div class="row">
-                                                <div class="col-5 position-relative overflow-hidden">
+                                                <div class="col-6 position-relative overflow-hidden">
                                                     <a href="profile_photographer.php?photographer_id=<?php echo $photographer_id; ?>">
                                                         <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photographer_photo']) ? $photographer['photographer_photo'] : 'default.jpg'; ?>" alt="">
                                                     </a>
@@ -419,8 +425,8 @@ $rowInfo = $resultInfo->fetch_assoc();
                                                         <?php echo $photographer['photographer_prefix'] . ' ' . $photographer['photographer_name'] . ' ' . $photographer['photographer_surname']; ?>
                                                     </div>
                                                 </div>
-                                                <div class="col-7 p-4 pb-0">
-                                                    <?php if (!empty($photographer['type_of_work'])) { ?>
+                                                <div class="col-6 p-4 pb-0">
+                                                    <!-- <?php if (!empty($photographer['type_of_work'])) { ?>
                                                         <?php foreach ($photographer['type_of_work'] as $work) { ?>
                                                             <p class="text-dark mb-3">
                                                                 <?php echo $work['type_work']; ?>
@@ -434,8 +440,8 @@ $rowInfo = $resultInfo->fetch_assoc();
                                                         <?php } ?>
                                                     <?php } else { ?>
                                                         <p class="text-dark mb-3">ยังไม่ได้ลงประเภทงาน</p>
-                                                    <?php } ?>
-                                                    <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
+                                                    <?php } ?> -->
+                                                    <a class="d-block mb-3" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
                                                         <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
                                                     </a>
                                                     <p class="text-dark mb-3">โทร <?php echo isset($photographer['photographer_tell']) ? $photographer['photographer_tell'] : 'Phone number not available'; ?></p>
@@ -448,9 +454,9 @@ $rowInfo = $resultInfo->fetch_assoc();
                                 }
                             } else {
                                 ?>
-                                <div class="card-body bg-white" style="height: 132px; width:auto;">
+                                <div class="card-body bg-white" style="height: 148px; width:auto;">
                                     <center>
-                                        <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                                        <i class="mt-3 fas fa-exclamation-triangle fa-3x text-danger"></i>
                                         <h1 class="">ไม่พบข้อมูลที่คุณต้องการ</h1>
                                     </center>
                                 </div>
@@ -465,7 +471,6 @@ $rowInfo = $resultInfo->fetch_assoc();
     <?php
     }
     ?>
-
 
 
     <!-- Footer Start -->

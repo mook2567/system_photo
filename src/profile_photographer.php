@@ -364,11 +364,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="navbar-nav ms-auto">
                         <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการ</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการ</a>
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
                                 <a href="type.php" class="dropdown-item">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item active">ผลงานช่างภาพ</a>
+                                <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
                             </div>
                         </div>
                         <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>

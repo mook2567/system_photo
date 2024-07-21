@@ -47,7 +47,6 @@ $resultType = $conn->query($sql);
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <style>
-        
         body {
             font-family: 'Athiti', sans-serif;
             background-color: #F0F2F5;
@@ -71,13 +70,19 @@ $resultType = $conn->query($sql);
             object-fit: cover;
             /* ทำให้รูปภาพครอบคลุมพื้นที่ */
         }
+
         .caption {
-  white-space: nowrap; /* ทำให้ข้อความไม่ขึ้นบรรทัดใหม่ */
-  overflow: hidden; /* ซ่อนข้อความที่ล้น */
-  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความล้น */
-  width: 100%; /* ตั้งค่าความกว้างตามที่ต้องการ */
-  display: block; /* ทำให้พารากราฟเป็นบล็อค */
-}
+            white-space: nowrap;
+            /* ทำให้ข้อความไม่ขึ้นบรรทัดใหม่ */
+            overflow: hidden;
+            /* ซ่อนข้อความที่ล้น */
+            text-overflow: ellipsis;
+            /* แสดง ... เมื่อข้อความล้น */
+            width: 100%;
+            /* ตั้งค่าความกว้างตามที่ต้องการ */
+            display: block;
+            /* ทำให้พารากราฟเป็นบล็อค */
+        }
     </style>
 </head>
 
@@ -134,7 +139,7 @@ $resultType = $conn->query($sql);
                             while ($rowType = $resultType->fetch_assoc()) {
                         ?>
                                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <a class="cat-item bg-light text-center" href="type.php?">
+                                    <a class="cat-item bg-light text-center" href="type.php?type_id=<?php echo $typ_id ?>">
                                         <div class="rounded p-4" style="font-size: 60.9px;">
                                             <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
                                             <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
@@ -244,8 +249,8 @@ $resultType = $conn->query($sql);
         </div>
     </div>
     <!-- About End -->
-<!-- Examples of work Start -->
-<div class="container-xxl py-5">
+    <!-- Examples of work Start -->
+    <div class="container-xxl py-5">
         <div class="container">
             <div class="row g-0 gx-5 align-items-end">
                 <div class="col-lg-6">
@@ -305,7 +310,7 @@ $resultType = $conn->query($sql);
                                 <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                         <div class="row">
-                                            <div class="col-5 position-relative overflow-hidden">
+                                            <div class="col-6 position-relative overflow-hidden">
                                                 <a href="profile_photographer.php?photographer_id=<?php echo $photographer_id; ?>">
                                                     <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photographer_photo']) ? $photographer['photographer_photo'] : 'default.jpg'; ?>" alt="">
                                                 </a>
@@ -313,16 +318,16 @@ $resultType = $conn->query($sql);
                                                     <?php echo $photographer['photographer_prefix'] . ' ' . $photographer['photographer_name'] . ' ' . $photographer['photographer_surname']; ?>
                                                 </div>
                                             </div>
-                                            <div class="col-7 p-4 pb-0">
+                                            <div class="col-6 p-4 pb-0">
                                                 <!-- <p class="text-dark mb-3"><?php echo isset($photographer['photographer_address']) ? $photographer['photographer_address'] : 'Address not available'; ?></p> -->
-                                                <?php foreach ($photographer['type_of_work'] as $work) { ?>
+                                                <!-- <?php foreach ($photographer['type_of_work'] as $work) { ?>
                                                     <p class="text-dark mb-3">
                                                         <?php echo $work['type_work']; ?>
                                                         <?php echo isset($work['rate_half']) ? $work['rate_half'] : 'Rate half not available'; ?>
                                                         <?php echo isset($work['rate_full']) ? $work['rate_full'] : 'Rate full not available'; ?>
                                                     </p>
-                                                <?php } ?>
-                                                <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
+                                                <?php } ?> -->
+                                                <a class="d-block mb-3" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
                                                     <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
                                                 </a>
                                                 <p class="text-dark mb-3">โทร <?php echo isset($photographer['photographer_tell']) ? $photographer['photographer_tell'] : 'Phone number not available'; ?></p>

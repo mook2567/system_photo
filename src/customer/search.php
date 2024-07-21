@@ -267,7 +267,6 @@ if (isset($_SESSION['cus_login'])) {
     </div>
     <!-- Search End -->
 
-
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['search'])) {
@@ -279,32 +278,32 @@ if (isset($_SESSION['cus_login'])) {
 
             // Build the SQL query
             $sql = "SELECT 
-                    p.photographer_prefix,
-                    p.photographer_name,
-                    p.photographer_surname,
-                    p.photographer_tell,
-                    p.photographer_email,
-                    p.photographer_scope,
-                    p.photographer_photo,
-                    p.photographer_address,
-                    tow.type_of_work_rate_half,
-                    tow.type_of_work_rate_full,
-                    t.type_work,
-                    p.photographer_id
-                FROM 
-                    photographer p
-                INNER JOIN 
-                    type_of_work tow ON p.photographer_id = tow.photographer_id
-                INNER JOIN 
-                    type t ON t.type_id = tow.type_id
-                WHERE 
-                    tow.type_id = $type_id
-                    AND (
-                        ($time = 1 AND CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0)
-                        OR
-                        ($time = 2 AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0)
-                    )
-                    AND p.photographer_scope = '$scope'";
+                p.photographer_prefix,
+                p.photographer_name,
+                p.photographer_surname,
+                p.photographer_tell,
+                p.photographer_email,
+                p.photographer_scope,
+                p.photographer_photo,
+                p.photographer_address,
+                tow.type_of_work_rate_half,
+                tow.type_of_work_rate_full,
+                t.type_work,
+                p.photographer_id
+            FROM 
+                photographer p
+            INNER JOIN 
+                type_of_work tow ON p.photographer_id = tow.photographer_id
+            INNER JOIN 
+                type t ON t.type_id = tow.type_id
+            WHERE 
+                tow.type_id = $type_id
+                AND (
+                    ($time = 1 AND CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0)
+                    OR
+                    ($time = 2 AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0)
+                )
+                AND p.photographer_scope = '$scope'";
 
             // Execute the query
             $result = $conn->query($sql);
@@ -322,27 +321,33 @@ if (isset($_SESSION['cus_login'])) {
                                         <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                             <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                                 <div class="row">
-                                                    <div class="col-5 position-relative overflow-hidden">
+                                                    <div class="col-6 position-relative overflow-hidden">
                                                         <a href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo isset($row_photographer['photographer_photo']) ? $row_photographer['photographer_photo'] : 'default.jpg'; ?>" alt=""></a>
                                                         <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
                                                             <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
                                                         </div>
                                                     </div>
-                                                    <div class="col-7 p-4 pb-0">
+                                                    <div class="col-6 p-2 pb-0">
                                                         <?php if (isset($row_photographer['type_work'])) { ?>
                                                             <p class="text-dark mb-3">
-                                                                <?php echo $row_photographer['type_work']; ?>
+                                                            <div class="d-flex align-items-center">
+                                                                <b><?php echo $row_photographer['type_work']; ?> </b>
+                                                            </div>
+                                                            <div class="ms-3 mt-1">
                                                                 <?php if ($row_photographer['type_of_work_rate_half'] > 0) { ?>
-                                                                    <?php echo 'ราคาครึ่งวัน', number_format($row_photographer['type_of_work_rate_half'], 0); ?>
+                                                                    <b>ราคาครึ่งวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_half'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
+                                                            </div>
+                                                            <div class="ms-3 mt-1">
                                                                 <?php if ($row_photographer['type_of_work_rate_full'] > 0) { ?>
-                                                                    <?php echo 'ราคาเต็มวัน', number_format($row_photographer['type_of_work_rate_full'], 0); ?>
+                                                                    <b>ราคาเต็มวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_full'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
+                                                            </div>
                                                             </p>
                                                         <?php } else { ?>
-                                                            <p class="text-dark mb-3">Type work not available</p>
+                                                            <p class="text-dark mb-3">ยังไม่ได้ลงประเภทงาน</p>
                                                         <?php } ?>
-                                                        <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                        <a class="d-block mb-3" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
                                                         <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
                                                         <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
                                                     </div>
@@ -379,24 +384,24 @@ if (isset($_SESSION['cus_login'])) {
                         <div class="row g-4">
                             <?php
                             $sql = "SELECT 
-                                        p.photographer_prefix,
-                                        p.photographer_name,
-                                        p.photographer_surname,
-                                        p.photographer_tell,
-                                        p.photographer_email,
-                                        p.photographer_scope,
-                                        p.photographer_photo,
-                                        p.photographer_address,
-                                        tow.type_of_work_rate_half,
-                                        tow.type_of_work_rate_full,
-                                        t.type_work,
-                                        p.photographer_id
-                                    FROM 
-                                        photographer p
-                                    LEFT JOIN 
-                                        type_of_work tow ON p.photographer_id = tow.photographer_id
-                                    LEFT JOIN 
-                                        type t ON t.type_id = tow.type_id";
+                            p.photographer_prefix,
+                            p.photographer_name,
+                            p.photographer_surname,
+                            p.photographer_tell,
+                            p.photographer_email,
+                            p.photographer_scope,
+                            p.photographer_photo,
+                            p.photographer_address,
+                            tow.type_of_work_rate_half,
+                            tow.type_of_work_rate_full,
+                            t.type_work,
+                            p.photographer_id
+                        FROM 
+                            photographer p
+                        LEFT JOIN 
+                            type_of_work tow ON p.photographer_id = tow.photographer_id
+                        LEFT JOIN 
+                            type t ON t.type_id = tow.type_id";
                             $result = $conn->query($sql);
 
                             if ($result->num_rows > 0) {
@@ -432,7 +437,7 @@ if (isset($_SESSION['cus_login'])) {
                                     <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                         <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                             <div class="row">
-                                                <div class="col-5 position-relative overflow-hidden">
+                                                <div class="col-6 position-relative overflow-hidden">
                                                     <a href="profile_photographer.php?photographer_id=<?php echo $photographer_id; ?>">
                                                         <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photographer_photo']) ? $photographer['photographer_photo'] : 'default.jpg'; ?>" alt="">
                                                     </a>
@@ -440,8 +445,8 @@ if (isset($_SESSION['cus_login'])) {
                                                         <?php echo $photographer['photographer_prefix'] . ' ' . $photographer['photographer_name'] . ' ' . $photographer['photographer_surname']; ?>
                                                     </div>
                                                 </div>
-                                                <div class="col-7 p-4 pb-0">
-                                                    <?php if (!empty($photographer['type_of_work'])) { ?>
+                                                <div class="col-6 p-4 pb-0">
+                                                    <!-- <?php if (!empty($photographer['type_of_work'])) { ?>
                                                         <?php foreach ($photographer['type_of_work'] as $work) { ?>
                                                             <p class="text-dark mb-3">
                                                                 <?php echo $work['type_work']; ?>
@@ -455,8 +460,8 @@ if (isset($_SESSION['cus_login'])) {
                                                         <?php } ?>
                                                     <?php } else { ?>
                                                         <p class="text-dark mb-3">ยังไม่ได้ลงประเภทงาน</p>
-                                                    <?php } ?>
-                                                    <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
+                                                    <?php } ?> -->
+                                                    <a class="d-block mb-3" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
                                                         <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
                                                     </a>
                                                     <p class="text-dark mb-3">โทร <?php echo isset($photographer['photographer_tell']) ? $photographer['photographer_tell'] : 'Phone number not available'; ?></p>
@@ -486,8 +491,6 @@ if (isset($_SESSION['cus_login'])) {
     <?php
     }
     ?>
-
-
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">

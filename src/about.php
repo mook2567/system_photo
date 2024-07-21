@@ -125,40 +125,55 @@ if (isset($_SESSION['photographer_login'])) {
     <div class=" bg-dark mb-5 wow fadeIn " data-wow-delay="0.1s" style="padding: 35px;">
         <div class="container">
             <div class="row flex-row g-2 align-items-center">
-                <h2 class="text-white f">ค้นหาช่างภาพ</h2>
+                <h2 class="text-white">ค้นหาช่างภาพ</h2>
                 <div class="col-md-3">
-                    <select class="form-select border-0 py-3">
-                        <option selected>ประเภทงาน</option>
-                        <option value="1">งานแต่งงาน</option>
-                        <option value="2">งานพรีเวดดิ้ง</option>
-                        <option value="3">งานอีเว้นท์</option>
-                    </select>
+                    <form action="search.php" method="POST">
+                        <select class="form-select border-0 py-3 mt-3" name="type" required>
+                            <option selected>ประเภทงาน</option>
+                            <?php
+                            $sql = "SELECT t.type_id, t.type_work
+                                FROM type t
+                                INNER JOIN (
+                                    SELECT type_id, MAX(photographer_id) AS photographer_id
+                                    FROM type_of_work
+                                    GROUP BY type_id
+                                ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                            $resultTypeWorkDetail = $conn->query($sql);
+
+                            if ($resultTypeWorkDetail->num_rows > 0) {
+                                while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                            ?>
+                                    <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                            <?php
+                                }
+                            } ?>
+                        </select>
                 </div>
                 <div class="col-md-2">
-                    <input class="border-0 py-3" type="text" id="reat" placeholder="  งบประมาณ (บาท)" style="border: none; outline: none; width:100%; border-radius: 5px;">
+                    <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
                 </div>
                 <div class="col-md-2">
-                    <select class="form-select border-0 py-3">
+                    <select class="form-select border-0 py-3" name="time" required>
                         <option selected>ช่วงเวลา</option>
                         <option value="1">เต็มวัน</option>
                         <option value="2">ครึ่งวัน</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select border-0 py-3">
+                    <select name="scope" class="form-select border-0 py-3" required>
                         <option selected>สถานที่</option>
-                        <option value="1">ภาคกลาง</option>
-                        <option value="2">ภาคตะวันออกเฉียงเหนือ</option>
-                        <option value="3">ภาคใต้</option>
-                        <option value="4">ภาคตะวันออก</option>
-                        <option value="6">ภาคตะวันตก</option>
+                        <option value="กรุงเทพฯ">กรุงเทพฯ</option>
+                        <option value="ภาคกลาง">ภาคกลาง</option>
+                        <option value="ภาคใต้">ภาคใต้</option>
+                        <option value="ภาคเหนือ">ภาคเหนือ</option>
+                        <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                        <option value="ภาคตะวันตก">ภาคตะวันตก</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <form action="search.php" method="GET">
-                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                    </form>
+                    <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -170,7 +185,7 @@ if (isset($_SESSION['photographer_login'])) {
             <div class="row g-5 align-items-center">
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
                     <div class="about-img position-relative overflow-hidden p-5 pe-0">
-                        <img class="img-fluid w-100" src="img/about.jpg">
+                        <img class="img-fluid w-100" src="img/Photomatch.gif">
                     </div>
                 </div>
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
@@ -233,27 +248,27 @@ if (isset($_SESSION['photographer_login'])) {
     </div>
     <!-- Dev End -->
 
-   <!-- Footer Start -->
-   <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
 
-    <!-- Footer End -->
+                <!-- Footer End -->
 
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/wow/wow.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+                <!-- JavaScript Libraries -->
+                <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="lib/wow/wow.min.js"></script>
+                <script src="lib/easing/easing.min.js"></script>
+                <script src="lib/waypoints/waypoints.min.js"></script>
+                <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+                <!-- Template Javascript -->
+                <script src="js/main.js"></script>
 </body>
 
 </html>

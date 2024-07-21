@@ -213,83 +213,81 @@ $resultType = $conn->query($sql);
 </head>
 
 <body>
-    <div class="" style="height: auto;">
-        <!-- Spinner Start -->
-        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
         </div>
-        <!-- Spinner End -->
+    </div>
+    <!-- Spinner End -->
 
 
-        <!-- Navbar Start -->
-        <div class="d-flex justify-content-center">
-            <nav class="mt-3 navbar navbar-expand-lg navbar-dark bg-dark col-10">
-                <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
-                    <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-                </a>
-                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="navbar-toggler-icon text-primary"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto">
-                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการ</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
-                                <a href="type.php" class="dropdown-item active">ประเภทงาน</a>
-                                <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
-                            </div>
+    <!-- Navbar Start -->
+    <div class="d-flex justify-content-center bg-primary" style="height: 90px;">
+        <nav class="mt-3 navbar navbar-expand-lg navbar-dark bg-dark col-10">
+            <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
+                <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+            </a>
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon text-primary"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto">
+                    <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">รายการ</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="search.php" class="dropdown-item">ค้นหาช่างภาพ</a>
+                            <a href="type.php" class="dropdown-item active">ประเภทงาน</a>
+                            <a href="workings.php" class="dropdown-item">ผลงานช่างภาพ</a>
                         </div>
-                        <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
-                        <a href="contact.php" class="nav-item nav-link">ติดต่อ</a>
-                        <a href="login.php" class="nav-item nav-link">เข้าสู่ระบบ<i class="ms-1 fa-solid fa-right-to-bracket"></i></a>
                     </div>
+                    <a href="about.php" class="nav-item nav-link">เกี่ยวกับ</a>
+                    <a href="contact.php" class="nav-item nav-link">ติดต่อ</a>
+                    <a href="login.php" class="nav-item nav-link">เข้าสู่ระบบ<i class="ms-1 fa-solid fa-right-to-bracket"></i></a>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     </div>
     <!-- Navbar End -->
+    <!-- Header Start -->
+    <div class="container-fluid header bg-primary p-5" style="height: 300px;">
+        <div class="row mt-5  align-items-center flex-column-reverse flex-md-row">
+            <div class="mt-5 text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 450px;">
+                <h1 class="mt-5 f " style="color: #fff;">ประเภทงาน</h1>
+                <p style="font-size: 20px;color: #fff;">คุณสามารถเลือกดูผลงานช่างภาพตามประเภทงานนี้ได้เลย</p>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
 
     <!-- Category Start -->
-    <div class="container-xxl py-5">
-        <div class="container">
-            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
-                <h1 class="mb-3 f">ประเภทงาน</h1>
-                <p>คุณสามารถเลือกดูผลงานช่างภาพตามประเภทงานนี้ได้เลย</p>
-            </div>
-
-            <!-- Category Start -->
-            <div class="mt-4 d-flex justify-content-center align-items-center" style="border-radius: 10px;">
-                <div class="container-xxl py-5">
-                    <div class="container">
-                        
-                        <div class="row g-5 mt-2 justify-content-center">
-                            <?php
-                            if ($resultType->num_rows > 0) {
-                                while ($rowType = $resultType->fetch_assoc()) {
-                            ?>
-                                    <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                                        <a class="cat-item bg-light text-center" href="">
-                                            <div class="rounded p-4" style="font-size: 60.9px;">
-                                                <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
-                                                <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
-                                            </div>
-                                        </a>
-                                    </div>
-                            <?php
-                                }
-                            } ?>
-                        </div>
+    <div class="bg-white" style="min-height: 601px;">
+        <div class="d-flex justify-content-center align-items-center" style="border-radius: 10px; ">
+            <div class="container-xxl">
+                <div class="container">
+                    <div class="row mt-5 justify-content-center">
+                        <?php
+                        if ($resultType->num_rows > 0) {
+                            while ($rowType = $resultType->fetch_assoc()) {
+                        ?>
+                                <div class="col-lg-3 mt-4 mb-4 col-sm-6 wow pulse" data-wow-delay="0.1s">
+                                    <a class="cat-item bg-light text-center" href="workings.php?type_id=<?php echo $rowType['type_id'];?>">
+                                        <div class="rounded p-4" style="font-size: 60.9px;">
+                                            <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
+                                            <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
+                                        </div>
+                                    </a>
+                                </div>
+                        <?php
+                            }
+                        } ?>
                     </div>
                 </div>
             </div>
-            <!-- Category End -->
         </div>
     </div>
-
+    <!-- Category End -->
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
@@ -298,24 +296,27 @@ $resultType = $conn->query($sql);
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
-
-                <!-- Footer End -->
-
-
-                <!-- Back to Top -->
-                <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
             </div>
+        </div>
+    </div>
 
-            <!-- JavaScript Libraries -->
-            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="lib/wow/wow.min.js"></script>
-            <script src="lib/easing/easing.min.js"></script>
-            <script src="lib/waypoints/waypoints.min.js"></script>
-            <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <!-- Footer End -->
 
-            <!-- Template Javascript -->
-            <script src="js/main.js"></script>
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
 </body>
 
 </html>
