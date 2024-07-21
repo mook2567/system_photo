@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $province = $_POST["province"];
         $zipcode = $_POST["zipcode"];
         $password = $_POST["password"];
-        $work_area = $_POST["work_area"];
+        // $work_area = $_POST["work_area"];
         $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
         $accountNumber = $_POST["accountNumber"];
         $accountName = $_POST["accountName"];
@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             photographer_address = ?, 
             photographer_district = ?, 
             photographer_province = ?, 
-            photographer_scope = ?, 
+            -- photographer_scope = ?, 
             photographer_zip_code = ?, 
             photographer_password = ?, 
             photographer_bank = ?, 
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             photographer_account_number = ? 
             WHERE photographer_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssssi", $address, $district, $province, $work_area, $zipcode, $password, $bank, $accountName, $accountNumber, $photographer_id);
+        $stmt->bind_param("ssssssssi", $address, $district, $province, $zipcode, $password, $bank, $accountName, $accountNumber, $photographer_id);
 
         if ($stmt->execute()) {
 ?>
@@ -492,7 +492,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <a href="../portfolio/<?php echo $rowPhoto['photographer_portfolio']; ?>" target="_blank" class="btn btn-primary">ดูไฟล์ PDF</a>
                                             </div>
                                         </div>
-                                        <div class="mt-2">
+                                        <!-- <div class="mt-2">
                                             <label for="work_area" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ขอบเขตพื้นที่ที่รับงาน</span>
                                                 <span style="color: red;">*</span>
@@ -505,27 +505,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <span style="color: red;">*</span>
                                             </label>
                                             <?php
-                                            $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-                                            FROM type t
-                                            INNER JOIN (
-                                                SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
-                                                FROM type_of_work
-                                                WHERE (type_id, photographer_id) IN (
-                                                    SELECT type_id, MAX(photographer_id)
-                                                    FROM type_of_work
-                                                    GROUP BY type_id
+                                            $sql = "SELECT 
+                                            t.type_id, 
+                                            t.type_work, 
+                                            tow_latest.photographer_id, 
+                                            tow_latest.type_of_work_details, 
+                                            tow_latest.type_of_work_rate_half, 
+                                            tow_latest.type_of_work_rate_full
+                                        FROM 
+                                            type t
+                                        INNER JOIN (
+                                            SELECT 
+                                                type_id, 
+                                                photographer_id, 
+                                                type_of_work_details, 
+                                                type_of_work_rate_half, 
+                                                type_of_work_rate_full
+                                            FROM 
+                                                type_of_work
+                                            WHERE 
+                                                photographer_id = $id_photographer
+                                                AND (type_id, photographer_id) IN (
+                                                    SELECT 
+                                                        type_id, 
+                                                        MAX(photographer_id) AS photographer_id
+                                                    FROM 
+                                                        type_of_work
+                                                    WHERE 
+                                                        photographer_id = $id_photographer
+                                                    GROUP BY 
+                                                        type_id
                                                 )
-                                            ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                        ) AS tow_latest 
+                                        ON 
+                                            t.type_id = tow_latest.type_id;
+                                        ";
                                             $resultTypeWorkDetail = $conn->query($sql);
-                                            
+
                                             if ($resultTypeWorkDetail->num_rows > 0) {
                                                 while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
                                             ?>
-                                            <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;" readonly>
+                                                    <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;" readonly>
                                             <?php
-                                            }
-                                            }?>
-                                        </div>
+                                                }
+                                            } ?>
+                                        </div> -->
                                     </div>
                                     <div class="col-md-2 mt-0 col-divider justify-content-center">
                                     </div>
