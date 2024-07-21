@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
             function noBack(){
                 window.history.forward()
             }
@@ -96,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             window.onload = noBack;
             window.onpageshow = function(evt) { if (evt.persisted) noBack() }
             window.onunload = function() { void (0) }
-        </script>
+        </script> -->
     <style>
         .main-content {
             width: 50%;
