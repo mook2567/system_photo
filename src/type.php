@@ -263,18 +263,18 @@ $resultType = $conn->query($sql);
 
     <!-- Category Start -->
     <div class="bg-white" style="min-height: 601px;">
-        <div class="d-flex justify-content-center align-items-center" style="border-radius: 10px; ">
+        <div class="d-flex justify-content-center align-items-center" style="border-radius: 10px;">
             <div class="container-xxl">
                 <div class="container">
-                    <div class="row mt-5 justify-content-center">
+                    <div class="row mt-5 justify-content-start">
                         <?php
                         if ($resultType->num_rows > 0) {
                             while ($rowType = $resultType->fetch_assoc()) {
                         ?>
                                 <div class="col-lg-3 mt-4 mb-4 col-sm-6 wow pulse" data-wow-delay="0.1s">
-                                    <a class="cat-item bg-light text-center" href="workings.php?type_id=<?php echo $rowType['type_id'];?>">
+                                    <a class="cat-item bg-light text-center" href="workings.php?type_id=<?php echo $rowType['type_id']; ?>">
                                         <div class="rounded p-4" style="font-size: 60.9px;">
-                                            <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
+                                            <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;">
                                             <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
                                         </div>
                                     </a>
@@ -287,6 +287,7 @@ $resultType = $conn->query($sql);
             </div>
         </div>
     </div>
+
     <!-- Category End -->
 
     <!-- Footer Start -->

@@ -149,7 +149,7 @@ if (isset($_SESSION['cus_login'])) {
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
-                    <div class="row g-5 mt-2 justify-content-center">
+                    <div class="row g-5 mt-2 justify-content-start">
                         <?php
                         if ($resultType->num_rows > 0) {
                             while ($rowType = $resultType->fetch_assoc()) {

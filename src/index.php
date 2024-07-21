@@ -133,15 +133,15 @@ $resultType = $conn->query($sql);
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
-                    <div class="row g-5 mt-2 justify-content-center">
+                    <div class="row mt-5 justify-content-start">
                         <?php
                         if ($resultType->num_rows > 0) {
                             while ($rowType = $resultType->fetch_assoc()) {
                         ?>
-                                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <a class="cat-item bg-light text-center" href="type.php?type_id=<?php echo $typ_id ?>">
+                                <div class="col-lg-3 mt-4 mb-4 col-sm-6 wow pulse" data-wow-delay="0.1s">
+                                    <a class="cat-item bg-light text-center" href="workings.php?type_id=<?php echo $rowType['type_id']; ?>">
                                         <div class="rounded p-4" style="font-size: 60.9px;">
-                                            <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;"></img>
+                                            <img src="img/icon/<?php echo $rowType['type_icon']; ?>" style="height: 75px; width: 75px;">
                                             <h6 class="f mt-3"><?php echo $rowType['type_work']; ?></h6>
                                         </div>
                                     </a>
