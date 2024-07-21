@@ -38,7 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $province = $_POST["province"];
         $zipcode = $_POST["zipcode"];
         $password = $_POST["password"];
-        // $work_area = $_POST["work_area"];
         $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
         $accountNumber = $_POST["accountNumber"];
         $accountName = $_POST["accountName"];
@@ -47,7 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             photographer_address = ?, 
             photographer_district = ?, 
             photographer_province = ?, 
-            -- photographer_scope = ?, 
             photographer_zip_code = ?, 
             photographer_password = ?, 
             photographer_bank = ?, 
@@ -319,7 +317,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border-bottom: 1px solid #ccc;
             resize: none;
         }
-    </style>
+    </style><script>
+        function validatePassword() {
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirm_password").value;
+            if (password != confirmPassword) {
+                Swal.fire({
+                    title: 'รหัสผ่านไม่ตรงกัน',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 
 <body>
@@ -333,10 +345,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <!-- Navbar Start -->
     <div class="bg-dark">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar ms-5 me-5 navbar-expand-lg navbar-dark bg-dark">
             <a href="index.php">
                 <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-            </a>
             </a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
@@ -605,7 +616,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
 
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
 </body>
 
 </html>

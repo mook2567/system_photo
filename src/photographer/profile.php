@@ -393,7 +393,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
 
-
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.0/css/bootstrap.min.css" rel="stylesheet">
 
 
 
@@ -587,6 +587,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             flex: 0 0 calc(33.33% - 10px);
             max-width: calc(33.33% - 10px);
         }
+
+        /* Darken the backdrop */
+        .modal-backdrop.show {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Center the modal vertically */
+        .modal-dialog {
+            display: flex;
+            align-items: center;
+            min-height: calc(100% - 1rem);
+        }
+
+        /* Style for the modal content */
+        .modal-content {
+            border-radius: 0.5rem;
+        }
     </style>
     <script>
         function validatePassword() {
@@ -600,6 +617,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 });
                 return false;
             }
+            return true;
+        }
+    </script>
+    <script>
+        function validateForm() {
+            // Get all the checkboxes
+            var checkboxes = document.querySelectorAll('input[name="work_area[]"]');
+            var isChecked = false;
+
+            // Loop through checkboxes to check if at least one is checked
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    isChecked = true;
+                }
+            });
+
+            // If none is checked, alert the user and prevent form submission
+            if (!isChecked) {
+                alert('กรุณาเลือกพื้นที่ที่รับงานอย่างน้อยหนึ่งตัวเลือก');
+                return false;
+            }
+
             return true;
         }
     </script>
@@ -767,7 +806,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             <!-- Edit Modal -->
             <div class="modal fade" id="editModal<?php echo $rowPhoto['photographer_id']; ?>" tabindex="-1" aria-labelledby="editModalLabel<?php echo $row['photographer_id']; ?>" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
                         <div class="modal-header justify-content-center">
                             <h3 class="modal-title" id="editModalLabel<?php echo $rowPhoto['photographer_id']; ?>"><b>แก้ไขโปรไฟล์</b></h3>
@@ -778,7 +817,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="container-xxl">
                                     <div class="mt-3 col-md-12 container-fluid">
                                         <div class="row ">
-                                            <div class="col-9">
+                                            <div class="col-8">
                                                 <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลส่วนตัว</b></div>
 
                                                 <div class="col-12">
@@ -801,11 +840,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 <span style="color: black; margin-right: 5px; font-size: 13px;">นามสกุล</span>
                                                                 <span style="color: red;">*</span>
                                                             </label>
-                                                            <input type="text" name="surname" class="form-control" value="<?php echo $rowPhoto['photographer_surname']; ?>" required>
+                                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_surname']; ?>" required>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 mt-2">
+                                                <hr class="mt-4">
+                                                <div class="mt-2">
+                                                    <div class="row">
+                                                        <div class="text-start mt-1 mb-4" style="font-size: 18px;"><b>ข้อมูลการติดต่อ</b></div>
+
+                                                        <div class="col-md-6">
+                                                            <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
+                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
+                                                                <span style="color: red;">*</span>
+                                                            </label>
+                                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_tell']; ?>" required style="resize: none;">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
+                                                                <span style="color: red;">*</span>
+                                                            </label>
+                                                            <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_email']; ?>" required style="resize: none;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- <div class="col-md-2 mt-0 col-divider justify-content-center">
+                                                    </div>
+                                                    <div class="col-md-12 mt-5">
+                                                        <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลรับชำระเงิน</b></div>
+                                                        <div class="mt-3">
+                                                            <label for="workid" style="font-weight: bold; display: flex; align-items: center;">
+                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อธนาคาร</span>
+                                                                <span style="color: red;">*</span>
+                                                            </label>
+                                                            <input type="text" name="bank" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_bank']; ?>" required style="resize: none;">
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <label for="accountname" style="font-weight: bold; display: flex; align-items: center;">
+                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อบัญชี</span>
+                                                                <span style="color: red;">*</span>
+                                                            </label>
+                                                            <input type="text" name="accountName" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_account_name']; ?>" required style="resize: none;">
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <label for="accountNumber" style="font-weight: bold; display: flex; align-items: center;">
+                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">เลขที่บัญชี</span>
+                                                                <span style="color: red;">*</span>
+                                                            </label>
+                                                            <input type="text" name="accountNumber" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_account_number']; ?>" required style="resize: none;">
+                                                        </div>
+                                                    </div> -->
+                                                <!-- </div> -->
+                                                <!-- <div class="col-12 mt-2">
                                                     <div class="row">
                                                         <div class="col-md-12 text-center">
                                                             <label for="address" style="font-weight: bold; display: flex; align-items: center;">
@@ -874,9 +962,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> -->
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-4 mt-2">
                                                 <div class="d-flex justify-content-center align-items-center md">
                                                     <div class="circle">
                                                         <div style="width: 60px; height: 60px;">
@@ -885,97 +973,211 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     </div>
                                                 </div>
                                                 <div class="align-items-center justify-content-center d-flex">
-                                                    <div>
-                                                        <div>
+                                                    <div class="mt-4">
+                                                        <!-- <div>
                                                             <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
                                                                 <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
                                                                 <span style="color: red;">*</span>
                                                             </label>
+                                                        </div> -->
+                                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                                            แก้ไขรูปโปรไฟล์
+                                                        </button>
+                                                        <!-- modal -->
+                                                        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="uploadModalLabel">เปลี่ยนรูปโปรไฟล์</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form>
+                                                                            <div class="mb-4">
+                                                                                <label for="photoUpload" class="form-label">เลือกไฟล์รูปภาพ</label>
+                                                                                <input type="file" id="photoUpload" name="profileImage" class="form-control" onchange="updateImage()">
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary">อัปโหลด</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <input type="file" id="photo" name="profileImage" class="form-control" onchange="updateImage()">
-                                                        <div class="">
+                                                        <!-- <input type="file" id="photo" name="profileImage" class="form-control" onchange="updateImage()"> -->
+                                                        <!-- <div class="">
                                                             <label for="confirm_password" style="font-weight: bold; display: flex; align-items: center;">
                                                                 <span style="color: black; margin-right: 5px; font-size: 13px;">ยืนยันรหัสผ่าน</span>
                                                                 <span style="color: red;">*</span>
                                                             </label>
                                                             <input type="password" minlength="5" name="confirm_password" id="confirm_password" class="form-control mt-1" onchange="validatePassword()" placeholder="กรุณายืนยันรหัสผ่าน" value="<?php echo $rowPhoto['photographer_password']; ?>" required style="resize: none;">
-                                                        </div>
+                                                        </div> -->
                                                     </div>
                                                 </div>
                                             </div>
                                             <hr class="mt-4">
                                             <div class="row justify-content-center">
-                                                <div class="col-md-5 mt-0">
-                                                    <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลเกี่ยวกับงาน</b></div>
+                                                <div class="col-md-12 ">
+                                                    <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลเกี่ยวกับงาน</b>
+                                                    </div>
                                                     <div class="mt-3">
-                                                        <label for="portfolio" style="font-weight: bold; display: flex; align-items: center;">
-                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">ไฟล์แฟ้มสะสมผลงาน</span>
-                                                        </label>
-                                                        <div class="input-group">
-                                                            <input type="text" name="portfolio" class="form-control" value="<?php echo $rowPhoto['photographer_portfolio']; ?>" readonly>
-                                                            <a href="../portfolio/<?php echo $rowPhoto['photographer_portfolio']; ?>" target="_blank" class="btn btn-primary">ดูไฟล์ PDF</a>
+                                                        <div class="row">
+                                                            <div class="col-3 mt-1">
+                                                                <label for="portfolio" style="font-weight: bold; display: flex; align-items: center;">
+                                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ไฟล์แฟ้มสะสมผลงาน</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="input-group">
+                                                                    <input type="text" name="portfolio" class="form-control" value="<?php echo $rowPhoto['photographer_portfolio']; ?>" readonly>
+                                                                    <a href="../portfolio/<?php echo $rowPhoto['photographer_portfolio']; ?>" target="_blank" class="btn btn-primary">ดูไฟล์ PDF</a>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <label for="workid" style="font-weight: bold; display: flex; align-items: center;">
+                                                        <label class="mb-2" for="workid" style="font-weight: bold; display: flex; align-items: center;">
                                                             <span style="color: black; margin-right: 5px; font-size: 13px;">ประเภทงานที่รับ</span>
                                                             <span style="color: red;">*</span>
                                                         </label>
-                                                        <?php
-                                                        $sql = "SELECT 
-                                                        t.type_id, 
-                                                        t.type_work, 
-                                                        tow_latest.photographer_id, 
-                                                        tow_latest.type_of_work_details, 
-                                                        tow_latest.type_of_work_rate_half, 
-                                                        tow_latest.type_of_work_rate_full
-                                                    FROM 
-                                                        type t
-                                                    INNER JOIN (
-                                                        SELECT 
-                                                            type_id, 
-                                                            photographer_id, 
-                                                            type_of_work_details, 
-                                                            type_of_work_rate_half, 
-                                                            type_of_work_rate_full
-                                                        FROM 
-                                                            type_of_work
-                                                        WHERE 
-                                                            photographer_id = $id_photographer
-                                                            AND (type_id, photographer_id) IN (
-                                                                SELECT 
-                                                                    type_id, 
-                                                                    MAX(photographer_id) AS photographer_id
-                                                                FROM 
-                                                                    type_of_work
-                                                                WHERE 
-                                                                    photographer_id = $id_photographer
-                                                                GROUP BY 
-                                                                    type_id
-                                                            )
-                                                    ) AS tow_latest 
-                                                    ON 
-                                                        t.type_id = tow_latest.type_id;
-                                                    ";
-                                                        $resultTypeWorkDetail = $conn->query($sql);
+                                                        <div class="ms-4">
+                                                            <?php
+                                                            $sql = "SELECT 
+                                                                            t.type_id, 
+                                                                            t.type_work, 
+                                                                            tow_latest.photographer_id, 
+                                                                            tow_latest.type_of_work_details, 
+                                                                            tow_latest.type_of_work_rate_half, 
+                                                                            tow_latest.type_of_work_rate_full
+                                                                        FROM 
+                                                                            type t
+                                                                        INNER JOIN (
+                                                                            SELECT 
+                                                                                type_id, 
+                                                                                photographer_id, 
+                                                                                type_of_work_details, 
+                                                                                type_of_work_rate_half, 
+                                                                                type_of_work_rate_full
+                                                                            FROM 
+                                                                                type_of_work
+                                                                            WHERE 
+                                                                                photographer_id = $id_photographer
+                                                                                AND (type_id, photographer_id) IN (
+                                                                                    SELECT 
+                                                                                        type_id, 
+                                                                                        MAX(photographer_id) AS photographer_id
+                                                                                    FROM 
+                                                                                        type_of_work
+                                                                                    WHERE 
+                                                                                        photographer_id = $id_photographer
+                                                                                    GROUP BY 
+                                                                                        type_id
+                                                                                )
+                                                                        ) AS tow_latest 
+                                                                        ON 
+                                                                            t.type_id = tow_latest.type_id;
+                                                                        ";
+                                                            $resultTypeWorkDetail = $conn->query($sql);
 
-                                                        if ($resultTypeWorkDetail->num_rows > 0) {
-                                                            while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
-                                                        ?>
-                                                                <input type="text" name="working" class="form-control mt-1" value="<?php echo $rowTypeWorkDetail['type_work']; ?>" required style="resize: none;">
-                                                        <?php
-                                                            }
-                                                        } ?>
+                                                            if ($resultTypeWorkDetail->num_rows > 0) {
+                                                                while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                                            ?>
+                                                                    <div class="row">
+                                                                        <div class="col-3 mt-1">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
+                                                                                <b><?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?></b>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-9">
+
+                                                                            <!-- <form action="update_rates.php" method="post"> -->
+                                                                            <!-- Input field for half-day rate -->
+                                                                            <div class="mb-3">
+                                                                                <div class="row">
+                                                                                    <div class="col-2 mt-2">
+                                                                                        <label for="rate_half" class="form-label">ราคาครึ่งวัน:</label>
+                                                                                    </div>
+                                                                                    <div class="col-3 justify-content-start"><input type="number" id="rate_half" name="rate_half" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_half'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter half-day rate in บาท">
+                                                                                    </div>
+                                                                                    <div class="col-2 mt-2">
+                                                                                        <label for="rate_half" class="form-label"> บาท</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <!-- Input field for full-day rate -->
+                                                                            <div class="mb-3">
+                                                                                <div class="row">
+                                                                                    <div class="col-2 mt-2">
+                                                                                        <label for="rate_half" class="form-label">ราคาเต็มวัน:</label>
+                                                                                    </div>
+                                                                                    <div class="col-3 justify-content-start">
+                                                                                        <input type="number" id="rate_full" name="rate_full" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_full'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter full-day rate in บาท">
+                                                                                    </div>
+                                                                                    <div class="col-2 mt-2">
+                                                                                        <label for="rate_half" class="form-label"> บาท</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <!-- Hidden field to store type ID and photographer ID if needed -->
+                                                                            <input type="hidden" name="type_id" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                                            <input type="hidden" name="photographer_id" value="<?php echo htmlspecialchars($rowTypeWorkDetail['photographer_id'], ENT_QUOTES, 'UTF-8'); ?>">
+
+                                                                            <!-- Submit button -->
+                                                                            <!-- <button type="submit" class="btn btn-primary">Save Rates</button>
+                                                                            </form> -->
+
+                                                                        </div>
+                                                                    </div>
+                                                            <?php
+                                                                }
+                                                            } ?>
+                                                        </div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <label for="work_area" style="font-weight: bold; display: flex; align-items: center;">
-                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">ขอบเขตพื้นที่ที่รับงาน</span>
-                                                            <span style="color: red;">*</span>
-                                                        </label>
-                                                        <input type="text" name="work_area" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_scope']; ?>" required style="resize: none;">
+                                                        <div class="row">
+                                                            <div class="col-3 mt-3">
+                                                                <label for="work_area" style="font-weight: bold; display: flex; align-items: center;">
+                                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ขอบเขตพื้นที่ที่รับงาน</span>
+                                                                    <span style="color: red;">*</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-6 justify-content-sm-start">
+                                                                    <div class="form-check d-flex align-items-center">
+                                                                        <input type="checkbox" id="bangkok" name="work_area[]" value="กรุงเทพ" class="form-check-input">
+                                                                        <label class="form-check-label ms-2 mb-0" for="bangkok">กรุงเทพฯ</label>
+                                                                    </div>
+                                                                    <div class="form-check d-flex align-items-center">
+                                                                        <input type="checkbox" id="central" name="work_area[]" value="ภาคกลาง" class="form-check-input">
+                                                                        <label class="form-check-label ms-2 mb-0" for="central">ภาคกลาง</label>
+                                                                    </div>
+                                                                    <div class="form-check d-flex align-items-center">
+                                                                        <input type="checkbox" id="southern" name="work_area[]" value="ภาคใต้" class="form-check-input">
+                                                                        <label class="form-check-label ms-2 mb-0" for="southern">ภาคใต้</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 justify-content-sm-start">
+                                                                    <div class="form-check d-flex align-items-center">
+                                                                        <input type="checkbox" id="northern" name="work_area[]" value="ภาคเหนือ" class="form-check-input">
+                                                                        <label class="form-check-label ms-2 mb-0" for="northern">ภาคเหนือ</label>
+                                                                    </div>
+                                                                    <div class="form-check d-flex align-items-center">
+                                                                        <input type="checkbox" id="northeastern" name="work_area[]" value="ภาคตะวันออกเฉียงเหนือ" class="form-check-input">
+                                                                        <label class="form-check-label ms-2 mb-0" for="northeastern">ภาคตะวันออกเฉียงเหนือ</label>
+                                                                    </div>
+                                                                    <div class="form-check d-flex align-items-center">
+                                                                        <input type="checkbox" id="western" name="work_area[]" value="ภาคตะวันตก" class="form-check-input">
+                                                                        <label class="form-check-label ms-2 mb-0" for="western">ภาคตะวันตก</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-2 mt-0 col-divider justify-content-center">
+                                            </div>
+                                            <!-- <div class="col-md-2 mt-0 col-divider justify-content-center">
                                                 </div>
                                                 <div class="col-md-5 mt-0">
                                                     <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลรับชำระเงิน</b></div>
@@ -1001,7 +1203,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <input type="text" name="accountNumber" class="form-control mt-1" value="<?php echo $rowPhoto['photographer_account_number']; ?>" required style="resize: none;">
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
