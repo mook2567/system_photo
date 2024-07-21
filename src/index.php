@@ -88,14 +88,19 @@ $resultType = $conn->query($sql);
             /* or any desired height */
             object-fit: cover;
         }
-        .caption {
-  white-space: nowrap; /* ทำให้ข้อความไม่ขึ้นบรรทัดใหม่ */
-  overflow: hidden; /* ซ่อนข้อความที่ล้น */
-  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความล้น */
-  width: 100%; /* ตั้งค่าความกว้างตามที่ต้องการ */
-  display: block; /* ทำให้พารากราฟเป็นบล็อค */
-}
 
+        .caption {
+            white-space: nowrap;
+            /* ทำให้ข้อความไม่ขึ้นบรรทัดใหม่ */
+            overflow: hidden;
+            /* ซ่อนข้อความที่ล้น */
+            text-overflow: ellipsis;
+            /* แสดง ... เมื่อข้อความล้น */
+            width: 100%;
+            /* ตั้งค่าความกว้างตามที่ต้องการ */
+            display: block;
+            /* ทำให้พารากราฟเป็นบล็อค */
+        }
     </style>
 </head>
 
@@ -113,7 +118,7 @@ $resultType = $conn->query($sql);
         <div class="d-flex justify-content-center">
             <nav class="mt-3 navbar navbar-expand-lg navbar-dark col-10">
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
-                    <img class="img-fluid" src="/img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+                    <img class="img-fluid" src="img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
@@ -175,7 +180,7 @@ $resultType = $conn->query($sql);
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
                         <form action="search.php" method="POST">
-                            <select class="form-select border-0 py-3  mt-3" name="type" required>
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
                                 <option selected>ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
@@ -197,17 +202,17 @@ $resultType = $conn->query($sql);
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder=" งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3" required>
+                        <select class="form-select border-0 py-3" name="time" required>
                             <option selected>ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select border-0 py-3" required>
+                        <select name="scope" class="form-select border-0 py-3" required>
                             <option selected>สถานที่</option>
                             <option value="กรุงเทพฯ">กรุงเทพฯ</option>
                             <option value="ภาคกลาง">ภาคกลาง</option>
@@ -316,7 +321,7 @@ $resultType = $conn->query($sql);
                     while ($rowPost = $resultPost->fetch_assoc()) {
                 ?>
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <div class="property-item rounded overflow-hidden bg-white" >
+                            <div class="property-item rounded overflow-hidden bg-white">
                                 <div class="position-relative overflow-hidden">
                                     <a><img class="img-fluid property-img" src="img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>

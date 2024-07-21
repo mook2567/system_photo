@@ -267,14 +267,15 @@ if (isset($_SESSION['cus_login'])) {
     </div>
     <!-- Search End -->
 
+
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['search'])) {
             // Sanitize and assign POST data
-            echo $type_id = intval($conn->real_escape_string($_POST['type']));
-            echo $budget = intval($conn->real_escape_string($_POST['budget']));
-            echo $time = intval($conn->real_escape_string($_POST['time']));
-            echo $scope = $conn->real_escape_string($_POST['scope']);
+            $type_id = intval($conn->real_escape_string($_POST['type']));
+            $budget = intval($conn->real_escape_string($_POST['budget']));
+            $time = intval($conn->real_escape_string($_POST['time']));
+            $scope = $conn->real_escape_string($_POST['scope']);
 
             // Build the SQL query
             $sql = "SELECT 
@@ -328,9 +329,20 @@ if (isset($_SESSION['cus_login'])) {
                                                         </div>
                                                     </div>
                                                     <div class="col-7 p-4 pb-0">
-                                                        <p class="text-dark mb-3"><?php echo isset($row_photographer['photographer_address']) ? $row_photographer['photographer_address'] : 'Address not available'; ?></p>
-                                                        <p class="text-dark mb-3"><?php echo isset($row_photographer['type_work']) ? $row_photographer['type_work'] : 'Type work not available'; ?>
-                                                            <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
+                                                        <?php if (isset($row_photographer['type_work'])) { ?>
+                                                            <p class="text-dark mb-3">
+                                                                <?php echo $row_photographer['type_work']; ?>
+                                                                <?php if ($row_photographer['type_of_work_rate_half'] > 0) { ?>
+                                                                    <?php echo 'ราคาครึ่งวัน', number_format($row_photographer['type_of_work_rate_half'], 0); ?>
+                                                                <?php } ?>
+                                                                <?php if ($row_photographer['type_of_work_rate_full'] > 0) { ?>
+                                                                    <?php echo 'ราคาเต็มวัน', number_format($row_photographer['type_of_work_rate_full'], 0); ?>
+                                                                <?php } ?>
+                                                            </p>
+                                                        <?php } else { ?>
+                                                            <p class="text-dark mb-3">Type work not available</p>
+                                                        <?php } ?>
+                                                        <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
                                                         <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
                                                         <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
                                                     </div>
@@ -367,80 +379,88 @@ if (isset($_SESSION['cus_login'])) {
                         <div class="row g-4">
                             <?php
                             $sql = "SELECT 
-                            p.photographer_prefix,
-                            p.photographer_name,
-                            p.photographer_surname,
-                            p.photographer_tell,
-                            p.photographer_email,
-                            p.photographer_scope,
-                            p.photographer_photo,
-                            p.photographer_address,
-                            tow.type_of_work_rate_half,
-                            tow.type_of_work_rate_full,
-                            t.type_work,
-                            p.photographer_id
-                        FROM 
-                            photographer p
-                        INNER JOIN 
-                            type_of_work tow ON p.photographer_id = tow.photographer_id
-                        INNER JOIN 
-                            type t ON t.type_id = tow.type_id";
-
+                                        p.photographer_prefix,
+                                        p.photographer_name,
+                                        p.photographer_surname,
+                                        p.photographer_tell,
+                                        p.photographer_email,
+                                        p.photographer_scope,
+                                        p.photographer_photo,
+                                        p.photographer_address,
+                                        tow.type_of_work_rate_half,
+                                        tow.type_of_work_rate_full,
+                                        t.type_work,
+                                        p.photographer_id
+                                    FROM 
+                                        photographer p
+                                    LEFT JOIN 
+                                        type_of_work tow ON p.photographer_id = tow.photographer_id
+                                    LEFT JOIN 
+                                        type t ON t.type_id = tow.type_id";
                             $result = $conn->query($sql);
 
                             if ($result->num_rows > 0) {
                                 $photographers = [];
+
+                                // Store data in an array for processing
                                 while ($row = $result->fetch_assoc()) {
-                                    $photographer_id = $row['photographer_id'];
-                                    if (!isset($photographers[$photographer_id])) {
-                                        $photographers[$photographer_id] = [
-                                            'prefix' => $row['photographer_prefix'],
-                                            'name' => $row['photographer_name'],
-                                            'surname' => $row['photographer_surname'],
-                                            'tell' => $row['photographer_tell'],
-                                            'email' => $row['photographer_email'],
-                                            'scope' => $row['photographer_scope'],
-                                            'photo' => $row['photographer_photo'],
-                                            'address' => $row['photographer_address'],
-                                            'types' => []
+                                    if (!isset($photographers[$row['photographer_id']])) {
+                                        $photographers[$row['photographer_id']] = [
+                                            'photographer_prefix' => $row['photographer_prefix'],
+                                            'photographer_name' => $row['photographer_name'],
+                                            'photographer_surname' => $row['photographer_surname'],
+                                            'photographer_tell' => $row['photographer_tell'],
+                                            'photographer_email' => $row['photographer_email'],
+                                            'photographer_scope' => $row['photographer_scope'],
+                                            'photographer_photo' => $row['photographer_photo'],
+                                            'photographer_address' => $row['photographer_address'],
+                                            'type_of_work' => []
                                         ];
                                     }
-                                    $photographers[$photographer_id]['types'][] = [
-                                        'type_work' => $row['type_work'],
-                                        'rate_half' => intval($row['type_of_work_rate_half']),
-                                        'rate_full' => intval($row['type_of_work_rate_full'])
-                                    ];
+
+                                    if ($row['type_work'] !== null) {
+                                        $photographers[$row['photographer_id']]['type_of_work'][] = [
+                                            'type_work' => $row['type_work'],
+                                            'rate_half' => (int)$row['type_of_work_rate_half'],
+                                            'rate_full' => (int)$row['type_of_work_rate_full']
+                                        ];
+                                    }
                                 }
 
-                                foreach ($photographers as $photographer) {
+                                foreach ($photographers as $photographer_id => $photographer) {
                             ?>
                                     <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                         <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                             <div class="row">
                                                 <div class="col-5 position-relative overflow-hidden">
-                                                    <a href="profile_photographer.php?photographer_id=<?php echo $photographer['id']; ?>">
-                                                        <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photo']) ? $photographer['photo'] : 'default.jpg'; ?>" alt="">
+                                                    <a href="profile_photographer.php?photographer_id=<?php echo $photographer_id; ?>">
+                                                        <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photographer_photo']) ? $photographer['photographer_photo'] : 'default.jpg'; ?>" alt="">
                                                     </a>
                                                     <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
-                                                        <?php echo $photographer['prefix'] . ' ' . $photographer['name'] . ' ' . $photographer['surname']; ?>
+                                                        <?php echo $photographer['photographer_prefix'] . ' ' . $photographer['photographer_name'] . ' ' . $photographer['photographer_surname']; ?>
                                                     </div>
                                                 </div>
                                                 <div class="col-7 p-4 pb-0">
-                                                    <p class="text-dark mb-3"><?php echo isset($photographer['address']) ? $photographer['address'] : 'Address not available'; ?></p>
-                                                    <?php foreach ($photographer['types'] as $type) { ?>
-                                                        <p class="text-dark mb-3">
-                                                            <?php echo $type['type_work']; ?>
-                                                            <?php echo isset($type['rate_half']) ? $type['rate_half'] : 'Rate half not available'; ?>
-                                                        </p>
-                                                        <p class="text-dark mb-3">
-                                                            <?php echo isset($type['rate_full']) ? $type['rate_full'] : 'Rate full not available'; ?>
-                                                        </p>
+                                                    <?php if (!empty($photographer['type_of_work'])) { ?>
+                                                        <?php foreach ($photographer['type_of_work'] as $work) { ?>
+                                                            <p class="text-dark mb-3">
+                                                                <?php echo $work['type_work']; ?>
+                                                                <?php if ($work['rate_half'] > 0) { ?>
+                                                                    <?php echo 'ราคาครึ่งวัน ', number_format($work['rate_half']); ?>
+                                                                <?php } ?>
+                                                                <?php if ($work['rate_full'] > 0) { ?>
+                                                                    <?php echo 'ราคาเต็มวัน ', number_format($work['rate_full']); ?>
+                                                                <?php } ?>
+                                                            </p>
+                                                        <?php } ?>
+                                                    <?php } else { ?>
+                                                        <p class="text-dark mb-3">ยังไม่ได้ลงประเภทงาน</p>
                                                     <?php } ?>
-                                                    <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['email']) ? $photographer['email'] : '#'; ?>">
-                                                        <?php echo isset($photographer['email']) ? $photographer['email'] : 'Email not available'; ?>
+                                                    <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
+                                                        <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
                                                     </a>
-                                                    <p class="text-dark mb-3">โทร <?php echo isset($photographer['tell']) ? $photographer['tell'] : 'Phone number not available'; ?></p>
-                                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo isset($photographer['scope']) ? $photographer['scope'] : 'Scope not available'; ?></p>
+                                                    <p class="text-dark mb-3">โทร <?php echo isset($photographer['photographer_tell']) ? $photographer['photographer_tell'] : 'Phone number not available'; ?></p>
+                                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo isset($photographer['photographer_scope']) ? $photographer['photographer_scope'] : 'Scope not available'; ?></p>
                                                 </div>
                                             </div>
                                         </div>

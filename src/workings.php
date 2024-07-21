@@ -195,40 +195,54 @@ $rowInfo = $resultInfo->fetch_assoc();
         <!-- Header End -->
 
         <!-- Search Start -->
-        <form action="search.php" method="GET">
-            <div class="mt-5 wow fadeIn" style="background-color: rgba(	250,250,250, 0.4);padding: 35px;" data-wow-delay="0.1s">
-                <div class="container">
-                    <div class="row flex-row g-2 align-items-center">
-                        <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
-                        <div class="col-md-3">
-                            <select class="form-select border-0 py-3">
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row flex-row g-2 align-items-center">
+                    <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
+                    <div class="col-md-3">
+                        <form action="" method="POST">
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
                                 <option selected>ประเภทงาน</option>
-                                <option value="1">งานแต่งงาน</option>
-                                <option value="2">งานพรีเวดดิ้ง</option>
-                                <option value="3">งานอีเว้นท์</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
+                        FROM type t
+                        INNER JOIN (
+                            SELECT type_id, MAX(photographer_id) AS photographer_id
+                            FROM type_of_work
+                            GROUP BY type_id
+                        ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                                $resultTypeWorkDetail = $conn->query($sql);
+
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                <?php
+                                    }
+                                } ?>
                             </select>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" id="dateRangePicker" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์">
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select border-0 py-3">
-                                <option selected>คะแนนช่างภาพ</option>
-                                <option value="1">คะแนนจากมากไปน้อย</option>
-                                <option value="1">คะแนนจากน้อยไปมาก</option>
-                                <option value="2">5</option>
-                                <option value="3">4</option>
-                                <option value="4">3</option>
-                                <option value="6">2</option>
-                                <option value="6">1</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="dateRangePicker" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="score" class="form-select border-0 py-3">
+                            <option selected>คะแนนช่างภาพ</option>
+                            <option value="คะแนนจากมากไปน้อย">คะแนนจากมากไปน้อย</option>
+                            <option value="คะแนนจากน้อยไปมาก">คะแนนจากน้อยไปมาก</option>
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
                     </div>
                 </div>
             </div>
+        </div>
         </form>
     </div>
     <!-- Search End -->
@@ -236,8 +250,16 @@ $rowInfo = $resultInfo->fetch_assoc();
     <div style="display: flex; justify-content: center;">
         <!-- post -->
         <div class="col-md-6 justify-content-center">
-
             <div class="row">
+            <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['search'])) {
+            // Sanitize and assign POST data
+            $type_id = intval($conn->real_escape_string($_POST['type']));
+            
+            $$date_thai = intval($conn->real_escape_string($_POST['dateRangePicker']));
+          $score = intval($conn->real_escape_string($_POST['score']));
+
                 <!-- POST -->
                 <?php
                 // Combined SQL query to join all required tables
@@ -278,7 +300,11 @@ $rowInfo = $resultInfo->fetch_assoc();
                                         <img src="img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
                                     </div>
                                     <div class="mt-2" style="flex-grow: 1;">
-                                        <b><?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?></b>
+                                        <b>
+                                            <a href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>" class="text-dark">
+                                                <?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?>
+                                            </a>
+                                        </b>
                                         <p style="margin-bottom: 0;">
                                             <?php
                                             // Convert date to Thai format

@@ -81,6 +81,13 @@ if (isset($_SESSION['cus_login'])) {
             object-fit: cover;
             /* ทำให้รูปภาพครอบคลุมพื้นที่ */
         }
+        .caption {
+  white-space: nowrap; /* ทำให้ข้อความไม่ขึ้นบรรทัดใหม่ */
+  overflow: hidden; /* ซ่อนข้อความที่ล้น */
+  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความล้น */
+  width: 100%; /* ตั้งค่าความกว้างตามที่ต้องการ */
+  display: block; /* ทำให้พารากราฟเป็นบล็อค */
+}
     </style>
 </head>
 
@@ -171,7 +178,7 @@ if (isset($_SESSION['cus_login'])) {
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
                         <form action="search.php" method="POST">
-                            <select class="form-select border-0 py-3  mt-3" name="type" required>
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
                                 <option selected>ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
@@ -193,17 +200,17 @@ if (isset($_SESSION['cus_login'])) {
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder=" งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3" required>
+                        <select class="form-select border-0 py-3" name="time" required>
                             <option selected>ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select border-0 py-3" required>
+                        <select name="scope" class="form-select border-0 py-3" required>
                             <option selected>สถานที่</option>
                             <option value="กรุงเทพฯ">กรุงเทพฯ</option>
                             <option value="ภาคกลาง">ภาคกลาง</option>
@@ -238,26 +245,74 @@ if (isset($_SESSION['cus_login'])) {
                 <div id="tab-1" class="tab-pane fade show p-0 active">
                     <div class="row g-4">
                         <?php
-                        $sql = "SELECT * FROM `photographer` LIMIT 6";
+                        $sql = "SELECT 
+                        p.photographer_prefix,
+                        p.photographer_name,
+                        p.photographer_surname,
+                        p.photographer_tell,
+                        p.photographer_email,
+                        p.photographer_scope,
+                        p.photographer_photo,
+                        p.photographer_address,
+                        tow.type_of_work_rate_half,
+                        tow.type_of_work_rate_full,
+                        t.type_work,
+                        p.photographer_id
+                    FROM 
+                        photographer p
+                    INNER JOIN 
+                        type_of_work tow ON p.photographer_id = tow.photographer_id
+                    INNER JOIN 
+                        type t ON t.type_id = tow.type_id LIMIT 6";
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
-                            while ($row_photographer = $result->fetch_assoc()) {
+                            $photographers = [];
+
+                            // Store data in an array for processing
+                            while ($row = $result->fetch_assoc()) {
+                                $photographers[$row['photographer_id']]['photographer_prefix'] = $row['photographer_prefix'];
+                                $photographers[$row['photographer_id']]['photographer_name'] = $row['photographer_name'];
+                                $photographers[$row['photographer_id']]['photographer_surname'] = $row['photographer_surname'];
+                                $photographers[$row['photographer_id']]['photographer_tell'] = $row['photographer_tell'];
+                                $photographers[$row['photographer_id']]['photographer_email'] = $row['photographer_email'];
+                                $photographers[$row['photographer_id']]['photographer_scope'] = $row['photographer_scope'];
+                                $photographers[$row['photographer_id']]['photographer_photo'] = $row['photographer_photo'];
+                                $photographers[$row['photographer_id']]['photographer_address'] = $row['photographer_address'];
+                                $photographers[$row['photographer_id']]['type_of_work'][] = [
+                                    'type_work' => $row['type_work'],
+                                    'rate_half' => (int)$row['type_of_work_rate_half'],
+                                    'rate_full' => (int)$row['type_of_work_rate_full']
+                                ];
+                            }
+
+                            foreach ($photographers as $photographer_id => $photographer) {
                         ?>
-                                <div class="col-lg-6  wow fadeInUp" data-wow-delay="0.1s">
+                                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                         <div class="row">
                                             <div class="col-5 position-relative overflow-hidden">
-                                                <a href=""><img class="img-fluid" src="../img/profile/<?php echo $row_photographer['photographer_photo']; ?>" alt=""></a>
+                                                <a href="profile_photographer.php?photographer_id=<?php echo $photographer_id; ?>">
+                                                    <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photographer_photo']) ? $photographer['photographer_photo'] : 'default.jpg'; ?>" alt="">
+                                                </a>
                                                 <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
-                                                    <?php echo $row_photographer['photographer_prefix'] . ' ' . $row_photographer['photographer_name'] . ' ' . $row_photographer['photographer_surname']; ?>
+                                                    <?php echo $photographer['photographer_prefix'] . ' ' . $photographer['photographer_name'] . ' ' . $photographer['photographer_surname']; ?>
                                                 </div>
                                             </div>
                                             <div class="col-7 p-4 pb-0">
-                                                <p class="text-dark mb-3"><?php echo $row_photographer['photographer_address']; ?></p>
-                                                <a class="d-block mb-2" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
-                                                <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
-                                                <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                <!-- <p class="text-dark mb-3"><?php echo isset($photographer['photographer_address']) ? $photographer['photographer_address'] : 'Address not available'; ?></p> -->
+                                                <?php foreach ($photographer['type_of_work'] as $work) { ?>
+                                                    <p class="text-dark mb-3">
+                                                        <?php echo $work['type_work']; ?>
+                                                        <?php echo isset($work['rate_half']) ? $work['rate_half'] : 'Rate half not available'; ?>
+                                                        <?php echo isset($work['rate_full']) ? $work['rate_full'] : 'Rate full not available'; ?>
+                                                    </p>
+                                                <?php } ?>
+                                                <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
+                                                    <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
+                                                </a>
+                                                <p class="text-dark mb-3">โทร <?php echo isset($photographer['photographer_tell']) ? $photographer['photographer_tell'] : 'Phone number not available'; ?></p>
+                                                <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo isset($photographer['photographer_scope']) ? $photographer['photographer_scope'] : 'Scope not available'; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -277,6 +332,68 @@ if (isset($_SESSION['cus_login'])) {
         </div>
     </div>
     <!-- Examples of work End -->
+    <!-- Examples of work Start -->
+    <div class="container-xxl py-2">
+        <div class="container">
+            <div class="row g-0 gx-5 align-items-end">
+                <div class="col-lg-6">
+                    <div class="text-start mx-auto mb-5 wow slideInLeft" data-wow-delay="0.1s">
+                        <h1 class="mb-3 f">ผลงานช่างภาพ</h1>
+                        <p>คุณลองดูผลงานช่างภาพของเราสิ!!!</p>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <?php
+                    $sql = "SELECT 
+                        po.portfolio_id, 
+                        po.portfolio_photo, 
+                        po.portfolio_caption, 
+                        t.type_work,
+                        t.type_icon,
+                        p.photographer_id,
+                        CAST( tow.type_of_work_rate_half  AS UNSIGNED) AS rate_half,
+                        CAST( tow.type_of_work_rate_full AS UNSIGNED) AS rate_full,
+                        p.photographer_name,
+                        p.photographer_surname,
+                        p.photographer_scope
+                    FROM 
+                        portfolio po 
+                    LEFT JOIN 
+                        type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                    LEFT JOIN 
+                        photographer p ON p.photographer_id = tow.photographer_id
+                    LEFT JOIN 
+                        type t ON t.type_id = tow.type_id
+                    ORDER BY 
+                        po.portfolio_id DESC;";
+                    $resultPost = $conn->query($sql);
+                    if ($resultPost->num_rows > 0) {
+                        while ($rowPost = $resultPost->fetch_assoc()) {
+                    ?>
+                            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                <div class="property-item rounded overflow-hidden bg-white">
+                                    <div class="position-relative overflow-hidden">
+                                        <a><img class="img-fluid property-img" src="../img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
+                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
+                                    </div>
+                                    <div class="p-4 pb-0">
+                                        <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
+                                        <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
+                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    }
+                    ?>
+                </div>
+                <div class="col-12 text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
+                    <a class="btn btn-dark py-3 px-5" href="workings.php">ดูเพิ่มเติม</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
