@@ -14,6 +14,22 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $resultPhoto->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 }
+
+$booking = array();
+if ($id_photographer !== null) {
+    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
+    $stmt->bind_param("i", $id_photographer);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $booking[] = $row;
+    }
+}
+
+// Return bookings data as JSON
+echo json_encode($booking);
+
 $fullcalendar_path = "fullcalendar-4.4.2/packages/";
 ?>
 <!DOCTYPE html>
@@ -27,8 +43,8 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <meta content="" name="keywords">
     <meta content="" name="description">
 
-    <!-- Favicon
-    <link href="img/favicon.ico" rel="icon"> -->
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,7 +179,6 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                             </div>
                         </div>
-                        <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                             <div class="dropdown-menu rounded-0 m-0">
@@ -187,7 +202,6 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
             <div class="col-md-4 p-5 mt-lg-5">
                 <br><br>
                 <h1 class="display-7 animated fadeIn mb-1 text-white f text-md-end">ตารางงานของคุณ</h1>
-                <!-- <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ชื่อช่างภาพ</h1> -->
             </div>
         </div>
     </div>
@@ -221,34 +235,55 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../lib/easing/easing.min.js"></script>
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/wow/wow.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
+    <!-- FullCalendar JavaScript -->
+    <script src='<?= $fullcalendar_path ?>/core/main.js'></script>
+    <script src='<?= $fullcalendar_path ?>/daygrid/main.js'></script>
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
     <script type="text/javascript">
-        $(function() {
-            // กำหนด element ที่จะแสดงปฏิทิน
-            var calendarEl = $("#calendar")[0];
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
 
-            // กำหนดการตั้งค่า
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid']
+                plugins: ['dayGrid'],
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    $.ajax({
+                        url: 'fetchBookings.php',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            console.log("Bookings data:", data); // ตรวจสอบข้อมูลที่ได้รับ
+
+                            var events = data.map(function(booking) {
+                                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+                                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+                                var eventColor = (startDate.getHours() >= 12 || endDate.getHours() > 12) ? 'yellow' : 'red';
+                                return {
+                                    title: 'Booking #' + booking.booking_id,
+                                    start: startDate.toISOString(),
+                                    end: endDate.toISOString(),
+                                    color: eventColor,
+                                    description: booking.booking_details
+                                };
+                            });
+                            successCallback(events);
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error("Error fetching bookings:", textStatus, errorThrown);
+                            console.error("Response text:", jqXHR.responseText); // ตรวจสอบเนื้อหาของข้อผิดพลาด
+                            failureCallback('Failed to fetch bookings');
+                        }
+                    });
+                }
+
             });
 
-            // แสดงปฏิทิน 
             calendar.render();
-
         });
     </script>
-
 
 </body>
 
