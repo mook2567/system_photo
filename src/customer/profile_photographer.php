@@ -128,12 +128,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
-
-
-
-
-
-
     <style>
         body {
             font-family: 'Athiti', sans-serif;
@@ -141,11 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #E5E4E2;
         }
 
-        #calendar {
-            width: 800px;
-            margin: auto;
-            font-family: 'Athiti', sans-serif;
-        }
 
         p {
             font-family: 'Athiti', sans-serif;
@@ -324,21 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             max-width: calc(33.33% - 10px);
         }
     </style>
-    <script>
-        function validatePassword() {
-            var password = document.getElementById("password").value;
-            var confirmPassword = document.getElementById("confirm_password").value;
-            if (password != confirmPassword) {
-                Swal.fire({
-                    title: 'รหัสผ่านไม่ตรงกัน',
-                    icon: 'error',
-                    confirmButtonText: 'ตกลง'
-                });
-                return false;
-            }
-            return true;
-        }
-    </script>
+
 </head>
 
 <body>
@@ -482,14 +457,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 </div>
                             </div>
                         </div>
+                        <?php
+                        $sql = "SELECT photographer_scope FROM `photographer` WHERE photographer.photographer_id = $id_photographer";
+                        $resultScopSelect = $conn->query($sql);
+
+                        $photographerScopes = [];
+                        if ($resultScopSelect->num_rows > 0) {
+                            $row = $resultScopSelect->fetch_assoc();
+                            $photographerScopes = array_map('trim', explode(',', $row['photographer_scope']));
+                        }
+                        ?>
                         <div class="col-12 text-start mt-2">
-                            <h5>ขอบเขตพื้นที่รับงาน<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                </button></h5></a>
-                            <div class=" ms-4">
-                                <div class="d-flex align-items-center">
-                                    <i class="fa-solid fa-location-dot me-2"></i>
-                                    <p class="mb-0"><?php echo $rowPhoto['photographer_scope']; ?></p>
-                                </div>
+                            <h5>ขอบเขตพื้นที่รับงาน
+                                <!-- <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button> -->
+                            </h5>
+                            <div class="ms-4">
+                                <?php if (!empty($photographerScopes)) : ?>
+                                    <?php foreach ($photographerScopes as $scope) : ?>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-location-dot me-2"></i>
+                                            <p class="mb-0"><?php echo htmlspecialchars($scope); ?></p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -595,18 +587,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="col-3 flex-fill" style="margin-left: auto;">
                 <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
                     <div class="d-flex justify-content-center align-items-center mt-3">
-                        <h4>ตารางงาน</h4>
+                        <h4>คิวงาน</h4>
                     </div>
                     <div class="ms-2">
-                        ตารางงานสัปดาห์นี้
+                        คิวงานในสัปดาห์นี้
                     </div>
-                    <div id="bookingStatus" class="col-12 text-center" style="border-radius: 10px; padding-top: 10px; padding-bottom: 10px;">
+                    <div id="bookingStatus" class="col-12 mt-3 text-center" style="border-radius: 10px; padding-top: 10px; padding-bottom: 10px;">
                         <p class="mb-0 text-white">วันที่จอง</p>
                     </div>
                     <div class="justify-content-center py-4 text-center">
-                        <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#details">
-                            <i class="fa-solid fa-magnifying-glass"></i> จองคิวช่างภาพ
-                        </button>
+                        <div class="row justify-content-center">
+                            <div class="col-5">
+                                <button type="button"class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
+                                    <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
+                                    <i class="fa-solid fa-bookmark"></i> จองคิว
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -711,7 +712,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
                                             </label>
-                                            <input type="date" name="date" class="form-control mt-1" style="resize: none;">
+                                            <input type="date" id="date-saved" name="date" class="form-control mt-1" style="resize: none;" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -793,7 +794,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     </script>
 
+    <script>
+        // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input
+        function setDefaultDate() {
+            const dateInput = document.getElementById('date-saved');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // เดือนเริ่มต้นที่ 0
+            const day = String(today.getDate()).padStart(2, '0');
 
+            const formattedDate = `${year}-${month}-${day}`;
+            dateInput.value = formattedDate;
+        }
+
+        // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
+        window.onload = setDefaultDate;
+    </script>
 
 </body>
 

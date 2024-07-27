@@ -15,6 +15,22 @@ if (isset($_SESSION['photographer_login'])) {
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
+$sql = "SELECT *
+        FROM `booking` 
+        WHERE photographer_id = '1'  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
+        AND booking_confirm_status = '2'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 2)
+        AND (
+            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
+            (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
+            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์นี้
+            OR
+            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ที่แล้ว
+            (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันอาทิตย์ของสัปดาห์นี้
+            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์ที่แล้ว
+        )
+        ";
+$resultBooking = $conn->query($sql);
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
         $photographer_id = $_POST["photographer_id"];
@@ -802,7 +818,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="col-12 text-start mt-2">
                             <div class="col-12 text-start mt-2">
                                 <h5>ประเภทงานที่รับ</h5>
-                                    <!-- <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
+                                <!-- <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
                                     </button></a> -->
                                 <div class="ms-4">
                                     <?php
@@ -1500,9 +1516,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
 
-
-
             <!-- ตารางงาน -->
+            <?php
+            $bookingAvailable = false; // Default to false
+
+            if ($resultBooking->num_rows > 0) {
+                $bookingAvailable = true; // Set to true if there are bookings
+            }
+            ?>
             <div class="col-3 flex-fill" style="margin-left: auto;">
                 <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
                     <div class="d-flex justify-content-center align-items-center mt-3">
@@ -1512,7 +1533,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         ตารางงานสัปดาห์นี้
                     </div>
                     <div id="bookingStatus" class="col-12 text-center" style="border-radius: 10px; padding-top: 10px; padding-bottom: 10px;">
-                        <p class="mb-0 text-white">วันที่จอง</p>
+                        <?php
+                        if ($resultBooking->num_rows > 0) {
+                            while ($rowBooking = $resultBooking->fetch_assoc()) {
+                                // Display booking dates
+                                echo "<p class='mb-0 text-white'>วันที่จอง: " . htmlspecialchars($rowBooking['booking_start_date']) . "</p>";
+                            }
+                        } else {
+                            // No bookings found
+                            echo "ไม่พบข้อมูลการจอง";
+                        }
+                        ?>
                     </div>
                     <div class="justify-content-center py-4 text-center">
                         <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
@@ -1522,83 +1553,66 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Profile End -->
+        <!-- Profile End -->
 
-    <!-- Footer Start -->
-    <!-- <footer class="footer">
+        <!-- Footer Start -->
+        <!-- <footer class="footer">
         &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
     </footer> -->
-    <!-- Footer End -->
+        <!-- Footer End -->
 
-    <script>
-        lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true
-        })
-    </script>
+        <script>
+            lightbox.option({
+                'resizeDuration': 200,
+                'wrapAround': true
+            })
+        </script>
 
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/wow/wow.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../lib/wow/wow.min.js"></script>
+        <script src="../lib/easing/easing.min.js"></script>
+        <script src="../lib/waypoints/waypoints.min.js"></script>
+        <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        $(function() {
-            // กำหนด element ที่จะแสดงปฏิทิน
-            var calendarEl = $("#calendar")[0];
+        <!-- Template Javascript -->
+        <script src="../js/main.js"></script>
 
-            // กำหนดการตั้งค่า
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid']
+        <script>
+            document.getElementById('uploadImageButton').addEventListener('click', function() {
+                document.getElementById('postImg').click();
             });
+        </script>
 
-            // แสดงปฏิทิน 
-            calendar.render();
+        <!-- Fancybox JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
 
-        });
-    </script>
+        <script>
+    // Pass PHP variable to JavaScript
+    var bookingAvailable = <?php echo json_encode($bookingAvailable); ?>;
 
-    <script>
-        document.getElementById('uploadImageButton').addEventListener('click', function() {
-            document.getElementById('postImg').click();
-        });
-    </script>
+    // Check condition and set background color
+    if (bookingAvailable) {
+        document.getElementById("bookingStatus").style.backgroundColor = "lightgreen"; // Green if available
+    } else {
+        document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // Red if not available
+    }
+</script>
 
-    <!-- Fancybox JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+        <!-- post -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // เลือก Radio Buttons
+                var postOptionRadios = document.querySelectorAll('input[name="postOption"]');
+                // เลือกเนื้อหาของโพสต์
+                var postContentDiv = document.getElementById('postContent');
 
-    <script>
-        // ตัวแปรที่ต้องการตรวจสอบ
-        var bookingAvailable = true; // แทนค่าที่ต้องการตรวจสอบว่าว่างหรือไม่
-
-        // ตรวจสอบเงื่อนไขและกำหนดสีพื้นหลัง
-        if (bookingAvailable) {
-            document.getElementById("bookingStatus").style.backgroundColor = "lightgreen"; // ถ้าว่างให้เป็นสีเขียว
-        } else {
-            document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // ถ้าไม่ว่างให้เป็นสีแดง
-        }
-    </script>
-
-    <!-- post -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // เลือก Radio Buttons
-            var postOptionRadios = document.querySelectorAll('input[name="postOption"]');
-            // เลือกเนื้อหาของโพสต์
-            var postContentDiv = document.getElementById('postContent');
-
-            // แสดงเนื้อหาสำหรับโพสต์รูปเป็นค่าเริ่มต้น
-            postContentDiv.innerHTML = `
+                // แสดงเนื้อหาสำหรับโพสต์รูปเป็นค่าเริ่มต้น
+                postContentDiv.innerHTML = `
             <div class="col-12  mt-3">
             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
                                 
@@ -1651,43 +1665,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </form>
             </div>
             `;
-            document.getElementById('fileUploadT').addEventListener('change', function() {
-                const previewContainer = document.getElementById('preview-containerT');
-                previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+                document.getElementById('fileUploadT').addEventListener('change', function() {
+                    const previewContainer = document.getElementById('preview-containerT');
+                    previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
 
-                const files = this.files; // ไฟล์ที่ถูกเลือก
+                    const files = this.files; // ไฟล์ที่ถูกเลือก
 
-                if (files.length > 10) {
-                    alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
-                    this.value = ''; // เคลียร์ไฟล์ที่เลือก
-                    return;
-                }
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.width = '150px';
-                        img.style.height = '150px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '10px';
-                        previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                    if (files.length > 10) {
+                        alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                        this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                        return;
                     }
 
-                    reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
-                }
-            });
-            // เพิ่ม Event Listener สำหรับ Radio Buttons
-            postOptionRadios.forEach(function(radio) {
-                radio.addEventListener('change', function() {
-                    // ตรวจสอบสถานะของ Radio Buttons เมื่อมีการเปลี่ยนแปลง
-                    if (this.id === 'postPhotoRadio' && this.checked) {
-                        // ในกรณีที่โพสต์รูปถูกเลือก
-                        // แสดงเนื้อหาสำหรับโพสต์รูป
-                        postContentDiv.innerHTML = `
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '150px';
+                            img.style.height = '150px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '10px';
+                            previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                        }
+
+                        reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+                    }
+                });
+                // เพิ่ม Event Listener สำหรับ Radio Buttons
+                postOptionRadios.forEach(function(radio) {
+                    radio.addEventListener('change', function() {
+                        // ตรวจสอบสถานะของ Radio Buttons เมื่อมีการเปลี่ยนแปลง
+                        if (this.id === 'postPhotoRadio' && this.checked) {
+                            // ในกรณีที่โพสต์รูปถูกเลือก
+                            // แสดงเนื้อหาสำหรับโพสต์รูป
+                            postContentDiv.innerHTML = `
                         <div class="col-12  mt-3">
             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
                                 <div class="form-container">
@@ -1737,39 +1751,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             
             </div>
             `;
-                        document.getElementById('fileUploadT').addEventListener('change', function() {
-                            const previewContainer = document.getElementById('preview-containerT');
-                            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+                            document.getElementById('fileUploadT').addEventListener('change', function() {
+                                const previewContainer = document.getElementById('preview-containerT');
+                                previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
 
-                            const files = this.files; // ไฟล์ที่ถูกเลือก
+                                const files = this.files; // ไฟล์ที่ถูกเลือก
 
-                            if (files.length > 10) {
-                                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
-                                this.value = ''; // เคลียร์ไฟล์ที่เลือก
-                                return;
-                            }
-
-                            for (let i = 0; i < files.length; i++) {
-                                const file = files[i];
-                                const reader = new FileReader();
-
-                                reader.onload = function(e) {
-                                    const img = document.createElement('img');
-                                    img.src = e.target.result;
-                                    img.style.width = '150px';
-                                    img.style.height = '150px';
-                                    img.style.objectFit = 'cover';
-                                    img.style.borderRadius = '10px';
-                                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                                if (files.length > 10) {
+                                    alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                                    this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                                    return;
                                 }
 
-                                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
-                            }
-                        });
-                    } else if (this.id === 'postTypeRadio' && this.checked) {
-                        // ในกรณีที่โพสต์ประเภทงานถูกเลือก
-                        // แสดงเนื้อหาสำหรับโพสต์ประเภทงาน
-                        postContentDiv.innerHTML = `
+                                for (let i = 0; i < files.length; i++) {
+                                    const file = files[i];
+                                    const reader = new FileReader();
+
+                                    reader.onload = function(e) {
+                                        const img = document.createElement('img');
+                                        img.src = e.target.result;
+                                        img.style.width = '150px';
+                                        img.style.height = '150px';
+                                        img.style.objectFit = 'cover';
+                                        img.style.borderRadius = '10px';
+                                        previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                                    }
+
+                                    reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+                                }
+                            });
+                        } else if (this.id === 'postTypeRadio' && this.checked) {
+                            // ในกรณีที่โพสต์ประเภทงานถูกเลือก
+                            // แสดงเนื้อหาสำหรับโพสต์ประเภทงาน
+                            postContentDiv.innerHTML = `
                         <div class="col-12 mt-4">
                         <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
                                         <div class="row">
@@ -1837,97 +1851,97 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 </div>
                             </form>
                         </div>`;
-                    }
+                        }
+                    });
+                });
+
+                // เพิ่ม Event Listener สำหรับปุ่ม "เพิ่มรูปภาพ"
+                document.getElementById('uploadImageButton').addEventListener('click', function() {
+                    document.getElementById('postImg').click(); // คลิกที่ input element ประเภท file
                 });
             });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const userImage = document.getElementById('userImage');
 
-            // เพิ่ม Event Listener สำหรับปุ่ม "เพิ่มรูปภาพ"
-            document.getElementById('uploadImageButton').addEventListener('click', function() {
-                document.getElementById('postImg').click(); // คลิกที่ input element ประเภท file
+                // Set a default image if the current src is null, empty, or ends with '/'
+                if (!userImage.src || userImage.src.endsWith('/') || userImage.src.includes('null')) {
+                    userImage.src = '../img/profile/null.png'; // Path to the default image
+                }
             });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const userImage = document.getElementById('userImage');
 
-            // Set a default image if the current src is null, empty, or ends with '/'
-            if (!userImage.src || userImage.src.endsWith('/') || userImage.src.includes('null')) {
-                userImage.src = '../img/profile/null.png'; // Path to the default image
-            }
-        });
-
-        function updateImage() {
-            const input = document.getElementById('photo');
-            const userImage = document.getElementById('userImage');
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    userImage.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    </script>
-
-    <script>
-        document.getElementById('fileUpload').addEventListener('change', function() {
-            const previewContainer = document.getElementById('preview-container');
-            previewContainer.innerHTML = '';
-            const files = this.files;
-            if (files.length > 10) {
-                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
-                this.value = '';
-                return;
-            }
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '150px';
-                    img.style.height = '150px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '10px';
-                    previewContainer.appendChild(img);
+            function updateImage() {
+                const input = document.getElementById('photo');
+                const userImage = document.getElementById('userImage');
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        userImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
             }
-        });
-    </script>
-    <script>
-        document.getElementById('fileUploadT').addEventListener('change', function() {
-            const previewContainer = document.getElementById('preview-containerT');
-            previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
+        </script>
 
-            const files = this.files; // ไฟล์ที่ถูกเลือก
+        <script>
+            document.getElementById('fileUpload').addEventListener('change', function() {
+                const previewContainer = document.getElementById('preview-container');
+                previewContainer.innerHTML = '';
+                const files = this.files;
+                if (files.length > 10) {
+                    alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                    this.value = '';
+                    return;
+                }
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '150px';
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '10px';
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+        <script>
+            document.getElementById('fileUploadT').addEventListener('change', function() {
+                const previewContainer = document.getElementById('preview-containerT');
+                previewContainer.innerHTML = ''; // เคลียร์คอนเทนเนอร์ภาพเก่าทั้งหมด
 
-            if (files.length > 10) {
-                alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
-                this.value = ''; // เคลียร์ไฟล์ที่เลือก
-                return;
-            }
+                const files = this.files; // ไฟล์ที่ถูกเลือก
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '150px';
-                    img.style.height = '150px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '10px';
-                    previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                if (files.length > 10) {
+                    alert("คุณสามารถอัพโหลดได้ไม่เกิน 10 ภาพเท่านั้น");
+                    this.value = ''; // เคลียร์ไฟล์ที่เลือก
+                    return;
                 }
 
-                reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
-            }
-        });
-    </script>
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '150px';
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '10px';
+                        previewContainer.appendChild(img); // เพิ่มภาพที่ตัวอย่างในคอนเทนเนอร์
+                    }
+
+                    reader.readAsDataURL(file); // อ่านไฟล์ในรูปแบบ Data URL
+                }
+            });
+        </script>
 
 </body>
 

@@ -28,7 +28,7 @@ if ($id_photographer !== null) {
 }
 
 // Return bookings data as JSON
-echo json_encode($booking);
+// echo json_encode($booking);
 
 $fullcalendar_path = "fullcalendar-4.4.2/packages/";
 ?>
@@ -143,6 +143,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                 align-items: center !important;
             }
         }
+
     </style>
 
 </head>
@@ -206,9 +207,9 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
         </div>
     </div>
     <!-- Header End -->
-    <div class="center bg-white" style="height: 900px;"><br><br><br>
+    <div class="center bg-white" style="height: 980px;"><br>
         <div class="bg-white">
-            <div id='calendar' class="bg-white"></div>
+            <div id='calendar' style="width: 55%;" class="bg-white"></div>
         </div>
         <div class="row justify-content-center mt-3 container-center text-center">
             <div class="col-md-12">
@@ -244,46 +245,85 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
 
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid'],
-                events: function(fetchInfo, successCallback, failureCallback) {
-                    $.ajax({
-                        url: 'fetchBookings.php',
-                        method: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            console.log("Bookings data:", data); // ตรวจสอบข้อมูลที่ได้รับ
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['dayGrid'],
+            events: function(fetchInfo, successCallback, failureCallback) {
+                $.ajax({
+                    url: 'fetchBookings.php',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log("Bookings data:", data); // ตรวจสอบข้อมูลที่ได้รับ
 
-                            var events = data.map(function(booking) {
-                                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                                var eventColor = (startDate.getHours() >= 12 || endDate.getHours() > 12) ? 'yellow' : 'red';
-                                return {
-                                    title: 'Booking #' + booking.booking_id,
-                                    start: startDate.toISOString(),
-                                    end: endDate.toISOString(),
-                                    color: eventColor,
-                                    description: booking.booking_details
-                                };
-                            });
-                            successCallback(events);
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.error("Error fetching bookings:", textStatus, errorThrown);
-                            console.error("Response text:", jqXHR.responseText); // ตรวจสอบเนื้อหาของข้อผิดพลาด
-                            failureCallback('Failed to fetch bookings');
-                        }
-                    });
-                }
+                        var events = data.map(function(booking) {
+                            var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+                            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+                            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                                (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-            });
+                            var eventColor = isHalfDay ? 'yellow' : 'red';
+                            var eventTextColor = isHalfDay ? 'black' : 'white';
+                            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
 
-            calendar.render();
+                            const startTime = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const endTime = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                            return {
+                                title:  ' (' + startTime + ' - ' + endTime + ')',
+                                start: startDate.toISOString(),
+                                end: endDate.toISOString(),
+                                color: eventColor,
+                                textColor: eventTextColor,
+                                description: booking.booking_details,
+                                extendedProps: {
+                                    startTime: startTime,
+                                    endTime: endTime
+                                }
+                            };
+                        });
+                        successCallback(events);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("Error fetching bookings:", textStatus, errorThrown);
+                        console.error("Response text:", jqXHR.responseText); // ตรวจสอบเนื้อหาของข้อผิดพลาด
+                        failureCallback('Failed to fetch bookings');
+                    }
+                });
+            },
+            eventContent: function(arg) {
+                // Create div elements to display event title and times
+                var titleEl = document.createElement('div');
+                var startTimeEl = document.createElement('div');
+                var endTimeEl = document.createElement('div');
+
+                titleEl.innerHTML = arg.event.title;
+                startTimeEl.innerHTML = 'Start: ' + arg.event.extendedProps.startTime;
+                endTimeEl.innerHTML = 'End: ' + arg.event.extendedProps.endTime;
+
+                // Apply inline styles for event container
+                var eventContainer = document.createElement('div');
+                eventContainer.style.height = 'auto'; // ปรับความสูงให้เป็นอัตโนมัติ
+                eventContainer.style.overflow = 'visible'; // ทำให้เนื้อหาภายในไม่ถูกตัด
+                eventContainer.style.whiteSpace = 'normal'; // ให้ข้อความไหลลงหลายบรรทัด
+                eventContainer.style.wordWrap = 'break-word'; // การตัดคำเพื่อไม่ให้ข้อความยาวเกินขอบเขต
+                eventContainer.appendChild(titleEl);
+                eventContainer.appendChild(startTimeEl);
+                eventContainer.appendChild(endTimeEl);
+
+                // Append the elements
+                return {
+                    domNodes: [eventContainer]
+                };
+            }
         });
-    </script>
+
+        calendar.render();
+    });
+</script>
+
 
 </body>
 
