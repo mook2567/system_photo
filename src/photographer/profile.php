@@ -1518,40 +1518,62 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- ตารางงาน -->
             <?php
-            $bookingAvailable = false; // Default to false
+$bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
 
-            if ($resultBooking->num_rows > 0) {
-                $bookingAvailable = true; // Set to true if there are bookings
+if ($resultBooking->num_rows > 0) {
+    $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
+}
+
+// คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
+$today = date('Y-m-d');
+$dayOfWeek = date('w', strtotime($today));
+$startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
+$endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+
+// ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
+$bookedDates = [];
+if ($resultBooking->num_rows > 0) {
+    while ($rowBooking = $resultBooking->fetch_assoc()) {
+        $bookedDates[] = $rowBooking['booking_start_date'];
+    }
+}
+?>
+<div class="col-3 flex-fill" style="margin-left: auto;">
+    <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
+        <div class="d-flex justify-content-center align-items-center mt-3">
+            <h4>ตารางงาน</h4>
+        </div>
+        <div class="ms-2 mb-2">
+            ตารางงานสัปดาห์นี้
+        </div>
+        <?php
+        // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+        $currentDate = $startOfWeek;
+        for ($i = 0; $i < 7; $i++) {
+            $backgroundColor = in_array($currentDate, $bookedDates) ? 'lightcoral' : 'lightgreen';
+            echo "<div id='bookingStatus' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+            echo "<p class='mb-0'>";
+            echo "วันที่: " . htmlspecialchars($currentDate);
+
+            if (in_array($currentDate, $bookedDates)) {
+                echo " - จองแล้ว";
+            } else {
+                echo " - ว่าง";
             }
-            ?>
-            <div class="col-3 flex-fill" style="margin-left: auto;">
-                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-                    <div class="d-flex justify-content-center align-items-center mt-3">
-                        <h4>ตารางงาน</h4>
-                    </div>
-                    <div class="ms-2">
-                        ตารางงานสัปดาห์นี้
-                    </div>
-                    <div id="bookingStatus" class="col-12 text-center" style="border-radius: 10px; padding-top: 10px; padding-bottom: 10px;">
-                        <?php
-                        if ($resultBooking->num_rows > 0) {
-                            while ($rowBooking = $resultBooking->fetch_assoc()) {
-                                // Display booking dates
-                                echo "<p class='mb-0 text-white'>วันที่จอง: " . htmlspecialchars($rowBooking['booking_start_date']) . "</p>";
-                            }
-                        } else {
-                            // No bookings found
-                            echo "ไม่พบข้อมูลการจอง";
-                        }
-                        ?>
-                    </div>
-                    <div class="justify-content-center py-4 text-center">
-                        <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
-                            <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
-                        </button>
-                    </div>
-                </div>
-            </div>
+
+            echo "</p>";
+            echo "</div>";
+            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+        }
+        ?>
+        <div class="justify-content-center py-4 text-center">
+            <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
+                <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+            </button>
+        </div>
+    </div>
+</div>
+
         </div>
 
         <!-- Profile End -->

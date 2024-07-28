@@ -5,24 +5,41 @@ require_once '../popup.php';
 
 $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
-$rowInfo = $resultInfo->fetch_assoc();
+$rowInfo = $resultInfo ? $resultInfo->fetch_assoc() : [];
+// Check if 'id_photographer' is set in the GET request
+if (isset($_GET['id_photographer'])) {
+    // Sanitize the input to ensure it is an integer
+    $id_photographer = intval($_GET['id_photographer']);
+} else {
+    // Handle the case where 'id_photographer' is not set
+    die("Photographer ID is not specified.");
+}
 
-$sql = "SELECT * FROM `photographer`";
+// Proceed with the database query
+$sql = "SELECT * FROM `photographer` WHERE photographer_id = $id_photographer";
 $resultPhoto = $conn->query($sql);
-$rowPhoto = $resultPhoto->fetch_assoc();
+
+if ($resultPhoto && $resultPhoto->num_rows > 0) {
+    $rowPhoto = $resultPhoto->fetch_assoc();
+} else {
+    $rowPhoto = [];
+}
 
 if (isset($_SESSION['customer_login'])) {
     $email = $_SESSION['customer_login'];
-    $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
-    $resultCus = $conn->query($sql);
-    $rowCus = $resultCus->fetch_assoc();
-    $id_cus = $rowCus['cus_id'];
+    $stmtCus = $conn->prepare("SELECT * FROM customer WHERE cus_email = ?");
+    $stmtCus->bind_param("s", $email);
+    $stmtCus->execute();
+    $resultCus = $stmtCus->get_result();
+    $rowCus = $resultCus ? $resultCus->fetch_assoc() : [];
+    $id_cus = $rowCus['cus_id'] ?? null;
 }
 
-// รับค่าจาก URL query parameters
+// Initialize the $booking array to avoid the undefined variable error
+$booking = array();
+
 $id_photographer = isset($_GET['id_photographer']) ? intval($_GET['id_photographer']) : null;
 
-$booking = array();
 if ($id_photographer !== null) {
     $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
     $stmt->bind_param("i", $id_photographer);
@@ -34,14 +51,7 @@ if ($id_photographer !== null) {
     }
 }
 
-// ตรวจสอบข้อมูล
-// echo '<pre>';
-// print_r($booking);
-// echo '</pre>';
-
-
-// Return bookings data as JSON
-// echo json_encode($booking);
+$bookings_json = json_encode($booking);
 
 $fullcalendar_path = "fullcalendar-4.4.2/packages/";
 ?>
@@ -179,31 +189,32 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto f">
-                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                        <a href="table.php" class="nav-item nav-link active">ตารางงาน</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
-                                <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
-                            </div>
+                <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
+                <div class="navbar-nav ms-auto f">
+                    <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
+                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                         </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
-                            </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>
                 </div>
+            </div>
             </nav>
         </div>
     </div>
@@ -386,91 +397,67 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
+        $(function() {
+            // Get the booking data from PHP
+            var bookings = <?php echo $bookings_json; ?>;
 
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid'],
-                events: function(fetchInfo, successCallback, failureCallback) {
-                    $.ajax({
-                        url: 'fetchBookings.php',
-                        method: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            console.log("Bookings data:", data); // ตรวจสอบข้อมูลที่ได้รับ
+            // Format the booking data for FullCalendar
+            var events = bookings.map(function(booking) {
+                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+                            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+                            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                                (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-                            var events = data.map(function(booking) {
-                                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
+                            var eventColor = isHalfDay ? 'yellow' : 'red';
+                            var eventTextColor = isHalfDay ? 'black' : 'white';
+                            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
 
-                                var eventColor = isHalfDay ? 'orange' : 'red';
-                                var eventTextColor = isHalfDay ? 'black' : 'white';
-                                var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+                            const startTime = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const endTime = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                                const startTime = startDate.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                });
-                                const endTime = endDate.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                });
-
-                                return {
-                                    title: ' (' + startTime + ' - ' + endTime + ')',
-                                    start: startDate.toISOString(),
-                                    end: endDate.toISOString(),
-                                    color: eventColor,
-                                    textColor: eventTextColor,
-                                    description: booking.booking_details,
-                                    extendedProps: {
-                                        startTime: startTime,
-                                        endTime: endTime
-                                    }
-                                };
-                            });
-                            successCallback(events);
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.error("Error fetching bookings:", textStatus, errorThrown);
-                            console.error("Response text:", jqXHR.responseText); // ตรวจสอบเนื้อหาของข้อผิดพลาด
-                            failureCallback('Failed to fetch bookings');
-                        }
-                    });
-                },
-                eventContent: function(arg) {
-                    // Create div elements to display event title and times
-                    var titleEl = document.createElement('div');
-                    var startTimeEl = document.createElement('div');
-                    var endTimeEl = document.createElement('div');
-
-                    titleEl.innerHTML = arg.event.title;
-                    startTimeEl.innerHTML = 'Start: ' + arg.event.extendedProps.startTime;
-                    endTimeEl.innerHTML = 'End: ' + arg.event.extendedProps.endTime;
-
-                    // Apply inline styles for event container
-                    var eventContainer = document.createElement('div');
-                    eventContainer.style.height = 'auto'; // ปรับความสูงให้เป็นอัตโนมัติ
-                    eventContainer.style.overflow = 'visible'; // ทำให้เนื้อหาภายในไม่ถูกตัด
-                    eventContainer.style.whiteSpace = 'normal'; // ให้ข้อความไหลลงหลายบรรทัด
-                    eventContainer.style.wordWrap = 'break-word'; // การตัดคำเพื่อไม่ให้ข้อความยาวเกินขอบเขต
-                    eventContainer.appendChild(titleEl);
-                    eventContainer.appendChild(startTimeEl);
-                    eventContainer.appendChild(endTimeEl);
-
-                    // Append the elements
-                    return {
-                        domNodes: [eventContainer]
-                    };
-                }
+                            return {
+                                title:  ' (' + startTime + ' - ' + endTime + ')',
+                                start: startDate.toISOString(),
+                                end: endDate.toISOString(),
+                                color: eventColor,
+                                textColor: eventTextColor,
+                                description: booking.booking_details,
+                                extendedProps: {
+                                    startTime: startTime,
+                                    endTime: endTime
+                                }
+                            };
             });
 
+            // Initialize the FullCalendar
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['dayGrid', 'interaction'],
+                editable: true,
+                events: events
+            });
+
+            // Render the calendar
             calendar.render();
         });
     </script>
-<script>
+    <script>
+        // Function to set the current date to the date-saved input
+        function setDefaultDate() {
+            const dateInput = document.getElementById('date-saved');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Month starts at 0
+            const day = String(today.getDate()).padStart(2, '0');
+
+            const formattedDate = `${year}-${month}-${day}`;
+            dateInput.value = formattedDate;
+        }
+
+        // Call the function when the page loads
+        window.onload = setDefaultDate;
+    </script>
+    <script>
         // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input
         function setDefaultDate() {
             const dateInput = document.getElementById('date-saved');

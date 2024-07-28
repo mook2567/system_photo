@@ -291,7 +291,7 @@ if (isset($_SESSION['cus_login'])) {
                                 <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
                                         <div class="row">
-                                            <div class="col-5 position-relative overflow-hidden">
+                                            <div class="col-6 position-relative overflow-hidden">
                                                 <a href="profile_photographer.php?photographer_id=<?php echo $photographer_id; ?>">
                                                     <img class="img-fluid" src="../img/profile/<?php echo isset($photographer['photographer_photo']) ? $photographer['photographer_photo'] : 'default.jpg'; ?>" alt="">
                                                 </a>
@@ -299,16 +299,16 @@ if (isset($_SESSION['cus_login'])) {
                                                     <?php echo $photographer['photographer_prefix'] . ' ' . $photographer['photographer_name'] . ' ' . $photographer['photographer_surname']; ?>
                                                 </div>
                                             </div>
-                                            <div class="col-7 p-4 pb-0">
+                                            <div class="col-6 p-4 pb-0">
                                                 <!-- <p class="text-dark mb-3"><?php echo isset($photographer['photographer_address']) ? $photographer['photographer_address'] : 'Address not available'; ?></p> -->
-                                                <?php foreach ($photographer['type_of_work'] as $work) { ?>
+                                                <!-- <?php foreach ($photographer['type_of_work'] as $work) { ?>
                                                     <p class="text-dark mb-3">
                                                         <?php echo $work['type_work']; ?>
                                                         <?php echo isset($work['rate_half']) ? $work['rate_half'] : 'Rate half not available'; ?>
                                                         <?php echo isset($work['rate_full']) ? $work['rate_full'] : 'Rate full not available'; ?>
                                                     </p>
-                                                <?php } ?>
-                                                <a class="d-block mb-2" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
+                                                <?php } ?> -->
+                                                <a class="d-block mb-3" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
                                                     <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
                                                 </a>
                                                 <p class="text-dark mb-3">โทร <?php echo isset($photographer['photographer_tell']) ? $photographer['photographer_tell'] : 'Phone number not available'; ?></p>

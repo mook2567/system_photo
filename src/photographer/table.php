@@ -26,6 +26,10 @@ if ($id_photographer !== null) {
         $booking[] = $row;
     }
 }
+// ตรวจสอบข้อมูล
+// echo '<pre>';
+// print_r($booking);
+// echo '</pre>';
 
 // Return bookings data as JSON
 // echo json_encode($booking);
@@ -303,15 +307,6 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                 startTimeEl.innerHTML = 'Start: ' + arg.event.extendedProps.startTime;
                 endTimeEl.innerHTML = 'End: ' + arg.event.extendedProps.endTime;
 
-                // Apply inline styles for event container
-                var eventContainer = document.createElement('div');
-                eventContainer.style.height = 'auto'; // ปรับความสูงให้เป็นอัตโนมัติ
-                eventContainer.style.overflow = 'visible'; // ทำให้เนื้อหาภายในไม่ถูกตัด
-                eventContainer.style.whiteSpace = 'normal'; // ให้ข้อความไหลลงหลายบรรทัด
-                eventContainer.style.wordWrap = 'break-word'; // การตัดคำเพื่อไม่ให้ข้อความยาวเกินขอบเขต
-                eventContainer.appendChild(titleEl);
-                eventContainer.appendChild(startTimeEl);
-                eventContainer.appendChild(endTimeEl);
 
                 // Append the elements
                 return {

@@ -9,7 +9,7 @@ header('Content-Type: application/json');
 $booking = array();
 
 try {
-    // Fetch information
+    // Fetch general information
     $sql = "SELECT * FROM `information`";
     $resultInfo = $conn->query($sql);
     if (!$resultInfo) {
@@ -17,22 +17,22 @@ try {
     }
     $rowInfo = $resultInfo->fetch_assoc();
 
-    // Fetch photographer details if logged in
-    if (isset($_SESSION['photographer_login'])) {
-        $email = $_SESSION['photographer_login'];
-        $sql = "SELECT * FROM photographer WHERE photographer_email = ?";
+    // Fetch customer details if logged in
+    if (isset($_SESSION['customer_login'])) {
+        $email = $_SESSION['customer_login'];
+        $sql = "SELECT * FROM customer WHERE cus_email = ?";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new Exception("Error preparing statement: " . $conn->error);
         }
         $stmt->bind_param("s", $email);
         $stmt->execute();
-        $resultPhoto = $stmt->get_result();
-        if (!$resultPhoto) {
+        $resultCus = $stmt->get_result();
+        if (!$resultCus) {
             throw new Exception("Error executing statement: " . $stmt->error);
         }
-        $rowPhoto = $resultPhoto->fetch_assoc();
-        $id_photographer = $rowPhoto['photographer_id'];
+        $rowCus = $resultCus->fetch_assoc();
+        $id_cus = $rowCus['cus_id'];
     }
 
     // Fetch bookings if photographer ID is available
