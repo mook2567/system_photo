@@ -136,7 +136,7 @@ if (isset($_SESSION['cus_login'])) {
     <div class="mt-5 container-md">
         <div class="text-center" style="font-size: 18px;"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิว</b></div>
         <div class="mt-3 col-md-8 container-fluid">
-        <div class="col-12">
+            <div class="col-12">
                 <div class="row mt-2">
                     <div class="col-2">
                         <label for="name" style="font-weight: bold; display: flex; align-items: center;">
@@ -240,7 +240,7 @@ if (isset($_SESSION['cus_login'])) {
                 <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
                 <button type="button" class="btn btn-danger me-3" style="width: 150px; height:45px;" onclick="window.history.back()">ย้อนกลับ</button>
                 <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
-                <button type="button" class="btn btn-warning"style="width: 150px; height:45px;" onclick="window.location.href='bookingEdite.php'">แก้ไข</button>
+                <button type="button" class="btn btn-warning" style="width: 150px; height:45px;" onclick="window.location.href='bookingEdite.php'">แก้ไข</button>
             </div>
         </div>
     </div>

@@ -190,31 +190,31 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
-                <div class="navbar-nav ms-auto f">
-                    <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
-                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
-                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
-                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                    <div class="navbar-nav ms-auto f">
+                        <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                        <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
+                                <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                                <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </nav>
         </div>
     </div>
@@ -404,29 +404,35 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
             // Format the booking data for FullCalendar
             var events = bookings.map(function(booking) {
                 var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                                (startDate.getHours() >= 12 && endDate.getHours() > 12);
+                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-                            var eventColor = isHalfDay ? 'yellow' : 'red';
-                            var eventTextColor = isHalfDay ? 'black' : 'white';
-                            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+                var eventColor = isHalfDay ? 'yellow' : 'red';
+                var eventTextColor = isHalfDay ? 'black' : 'white';
+                var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
 
-                            const startTime = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                            const endTime = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const startTime = startDate.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const endTime = endDate.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
 
-                            return {
-                                title:  ' (' + startTime + ' - ' + endTime + ')',
-                                start: startDate.toISOString(),
-                                end: endDate.toISOString(),
-                                color: eventColor,
-                                textColor: eventTextColor,
-                                description: booking.booking_details,
-                                extendedProps: {
-                                    startTime: startTime,
-                                    endTime: endTime
-                                }
-                            };
+                return {
+                    title: ' (' + startTime + ' - ' + endTime + ')',
+                    start: startDate.toISOString(),
+                    end: endDate.toISOString(),
+                    color: eventColor,
+                    textColor: eventTextColor,
+                    description: booking.booking_details,
+                    extendedProps: {
+                        startTime: startTime,
+                        endTime: endTime
+                    }
+                };
             });
 
             // Initialize the FullCalendar

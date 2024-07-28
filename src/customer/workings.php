@@ -210,7 +210,7 @@ if (isset($_SESSION['photographer_login'])) {
             </div>
         </div>
         <!-- Header End -->
-        
+
         <!-- Search Start -->
         <div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
