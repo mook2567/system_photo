@@ -33,28 +33,38 @@ try {
         }
         $rowCus = $resultCus->fetch_assoc();
         $id_cus = $rowCus['cus_id'];
+        $stmt->close(); // Close the statement
     }
 
     // Fetch bookings if photographer ID is available
     if (isset($id_photographer)) {
-        $sql = "SELECT * FROM `booking` WHERE photographer_id = ? AND booking_confirm_status = '2'";
+        // Prepare SQL query
+        $sql = "SELECT * FROM `booking` WHERE photographer_id = ? AND booking_confirm_status = '1'";
         $stmt = $conn->prepare($sql);
+    
         if (!$stmt) {
             throw new Exception("Error preparing statement: " . $conn->error);
         }
+    
+        // Bind parameters and execute statement
         $stmt->bind_param("i", $id_photographer);
         $stmt->execute();
+        
+        // Get result and handle errors
         $result = $stmt->get_result();
         if (!$result) {
             throw new Exception("Error executing statement: " . $stmt->error);
         }
-
+    
+        // Fetch results and populate $booking array
         while ($row = $result->fetch_assoc()) {
             $booking[] = $row;
         }
+
+        $stmt->close(); // Close the statement
     }
 
-    // Return bookings data as JSON
+    // Convert bookings to JSON
     echo json_encode($booking);
 
 } catch (Exception $e) {

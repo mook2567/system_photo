@@ -21,8 +21,8 @@ if (isset($_SESSION['customer_login'])) {
 }
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = '1'  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
-        AND booking_confirm_status = '2'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 2)
+        WHERE photographer_id = $id_photographer  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
+        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 2)
         AND (
             -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
             (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
@@ -599,71 +599,105 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- ตารางงาน -->
             <?php
-            $bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
+$bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
 
-            if ($resultBooking->num_rows > 0) {
-                $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
+if ($resultBooking->num_rows > 0) {
+    $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
+}
+
+// คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
+$today = date('Y-m-d');
+$dayOfWeek = date('w', strtotime($today));
+$startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
+$endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+
+// ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
+$bookedDates = [];
+$bookedPeriods = []; // เก็บช่วงเวลาการจอง
+
+if ($resultBooking->num_rows > 0) {
+    while ($rowBooking = $resultBooking->fetch_assoc()) {
+        $startDate = $rowBooking['booking_start_date'];
+        $endDate = $rowBooking['booking_end_date'];
+
+        // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+        $bookedPeriods[] = [$startDate, $endDate];
+
+        // เพิ่มวันเริ่มต้นการจองลงในอาร์เรย์
+        $bookedDates[] = $startDate;
+    }
+}
+
+// สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+$allDates = [];
+$currentDate = $startOfWeek;
+for ($i = 0; $i < 7; $i++) {
+    $allDates[] = $currentDate;
+    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+}
+
+// ตรวจสอบช่วงเวลาการจองและอัพเดตวันในช่วงเวลาที่จอง
+foreach ($bookedPeriods as $period) {
+    list($periodStart, $periodEnd) = $period;
+
+    foreach ($allDates as $date) {
+        if ($date >= $periodStart && $date <= $periodEnd) {
+            $bookedDates[] = $date;
+        }
+    }
+}
+
+// ลบวันจองที่ซ้ำออก
+$bookedDates = array_unique($bookedDates);
+
+?>
+
+<div class="col-3 flex-fill" style="margin-left: auto;">
+    <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
+        <div class="d-flex justify-content-center align-items-center mt-3">
+            <h4>ตารางงาน</h4>
+        </div>
+        <div class="ms-2 mb-2">
+            ตารางงานสัปดาห์นี้
+        </div>
+        <?php
+        // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+        $currentDate = $startOfWeek;
+        for ($i = 0; $i < 7; $i++) {
+            $backgroundColor = in_array($currentDate, $bookedDates) ? 'lightcoral' : 'lightgreen';
+            echo "<div id='bookingStatus' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+            echo "<p class='mb-0'>";
+            echo "วันที่: " . htmlspecialchars($currentDate);
+
+            if (in_array($currentDate, $bookedDates)) {
+                echo " - จองแล้ว";
+            } else {
+                echo " - ว่าง";
             }
 
-            // คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
-            $today = date('Y-m-d');
-            $dayOfWeek = date('w', strtotime($today));
-            $startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
-            $endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+            echo "</p>";
+            echo "</div>";
+            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+        }
+        ?>
 
-            // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
-            $bookedDates = [];
-            if ($resultBooking->num_rows > 0) {
-                while ($rowBooking = $resultBooking->fetch_assoc()) {
-                    $bookedDates[] = $rowBooking['booking_start_date'];
-                }
-            }
-            ?>
-            <div class="col-3 flex-fill" style="margin-left: auto;">
-                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-                    <div class="d-flex justify-content-center align-items-center mt-3">
-                        <h4>ตารางงาน</h4>
-                    </div>
-                    <div class="ms-2 mb-2">
-                        ตารางงานสัปดาห์นี้
-                    </div>
-                    <?php
-                    // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
-                    $currentDate = $startOfWeek;
-                    for ($i = 0; $i < 7; $i++) {
-                        $backgroundColor = in_array($currentDate, $bookedDates) ? 'lightcoral' : 'lightgreen';
-                        echo "<div id='bookingStatus' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
-                        echo "<p class='mb-0'>";
-                        echo "วันที่: " . htmlspecialchars($currentDate);
-
-                        if (in_array($currentDate, $bookedDates)) {
-                            echo " - จองแล้ว";
-                        } else {
-                            echo " - ว่าง";
-                        }
-
-                        echo "</p>";
-                        echo "</div>";
-                        $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-                    }
-                    ?>
-
-                    <div class="justify-content-center py-4 text-center">
-                        <div class="row justify-content-center">
-                            <div class="col-5">
-                                <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
-                                    <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
-                                    <i class="fa-solid fa-bookmark"></i> จองคิว
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <div class="justify-content-center py-4 text-center">
+            <div class="row justify-content-center">
+                <div class="col-5">
+                    <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
+                        <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                    </button>
+                </div>
+                <div class="col-5">
+                    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
+                        <i class="fa-solid fa-bookmark"></i> จองคิว
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
     <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">
@@ -732,12 +766,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                 <div class="col-12 mt-3">
                                     <div class="row">
-                                        <div class="col-md-12 text-center">
+                                        <div class="col-md-10 text-center">
                                             <label for="location" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
-
                                             </label>
                                             <input type="text" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;">
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <label for="type" style="font-weight: bold; display: flex; align-items: center;">
+                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
+                                            </label>
+                                            <select class="form-select border-1 py-2" name="workPost" id="workPost">
+                                                <option required>เลือกประเภทงาน</option>
+                                                <?php
+                                                // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
+                                                $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                                            FROM `type` t
+                                                            INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                            WHERE tow.photographer_id = $id_photographer
+                                                            GROUP BY t.type_id, t.type_work;";
+                                                $resultTypeWork = $conn->query($sql);
+
+                                                // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
+                                                if ($resultTypeWork->num_rows > 0) {
+                                                    while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                        echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                    }
+                                                } else {
+                                                    echo '<option value="">ไม่มีประเภทงาน ช่างภาพไม่มีประเภทงานที่รับ</option>';
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

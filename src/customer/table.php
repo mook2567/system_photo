@@ -397,72 +397,58 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-        $(function() {
-            // Get the booking data from PHP
-            var bookings = <?php echo $bookings_json; ?>;
+    $(function() {
+        // Get the booking data from PHP
+        var bookings = <?php echo json_encode($booking); ?>;
 
-            // Format the booking data for FullCalendar
-            var events = bookings.map(function(booking) {
-                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
+        // Format the booking data for FullCalendar
+        var events = bookings.map(function(booking) {
+            var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-                var eventColor = isHalfDay ? 'yellow' : 'red';
-                var eventTextColor = isHalfDay ? 'black' : 'white';
-                var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+            var eventColor = isHalfDay ? 'yellow' : 'red';
+            var eventTextColor = isHalfDay ? 'black' : 'white';
+            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
 
-                const startTime = startDate.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                const endTime = endDate.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                return {
-                    title: ' (' + startTime + ' - ' + endTime + ')',
-                    start: startDate.toISOString(),
-                    end: endDate.toISOString(),
-                    color: eventColor,
-                    textColor: eventTextColor,
-                    description: booking.booking_details,
-                    extendedProps: {
-                        startTime: startTime,
-                        endTime: endTime
-                    }
-                };
+            const startTime = startDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const endTime = endDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
             });
 
-            // Initialize the FullCalendar
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid', 'interaction'],
-                editable: true,
-                events: events
-            });
-
-            // Render the calendar
-            calendar.render();
+            return {
+                title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
+                start: startDate.toISOString(),
+                end: endDate.toISOString(),
+                color: eventColor,
+                textColor: eventTextColor,
+                description: booking.booking_details,
+                extendedProps: {
+                    startTime: startTime,
+                    endTime: endTime
+                }
+            };
         });
-    </script>
-    <script>
-        // Function to set the current date to the date-saved input
-        function setDefaultDate() {
-            const dateInput = document.getElementById('date-saved');
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0'); // Month starts at 0
-            const day = String(today.getDate()).padStart(2, '0');
 
-            const formattedDate = `${year}-${month}-${day}`;
-            dateInput.value = formattedDate;
-        }
+        // Initialize the FullCalendar
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['dayGrid', 'interaction'],
+            editable: true,
+            events: events
+        });
 
-        // Call the function when the page loads
-        window.onload = setDefaultDate;
-    </script>
+        // Render the calendar
+        calendar.render();
+    });
+</script>
+
+    
     <script>
         // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input
         function setDefaultDate() {
