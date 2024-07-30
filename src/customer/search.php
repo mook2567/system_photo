@@ -7,14 +7,13 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-if (isset($_SESSION['cus_login'])) {
-    $email = $_SESSION['cus_login'];
+if (isset($_SESSION['customer_login'])) {
+    $email = $_SESSION['customer_login'];
     $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
     $resultCus = $conn->query($sql);
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -176,10 +175,10 @@ if (isset($_SESSION['cus_login'])) {
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
+                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
                                 <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                                <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
+                                <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
                                 <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                             </div>
                         </div>
@@ -187,8 +186,8 @@ if (isset($_SESSION['cus_login'])) {
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
+                                <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                                 <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                             </div>
                         </div>

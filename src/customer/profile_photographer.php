@@ -19,78 +19,85 @@ if (isset($_SESSION['customer_login'])) {
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
+
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = $id_photographer  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
-        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 2)
+        WHERE photographer_id = $id_photographer
+        AND booking_confirm_status = '1'
         AND (
-            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
-            (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
-            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์นี้
+            (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY 
+            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)
             OR
-            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ที่แล้ว
-            (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันอาทิตย์ของสัปดาห์นี้
-            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์ที่แล้ว
-        )
-        ";
+            (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY 
+            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)
+        )";
+
 $resultBooking = $conn->query($sql);
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_book'])) {
         $location = $_POST["location"];
         $details = $_POST['details'];
-        $start_date = $_POST['start_date'];
+        echo $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
         $start_time = $_POST["start_time"];
         $end_time = $_POST["end_time"];
         $cus_id = $_POST['cus_id'];
         $date = $_POST["date"];
+        $type = $_POST["type"];
 
-        // Insert new admin data into admin table
-        $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssssss", $location, $details, $start_date, $end_date, $start_time, $end_time,  $date, $id_photographer, $cus_id);
-        if ($stmt->execute()) { ?>
 
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "bookingLists.php";
-                        }
+        // Ensure all parameters are passed correctly
+        $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`, `type_of_work_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        if ($stmt) {
+            $stmt->bind_param("sssssssiii", $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
+            if ($stmt->execute()) {
+?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "bookingLists.php";
+                            }
+                        });
                     });
-                });
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
+                </script>
+            <?php
+            } else {
+            ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
                     });
-                });
-            </script>
+                </script>
 <?php
+            }
+            $stmt->close();
+        } else {
+            echo "Error preparing statement: " . $conn->error;
         }
-        $stmt->close();
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -141,6 +148,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" />
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        function validateForm() {
+            var location = document.getElementById("location").value;
+            var details = document.getElementById("details").value;
+            var startDate = document.getElementById("start_date").value;
+            var endDate = document.getElementById("end_date").value;
+            var startTime = document.getElementById("start_time").value;
+            var endTime = document.getElementById("end_time").value;
+            var cusId = document.getElementById("cus_id").value;
+            var date = document.getElementById("date").value;
+            var type = document.getElementById("type").value;
+
+            if (!location || !details || !startDate || !endDate || !startTime || !endTime || !cusId || !date || !type) {
+                var missingFields = [];
+                if (!location) missingFields.push("Location");
+                if (!details) missingFields.push("Details");
+                if (!startDate) missingFields.push("Start Date");
+                if (!endDate) missingFields.push("End Date");
+                if (!startTime) missingFields.push("Start Time");
+                if (!endTime) missingFields.push("End Time");
+                if (!cusId) missingFields.push("Customer ID");
+                if (!date) missingFields.push("Date");
+                if (!type) missingFields.push("Type");
+
+                Swal.fire({
+                    title: 'Missing Fields',
+                    text: 'Please fill in the following fields: ' + missingFields.join(", "),
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return false;
+            }
+            return true;
+        }
+    </script>
 
     <style>
         body {
@@ -356,10 +400,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
                         <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
+                            <!-- <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a> -->
                             <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                            <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
+                            <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
                             <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                         </div>
                     </div>
@@ -367,8 +411,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
                         <div class="dropdown-menu rounded-0 m-0">
                             <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                            <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
+                            <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                             <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>
@@ -599,104 +643,104 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- ตารางงาน -->
             <?php
-$bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
+            $bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
 
-if ($resultBooking->num_rows > 0) {
-    $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
-}
-
-// คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
-$today = date('Y-m-d');
-$dayOfWeek = date('w', strtotime($today));
-$startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
-$endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
-
-// ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
-$bookedDates = [];
-$bookedPeriods = []; // เก็บช่วงเวลาการจอง
-
-if ($resultBooking->num_rows > 0) {
-    while ($rowBooking = $resultBooking->fetch_assoc()) {
-        $startDate = $rowBooking['booking_start_date'];
-        $endDate = $rowBooking['booking_end_date'];
-
-        // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
-        $bookedPeriods[] = [$startDate, $endDate];
-
-        // เพิ่มวันเริ่มต้นการจองลงในอาร์เรย์
-        $bookedDates[] = $startDate;
-    }
-}
-
-// สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
-$allDates = [];
-$currentDate = $startOfWeek;
-for ($i = 0; $i < 7; $i++) {
-    $allDates[] = $currentDate;
-    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-}
-
-// ตรวจสอบช่วงเวลาการจองและอัพเดตวันในช่วงเวลาที่จอง
-foreach ($bookedPeriods as $period) {
-    list($periodStart, $periodEnd) = $period;
-
-    foreach ($allDates as $date) {
-        if ($date >= $periodStart && $date <= $periodEnd) {
-            $bookedDates[] = $date;
-        }
-    }
-}
-
-// ลบวันจองที่ซ้ำออก
-$bookedDates = array_unique($bookedDates);
-
-?>
-
-<div class="col-3 flex-fill" style="margin-left: auto;">
-    <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-        <div class="d-flex justify-content-center align-items-center mt-3">
-            <h4>ตารางงาน</h4>
-        </div>
-        <div class="ms-2 mb-2">
-            ตารางงานสัปดาห์นี้
-        </div>
-        <?php
-        // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
-        $currentDate = $startOfWeek;
-        for ($i = 0; $i < 7; $i++) {
-            $backgroundColor = in_array($currentDate, $bookedDates) ? 'lightcoral' : 'lightgreen';
-            echo "<div id='bookingStatus' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
-            echo "<p class='mb-0'>";
-            echo "วันที่: " . htmlspecialchars($currentDate);
-
-            if (in_array($currentDate, $bookedDates)) {
-                echo " - จองแล้ว";
-            } else {
-                echo " - ว่าง";
+            if ($resultBooking->num_rows > 0) {
+                $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
             }
 
-            echo "</p>";
-            echo "</div>";
-            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-        }
-        ?>
+            // คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
+            $today = date('Y-m-d');
+            $dayOfWeek = date('w', strtotime($today));
+            $startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
+            $endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
 
-        <div class="justify-content-center py-4 text-center">
-            <div class="row justify-content-center">
-                <div class="col-5">
-                    <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
-                        <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
-                    </button>
-                </div>
-                <div class="col-5">
-                    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
-                        <i class="fa-solid fa-bookmark"></i> จองคิว
-                    </button>
+            // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
+            $bookedDates = [];
+            $bookedPeriods = []; // เก็บช่วงเวลาการจอง
+
+            if ($resultBooking->num_rows > 0) {
+                while ($rowBooking = $resultBooking->fetch_assoc()) {
+                    $startDate = $rowBooking['booking_start_date'];
+                    $endDate = $rowBooking['booking_end_date'];
+
+                    // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+                    $bookedPeriods[] = [$startDate, $endDate];
+
+                    // เพิ่มวันเริ่มต้นการจองลงในอาร์เรย์
+                    $bookedDates[] = $startDate;
+                }
+            }
+
+            // สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+            $allDates = [];
+            $currentDate = $startOfWeek;
+            for ($i = 0; $i < 7; $i++) {
+                $allDates[] = $currentDate;
+                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            }
+
+            // ตรวจสอบช่วงเวลาการจองและอัพเดตวันในช่วงเวลาที่จอง
+            foreach ($bookedPeriods as $period) {
+                list($periodStart, $periodEnd) = $period;
+
+                foreach ($allDates as $date) {
+                    if ($date >= $periodStart && $date <= $periodEnd) {
+                        $bookedDates[] = $date;
+                    }
+                }
+            }
+
+            // ลบวันจองที่ซ้ำออก
+            $bookedDates = array_unique($bookedDates);
+
+            ?>
+
+            <div class="col-3 flex-fill" style="margin-left: auto;">
+                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <h4>ตารางงาน</h4>
+                    </div>
+                    <div class="ms-2 mb-2">
+                        ตารางงานสัปดาห์นี้
+                    </div>
+                    <?php
+                    // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+                    $currentDate = $startOfWeek;
+                    for ($i = 0; $i < 7; $i++) {
+                        $backgroundColor = in_array($currentDate, $bookedDates) ? 'lightcoral' : 'lightgreen';
+                        echo "<div id='bookingStatus' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+                        echo "<p class='mb-0'>";
+                        echo "วันที่: " . htmlspecialchars($currentDate);
+
+                        if (in_array($currentDate, $bookedDates)) {
+                            echo " - จองแล้ว";
+                        } else {
+                            echo " - ว่าง";
+                        }
+
+                        echo "</p>";
+                        echo "</div>";
+                        $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+                    }
+                    ?>
+
+                    <div class="justify-content-center py-4 text-center">
+                        <div class="row justify-content-center">
+                            <div class="col-5">
+                                <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
+                                    <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
+                                    <i class="fa-solid fa-bookmark"></i> จองคิว
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
         </div>
     </div>
@@ -707,7 +751,7 @@ $bookedDates = array_unique($bookedDates);
                     <h5 class="modal-title" id="detailsLabel"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;จองคิวช่างภาพ</b></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="" method="POST">
+                <form id="bookingForm" action="" method="POST" onsubmit="return validateForm()">
                     <div class="modal-body" style="height: 560px;">
                         <div class="mt-2 container-md">
                             <div class="mt-3 col-md-12 container-fluid">
@@ -736,30 +780,34 @@ $bookedDates = array_unique($bookedDates);
 
                                 <div class="col-12 mt-3">
                                     <div class="row">
-                                        <div class="col-md-4 text-center">
+                                        <div class="col-4 text-center">
                                             <label for="booking-start-date" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="date" name="start_date" class="form-control mt-1" style="resize: none;">
+                                            <input type="date" id="start_date" name="start_date" class="form-control mt-1" style="resize: none;" required>
                                         </div>
-                                        <div class="col-md-2 text-center">
+                                        <div class="col-2 text-center">
                                             <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="time" name="start_time" class="form-control mt-1" style="resize: none;">
+                                            <input type="time" id="start_time" name="start_time" class="form-control mt-1" style="resize: none;" required>
                                         </div>
 
-                                        <div class="col-md-4 text-center">
+                                        <div class="col-4 text-center">
                                             <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="date" name="end_date" class="form-control mt-1" style="resize: none;">
+                                            <input type="date" id="end_date" name="end_date" class="form-control mt-1" style="resize: none;" required>
                                         </div>
-                                        <div class="col-md-2 text-center">
+                                        <div class="col-2 text-center">
                                             <label for="booking-end-time" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="time" name="end_time" class="form-control mt-1" style="resize: none;">
+                                            <input type="time" id="end_time" name="end_time" class="form-control mt-1" style="resize: none;" required>
                                         </div>
                                     </div>
                                 </div>
@@ -769,22 +817,24 @@ $bookedDates = array_unique($bookedDates);
                                         <div class="col-md-10 text-center">
                                             <label for="location" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="text" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;">
+                                            <input type="text" id="location" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;" required>
                                         </div>
                                         <div class="col-md-2 text-center">
                                             <label for="type" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <select class="form-select border-1 py-2" name="workPost" id="workPost">
-                                                <option required>เลือกประเภทงาน</option>
+                                            <select class="form-select border-1 py-2" id="type" name="type" required>
+                                                <option value="">เลือกประเภทงาน</option>
                                                 <?php
                                                 // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
                                                 $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                                            FROM `type` t
-                                                            INNER JOIN type_of_work tow ON t.type_id = tow.type_id
-                                                            WHERE tow.photographer_id = $id_photographer
-                                                            GROUP BY t.type_id, t.type_work;";
+                                                        FROM `type` t
+                                                        INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                        WHERE tow.photographer_id = $id_photographer
+                                                        GROUP BY t.type_id, t.type_work;";
                                                 $resultTypeWork = $conn->query($sql);
 
                                                 // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
@@ -803,8 +853,9 @@ $bookedDates = array_unique($bookedDates);
                                 <div class="col-md-12 mt-3 text-center">
                                     <label for="Information_caption" style="font-weight: bold; display: flex; align-items: center;">
                                         <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
+                                        <span style="color: red;">*</span>
                                     </label>
-                                    <textarea name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;"></textarea>
+                                    <textarea id="details" name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;" required></textarea>
                                 </div>
                                 <div class="col-12">
                                     <div class="row mt-3">
@@ -812,13 +863,13 @@ $bookedDates = array_unique($bookedDates);
                                             <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
                                             </label>
-                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowCus['cus_tell']; ?>" style="resize: none;">
+                                            <input type="text" id="tell" name="tell" class="form-control mt-1" value="<?php echo $rowCus['cus_tell']; ?>" style="resize: none;" readonly>
                                         </div>
                                         <div class="col-5 text-center">
                                             <label for="email" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
                                             </label>
-                                            <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowCus['cus_email']; ?>" style="resize: none;">
+                                            <input type="email" id="email" name="email" class="form-control mt-1" value="<?php echo $rowCus['cus_email']; ?>" style="resize: none;" readonly>
                                         </div>
                                         <div class="col-2">
                                             <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
@@ -829,6 +880,7 @@ $bookedDates = array_unique($bookedDates);
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
                             <input type="hidden" name="cus_id" value="<?php echo $rowCus['cus_id']; ?>">
                             <div class="modal-footer mt-5 justify-content-center">
                                 <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
@@ -905,6 +957,9 @@ $bookedDates = array_unique($bookedDates);
             document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // ถ้าไม่ว่างให้เป็นสีแดง
         }
     </script>
+
+
+
 
     <script>
         // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input
