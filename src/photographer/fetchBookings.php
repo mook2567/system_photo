@@ -12,7 +12,7 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $result->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 
-    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ? AND booking_confirm_status = '1'");
     $stmt->bind_param("i", $id_photographer);
     $stmt->execute();
     $result = $stmt->get_result();

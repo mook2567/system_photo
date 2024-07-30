@@ -15,9 +15,9 @@ if (isset($_SESSION['photographer_login'])) {
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
-$booking = array();
+// $booking = array();
 if ($id_photographer !== null) {
-    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ? AND booking_confirm_status = '1'");
     $stmt->bind_param("i", $id_photographer);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -249,75 +249,56 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+        $(function() {
+            // Get the booking data from PHP
+            var bookings = <?php echo json_encode($booking); ?>;
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['dayGrid'],
-            events: function(fetchInfo, successCallback, failureCallback) {
-                $.ajax({
-                    url: 'fetchBookings.php',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        console.log("Bookings data:", data); // ตรวจสอบข้อมูลที่ได้รับ
+            // Format the booking data for FullCalendar
+            var events = bookings.map(function(booking) {
+                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-                        var events = data.map(function(booking) {
-                            var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                                (startDate.getHours() >= 12 && endDate.getHours() > 12);
+                var eventColor = isHalfDay ? 'yellow' : 'red';
+                var eventTextColor = isHalfDay ? 'black' : 'white';
+                var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
 
-                            var eventColor = isHalfDay ? 'yellow' : 'red';
-                            var eventTextColor = isHalfDay ? 'black' : 'white';
-                            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
-
-                            const startTime = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                            const endTime = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                            return {
-                                title:  ' (' + startTime + ' - ' + endTime + ')',
-                                start: startDate.toISOString(),
-                                end: endDate.toISOString(),
-                                color: eventColor,
-                                textColor: eventTextColor,
-                                description: booking.booking_details,
-                                extendedProps: {
-                                    startTime: startTime,
-                                    endTime: endTime
-                                }
-                            };
-                        });
-                        successCallback(events);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error("Error fetching bookings:", textStatus, errorThrown);
-                        console.error("Response text:", jqXHR.responseText); // ตรวจสอบเนื้อหาของข้อผิดพลาด
-                        failureCallback('Failed to fetch bookings');
-                    }
+                const startTime = startDate.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
-            },
-            eventContent: function(arg) {
-                // Create div elements to display event title and times
-                var titleEl = document.createElement('div');
-                var startTimeEl = document.createElement('div');
-                var endTimeEl = document.createElement('div');
+                const endTime = endDate.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
 
-                titleEl.innerHTML = arg.event.title;
-                startTimeEl.innerHTML = 'Start: ' + arg.event.extendedProps.startTime;
-                endTimeEl.innerHTML = 'End: ' + arg.event.extendedProps.endTime;
-
-
-                // Append the elements
                 return {
-                    domNodes: [eventContainer]
+                    title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
+                    start: startDate.toISOString(),
+                    end: endDate.toISOString(),
+                    color: eventColor,
+                    textColor: eventTextColor,
+                    description: booking.booking_details,
+                    extendedProps: {
+                        startTime: startTime,
+                        endTime: endTime
+                    }
                 };
-            }
-        });
+            });
 
-        calendar.render();
-    });
-</script>
+            // Initialize the FullCalendar
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['dayGrid', 'interaction'],
+                editable: true,
+                events: events
+            });
+
+            // Render the calendar
+            calendar.render();
+        });
+    </script>
 
 
 </body>
