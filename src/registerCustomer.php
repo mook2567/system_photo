@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $size = $_FILES['profileImage']['size'];
         $temp = $_FILES['profileImage']['tmp_name'];
 
-        $path = "img/profile/" . date("d_m_Y_H_i_s") . '-' . $image_file;
+        $path = date("d_m_Y_H_i_s") . '-' . $image_file;
         $directory = "img/profile/";
 
         // ตรวจสอบชนิดของไฟล์รูปภาพ
@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น</div>',
+                        title: '<div class="t1">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG และ PNG เท่านั้น</div>',
                         icon: 'error',
                         confirmButtonText: 'ออก',
                         allowOutsideClick: true,

@@ -21,6 +21,13 @@ $sql = "SELECT id, prefix, firstname, surname, phone, email, license, types
         ) AS users;";
 $result = $conn->query($sql);
 
+$sqlPhotographer = "SELECT * FROM `photographer`";
+$resultPhotographer = $conn->query($sqlPhotographer);
+$rowPhotographer = $resultPhotographer->fetch_assoc();
+
+$sqlCustomer = "SELECT * FROM `customer`";
+$resultCustomer = $conn->query($sqlCustomer);
+$rowCustomer = $resultCustomer->fetch_assoc();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_customer'])) {
@@ -439,7 +446,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                 <div class="circle">
-                                                                <img id="userImage" src="../img/profile/<?php echo $rowPhotographer['photographer_photo'] ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
+                                                                    <img id="userImage1" src="../img/profile/<?php echo $rowPhotographer['photographer_photo'] ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
                                                             <div class="mt-2">
@@ -508,7 +515,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editPhotographerModalLabel<?php echo $rowPhotographer['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;กำหนดสิทธิ์การใช้งานช่างภาพ คุณ  <?php echo $rowPhotographer['photographer_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editPhotographerModalLabel<?php echo $rowPhotographer['photographer_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;กำหนดสิทธิ์การใช้งานช่างภาพ คุณ <?php echo $rowPhotographer['photographer_name']; ?></b></h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -598,7 +605,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md">
                                                                 <div class="circle">
-                                                                    <img id="userImage" src="../img/profile/<?php echo ($rowPhotographer['photographer_photo']) ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
+                                                                    <img id="userImage2" src="../img/profile/<?php echo $rowPhotographer['photographer_photo'] ? $rowPhotographer['photographer_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
                                                             <form method="post" action="">
@@ -781,7 +788,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 <div class="col-4 mt-5">
                                                                     <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                         <div class="circle">
-                                                                            <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
+                                                                            <img id="userImage3" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
                                                                         </div>
                                                                     </div>
                                                                     <div class="mt-2">
@@ -808,121 +815,110 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editCustomerModalLabel<?php echo $rowCustomer['cus_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;กำหนดสิทธิ์การใช้งานลูกค้า คุณ <?php echo $rowCustomer['cus_name']; ?></b></h5>
+                                            <h5 class="modal-title" id="editCustomerModalLabel<?php echo $rowCustomer['cus_id']; ?>">
+                                                <b><i class="fas fa-file-alt"></i>&nbsp;กำหนดสิทธิ์การใช้งานลูกค้า คุณ <?php echo $rowCustomer['cus_name']; ?></b>
+                                            </h5>
                                         </div>
                                         <div class="modal-body">
                                             <div class="container-md">
                                                 <div class="mt-3 col-md-10 container-fluid">
                                                     <div class="row">
                                                         <div class="col-8">
-                                                            <div class="col-12">
-                                                                <div class="row mt-2">
-                                                                    <div class="col-2">
-                                                                        <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
-                                                                        </label>
-                                                                        <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowCustomer['cus_prefix']; ?>" readonly>
-                                                                    </div>
-                                                                    <div class="col-5">
-                                                                        <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                                                        </label>
-                                                                        <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowCustomer['cus_name']; ?>" readonly>
-                                                                    </div>
-                                                                    <div class="col-5">
-                                                                        <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                                                        </label>
-                                                                        <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowCustomer['cus_surname']; ?>" readonly>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12 mt-2">
-                                                                <div class="row">
-                                                                    <div class="col-md-12 text-center">
-                                                                        <label for="address" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
-                                                                        </label>
-                                                                        <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowCustomer['cus_address']; ?>" style="resize: none;" readonly>
+                                                            <form method="post" action="">
+                                                                <div class="col-12">
+                                                                    <div class="row mt-2">
+                                                                        <div class="col-2">
+                                                                            <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">คำนำหน้า</span>
+                                                                            </label>
+                                                                            <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowCustomer['cus_prefix']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-5">
+                                                                            <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                                                            </label>
+                                                                            <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowCustomer['cus_name']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-5">
+                                                                            <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; font-size: 13px;">นามสกุล</span>
+                                                                            </label>
+                                                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowCustomer['cus_surname']; ?>" readonly>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-md-12 mt-2">
-                                                                <div class="row">
-                                                                    <div class="col-md-4">
-                                                                        <label for="district" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
-                                                                        </label>
-                                                                        <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowCustomer['cus_district']; ?>" style="resize: none;" readonly>
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="province" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
-                                                                        </label>
-                                                                        <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowCustomer['cus_province']; ?>" style="resize: none;" readonly>
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
-                                                                        </label>
-                                                                        <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowCustomer['cus_zip_code']; ?>" style="resize: none;" readonly>
+                                                                <div class="col-12 mt-2">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12 text-center">
+                                                                            <label for="address" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
+                                                                            </label>
+                                                                            <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowCustomer['cus_address']; ?>" readonly>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-md-12 mt-2">
-                                                                <div class="row">
-                                                                    <div class="col-md-4">
-                                                                        <label for="phone" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
-                                                                        </label>
-                                                                        <input type="text" name="phone" class="form-control mt-1" value="<?php echo $rowCustomer['cus_tell']; ?>" style="resize: none;" readonly>
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
-                                                                        </label>
-                                                                        <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowCustomer['cus_email']; ?>" style="resize: none;" readonly>
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="password" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
-                                                                        </label>
-                                                                        <input type="password" name="password" class="form-control mt-1" value="<?php echo $rowCustomer['cus_password']; ?>" style="resize: none;" readonly>
+                                                                <div class="col-md-12 mt-2">
+                                                                    <div class="row">
+                                                                        <div class="col-md-4">
+                                                                            <label for="district" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
+                                                                            </label>
+                                                                            <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowCustomer['cus_district']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="province" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
+                                                                            </label>
+                                                                            <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowCustomer['cus_province']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
+                                                                            </label>
+                                                                            <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowCustomer['cus_zip_code']; ?>" readonly>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-
+                                                                <div class="col-md-12 mt-2">
+                                                                    <div class="row">
+                                                                        <div class="col-md-4">
+                                                                            <label for="phone" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
+                                                                            </label>
+                                                                            <input type="text" name="phone" class="form-control mt-1" value="<?php echo $rowCustomer['cus_tell']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
+                                                                            </label>
+                                                                            <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowCustomer['cus_email']; ?>" readonly>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
+                                                                            </label>
+                                                                            <input type="password" name="password" class="form-control mt-1" value="<?php echo $rowCustomer['cus_password']; ?>" readonly>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                         </div>
                                                         <div class="col-4 mt-5">
                                                             <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                 <div class="circle">
-                                                                    <img id="userImage" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
+                                                                    <img id="userImage4" src="../img/profile/<?php echo $rowCustomer['cus_photo'] ? $rowCustomer['cus_photo'] : 'null.png'; ?>">
                                                                 </div>
                                                             </div>
-                                                            <form method="post" action="">
-                                                                <div class="mt-1">
-                                                                    <label for="license" style="font-weight: bold; display: flex; align-items: center;">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;"> สิทธิ์การใช้งาน</span>
-                                                                    </label>
-                                                                    <select class="form-select border-1 mt-1" name="license">
-                                                                        <?php
-                                                                        if ($rowCustomer['cus_license'] == '0') {
-                                                                        ?>
-                                                                            <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
-                                                                            <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                                                            <option value="1">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <?php
-                                                                        } else {
-                                                                        ?>
-                                                                            <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                                                            <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
-                                                                            <option value="1">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <?php
-                                                                        }
-                                                                        ?>
-                                                                    </select>
-                                                                </div>
-                                                                <input type="hidden" name="cus_id" value="<?php echo $rowCustomer['cus_id']; ?>">
+                                                            <div class="mt-1">
+                                                                <label for="license" style="font-weight: bold; display: flex; align-items: center;">
+                                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
+                                                                </label>
+                                                                <select class="form-select border-1 mt-1" name="license">
+                                                                    <option value="0" <?php echo $rowCustomer['cus_license'] == '0' ? 'selected' : ''; ?>>รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                    <option value="1" <?php echo $rowCustomer['cus_license'] == '1' ? 'selected' : ''; ?>>มีสิทธิ์การเข้าใช้งาน</option>
+                                                                    <option value="2" <?php echo $rowCustomer['cus_license'] == '2' ? 'selected' : ''; ?>>ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                </select>
+                                                            </div>
+                                                            <input type="hidden" name="cus_id" value="<?php echo $rowCustomer['cus_id']; ?>">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -930,13 +926,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                         <div class="modal-footer justify-content-center">
                                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="width: 150px; height:45px;">ปิด</button>
-                                            <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
                                             <button type="submit" name="submit_customer" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                                         </div>
                                         </form>
                                     </div>
                                 </div>
                             </div>
+
                 <?php
                         }
                     }
@@ -1028,22 +1024,91 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const userImage = document.getElementById('userImage');
+            const userImage3 = document.getElementById('userImage3');
 
             // Set a default image if the current src is null, empty, or ends with '/'
-            if (!userImage.src || userImage.src.endsWith('/') || userImage.src.includes('null')) {
-                userImage.src = '../img/profile/null.png'; // Path to the default image
+            if (!userImage3.src || userImage3.src.endsWith('/') || userImage3.src.includes('null')) {
+                userImage3.src = '../img/profile/null.png'; // Path to the default image
             }
         });
 
         function updateImage() {
             const input = document.getElementById('photo');
-            const userImage = document.getElementById('userImage');
+            const userImage3 = document.getElementById('userImage3');
             const file = input.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    userImage.src = e.target.result;
+                    userImage3.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userImage1 = document.getElementById('userImage1');
+
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!userImage1.src || userImage1.src.endsWith('/') || userImage1.src.includes('null')) {
+                userImage1.src = '../img/profile/null.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('photo');
+            const userImage1 = document.getElementById('userImage1');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userImage1.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userImage2 = document.getElementById('userImage2');
+
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!userImage2.src || userImage2.src.endsWith('/') || userImage2.src.includes('null')) {
+                userImage2.src = '../img/profile/null.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('photo');
+            const userImage2 = document.getElementById('userImage2');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userImage2.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userImage4 = document.getElementById('userImage4');
+
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!userImage4.src || userImage4.src.endsWith('/') || userImage4.src.includes('null')) {
+                userImage4.src = '../img/profile/null.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('photo');
+            const userImage4 = document.getElementById('userImage4');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userImage4.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
