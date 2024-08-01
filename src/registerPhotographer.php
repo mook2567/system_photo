@@ -653,7 +653,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         <span style="color: red;">*</span>
                                                         <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG และ PNG เท่านั้น)</span>
                                                     </label>
-                                                    <input type="file" id="profileImage" name="profileImage" class="form-control" required>
+                                                    <input type="file" id="profileImage" name="profileImage" class="form-control" accept=".jpg, .jpeg, .png" required>
                                                 </div>
                                             </div>
                                         </div>
