@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 session_start();
 include '../config_db.php';
 require_once '../popup.php';
@@ -209,58 +212,62 @@ if (isset($_SESSION['customer_login'])) {
             </div>
         </div>
         <!-- Header End -->
+        <?php
+$type = isset($_POST['type']) ? $_POST['type'] : '';
+$date_range = isset($_POST['date_range']) ? $_POST['date_range'] : '';
+?>
+<div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+    <div class="container">
+        <div class="row flex-row g-2 align-items-center justify-content-center">
+            <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
+            <div class="col-md-3">
+                <form action="" method="POST" onsubmit="return validateForm()">
+                    <select class="form-select border-0 py-3 mt-3" name="type" required>
+                        <option value="" disabled <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
+                        <?php
+                        $sql = "SELECT t.type_id, t.type_work
+                                FROM type t
+                                INNER JOIN (
+                                    SELECT type_id, MAX(photographer_id) AS photographer_id
+                                    FROM type_of_work
+                                    GROUP BY type_id
+                                ) AS tow_latest ON t.type_id = tow_latest.type_id";
+                        $resultTypeWorkDetail = $conn->query($sql);
 
-        <!-- Search Start -->
-        <div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
-            <div class="container">
-                <div class="row flex-row g-2 align-items-center justify-content-center">
-                    <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
-                    <div class="col-md-3">
-                        <form action="" method="POST">
-                            <select class="form-select border-0 py-3 mt-3" name="type" required>
-                                <option value="" disabled selected>ประเภทงาน</option>
-                                <?php
-                                $sql = "SELECT t.type_id, t.type_work
-                        FROM type t
-                        INNER JOIN (
-                            SELECT type_id, MAX(photographer_id) AS photographer_id
-                            FROM type_of_work
-                            GROUP BY type_id
-                        ) AS tow_latest ON t.type_id = tow_latest.type_id";
-                                $resultTypeWorkDetail = $conn->query($sql);
-
-                                if ($resultTypeWorkDetail->num_rows > 0) {
-                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
-                                ?>
-                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
-                                <?php
-                                    }
-                                } ?>
-                            </select>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" id="dateRangePicker" name="date_range" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์">
-                    </div>
-                    <!-- <div class="col-md-3">
-                        <select name="score" class="form-select border-0 py-3">
-                            <option value="" disabled selected>คะแนนช่างภาพ</option>
-                            <option value="desc">คะแนนจากมากไปน้อย</option>
-                            <option value="asc">คะแนนจากน้อยไปมาก</option>
-                            <option value="5">5</option>
-                            <option value="4">4</option>
-                            <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1">1</option>
-                        </select>
-                    </div> -->
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
-                    </div>
-                </div>
+                        if ($resultTypeWorkDetail->num_rows > 0) {
+                            while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                        ?>
+                                <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>" <?php echo $type == $rowTypeWorkDetail['type_id'] ? 'selected' : ''; ?>>
+                                    <?php echo $rowTypeWorkDetail['type_work']; ?>
+                                </option>
+                        <?php
+                            }
+                        } ?>
+                    </select>
             </div>
+            <div class="col-md-4">
+                <input type="text" id="dateRangePicker" name="date_range" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์" value="<?php echo htmlspecialchars($date_range); ?>">
+            </div>
+            <!-- <div class="col-md-3">
+                <select name="score" class="form-select border-0 py-3">
+                    <option value="" disabled selected>คะแนนช่างภาพ</option>
+                    <option value="desc">คะแนนจากมากไปน้อย</option>
+                    <option value="asc">คะแนนจากน้อยไปมาก</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                </select>
+            </div> -->
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
+            </div>
+                </form>
         </div>
-        </form>
     </div>
+</div>
+</div>
     <!-- Search End -->
     <div style="display: flex; justify-content: center;">
         <!-- post -->

@@ -183,9 +183,9 @@ if (isset($_SESSION['customer_login'])) {
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
-                        <form action="search.php" method="POST">
+                        <form action="search.php" method="POST" onsubmit="return validateForm()">
                             <select class="form-select border-0 py-3 mt-3" name="type" required>
-                                <option selected>ประเภทงาน</option>
+                                <option selected value="">ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
                                 FROM type t
@@ -210,14 +210,14 @@ if (isset($_SESSION['customer_login'])) {
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time" required>
-                            <option selected>ช่วงเวลา</option>
+                            <option selected value="">ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <select name="scope" class="form-select border-0 py-3" required>
-                            <option selected>สถานที่</option>
+                            <option selected value="">สถานที่</option>
                             <option value="กรุงเทพฯ">กรุงเทพฯ</option>
                             <option value="ภาคกลาง">ภาคกลาง</option>
                             <option value="ภาคใต้">ภาคใต้</option>
@@ -235,7 +235,7 @@ if (isset($_SESSION['customer_login'])) {
         </div>
     </div>
     <!-- Search End -->
-
+                            
     <!-- Examples of work Start -->
     <div class="container-xxl py-5">
         <div class="container">

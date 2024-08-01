@@ -126,10 +126,10 @@ $resultType = $conn->query($sql);
         <!-- Navbar End -->
 
         <!-- Category Start -->
-        <div class="mt-4 d-flex justify-content-center align-items-center" style="border-radius: 10px;">
-            <div class="container-xxl py-5">
+        <div class="justify-content-center align-items-center" style="min-height: 600px;">
+            <div class="container-xxl">
                 <div class="container">
-                    <div class="mb-3 mt-4 text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                    <div class="mb-3 mt-5 text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
                         <h1 class="f" style="color:aliceblue;">Photo Match</h1>
                         <p style="color:aliceblue;">เว็บไซต์ที่จะช่วยคุณหาช่างภาพที่คุณต้องการ</p>
                     </div>
@@ -161,9 +161,9 @@ $resultType = $conn->query($sql);
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
-                        <form action="search.php" method="POST">
+                        <form action="" method="POST" onsubmit="return validateForm()">
                             <select class="form-select border-0 py-3 mt-3" name="type" required>
-                                <option selected>ประเภทงาน</option>
+                                <option selected value="">ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
                                 FROM type t
@@ -188,14 +188,14 @@ $resultType = $conn->query($sql);
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time" required>
-                            <option selected>ช่วงเวลา</option>
+                            <option selected value="">ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <select name="scope" class="form-select border-0 py-3" required>
-                            <option selected>สถานที่</option>
+                            <option selected value="">สถานที่</option>
                             <option value="กรุงเทพฯ">กรุงเทพฯ</option>
                             <option value="ภาคกลาง">ภาคกลาง</option>
                             <option value="ภาคใต้">ภาคใต้</option>
@@ -213,7 +213,6 @@ $resultType = $conn->query($sql);
         </div>
     </div>
     <!-- Search End -->
-
     <!-- Header Start -->
     <!-- <div class="container-fluid mt-5 header bg-white p-0">
         <div class="col-md-12 owl-carousel header-carousel">
@@ -460,27 +459,11 @@ $resultType = $conn->query($sql);
                 <h1 class="mb-3 f">คณะผู้พัฒนาเว็บไซต์</h1>
                 <p>คณะผู้พัฒนาเว็บไซต์ Photo Match ที่ช่วยให้ลูกค้าที่ต้องการภาพถ่ายสามารถเข้ามาค้นหาช่างภาพที่มีความสามารถและทำการจองคิวได้ภายในเว็บไซต์เดียว</p>
             </div>
-            <div class="row g-4 text-center mx-auto " style="max-width: 900px;">
-                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="team-item rounded overflow-hidden bg-white">
-                        <div class="position-relative">
-                            <img class="img-fluid" src="img/dev1.jpg" alt="">
-                            <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-instagram"></i></a>
-                            </div> -->
-                        </div>
-                        <div class="text-center p-4 mt-3">
-                            <h5 class="fw-bold mb-0 f">นางสาวกชกร วงพิรงค์</h5>
-                            <small>Back End Developer </small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="team-item rounded overflow-hidden bg-white">
-                        <div class="position-relative">
-                            <img class="img-fluid" src="img/dev2.jpg" alt="">
+            <div class="row g-4 text-center mx-auto justify-content-center" style="max-width: 900px;">
+    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+        <div class="team-item rounded overflow-hidden bg-white">
+            <div class="position-relative">
+                <img class="img-fluid" src="img/dev2.jpg" alt="">
                             <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>

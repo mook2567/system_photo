@@ -188,15 +188,22 @@ $rowInfo = $resultInfo->fetch_assoc();
         </div>
         <!-- Header End -->
 
-        <!-- Search Start -->
+        <?php
+        // Assuming form data is submitted via POST
+        $type = isset($_POST['type']) ? $_POST['type'] : '';
+        $budget = isset($_POST['budget']) ? $_POST['budget'] : '';
+        $time = isset($_POST['time']) ? $_POST['time'] : '';
+        $scope = isset($_POST['scope']) ? $_POST['scope'] : '';
+        ?>
+
         <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
-                        <form action="" method="POST">
+                        <form action="" method="POST" onsubmit="return validateForm()">
                             <select class="form-select border-0 py-3 mt-3" name="type" required>
-                                <option selected>ประเภทงาน</option>
+                                <option value="" <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
                                 FROM type t
@@ -210,31 +217,33 @@ $rowInfo = $resultInfo->fetch_assoc();
                                 if ($resultTypeWorkDetail->num_rows > 0) {
                                     while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
                                 ?>
-                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>"><?php echo $rowTypeWorkDetail['type_work']; ?></option>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>" <?php echo $type == $rowTypeWorkDetail['type_id'] ? 'selected' : ''; ?>>
+                                            <?php echo $rowTypeWorkDetail['type_work']; ?>
+                                        </option>
                                 <?php
                                     }
                                 } ?>
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>" required>
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time" required>
-                            <option selected>ช่วงเวลา</option>
-                            <option value="1">เต็มวัน</option>
-                            <option value="2">ครึ่งวัน</option>
+                            <option value="" <?php echo $time == '' ? 'selected' : ''; ?>>ช่วงเวลา</option>
+                            <option value="1" <?php echo $time == '1' ? 'selected' : ''; ?>>เต็มวัน</option>
+                            <option value="2" <?php echo $time == '2' ? 'selected' : ''; ?>>ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <select name="scope" class="form-select border-0 py-3" required>
-                            <option selected>สถานที่</option>
-                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
-                            <option value="ภาคกลาง">ภาคกลาง</option>
-                            <option value="ภาคใต้">ภาคใต้</option>
-                            <option value="ภาคเหนือ">ภาคเหนือ</option>
-                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
-                            <option value="ภาคตะวันตก">ภาคตะวันตก</option>
+                            <option value="" <?php echo $scope == '' ? 'selected' : ''; ?>>สถานที่</option>
+                            <option value="กรุงเทพฯ" <?php echo $scope == 'กรุงเทพฯ' ? 'selected' : ''; ?>>กรุงเทพฯ</option>
+                            <option value="ภาคกลาง" <?php echo $scope == 'ภาคกลาง' ? 'selected' : ''; ?>>ภาคกลาง</option>
+                            <option value="ภาคใต้" <?php echo $scope == 'ภาคใต้' ? 'selected' : ''; ?>>ภาคใต้</option>
+                            <option value="ภาคเหนือ" <?php echo $scope == 'ภาคเหนือ' ? 'selected' : ''; ?>>ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ" <?php echo $scope == 'ภาคตะวันออกเฉียงเหนือ' ? 'selected' : ''; ?>>ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="ภาคตะวันตก" <?php echo $scope == 'ภาคตะวันตก' ? 'selected' : ''; ?>>ภาคตะวันตก</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -245,7 +254,7 @@ $rowInfo = $resultInfo->fetch_assoc();
             </div>
         </div>
     </div>
-    <!-- Search End -->
+
 
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -283,7 +292,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                     OR
                     ($time = 2 AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0)
                 )
-                AND p.photographer_scope = '$scope'";
+                AND p.photographer_scope LIKE '%$scope%'";
 
             // Execute the query
             $result = $conn->query($sql);
@@ -338,7 +347,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                                     }
                                 } else {
                                     ?>
-                                    <div class="card-body bg-white" style="height: 148px; width:auto;">
+                                    <div class="card-body bg-white" style="height: 194px; width:auto;">
                                         <center>
                                             <i class="mt-3 fas fa-exclamation-triangle fa-3x text-danger"></i>
                                             <h1 class="">ไม่พบข้อมูลที่คุณต้องการ</h1>
@@ -454,7 +463,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                                 }
                             } else {
                                 ?>
-                                <div class="card-body bg-white" style="height: 148px; width:auto;">
+                                <div class="card-body bg-white" style="height: 194px; width:auto;">
                                     <center>
                                         <i class="mt-3 fas fa-exclamation-triangle fa-3x text-danger"></i>
                                         <h1 class="">ไม่พบข้อมูลที่คุณต้องการ</h1>
