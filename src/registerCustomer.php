@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $directory = "img/profile/";
 
         // ตรวจสอบชนิดของไฟล์รูปภาพ
-        if ($type == "image/jpg" || $type == 'image/jpeg' || $type == "image/png" || $type == "image/gif") {
+        if ($type == "image/jpg" || $type == 'image/jpeg' || $type == "image/png" || $type == "image/jpeg") {
             // ตรวจสอบขนาดของไฟล์
             if ($size < 5000000) { // 5MB
                 // ย้ายไฟล์รูปภาพไปยังโฟลเดอร์ที่กำหนด
@@ -497,9 +497,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <label for="profileImage" style="font-weight: bold; display: flex; align-items: center;">
                                         <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
                                         <span style="color: red;">*</span>
-                                        <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น)</span>
+                                        <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG และ PNG เท่านั้น)</span>
                                     </label>
-                                    <input type="file" id="profileImage" name="profileImage" class="form-control" required>
+                                    <input type="file" id="profileImage" name="profileImage" class="form-control" accept=".jpg, .jpeg, .png" required>
                                 </div>
                             </div>
                         </div>

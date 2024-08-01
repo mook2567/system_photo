@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $temp = $_FILES['profileImage']['tmp_name'];
 
         $path = "img/profile/" . $new_name;
-        $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
+        $allowed_types = array('image/jpg', 'image/jpeg', 'image/png');
         
         // Validate image type and size
         if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
@@ -651,7 +651,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     <label for="profileImage" style="font-weight: bold; display: flex; align-items: center;">
                                                         <span style="color: black; margin-right: 5px; font-size: 13px;">รูปภาพโปรไฟล์</span>
                                                         <span style="color: red;">*</span>
-                                                        <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น)</span>
+                                                        <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG และ PNG เท่านั้น)</span>
                                                     </label>
                                                     <input type="file" id="profileImage" name="profileImage" class="form-control" required>
                                                 </div>
