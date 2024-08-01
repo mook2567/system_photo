@@ -31,6 +31,7 @@ $sql = "SELECT *
         ";
 $resultBooking = $conn->query($sql);
 
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
         $photographer_id = $_POST["photographer_id"];
@@ -355,6 +356,93 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>';
         }
     }
+
+    if (isset($_POST['submit_profile_img'])) {
+        if ($_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+            $tmpName = $_FILES['profileImage']['tmp_name'];
+            $name = basename($_FILES['profileImage']['name']);
+            $uploadDir = '../img/profile/';
+            $uploadFile = $uploadDir . $name;
+    
+            // Validate file type and size if needed
+            // Move uploaded file
+            if (move_uploaded_file($tmpName, $uploadFile)) {
+                $stmt = $conn->prepare("UPDATE `photographer` SET `photographer_photo` = ? WHERE `photographer`.`photographer_id` = ?");
+                $stmt->bind_param("si", $name, $id_photographer);
+    
+                if ($stmt->execute()) {
+                    echo '<script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: "<div class=\"t1\">บันทึกการแก้ไขสำเร็จ</div>",
+                            icon: "success",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                    </script>';
+                } else {
+                    echo '<script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: "<div class=\"t1\">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>",
+                            icon: "error",
+                            confirmButtonText: "ออก",
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                    </script>';
+                }
+            } else {
+                echo '<script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในการอัปโหลดไฟล์</div>",
+                        icon: "error",
+                        confirmButtonText: "ออก",
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+                </script>';
+            }
+        } else {
+            echo '<script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: "<div class=\"t1\">เกิดข้อผิดพลาดในการอัปโหลดไฟล์</div>",
+                    icon: "error",
+                    confirmButtonText: "ออก",
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "";
+                    }
+                });
+            });
+            </script>';
+        }
+    }
+    
 }
 ?>
 
@@ -649,45 +737,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#cameraIcon').click(function() {
-                var myModal = new bootstrap.Modal(document.getElementById('uploadProfilephotoModal'));
-                myModal.show();
-            });
+    $('#cameraIcon').click(function() {
+        var myModal = new bootstrap.Modal(document.getElementById('uploadProfilephotoModal'));
+        myModal.show();
+    });
 
-            // Function to update image preview
-            window.updateImage = function() {
-                var file = document.getElementById('photoUpload').files[0];
-                var reader = new FileReader();
-                var imagePreview = document.getElementById('imagePreview');
+    window.updateImage = function() {
+        var file = document.getElementById('photoUpload').files[0];
+        var reader = new FileReader();
+        var imagePreview = document.getElementById('previewImage');
 
-                reader.onloadend = function() {
-                    // Set image source to the file data URL
-                    imagePreview.src = reader.result;
-                    imagePreview.style.display = 'block';
-                };
-
-                if (file) {
-                    reader.readAsDataURL(file);
-                } else {
-                    // Use default image if no file is selected
-                    imagePreview.src = '../img/profile/null.png';
-                    imagePreview.style.display = 'block';
-                }
+        reader.onloadend = function() {
+            if (file && file.type.startsWith('image/')) { // Check if the file is an image
+                imagePreview.src = reader.result;
+            } else {
+                imagePreview.src = '../img/profile/null.png'; // Fallback image for non-image files
             }
+            imagePreview.style.display = 'block';
+        };
 
-            // Optionally, initialize the preview image to the default image if no file is selected on page load
-            (function() {
-                var imagePreview = document.getElementById('imagePreview');
-                var fileInput = document.getElementById('photoUpload');
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.src = '../img/profile/null.png';
+            imagePreview.style.display = 'block';
+        }
+    };
 
-                if (!fileInput.files.length) {
-                    imagePreview.src = '../img/profile/null.png';
-                    imagePreview.style.display = 'block';
-                }
-            })();
-        });
+    (function() {
+        var imagePreview = document.getElementById('previewImage');
+        var fileInput = document.getElementById('photoUpload');
+
+        if (!fileInput.files.length) {
+            imagePreview.src = '../img/profile/null.png';
+            imagePreview.style.display = 'block';
+        }
+    })();
+});
+
     </script>
 
 </head>
@@ -755,7 +847,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <i class="fa fa-camera"></i> <!-- ใช้ Font Awesome หรือไอคอนอื่น ๆ -->
                                     </div>
                                     <!-- Upload Profilephoto Modal -->
-                                    <div class="modal fade" id="uploadProfilephotoModal" tabindex="-1" aria-labelledby="uploadProfileModalphotoLabel" aria-hidden="true">
+                                    <div class="modal fade" id="uploadProfilephotoModal" tabindex="-1" aria-labelledby="uploadProfilephotoModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -763,19 +855,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div class="modal-body" style="height: 460px;">
-                                                        <div class="mt-1 container-md">
+                                                    <div style="height: 460px;">
+                                                        <div class="container-md mt-1">
                                                             <div class="card-body">
                                                                 <form method="post" action="" enctype="multipart/form-data">
                                                                     <div class="row mt-1 align-items-center">
                                                                         <div class="d-flex justify-content-center align-items-center mt-2">
                                                                             <div class="circle">
-                                                                                <img id="previewImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>" alt="พรีวิวรูปภาพ">
+                                                                                <img id="previewImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>" alt="Profile Photo">
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-12 mt-2">
                                                                             <div>
-                                                                                <label for="userImage" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <label for="photoUpload" style="font-weight: bold; display: flex; align-items: center;">
                                                                                     <span style="color: black; margin-right: 5px; font-size: 13px;">เลือกไฟล์รูปภาพ</span>
                                                                                     <span style="color: red;">*</span>
                                                                                 </label>
@@ -784,7 +876,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         </div>
                                                                         <div class="modal-footer mt-5 justify-content-center">
                                                                             <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                                            <button type="submit" name="submit_add" class="btn btn-primary" style="width: 150px; height:45px;">อัปโหลด</button>
+                                                                            <button type="submit" name="submit_profile_img" class="btn btn-primary" style="width: 150px; height:45px;">อัปโหลด</button>
                                                                         </div>
                                                                     </div>
                                                                 </form>
@@ -795,6 +887,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -1506,13 +1599,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                     <?php endfor; ?>
                                 </div>
-
-
                             </div>
                         </div>
                     <?php endwhile; ?>
-
-
                 </div>
             </div>
 

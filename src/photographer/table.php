@@ -16,16 +16,17 @@ if (isset($_SESSION['photographer_login'])) {
 }
 
 // $booking = array();
+$booking = array(); // Initialize $booking to avoid undefined variable issues
 if ($id_photographer !== null) {
     $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ? AND booking_confirm_status = '1'");
     $stmt->bind_param("i", $id_photographer);
     $stmt->execute();
     $result = $stmt->get_result();
-
     while ($row = $result->fetch_assoc()) {
         $booking[] = $row;
     }
 }
+
 // ตรวจสอบข้อมูล
 // echo '<pre>';
 // print_r($booking);
@@ -147,7 +148,6 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                 align-items: center !important;
             }
         }
-
     </style>
 
 </head>
@@ -218,7 +218,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
         <div class="row justify-content-center mt-3 container-center text-center">
             <div class="col-md-12">
                 <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
-                <button id="saveButton" onclick="window.location.href='bookingListAll.php'" class="btn btn-primary" style="width: 150px; height: 45px;">ดูเพิ่มเติม</button>
+                <button id="saveButton" onclick="window.location.href='bookingListWaittingForApproval.php'" class="btn btn-primary" style="width: 150px; height: 45px;">ดูเพิ่มเติม</button>
             </div>
         </div>
     </div>
@@ -249,56 +249,57 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-        $(function() {
-            // Get the booking data from PHP
-            var bookings = <?php echo json_encode($booking); ?>;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the booking data from PHP
+        var bookings = <?php echo json_encode($booking); ?>;
 
-            // Format the booking data for FullCalendar
-            var events = bookings.map(function(booking) {
-                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
+        // Format the booking data for FullCalendar
+        var events = bookings.length > 0 ? bookings.map(function(booking) {
+            var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-                var eventColor = isHalfDay ? 'yellow' : 'red';
-                var eventTextColor = isHalfDay ? 'black' : 'white';
-                var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+            var eventColor = isHalfDay ? 'yellow' : 'red';
+            var eventTextColor = isHalfDay ? 'black' : 'white';
+            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
 
-                const startTime = startDate.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                const endTime = endDate.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                return {
-                    title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
-                    start: startDate.toISOString(),
-                    end: endDate.toISOString(),
-                    color: eventColor,
-                    textColor: eventTextColor,
-                    description: booking.booking_details,
-                    extendedProps: {
-                        startTime: startTime,
-                        endTime: endTime
-                    }
-                };
+            const startTime = startDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const endTime = endDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
             });
 
-            // Initialize the FullCalendar
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid', 'interaction'],
-                editable: true,
-                events: events
-            });
+            return {
+                title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
+                start: startDate.toISOString(),
+                end: endDate.toISOString(),
+                color: eventColor,
+                textColor: eventTextColor,
+                description: booking.booking_details,
+                extendedProps: {
+                    startTime: startTime,
+                    endTime: endTime
+                }
+            };
+        }) : []; // Provide an empty array if no bookings
 
-            // Render the calendar
-            calendar.render();
+        // Initialize the FullCalendar
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['dayGrid'],
+            initialView: 'dayGridMonth',
+            editable: true,
+            events: events
         });
-    </script>
+
+        // Render the calendar
+        calendar.render();
+    });
+</script>
 
 
 </body>

@@ -881,7 +881,7 @@ if (isset($_POST['submit_type_of_work'])) {
             }
         }
     </script>
-    
+
     <!-- post -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
