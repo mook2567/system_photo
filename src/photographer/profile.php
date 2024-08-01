@@ -3,125 +3,96 @@ session_start();
 include '../config_db.php';
 require_once '../popup.php';
 
+// Ensure database connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Fetch information
 $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
 if (isset($_SESSION['photographer_login'])) {
-    $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $email = $conn->real_escape_string($_SESSION['photographer_login']);
+    $sql = "SELECT * FROM photographer WHERE photographer_email = '$email'";
     $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
+
+    if ($resultPhoto->num_rows > 0) {
+        $rowPhoto = $resultPhoto->fetch_assoc();
+        $id_photographer = $rowPhoto['photographer_id'];
+    } else {
+        die("Photographer not found.");
+    }
+} else {
+    die("Session not started.");
 }
 
+// Fetch bookings
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = $id_photographer  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
-        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 1)
+        WHERE photographer_id = $id_photographer
+        AND booking_confirm_status = '1'
         AND (
-            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
-            (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
-            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์นี้
+            (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY
+            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)
             OR
-            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ที่แล้ว
-            (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันอาทิตย์ของสัปดาห์นี้
-            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์ที่แล้ว
-        )
-        ";
+            (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY
+            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)
+        )";
 $resultBooking = $conn->query($sql);
-
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
-        $photographer_id = $_POST["photographer_id"];
-        $name = $_POST["name"];
-        $surname = $_POST["surname"];
-        $address = $_POST["address"];
-        $district = $_POST["district"];
-        $province = $_POST["province"];
-        $zipcode = $_POST["zipcode"];
-        $tell = $_POST["tell"];
-        $email = $_POST["email"];
-        $password = $_POST["password"];
-        $work_area = $_POST["work_area"];
-        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
-        $accountNumber = $_POST["accountNumber"];
-        $accountName = $_POST["accountName"];
+        // Process profile update
+        $photographer_id = $conn->real_escape_string($_POST["photographer_id"]);
+        $name = $conn->real_escape_string($_POST["name"]);
+        $surname = $conn->real_escape_string($_POST["surname"]);
+        $tell = $conn->real_escape_string($_POST["tell"]);
+        $email = $conn->real_escape_string($_POST["email"]);
+
+        $selectedWorkAreas = isset($_POST['work_area']) ? $_POST['work_area'] : array();
+
+        // Convert the array into a comma-separated string
+        $selectedWorkAreasString = implode(', ', $selectedWorkAreas);
+        // Retrieve the rates and type_ids from the form
         $profileImage = ""; // Initialize the profileImage variable
 
-        // Check if the profile image is uploaded
-        if (isset($_FILES["profileImage"]) && $_FILES['profileImage']['error'] == 0) {
-            $image_file = $_FILES['profileImage']['name'];
-            $new_name = date("d_m_Y_H_i_s") . '-' . $image_file;
-            $type = $_FILES['profileImage']['type'];
-            $size = $_FILES['profileImage']['size'];
-            $temp = $_FILES['profileImage']['tmp_name'];
+        $rate_half = $_POST['rate_half'];
+        $rate_full = $_POST['rate_full'];
+        $type_id = $_POST['type_id'];
 
-            $path = "../img/profile/" . $new_name;
-            $allowed_types = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
+        foreach ($type_id as $index => $id) {
+            $half_rate = $rate_half[$index];
+            $full_rate = $rate_full[$index];
 
-            // Check if the directory exists, if not, create it
-            if (!is_dir("img/profile")) {
-                mkdir("img/profile", 0777, true);
-            }
+            $sql = "UPDATE type_of_work 
+            SET type_of_work_rate_half = ?, type_of_work_rate_full = ?
+            WHERE type_id = ? AND photographer_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('ddii', $half_rate, $full_rate, $id, $photographer_id);
+            $stmt->execute();
+            $stmt->close();
+        }
+        // Updated SQL statement
+        $sql = "UPDATE photographer SET 
+            photographer_name = ?, 
+            photographer_surname = ?, 
+            photographer_tell = ?, 
+            photographer_scope = ?, 
+            photographer_email = ?
+            WHERE photographer_id = ?";
+        $stmt = $conn->prepare($sql);
 
-            // Validate image type and size
-            if (in_array($type, $allowed_types) && $size < 5000000) { // 5MB limit
-                if (!file_exists($path)) {
-                    if (move_uploaded_file($temp, $path)) {
-                        $profileImage = $new_name;
-                    } else {
-                        echo '
-                        <div>
-                            <script>
-                                Swal.fire({
-                                    title: "<div class=\"t1\">มีปัญหาในการย้ายไฟล์รูปภาพ</div>",
-                                    icon: "error",
-                                    confirmButtonText: "ออก",
-                                    allowOutsideClick: true,
-                                    allowEscapeKey: true,
-                                    allowEnterKey: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = "";
-                                    }
-                                });
-                            </script>
-                        </div>';
-                        exit();
-                    }
-                } else {
-                    echo "File already exists... Check upload folder<br>";
-                    exit();
-                }
-            } else {
-                echo '
-                <div>
-                    <script>
-                        Swal.fire({
-                            title: "<div class=\"t1\">อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น หรือขนาดไฟล์เกิน 5MB</div>",
-                            icon: "error",
-                            confirmButtonText: "ออก",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    </script>
-                </div>';
-                exit();
-            }
-        } else {
-            echo '
-            <div>
-                <script>
+        // Bind parameters with the additional profileImage if required
+        $stmt->bind_param("sssssi", $name, $surname, $tell, $selectedWorkAreasString, $email, $photographer_id);
+
+        if ($stmt->execute()) {
+            echo '<script>
+                setTimeout(function() {
                     Swal.fire({
-                        title: "<div class=\"t1\">กรุณาอัพโหลดรูปโปรไฟล์</div>",
-                        icon: "error",
+                        title: "<div class=\"t1\">บันทึกการแก้ไขสำเร็จ</div>",
+                        icon: "success",
                         confirmButtonText: "ตกลง",
                         allowOutsideClick: true,
                         allowEscapeKey: true,
@@ -131,57 +102,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             window.location.href = "";
                         }
                     });
-                </script>
-            </div>';
-            exit();
-        }
-
-        $sql = "UPDATE photographer SET 
-            photographer_name = ?, 
-            photographer_surname = ?, 
-            photographer_tell = ?, 
-            photographer_address = ?, 
-            photographer_district = ?, 
-            photographer_province = ?, 
-            photographer_scope = ?, 
-            photographer_zip_code = ?, 
-            photographer_email = ?, 
-            photographer_password = ?, 
-            photographer_photo = ?, 
-            photographer_bank = ?, 
-            photographer_account_name = ?, 
-            photographer_account_number = ? 
-            WHERE photographer_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssssssssi", $name, $surname, $tell, $address, $district, $province, $work_area, $zipcode, $email, $password, $profileImage, $bank, $accountName, $accountNumber, $photographer_id);
-
-        if ($stmt->execute()) {
-?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกการแก้ไขสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
                 });
-            </script>
-        <?php
+            </script>';
         } else {
-        ?>
-            <script>
+            echo '<script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
+                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>",
+                        icon: "error",
+                        confirmButtonText: "ออก",
                         allowOutsideClick: true,
                         allowEscapeKey: true,
                         allowEnterKey: false
@@ -191,17 +120,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         }
                     });
                 });
-            </script>
-<?php
+            </script>';
         }
-        // Close the statement after usage
+
         $stmt->close();
     }
-
-    $sql = "SELECT * FROM `portfolio`";
-    $resultPort = $conn->query($sql);
-    $rowPort = $resultPort->fetch_assoc();
-
 
     if (isset($_POST['submit_post_portfolio'])) {
 
@@ -357,77 +280,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
+   
+
     if (isset($_POST['submit_profile_img'])) {
-        if ($_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
-            $tmpName = $_FILES['profileImage']['tmp_name'];
-            $name = basename($_FILES['profileImage']['name']);
-            $uploadDir = '../img/profile/';
-            $uploadFile = $uploadDir . $name;
-    
-            // Validate file type and size if needed
-            // Move uploaded file
-            if (move_uploaded_file($tmpName, $uploadFile)) {
-                $stmt = $conn->prepare("UPDATE `photographer` SET `photographer_photo` = ? WHERE `photographer`.`photographer_id` = ?");
-                $stmt->bind_param("si", $name, $id_photographer);
-    
+        $targetDir = "../img/profile/";
+        $targetFile = $targetDir . basename($_FILES["profileImage"]["name"]);
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $photo_name = basename($_FILES["profileImage"]["name"]);
+
+        // Check if the file is an actual image
+        $check = getimagesize($_FILES["profileImage"]["tmp_name"]);
+        if ($check !== false) {
+            if (move_uploaded_file($_FILES["profileImage"]["tmp_name"], $targetFile)) {
+                echo "The file " . htmlspecialchars(basename($_FILES["profileImage"]["name"])) . " has been uploaded.";
+
+                // Update the database with the new file name
+                $sql = "UPDATE photographer SET photographer_photo = ? WHERE photographer_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("si", $photo_name, $id_photographer);
+
                 if ($stmt->execute()) {
                     echo '<script>
-                    setTimeout(function() {
-                        Swal.fire({
-                            title: "<div class=\"t1\">บันทึกการแก้ไขสำเร็จ</div>",
-                            icon: "success",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    });
-                    </script>';
+                Swal.fire({
+                    title: "<div class=\"t1\">เปลี่ยนภาพโปรไฟล์สำเร็จ</div>",
+                    icon: "success",
+                    confirmButtonText: "ตกลง",
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "";
+                    }
+                });
+            </script>';
                 } else {
                     echo '<script>
-                    setTimeout(function() {
-                        Swal.fire({
-                            title: "<div class=\"t1\">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>",
-                            icon: "error",
-                            confirmButtonText: "ออก",
-                            allowOutsideClick: true,
-                            allowEscapeKey: true,
-                            allowEnterKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "";
-                            }
-                        });
-                    });
-                    </script>';
-                }
-            } else {
-                echo '<script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: "<div class=\"t1\">เกิดข้อผิดพลาดในการอัปโหลดไฟล์</div>",
-                        icon: "error",
-                        confirmButtonText: "ออก",
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-                </script>';
-            }
-        } else {
-            echo '<script>
-            setTimeout(function() {
                 Swal.fire({
-                    title: "<div class=\"t1\">เกิดข้อผิดพลาดในการอัปโหลดไฟล์</div>",
+                    title: "<div class=\"t1\">เกิดข้อผิดพลาดในการเปลี่ยนภาพโปรไฟล์</div>",
                     icon: "error",
                     confirmButtonText: "ออก",
                     allowOutsideClick: true,
@@ -438,13 +328,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         window.location.href = "";
                     }
                 });
-            });
             </script>';
+                }
+
+                $stmt->close();
+            } else {
+                // echo "Sorry, there was an error uploading your file.";
+            }
+        } else {
+            // echo "File is not an image.";
         }
     }
-    
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -734,53 +631,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border-radius: 0.5rem;
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
-    <script>
-        $(document).ready(function() {
-    $('#cameraIcon').click(function() {
-        var myModal = new bootstrap.Modal(document.getElementById('uploadProfilephotoModal'));
-        myModal.show();
-    });
-
-    window.updateImage = function() {
-        var file = document.getElementById('photoUpload').files[0];
-        var reader = new FileReader();
-        var imagePreview = document.getElementById('previewImage');
-
-        reader.onloadend = function() {
-            if (file && file.type.startsWith('image/')) { // Check if the file is an image
-                imagePreview.src = reader.result;
-            } else {
-                imagePreview.src = '../img/profile/null.png'; // Fallback image for non-image files
-            }
-            imagePreview.style.display = 'block';
-        };
-
-        if (file) {
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.src = '../img/profile/null.png';
-            imagePreview.style.display = 'block';
-        }
-    };
-
-    (function() {
-        var imagePreview = document.getElementById('previewImage');
-        var fileInput = document.getElementById('photoUpload');
-
-        if (!fileInput.files.length) {
-            imagePreview.src = '../img/profile/null.png';
-            imagePreview.style.display = 'block';
-        }
-    })();
-});
-
-    </script>
 
 </head>
 
@@ -842,9 +692,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="d-flex justify-content-center align-items-center">
                             <div class="profile-container">
                                 <div class="circle">
-                                    <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>" id="profileImage">
-                                    <div class="camera-icon" id="cameraIcon">
-                                        <i class="fa fa-camera"></i> <!-- ใช้ Font Awesome หรือไอคอนอื่น ๆ -->
+                                    <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>" id="profileImage" data-bs-toggle="modal" data-bs-target="#uploadProfilephotoModal">
+                                    <div class="camera-icon" id="cameraIcon" data-bs-toggle="modal" data-bs-target="#uploadProfilephotoModal">
+                                        <i class="fa fa-camera"></i>
                                     </div>
                                     <!-- Upload Profilephoto Modal -->
                                     <div class="modal fade" id="uploadProfilephotoModal" tabindex="-1" aria-labelledby="uploadProfilephotoModalLabel" aria-hidden="true">
@@ -862,7 +712,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                     <div class="row mt-1 align-items-center">
                                                                         <div class="d-flex justify-content-center align-items-center mt-2">
                                                                             <div class="circle">
-                                                                                <img id="previewImage" src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>" alt="Profile Photo">
+                                                                                <img id="previewImage" src="../img/profile/<?php echo htmlspecialchars($rowPhoto['photographer_photo']) ? htmlspecialchars($rowPhoto['photographer_photo']) : 'null.png'; ?>" alt="Profile Photo">
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-12 mt-2">
@@ -875,11 +725,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             <input type="file" id="photoUpload" name="profileImage" class="form-control" accept="image/png, image/jpeg" onchange="updateImage()">
                                                                         </div>
                                                                         <div class="modal-footer mt-5 justify-content-center">
-                                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                                            <button type="submit" name="submit_profile_img" class="btn btn-primary" style="width: 150px; height:45px;">อัปโหลด</button>
+                                                                            <button type="button" class="btn btn-danger" style="width: 150px; height: 45px;" data-bs-dismiss="modal">ปิด</button>
+                                                                            <button type="submit" name="submit_profile_img" class="btn btn-primary" style="width: 150px; height: 45px;">อัปโหลด</button>
                                                                         </div>
                                                                     </div>
                                                                 </form>
+                                                                <script>
+                                                                    function updateImage() {
+                                                                        const file = document.getElementById('photoUpload').files[0];
+                                                                        const reader = new FileReader();
+                                                                        reader.onload = function(e) {
+                                                                            document.getElementById('previewImage').src = e.target.result;
+                                                                        };
+                                                                        if (file) {
+                                                                            reader.readAsDataURL(file);
+                                                                        } else {
+                                                                            document.getElementById('previewImage').src = '../img/profile/null.png'; // Default image if no file selected
+                                                                        }
+                                                                    }
+                                                                </script>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -887,7 +751,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -1171,6 +1034,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             $resultTypeWorkDetail = $conn->query($sql);
 
                                                             if ($resultTypeWorkDetail->num_rows > 0) {
+                                                                $index = 0; // Initialize an index for naming inputs
                                                                 while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
                                                             ?>
                                                                     <div class="row">
@@ -1184,34 +1048,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             <div class="mb-3">
                                                                                 <div class="row">
                                                                                     <div class="col-2 mt-2">
-                                                                                        <label for="rate_half" class="form-label">ราคาครึ่งวัน:</label>
+                                                                                        <label for="rate_half_<?php echo $index; ?>" class="form-label">ราคาครึ่งวัน:</label>
                                                                                     </div>
-                                                                                    <div class="col-3 "><input type="number" id="rate_half" name="rate_half" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_half'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter half-day rate in บาท">
+                                                                                    <div class="col-3">
+                                                                                        <input type="number" id="rate_half_<?php echo $index; ?>" name="rate_half[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_half'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter half-day rate in บาท">
                                                                                     </div>
                                                                                     <div class="col-2 mt-2">
-                                                                                        <label for="rate_half" class="form-label"> บาท</label>
+                                                                                        <label for="rate_half_<?php echo $index; ?>" class="form-label"> บาท</label>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="mb-3">
                                                                                 <div class="row">
                                                                                     <div class="col-2 mt-2">
-                                                                                        <label for="rate_half" class="form-label">ราคาเต็มวัน:</label>
+                                                                                        <label for="rate_full_<?php echo $index; ?>" class="form-label">ราคาเต็มวัน:</label>
                                                                                     </div>
                                                                                     <div class="col-3">
-                                                                                        <input type="number" id="rate_full" name="rate_full" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_full'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter full-day rate in บาท">
+                                                                                        <input type="number" id="rate_full_<?php echo $index; ?>" name="rate_full[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_full'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter full-day rate in บาท">
                                                                                     </div>
                                                                                     <div class="col-2 mt-2">
-                                                                                        <label for="rate_half" class="form-label"> บาท</label>
+                                                                                        <label for="rate_full_<?php echo $index; ?>" class="form-label"> บาท</label>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                            <!-- Hidden field to store type ID and photographer ID if needed -->
-                                                                            <input type="hidden" name="type_id" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                                            <input type="hidden" name="photographer_id" value="<?php echo htmlspecialchars($rowTypeWorkDetail['photographer_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                                            <!-- Hidden fields to store type ID and photographer ID -->
+                                                                            <input type="hidden" name="type_id[<?php echo $index; ?>]" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                                            <input type="hidden" name="photographer_id[<?php echo $index; ?>]" value="<?php echo htmlspecialchars($rowTypeWorkDetail['photographer_id'], ENT_QUOTES, 'UTF-8'); ?>">
                                                                         </div>
                                                                     </div>
                                                             <?php
+                                                                    $index++;
                                                                 }
                                                             } ?>
                                                         </div>
