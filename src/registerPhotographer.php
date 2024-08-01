@@ -788,7 +788,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </form>
                             <div class="Login-register mt-3 mb-3">
                                 <div>
-                                    <p>คุณมีบัญชีผู้ใช้แล้ว? <a href="login.php" class="login-link">เช้าสู่ระบบ</a></p>
+                                    <p>คุณมีบัญชีผู้ใช้แล้ว? <a href="login.php" class="login-link">เข้าสู่ระบบ</a></p>
                                 </div>
                             </div>
                         </div>
