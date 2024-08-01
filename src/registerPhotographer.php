@@ -666,6 +666,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 <label for="portfolio" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
                                                     <span style="color: black; margin-right: 5px;font-size: 13px;">ไฟล์แฟ้มสะสมผลงาน</span>
                                                     <span style="color: red;">*</span>
+                                                    <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ PDF เท่านั้น)</span>
                                                 </label>
                                                 <input type="file" name="portfolio" required class="form-control" accept="application/pdf" required>
                                             </div>
