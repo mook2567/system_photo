@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 if (isset($_POST['submit_add'])) {
-    $type_id = $_POST['type_id'];
+    // $type_id = $_POST['type_id'];
     // Handle admin registration if license and admin_id are not set
     $prefix = $_POST["prefix"];
     $firstName = $_POST["firstname"];
@@ -259,32 +259,100 @@ if (isset($_POST['submit_delete'])) {
     $admin_id = $_POST['admin_id'];
 
     // Assuming $conn is your database connection
-    $stmt = $conn->prepare("SELECT `admin_photo` FROM `admin` WHERE `admin_id` = ?");
-    $stmt->bind_param("i", $admin_id);
+    // Check the total number of admin records
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM `admin`");
     $stmt->execute();
-    $stmt->bind_result($admin_photo);
+    $stmt->bind_result($admin_count);
     $stmt->fetch();
     $stmt->close();
 
-    if ($admin_photo) {
-        $path = "../img/profile/" . $admin_photo;
-
-        // Delete the file if it exists
-        if (file_exists($path)) {
-            unlink($path);
-        }
-
-        // Prepare SQL statement to delete the record
-        $stmt = $conn->prepare("DELETE FROM `admin` WHERE `admin_id` = ?");
-        $stmt->bind_param("i", $admin_id);
-
-        if ($stmt->execute()) {
+    if ($admin_count <= 1) {
         ?>
+        <script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: '<div class="t1">ไม่สามารถลบข้อมูลได้เนื่องจากมีข้อมูลเหลือเพียง 1 รายการ</div>',
+                    icon: 'warning',
+                    confirmButtonText: 'ตกลง',
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    allowEnterKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "";
+                    }
+                });
+            });
+        </script>
+        <?php
+    } else {
+        // Get the admin photo
+        $stmt = $conn->prepare("SELECT `admin_photo` FROM `admin` WHERE `admin_id` = ?");
+        $stmt->bind_param("i", $admin_id);
+        $stmt->execute();
+        $stmt->bind_result($admin_photo);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ($admin_photo) {
+            $path = "../img/profile/" . $admin_photo;
+
+            // Delete the file if it exists
+            if (file_exists($path)) {
+                unlink($path);
+            }
+
+            // Prepare SQL statement to delete the record
+            $stmt = $conn->prepare("DELETE FROM `admin` WHERE `admin_id` = ?");
+            $stmt->bind_param("i", $admin_id);
+
+            if ($stmt->execute()) {
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">ลบข้อมูลสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+                <?php
+            } else {
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการลบข้อมูล</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+                <?php
+            }
+            $stmt->close();
+        } else {
+            ?>
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">ลบข้อมูลสำเร็จ</div>',
-                        icon: 'success',
+                        title: '<div class="t1">ไม่พบข้อมูลที่ต้องการลบ</div>',
+                        icon: 'warning',
                         confirmButtonText: 'ตกลง',
                         allowOutsideClick: true,
                         allowEscapeKey: true,
@@ -296,36 +364,11 @@ if (isset($_POST['submit_delete'])) {
                     });
                 });
             </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการลบข้อมูล</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-<?php
+            <?php
         }
-        $stmt->close();
-    } else {
-        echo "ไม่พบข้อมูลที่ต้องการลบ";
     }
 }
-
-$conn->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1065,7 +1108,7 @@ $conn->close();
                                             <div class="col-4 mt-5">
                                                 <div class="d-flex justify-content-center align-items-center md">
                                                     <div class="circle">
-                                                        <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
+                                                        <img id="userImage1" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
                                                     </div>
                                                 </div>
                                                 <div class="align-items-center justify-content-center d-flex">
@@ -1181,6 +1224,28 @@ $conn->close();
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     userImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userImage1 = document.getElementById('userImage1');
+
+            // Set a default image if the current src is null, empty, or ends with '/'
+            if (!userImage1.src || userImage1.src.endsWith('/') || userImage1.src.includes('null')) {
+                userImage1.src = '../img/profile/null.png'; // Path to the default image
+            }
+        });
+
+        function updateImage() {
+            const input = document.getElementById('photo');
+            const userImage1 = document.getElementById('userImage1');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userImage1.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
