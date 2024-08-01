@@ -27,9 +27,9 @@ if ($id_photographer !== null) {
     }
 }
 // ตรวจสอบข้อมูล
-echo '<pre>';
-print_r($booking);
-echo '</pre>';
+// echo '<pre>';
+// print_r($booking);
+// echo '</pre>';
 
 // Return bookings data as JSON
 // echo json_encode($booking);
@@ -178,7 +178,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
+                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                                 <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>

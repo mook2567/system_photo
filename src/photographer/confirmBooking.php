@@ -129,7 +129,7 @@ if (isset($_SESSION['photographer_login'])) {
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
+                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
                                     <div class="dropdown-menu rounded-0 m-0">

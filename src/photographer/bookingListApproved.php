@@ -278,7 +278,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">รายการจอง</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
+                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                                 <a href="bookingListApproved.php" class="dropdown-item active">รายการจองที่อนุมัติแล้ว</a>
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
@@ -317,7 +317,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <h1 class="footer-title text-center f mt-3">ตารางรายการจองที่อนุมัติแล้ว</h1>
         <div class="row justify-content-end">
             <div class="col-md-4">
-                <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button>
+                <!-- <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button> -->
                 <button type="button" onclick="window.location.href='bookingListWaittingForApproval.php'" class="btn btn-outline-dark">รออนุมัติ</button>
                 <button type="button" onclick="window.location.href='bookingListApproved.php'" class="btn btn-outline-dark active">อนุมัติแล้ว</button>
                 <button type="button" onclick="window.location.href='bookingListNotApproved.php'" class="btn btn-outline-dark">ไม่อนุมัติ</button>

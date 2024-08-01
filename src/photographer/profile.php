@@ -1325,7 +1325,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 </div>
                                                 <div class="mt-2">
                                                     <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
-                                                    <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/่jpeg, image/png">
+                                                    <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/jpeg, image/png">
                                                     <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
                                                     <p id="loaded_n_total"></p>
                                                 </div>
