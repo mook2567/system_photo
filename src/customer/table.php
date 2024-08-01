@@ -259,7 +259,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                     <h5 class="modal-title" id="detailsLabel"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;จองคิวช่างภาพ</b></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="" method="POST">
+                <form id="bookingForm" action="" method="POST" onsubmit="return validateForm()">
                     <div class="modal-body" style="height: auto;">
                         <div class="mt-2 container-md">
                             <div class="mt-3 col-md-12 container-fluid">
@@ -288,50 +288,82 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
 
                                 <div class="col-12 mt-3">
                                     <div class="row">
-                                        <div class="col-md-4 text-center">
+                                        <div class="col-4 text-center">
                                             <label for="booking-start-date" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="date" name="start_date" class="form-control mt-1" style="resize: none;">
+                                            <input type="date" id="start_date" name="start_date" class="form-control mt-1" style="resize: none;" required>
                                         </div>
-                                        <div class="col-md-2 text-center">
+                                        <div class="col-2 text-center">
                                             <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="time" name="start_time" class="form-control mt-1" style="resize: none;">
+                                            <input type="time" id="start_time" name="start_time" class="form-control mt-1" style="resize: none;" required>
                                         </div>
 
-                                        <div class="col-md-4 text-center">
+                                        <div class="col-4 text-center">
                                             <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="date" name="end_date" class="form-control mt-1" style="resize: none;">
+                                            <input type="date" id="end_date" name="end_date" class="form-control mt-1" style="resize: none;" required>
                                         </div>
-                                        <div class="col-md-2 text-center">
+                                        <div class="col-2 text-center">
                                             <label for="booking-end-time" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="time" name="end_time" class="form-control mt-1" style="resize: none;">
+                                            <input type="time" id="end_time" name="end_time" class="form-control mt-1" style="resize: none;" required>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-12 mt-3">
                                     <div class="row">
-                                        <div class="col-md-12 text-center">
+                                        <div class="col-md-10 text-center">
                                             <label for="location" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
-
+                                                <span style="color: red;">*</span>
                                             </label>
-                                            <input type="text" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;">
+                                            <input type="text" id="location" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;" required>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <label for="type" style="font-weight: bold; display: flex; align-items: center;">
+                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
+                                                <span style="color: red;">*</span>
+                                            </label>
+                                            <select class="form-select border-1 py-2" id="type" name="type" required>
+                                                <option value="">เลือกประเภทงาน</option>
+                                                <?php
+                                                // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
+                                                $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                                        FROM `type` t
+                                                        INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                        WHERE tow.photographer_id = $id_photographer
+                                                        GROUP BY t.type_id, t.type_work;";
+                                                $resultTypeWork = $conn->query($sql);
+
+                                                // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
+                                                if ($resultTypeWork->num_rows > 0) {
+                                                    while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                        echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                    }
+                                                } else {
+                                                    echo '<option value="">ไม่มีประเภทงาน ช่างภาพไม่มีประเภทงานที่รับ</option>';
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12 mt-3 text-center">
                                     <label for="Information_caption" style="font-weight: bold; display: flex; align-items: center;">
                                         <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
+                                        <span style="color: red;">*</span>
                                     </label>
-                                    <textarea name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;"></textarea>
+                                    <textarea id="details" name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;" required></textarea>
                                 </div>
                                 <div class="col-12">
                                     <div class="row mt-3">
@@ -339,13 +371,13 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                                             <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
                                             </label>
-                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowCus['cus_tell']; ?>" style="resize: none;">
+                                            <input type="text" id="tell" name="tell" class="form-control mt-1" value="<?php echo $rowCus['cus_tell']; ?>" style="resize: none;" readonly>
                                         </div>
                                         <div class="col-5 text-center">
                                             <label for="email" style="font-weight: bold; display: flex; align-items: center;">
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
                                             </label>
-                                            <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowCus['cus_email']; ?>" style="resize: none;">
+                                            <input type="email" id="email" name="email" class="form-control mt-1" value="<?php echo $rowCus['cus_email']; ?>" style="resize: none;" readonly>
                                         </div>
                                         <div class="col-2">
                                             <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
@@ -356,6 +388,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
                             <input type="hidden" name="cus_id" value="<?php echo $rowCus['cus_id']; ?>">
                             <div class="modal-footer mt-5 justify-content-center">
                                 <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
@@ -367,6 +400,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
             </div>
         </div>
     </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">

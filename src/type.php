@@ -251,7 +251,7 @@ $resultType = $conn->query($sql);
     </div>
     <!-- Navbar End -->
     <!-- Header Start -->
-    <div class="container-fluid header bg-primary p-5" style="height: 300px;">
+    <div class="container-fluid header bg-primary p-5" style="height: 346px;">
         <div class="row mt-5  align-items-center flex-column-reverse flex-md-row">
             <div class="mt-5 text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 450px;">
                 <h1 class="mt-5 f " style="color: #fff;">ประเภทงาน</h1>

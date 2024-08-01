@@ -146,8 +146,8 @@ if (isset($_SESSION['cus_login'])) {
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
                                 <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                                <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
+                                <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
                                 <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                             </div>
                         </div>
@@ -173,7 +173,7 @@ if (isset($_SESSION['cus_login'])) {
                     <h1 class="display-5 animated fadeIn mb-2 f">About Us</h1>
                 </div>
                 <div class="col-md-6 animated fadeIn">
-                    <img class="img-fluid" src="../img/header.jpg" alt="">
+                    <img class="img-fluid" src="../img/graduation.jpg" alt="">
                 </div>
             </div>
         </div>
@@ -205,29 +205,23 @@ if (isset($_SESSION['cus_login'])) {
     <!-- About End -->
 
 
-    <!-- Dev Start -->
-    <div class="container-xxl py-5">
+     <!-- Dev Start -->
+     <div class="container-xxl py-5">
         <div class="container">
             <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
                 <h1 class="mb-3 f">คณะผู้พัฒนาเว็บไซต์</h1>
                 <p>คณะผู้พัฒนาเว็บไซต์ Photo Match ที่ช่วยให้ลูกค้าที่ต้องการภาพถ่ายสามารถเข้ามาค้นหาช่างภาพที่มีความสามารถและทำการจองคิวได้ภายในเว็บไซต์เดียว</p>
             </div>
-            <div class="row g-4 text-center mx-auto " style="max-width: 900px;">
-                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="team-item rounded overflow-hidden">
-                        <div class="position-relative">
-                            <img class="img-fluid" src="../img/dev1.jpg" alt="">
-                        </div>
-                        <div class="text-center p-4 mt-3">
-                            <h5 class="fw-bold mb-0 f">นางสาวกชกร วงพิรงค์</h5>
-                            <small>Back End Developer </small>
-                        </div>
-                    </div>
-                </div>
+            <div class="row g-4 text-center mx-auto justify-content-center" style="max-width: 900px;">
                 <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="team-item rounded overflow-hidden">
+                    <div class="team-item rounded overflow-hidden bg-white">
                         <div class="position-relative">
                             <img class="img-fluid" src="../img/dev2.jpg" alt="">
+                            <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
+                                <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            </div> -->
                         </div>
                         <div class="text-center p-4 mt-3">
                             <h5 class="fw-bold mb-0 f">นางสาวนันทิยา นารินรักษ์</h5>
@@ -236,9 +230,14 @@ if (isset($_SESSION['cus_login'])) {
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="team-item rounded overflow-hidden">
+                    <div class="team-item rounded overflow-hidden bg-white">
                         <div class="position-relative">
                             <img class="img-fluid" src="../img/dev3.jpg" alt="">
+                            <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
+                                <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            </div> -->
                         </div>
                         <div class="text-center p-4 mt-3">
                             <h5 class="fw-bold mb-0 f">นางสาวพีรดา แสนเสร็จ</h5>

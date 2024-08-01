@@ -112,7 +112,7 @@ if (isset($_SESSION['photographer_login'])) {
                     <h1 class="display-5 animated fadeIn mb-4 f">Contact Us</h1>
                 </div>
                 <div class="col-md-6 animated fadeIn">
-                    <img class="img-fluid" src="img/header.jpg" alt="">
+                    <img class="img-fluid" src="img/graduation.jpg" alt="">
                 </div>
             </div>
         </div>
@@ -188,7 +188,7 @@ if (isset($_SESSION['photographer_login'])) {
                                     <div class="icon me-3" style="width: 45px; height: 45px;">
                                         <i class="fa fa-envelope-open text-primary"></i>
                                     </div>
-                                    <span>photomatch@gmai.com</span>
+                                    <span>photomatch@gmail.com</span>
                                 </div>
                             </div>
                         </div>

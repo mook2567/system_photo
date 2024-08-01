@@ -316,40 +316,22 @@ if (isset($_SESSION['customer_login'])) {
                 <div class="col-12 mt-4">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="circle">
-                            <img src="../img/dev3.jpg" alt="Your Image">
+                            <img src="../img/profile/<?php echo $rowCus['cus_photo']; ?>" alt="Your Image">
                         </div>
                     </div>
                     <div class="col-12 text-center md-3 py-3 px-4 mt-3">
-                        <h3>ชื่อช่างภาพ</h3>
+                        <h3><?php echo $rowCus['cus_name'] . ' ' . $rowCus['cus_surname']; ?></h3>
                     </div>
                     <div class="col-12 text-start">
                         <h5>ติดต่อ</h5>
                         <div class="col-12 text-start px-3">
                             <div class="d-flex align-items-center">
                                 <i class="fa-solid fa-phone me-2"></i>
-                                <p class="mb-0">เบอร์โทรศัพท์</p>
+                                <p class="mb-0"><?php echo $rowCus['cus_tell'];?></p>
                             </div>
                             <div class="d-flex align-items-center">
                                 <i class="fa-solid fa-envelope me-2"></i>
-                                <p class="mb-0">อีเมล</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 text-start mt-2">
-                        <h5>ประเภทงานที่รับ</h5>
-                        <div class="col-12 text-start px-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
-                                <p class="mb-0">ประเภทงาน1</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 text-start mt-2">
-                        <h5>ขอบเขตพื้นที่รับงาน</h5>
-                        <div class="col-12 text-start px-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fa-solid fa-location-dot me-2"></i>
-                                <p class="mb-0">พื้นที่</p>
+                                <p class="mb-0"><?php echo $rowCus['cus_email'];?></p>
                             </div>
                         </div>
                     </div>
@@ -360,7 +342,7 @@ if (isset($_SESSION['customer_login'])) {
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-9 ">
                 <!-- Other Posts -->
                 <div class="mt-3">

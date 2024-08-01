@@ -15,6 +15,74 @@ if (isset($_SESSION['cus_login'])) {
     $id_cus = $rowCus['cus_id'];
 }
 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['submit_photographer'])) {
+        $photographer_id = $_POST["photographer_id"];
+        $address = $_POST["address"];
+        $district = $_POST["district"];
+        $province = $_POST["province"];
+        $zipcode = $_POST["zipcode"];
+        $password = $_POST["password"];
+        $bank = isset($_POST["bank"]) ? $_POST["bank"] : "";
+        $accountNumber = $_POST["accountNumber"];
+        $accountName = $_POST["accountName"];
+
+        $sql = "UPDATE photographer SET 
+            photographer_address = ?, 
+            photographer_district = ?, 
+            photographer_province = ?, 
+            photographer_zip_code = ?, 
+            photographer_password = ?, 
+            photographer_bank = ?, 
+            photographer_account_name = ?, 
+            photographer_account_number = ? 
+            WHERE photographer_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssssssi", $address, $district, $province, $zipcode, $password, $bank, $accountName, $accountNumber, $photographer_id);
+
+        if ($stmt->execute()) {
+?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">บันทึกการแก้ไขสำเร็จ</div>',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+        <?php
+        } else {
+        ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการแก้ไข</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+<?php
+        }
+        // Close the statement after usage
+        $stmt->close();
+    }
+}
 ?>
 
 
@@ -286,58 +354,121 @@ if (isset($_SESSION['cus_login'])) {
     <!-- Navbar End -->
 
     <!-- Profile Edit Start -->
-    <div class="container-sm mt-3" style="height: 100%;">
-        <div class="col-12 d-flex justify-content-between">
-            <button onclick="window.history.back();" style="width: 150px; height:45px;" class="btn btn-danger">ย้อนกลับ</button>
-            <button type="button" onclick="window.location.href='bookingListAll.php'" style="width: 150px; height:45px;" class="btn btn-primary">บันทึก</button>
+    <div>
+        <div class="container-xxl card-body bg-white mt-4" style="min-height: 800px;border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);">
+            <center>
+                <h2 class="mt-2"><i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลเกี่ยวกับคุณ</h2>
+            </center>
+            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
+                <div class="modal-body">
+                    <div class="container-xxl">
+                        <div class="mt-3 col-md-12 container-fluid">
+                            <div class="row ">
+                                <div class="col-12">
+                                    <div class="text-start mt-1" style="font-size: 18px;"><b>ข้อมูลส่วนตัว</b></div>
+                                    <div class="col-12">
+                                        <div class="row mt-3">
+                                            <div class="col-2">
+                                                <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
+                                                </label>
+                                                <input type="text" name="prefix" class="form-control mt-2" value="<?php echo $rowCus['cus_prefix']; ?>" readonly>
+                                            </div>
+                                            <div class="col-5">
+                                                <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowCus['cus_name']; ?>" required>
+                                            </div>
+                                            <div class="col-5">
+                                                <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">นามสกุล</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="surname" class="form-control" value="<?php echo $rowCus['cus_surname']; ?>" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <div class="row">
+                                            <div class="col-md-12 text-center">
+                                                <label for="address" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowCus['cus_address']; ?>" required style="resize: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mt-2">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="district" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowCus['cus_district']; ?>" required style="resize: none;">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="province" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowCus['cus_province']; ?>" required style="resize: none;">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowCus['cus_zip_code']; ?>" required style="resize: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mt-2">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
+                                                    <span style="color: red;">*</span>
+                                                    <span style="color: red;font-size: 13px;">(ต้องกรอกไม่น้อยกว่า 5 ตัว)</span>
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="password" name="password" minlength="5" id="password" class="form-control mt-1" value="<?php echo $rowcCs['cus_password']; ?>" required style="resize: none;">
+                                                    <button type="button" style="color: #fff; width: 60px; background-color: #555555; border: none;" id="togglePassword">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" id="eye-icon" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="confirm_password" style="font-weight: bold; display: flex; align-items: center;">
+                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ยืนยันรหัสผ่าน</span>
+                                                    <span style="color: red;">*</span>
+                                                </label>
+                                                <input type="password" minlength="5" name="confirm_password" id="confirm_password" class="form-control mt-1" onchange="validatePassword()" placeholder="กรุณายืนยันรหัสผ่าน" value="<?php echo $rowCus['cus_password']; ?>" required style="resize: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="cuc_id" value="<?php echo $rowCus['cuc_id']; ?>">
+                <div class="modal-footer mt-2 justify-content-center">
+                    <button type="button" onclick="window.location.href='profile.php'" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ย้อนกลับ</button>
+                    <button type="submit" name="submit_cus" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div class="container-sm mt-3 bg-white" style="height: 100%; border-radius: 10px; border: 10px solid white;">
-        <div class="mt-3">
-            <center>
-                <div class="circle d-flex justify-content-center align-items-center">
-                    <img src="../img/dev3.jpg" alt="Your Image" class="rounded-circle img-fluid " style="max-width: 100%; max-height: 100%;">
-                </div>
-            </center>
-        </div>
-        <div class="mb-3">
-            <label for="profileImage" class="form-label">อัพโหลดรูปภาพโปรไฟล์</label>
-            <input type="file" class="form-control" id="profileImage">
-        </div>
-        <div class="mb-3">
-            <label for="photographerName" class="form-label">ชื่อช่างภาพ</label>
-            <input type="text" class="form-control" id="photographerName">
-        </div>
-        <div class="mb-3">
-            <label for="contactInfo" class="form-label">ข้อมูลติดต่อ</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fa-solid fa-phone me-2"></i></span>
-                <input type="text" class="form-control" id="phoneNumber">
-                <span class="input-group-text"><i class="fa-solid fa-envelope me-2"></i></span>
-                <input type="text" class="form-control" id="email">
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="jobType" class="form-label">ประเภทงาน</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i></span>
-                <input type="text" class="form-control" id="jobType">
-                <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='editProfile.php'">
-                    <i class="fa-regular fa-eye me-2"></i>ดูเพิ่มเติม
-                </button><button type="button" class="btn btn-danger btn-sm" onclick="window.location.href='editProfile.php'">
-                    <i class="fa-solid fa-pencil me-2"></i> แก้ไข
-                </button>
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="jobLocation" class="form-label">ขอบเขตพื้นที่รับงาน</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fa-solid fa-location-dot me-2"></i></span>
-                <iFnput type="text" class="form-control" id="jobLocation">
-            </div>
-        </div>
-    </div>
+    <!-- Profile Edit End -->
+
     <!-- Profile Edit End -->
 
     <!-- Footer Start -->

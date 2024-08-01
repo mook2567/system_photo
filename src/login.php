@@ -250,13 +250,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div> -->
                         <div class="row">
                             <div>
-                                <button type="submit" name="submit" value="เข้าสู่ระบบ" class="btn" >เข้าสู่ระบบ</button>
+                            <button type="submit" name="submit" value="เข้าสู่ระบบ" class="btn" >เข้าสู่ระบบ</button>
                             </div>
                             <br>
                         </div>
                         <div class="Login-register mb-5">
                             <div>
                                 <p>ยังไม่มีบัญชีผู้ใช้? <a href="registerCustomer.php" class="register-link" >สมัครสมาชิก</a></p>
+                                <p><a href="index.php" class="register-link color-gray">เข้าเว็บไซต์ในโหมดผู้เยี่ยมชม</a></p>
                             </div>
                         </div>
                     </div>

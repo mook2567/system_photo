@@ -18,7 +18,7 @@ if (isset($_SESSION['photographer_login'])) {
 $sql = "SELECT *
         FROM `booking` 
         WHERE photographer_id = $id_photographer  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
-        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 2)
+        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 1)
         AND (
             -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
             (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
@@ -1532,12 +1532,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
             $bookedDates = [];
+            $bookedPeriods = []; // เก็บช่วงเวลาการจอง
+
             if ($resultBooking->num_rows > 0) {
                 while ($rowBooking = $resultBooking->fetch_assoc()) {
-                    $bookedDates[] = $rowBooking['booking_start_date'];
+                    $startDate = $rowBooking['booking_start_date'];
+                    $endDate = $rowBooking['booking_end_date'];
+
+                    // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+                    $bookedPeriods[] = [$startDate, $endDate];
+
+                    // เพิ่มวันเริ่มต้นการจองลงในอาร์เรย์
+                    $bookedDates[] = $startDate;
                 }
             }
+
+            // สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+            $allDates = [];
+            $currentDate = $startOfWeek;
+            for ($i = 0; $i < 7; $i++) {
+                $allDates[] = $currentDate;
+                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            }
+
+            // ตรวจสอบช่วงเวลาการจองและอัพเดตวันในช่วงเวลาที่จอง
+            foreach ($bookedPeriods as $period) {
+                list($periodStart, $periodEnd) = $period;
+
+                foreach ($allDates as $date) {
+                    if ($date >= $periodStart && $date <= $periodEnd) {
+                        $bookedDates[] = $date;
+                    }
+                }
+            }
+
+            // ลบวันจองที่ซ้ำออก
+            $bookedDates = array_unique($bookedDates);
+
             ?>
+
             <div class="col-3 flex-fill" style="margin-left: auto;">
                 <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
                     <div class="d-flex justify-content-center align-items-center mt-3">
@@ -1566,6 +1599,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
                     }
                     ?>
+
                     <div class="justify-content-center py-4 text-center">
                         <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
                             <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
@@ -1573,7 +1607,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Profile End -->
@@ -1612,18 +1645,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Fancybox JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+        <!-- Template Javascript -->
+        <script src="../js/main.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            $(function() {
+                // กำหนด element ที่จะแสดงปฏิทิน
+                var calendarEl = $("#calendar")[0];
+
+                // กำหนดการตั้งค่า
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    plugins: ['dayGrid']
+                });
+
+                // แสดงปฏิทิน 
+                calendar.render();
+
+            });
+        </script>
 
         <script>
-            // Pass PHP variable to JavaScript
-            var bookingAvailable = <?php echo json_encode($bookingAvailable); ?>;
+            document.getElementById('uploadImageButton').addEventListener('click', function() {
+                document.getElementById('postImg').click();
+            });
+        </script>
 
-            // Check condition and set background color
+        <!-- Fancybox JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+        <script>
+            // ตัวแปรที่ต้องการตรวจสอบ
+            var bookingAvailable = true; // แทนค่าที่ต้องการตรวจสอบว่าว่างหรือไม่
+
+            // ตรวจสอบเงื่อนไขและกำหนดสีพื้นหลัง
             if (bookingAvailable) {
-                document.getElementById("bookingStatus").style.backgroundColor = "lightgreen"; // Green if available
+                document.getElementById("bookingStatus").style.backgroundColor = "lightgreen"; // ถ้าว่างให้เป็นสีเขียว
             } else {
-                document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // Red if not available
+                document.getElementById("bookingStatus").style.backgroundColor = "lightcoral"; // ถ้าไม่ว่างให้เป็นสีแดง
             }
         </script>
+
+
 
         <!-- post -->
         <script>

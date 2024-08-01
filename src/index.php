@@ -161,7 +161,7 @@ $resultType = $conn->query($sql);
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
-                        <form action="" method="POST" onsubmit="return validateForm()">
+                        <form action="search.php" method="POST" onsubmit="return validateForm()">
                             <select class="form-select border-0 py-3 mt-3" name="type" required>
                                 <option selected value="">ประเภทงาน</option>
                                 <?php
@@ -212,6 +212,7 @@ $resultType = $conn->query($sql);
             </div>
         </div>
     </div>
+    <!-- Search End -->
     <!-- Search End -->
     <!-- Header Start -->
     <!-- <div class="container-fluid mt-5 header bg-white p-0">
@@ -460,10 +461,10 @@ $resultType = $conn->query($sql);
                 <p>คณะผู้พัฒนาเว็บไซต์ Photo Match ที่ช่วยให้ลูกค้าที่ต้องการภาพถ่ายสามารถเข้ามาค้นหาช่างภาพที่มีความสามารถและทำการจองคิวได้ภายในเว็บไซต์เดียว</p>
             </div>
             <div class="row g-4 text-center mx-auto justify-content-center" style="max-width: 900px;">
-    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-        <div class="team-item rounded overflow-hidden bg-white">
-            <div class="position-relative">
-                <img class="img-fluid" src="img/dev2.jpg" alt="">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="team-item rounded overflow-hidden bg-white">
+                        <div class="position-relative">
+                            <img class="img-fluid" src="img/dev2.jpg" alt="">
                             <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>

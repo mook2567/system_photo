@@ -12,18 +12,10 @@ $sql = "SELECT * FROM photographer WHERE photographer_id = '$id_photographer'";
 $resultPhoto = $conn->query($sql);
 $rowPhoto = $resultPhoto->fetch_assoc();
 
-if (isset($_SESSION['customer_login'])) {
-    $email = $_SESSION['customer_login'];
-    $sql = "SELECT * FROM customer WHERE cus_email LIKE '$email'";
-    $resultCus = $conn->query($sql);
-    $rowCus = $resultCus->fetch_assoc();
-    $id_cus = $rowCus['cus_id'];
-}
-
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = '1'  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
-        AND booking_confirm_status = '2'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 2)
+        WHERE photographer_id = $id_photographer  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
+        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 1)
         AND (
             -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
             (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
@@ -36,62 +28,7 @@ $sql = "SELECT *
         ";
 $resultBooking = $conn->query($sql);
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['submit_book'])) {
-        $location = $_POST["location"];
-        $details = $_POST['details'];
-        $start_date = $_POST['start_date'];
-        $end_date = $_POST['end_date'];
-        $start_time = $_POST["start_time"];
-        $end_time = $_POST["end_time"];
-        $cus_id = $_POST['cus_id'];
-        $date = $_POST["date"];
 
-        // Insert new admin data into admin table
-        $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssssss", $location, $details, $start_date, $end_date, $start_time, $end_time,  $date, $id_photographer, $cus_id);
-        if ($stmt->execute()) { ?>
-
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "bookingLists.php";
-                        }
-                    });
-                });
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-<?php
-        }
-        $stmt->close();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -377,7 +314,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
                 <div class="navbar-nav ms-auto f">
-                <div class="navbar-nav ms-auto">
+                    <div class="navbar-nav ms-auto">
                         <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการ</a>
@@ -396,6 +333,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </nav>
     </div>
     <!-- Navbar End -->
+
 
 
     <div>
@@ -491,14 +429,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 </div>
                             </div>
                         </div>
+                        <?php
+                        $sql = "SELECT photographer_scope FROM `photographer` WHERE photographer.photographer_id = $id_photographer";
+                        $resultScopSelect = $conn->query($sql);
+
+                        $photographerScopes = [];
+                        if ($resultScopSelect->num_rows > 0) {
+                            $row = $resultScopSelect->fetch_assoc();
+                            $photographerScopes = array_map('trim', explode(',', $row['photographer_scope']));
+                        }
+                        ?>
                         <div class="col-12 text-start mt-2">
-                            <h5>ขอบเขตพื้นที่รับงาน<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                </button></h5></a>
-                            <div class=" ms-4">
-                                <div class="d-flex align-items-center">
-                                    <i class="fa-solid fa-location-dot me-2"></i>
-                                    <p class="mb-0"><?php echo $rowPhoto['photographer_scope']; ?></p>
-                                </div>
+                            <h5>ขอบเขตพื้นที่รับงาน
+                                <!-- <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button> -->
+                            </h5>
+                            <div class="ms-4">
+                                <?php if (!empty($photographerScopes)) : ?>
+                                    <?php foreach ($photographerScopes as $scope) : ?>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-location-dot me-2"></i>
+                                            <p class="mb-0"><?php echo htmlspecialchars($scope); ?></p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -508,16 +463,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
 
-
             <!-- post -->
             <div class="col-6" style="overflow-y: scroll; height: 89vh; scrollbar-width: none; -ms-overflow-style: none;">
-
                 <div class="row">
-                    <!-- <div class="col-12 mt-3">
-                        <p>โพสต์อื่น ๆ</p>
-                    </div> -->
-                    <!-- POST -->
-
                     <?php
                     $sql = "SELECT 
                     po.portfolio_id, 
@@ -539,65 +487,68 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     po.portfolio_id DESC";
 
                     $resultPost = $conn->query($sql);
+
+                    if ($resultPost->num_rows > 0) {
+                        while ($rowPost = $resultPost->fetch_assoc()) :
                     ?>
-                    <?php while ($rowPost = $resultPost->fetch_assoc()) : ?>
+                            <div class="col-12 card-body bg-white mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
+                                <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
+                                    <div class="d-flex align-items-center justify-content-start mt-3">
+                                        <div style="display: flex; align-items: center;">
+                                            <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                <img src="img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>" alt="Profile Photo">
+                                            </div>
+                                            <div class="mt-2" style="flex-grow: 1;">
+                                                <b><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></b>
+                                                <p style="margin-bottom: 0;"><?php
+                                                                                // แปลงวันที่ในรูปแบบของ portfolio_date ให้เป็นภาษาไทย
+                                                                                $months_th = array(
+                                                                                    '01' => 'มกราคม',
+                                                                                    '02' => 'กุมภาพันธ์',
+                                                                                    '03' => 'มีนาคม',
+                                                                                    '04' => 'เมษายน',
+                                                                                    '05' => 'พฤษภาคม',
+                                                                                    '06' => 'มิถุนายน',
+                                                                                    '07' => 'กรกฎาคม',
+                                                                                    '08' => 'สิงหาคม',
+                                                                                    '09' => 'กันยายน',
+                                                                                    '10' => 'ตุลาคม',
+                                                                                    '11' => 'พฤศจิกายน',
+                                                                                    '12' => 'ธันวาคม'
+                                                                                );
 
-                        <div class="col-12 card-body bg-white  mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650; ">
-                            <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                                <div class="d-flex align-items-center justify-content-start mt-3">
-                                    <div style="display: flex; align-items: center;">
-                                        <div class="circle me-3" style="width: 60px; height: 60px;">
-                                            <img src="img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
-                                        </div>
-                                        <div class="mt-2" style="flex-grow: 1;">
-                                            <b><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></b>
-                                            <p style="margin-bottom: 0;"><?php
-                                                                            // แปลงวันที่ในรูปแบบของ portfolio_date ให้เป็นภาษาไทย
-                                                                            $months_th = array(
-                                                                                '01' => 'มกราคม',
-                                                                                '02' => 'กุมภาพันธ์',
-                                                                                '03' => 'มีนาคม',
-                                                                                '04' => 'เมษายน',
-                                                                                '05' => 'พฤษภาคม',
-                                                                                '06' => 'มิถุนายน',
-                                                                                '07' => 'กรกฎาคม',
-                                                                                '08' => 'สิงหาคม',
-                                                                                '09' => 'กันยายน',
-                                                                                '10' => 'ตุลาคม',
-                                                                                '11' => 'พฤศจิกายน',
-                                                                                '12' => 'ธันวาคม'
-                                                                            );
+                                                                                $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
+                                                                                    $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
+                                                                                    (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
 
-                                                                            $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
-                                                                                $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
-                                                                                (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
-
-                                                                            echo $rowPost['type_work'] . ' (Post เมื่อ ' . $date_thai . ')';
-                                                                            ?></p>
-
+                                                                                echo $rowPost['type_work'] . ' (Post เมื่อ ' . $date_thai . ')';
+                                                                                ?></p>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div>
+                                        <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo $rowPost['portfolio_caption'] ?></p>
+                                    </div>
+                                    <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
+                                        <?php
+                                        $photos = explode(',', $rowPost['portfolio_photo']);
+                                        $max_photos = min(10, count($photos)); // จำกัดจำนวนภาพไม่เกิน 10
+                                        for ($i = 0; $i < $max_photos; $i++) : ?>
+                                            <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
+                                                <a data-fancybox="gallery" href="img/post/<?php echo trim($photos[$i]) ?>">
+                                                    <img class="post-img" style="max-width: 100%; height: 100%;" src="img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
+                                                </a>
+                                            </div>
+                                        <?php endfor; ?>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo $rowPost['portfolio_caption'] ?></p>
-                                </div>
-                                <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
-                                    <?php
-                                    $photos = explode(',', $rowPost['portfolio_photo']);
-                                    $max_photos = min(10, count($photos)); // จำกัดจำนวนภาพไม่เกิน 10
-                                    for ($i = 0; $i < $max_photos; $i++) : ?>
-                                        <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
-                                            <a data-fancybox="gallery" href="img/post/<?php echo trim($photos[$i]) ?>">
-                                                <img class="post-img" style="max-width: 100%; height: 100%;" src="img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
-                                            </a>
-                                        </div>
-                                    <?php endfor; ?>
-                                </div>
-
-
                             </div>
-                        </div>
-                    <?php endwhile; ?>
+                    <?php
+                        endwhile;
+                    } else {
+                        echo '<hr><div class="col-12"><p class="text-center">ไม่มีโพสต์ให้แสดง</p></div>';
+                    }
+                    ?>
                 </div>
             </div>
 
@@ -617,12 +568,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
             $bookedDates = [];
+            $bookedPeriods = []; // เก็บช่วงเวลาการจอง
+
             if ($resultBooking->num_rows > 0) {
                 while ($rowBooking = $resultBooking->fetch_assoc()) {
-                    $bookedDates[] = $rowBooking['booking_start_date'];
+                    $startDate = $rowBooking['booking_start_date'];
+                    $endDate = $rowBooking['booking_end_date'];
+
+                    // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+                    $bookedPeriods[] = [$startDate, $endDate];
+
+                    // เพิ่มวันเริ่มต้นการจองลงในอาร์เรย์
+                    $bookedDates[] = $startDate;
                 }
             }
+
+            // สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+            $allDates = [];
+            $currentDate = $startOfWeek;
+            for ($i = 0; $i < 7; $i++) {
+                $allDates[] = $currentDate;
+                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            }
+
+            // ตรวจสอบช่วงเวลาการจองและอัพเดตวันในช่วงเวลาที่จอง
+            foreach ($bookedPeriods as $period) {
+                list($periodStart, $periodEnd) = $period;
+
+                foreach ($allDates as $date) {
+                    if ($date >= $periodStart && $date <= $periodEnd) {
+                        $bookedDates[] = $date;
+                    }
+                }
+            }
+
+            // ลบวันจองที่ซ้ำออก
+            $bookedDates = array_unique($bookedDates);
+
             ?>
+
             <div class="col-3 flex-fill" style="margin-left: auto;">
                 <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
                     <div class="d-flex justify-content-center align-items-center mt-3">
@@ -651,9 +635,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
                     }
                     ?>
+
                     <div class="justify-content-center py-4 text-center">
                         <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#details">
-                            <i class="fa-solid fa-magnifying-glass"></i> จองคิวช่างภาพ
+                            <i class="fa-solid fa-bookmark"></i> จองคิวช่างภาพ
                         </button>
                     </div>
                 </div>
