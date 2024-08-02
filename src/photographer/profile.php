@@ -45,7 +45,7 @@ $resultBooking = $conn->query($sql);
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_photographer'])) {
         // Process profile update
-        $photographer_id = $conn->real_escape_string($_POST["photographer_id"]);
+        $photographer_id = $id_photographer;
         $name = $conn->real_escape_string($_POST["name"]);
         $surname = $conn->real_escape_string($_POST["surname"]);
         $tell = $conn->real_escape_string($_POST["tell"]);
@@ -126,8 +126,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
     }
 
-    if (isset($_POST['submit_post_portfolio'])) {
+    $sql = "SELECT * FROM `portfolio` WHERE ";
+    $resultPort = $conn->query($sql);
+    $rowPort = $resultPort->fetch_assoc();
 
+    if (isset($_POST['submit_post_portfolio'])) {
+        
 
         // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
         if (!empty($_FILES['upload']['tmp_name'][0])) {
@@ -219,6 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
+
     $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id
     FROM type t
     INNER JOIN (
@@ -234,7 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $details = $_POST['details'];
         $rate_half = isset($_POST['rate_half']) && $_POST['rate_half'] !== '' ? $_POST['rate_half'] : 0.0;
         $rate_full = isset($_POST['rate_full']) && $_POST['rate_full'] !== '' ? $_POST['rate_full'] : 0.0;
-        $photographer_id = $_POST['photographer_id'];
+        $photographer_id = $id_photographer;
         $type = $_POST['type'];
 
         $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half`, `type_of_work_rate_full`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?)";
@@ -280,7 +285,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-   
+
 
     if (isset($_POST['submit_profile_img'])) {
         $targetDir = "../img/profile/";
@@ -1255,7 +1260,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 </div>
                                                 <div class="mt-4">
                                                     <select class="form-select border-1 py-2" name="workPost" id="workPost">
-                                                        <option required>เลือกประเภทงาน</option>
+                                                        <option required value="">เลือกประเภทงาน</option>
                                                         <?php
                                                         // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
                                                         $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
@@ -1284,7 +1289,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 </div>
                                                 <div class="mt-2">
                                                     <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
-                                                    <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/jpeg, image/png">
+                                                    <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/jpeg, image/jpg, image/png">
                                                     <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
                                                     <p id="loaded_n_total"></p>
                                                 </div>
