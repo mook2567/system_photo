@@ -126,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
     }
 
-    $sql = "SELECT * FROM `portfolio` WHERE ";
+    $sql = "SELECT * FROM `portfolio`";
     $resultPort = $conn->query($sql);
     $rowPort = $resultPort->fetch_assoc();
 
