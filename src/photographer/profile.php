@@ -623,6 +623,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .modal-content {
             border-radius: 0.5rem;
         }
+
+        .card-with-bg {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+        }
     </style>
 
 </head>
@@ -766,6 +772,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     // Fetch all work types
                     $sql = "SELECT 
                                 t.type_id, 
+                                t.type_icon, 
                                 t.type_work, 
                                 tow_latest.photographer_id, 
                                 tow_latest.type_of_work_details, 
@@ -862,7 +869,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <div class="card" style="height: 250px;">
                                                     <div class="card-body">
                                                         <h5 class="card-title">
-                                                            <i class="fa-solid fa-circle me-2" style="font-size: 8px;"></i>
+                                                        <i class="fa-solid fa-circle me-2" style="font-size: 8px;"></i>
                                                             <?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?>
                                                         </h5>
                                                         <?php if ($rowTypeWorkDetail['type_of_work_rate_half'] > 0) { ?>
@@ -1302,9 +1309,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                     </div>
                                 </div>
-                                <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
-                                <input type="hidden" name="type_work" value="<?php echo $rowTypeWork['type_work']; ?>">
-                                <input type="hidden" name="type_id" value="<?php echo $rowTypeWork['type_id']; ?>">
                                 <div class="modal-footer">
                                     <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
                                 </div>
@@ -1665,7 +1669,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <select class="form-select border-1 py-2" name="workPost" id="workPost" required>
                                         <option value="">เลือกประเภทงาน</option>
                                         <?php
-                                        $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                        $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
                                                 FROM type t
                                                 INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                                 WHERE tow.photographer_id = $id_photographer
@@ -1674,7 +1678,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                         if ($resultTypeWork->num_rows > 0) {
                                             while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
-                                                echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                echo '<option value="' . htmlspecialchars($rowTypeWork['type_of_work_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
                                             }
                                         } else {
                                             echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';

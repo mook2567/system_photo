@@ -560,11 +560,11 @@ if (isset($_POST['submit_type_of_work'])) {
                                         </div>
                                     </div>
                                     <div class="mt-4">
-                                        <select class="form-select border-1 py-2" name="workPost" id="workPost">
-                                            <option required>เลือกประเภทงาน</option>
+                                        <select class="form-select border-1 py-2" name="workPost">
+                                            <option required value="">เลือกประเภทงาน</option>
                                             <?php
                                             // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
-                                            $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                            $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
                                                             FROM `type` t
                                                             INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                                             WHERE tow.photographer_id = $id_photographer
@@ -574,7 +574,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                             // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
                                             if ($resultTypeWork->num_rows > 0) {
                                                 while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
-                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_of_work_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
                                                 }
                                             } else {
                                                 echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
@@ -590,7 +590,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                     </div>
                                     <div class="mt-2">
                                         <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
-                                        <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/*">
+                                        <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/jpeg, image/jpg, image/png">
                                         <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
                                         <p id="loaded_n_total"></p>
                                     </div>
@@ -901,8 +901,8 @@ if (isset($_POST['submit_type_of_work'])) {
                         <select class="form-select border-1 py-2" name="workPost" id="workPost" required>
                             <option value="">เลือกประเภทงาน</option>
                             <?php
-                            $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                    FROM type t
+                            $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                            FROM type t
                                     INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                     WHERE tow.photographer_id = $id_photographer
                                     GROUP BY t.type_id, t.type_work;";
