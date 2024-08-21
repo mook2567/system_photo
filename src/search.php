@@ -255,47 +255,67 @@ $rowInfo = $resultInfo->fetch_assoc();
         </div>
     </div>
 
+
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['search'])) {
             // Sanitize and assign POST data
-            $type_id = intval($conn->real_escape_string($_POST['type']));
-            $budget = intval($conn->real_escape_string($_POST['budget']));
-            $time = intval($conn->real_escape_string($_POST['time']));
-            $scope = $conn->real_escape_string($_POST['scope']);
+            $type_id = isset($_POST['type']) ? intval($conn->real_escape_string($_POST['type'])) : null;
+            $budget = isset($_POST['budget']) ? intval($conn->real_escape_string($_POST['budget'])) : null;
+            $time = isset($_POST['time']) ? intval($conn->real_escape_string($_POST['time'])) : null;
+            $scope = isset($_POST['scope']) ? $conn->real_escape_string($_POST['scope']) : null;
 
-            // Build the SQL query
+            // Build the SQL query dynamically
+            $conditions = [];
+
+            if ($type_id !== null) {
+                $conditions[] = "tow.type_id = $type_id";
+            }
+
+            if ($budget !== null && $time !== null) {
+                if ($time == 1) {
+                    $conditions[] = "CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0";
+                } elseif ($time == 2) {
+                    $conditions[] = "CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0";
+                }
+            }
+
+            if ($scope !== null) {
+                $conditions[] = "p.photographer_scope LIKE '%$scope%'";
+            }
+
+            // Combine the conditions into a WHERE clause
+            $whereClause = '';
+            if (count($conditions) > 0) {
+                $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+            }
+
+            // Final SQL query
             $sql = "SELECT 
-                p.photographer_prefix,
-                p.photographer_name,
-                p.photographer_surname,
-                p.photographer_tell,
-                p.photographer_email,
-                p.photographer_scope,
-                p.photographer_photo,
-                p.photographer_address,
-                tow.type_of_work_rate_half,
-                tow.type_of_work_rate_full,
-                t.type_work,
-                p.photographer_id
-            FROM 
-                photographer p
-            INNER JOIN 
-                type_of_work tow ON p.photographer_id = tow.photographer_id
-            INNER JOIN 
-                type t ON t.type_id = tow.type_id
-            WHERE 
-                tow.type_id = $type_id
-                AND (
-                    ($time = 1 AND CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0)
-                    OR
-                    ($time = 2 AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0)
-                )
-                AND p.photographer_scope LIKE '%$scope%'";
+            p.photographer_prefix,
+            p.photographer_name,
+            p.photographer_surname,
+            p.photographer_tell,
+            p.photographer_email,
+            p.photographer_scope,
+            p.photographer_photo,
+            p.photographer_address,
+            tow.type_of_work_rate_half,
+            tow.type_of_work_rate_full,
+            t.type_work,
+            p.photographer_id
+        FROM 
+            photographer p
+        INNER JOIN 
+            type_of_work tow ON p.photographer_id = tow.photographer_id
+        INNER JOIN 
+            type t ON t.type_id = tow.type_id
+        $whereClause";
 
             // Execute the query
             $result = $conn->query($sql);
     ?>
+
             <!-- Examples of work Start -->
             <div class="container-xxl py-5">
                 <div class="container">
@@ -479,7 +499,6 @@ $rowInfo = $resultInfo->fetch_assoc();
     <?php
     }
     ?>
-
 
 
     <!-- Footer Start -->
