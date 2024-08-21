@@ -155,8 +155,8 @@ $resultType = $conn->query($sql);
         </div>
         <!-- Category End -->
 
-        <!-- Search Start -->
-        <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+       <!-- Search Start -->
+       <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
@@ -184,17 +184,17 @@ $resultType = $conn->query($sql);
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3" name="time">
+                        <select class="form-select border-0 py-3" name="time" required>
                             <option selected value="">ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="scope" class="form-select border-0 py-3">
+                        <select name="scope" class="form-select border-0 py-3" required>
                             <option selected value="">สถานที่</option>
                             <option value="กรุงเทพฯ">กรุงเทพฯ</option>
                             <option value="ภาคกลาง">ภาคกลาง</option>
@@ -212,7 +212,6 @@ $resultType = $conn->query($sql);
             </div>
         </div>
     </div>
-    <!-- Search End -->
     <!-- Search End -->
     <!-- Header Start -->
     <!-- <div class="container-fluid mt-5 header bg-white p-0">
