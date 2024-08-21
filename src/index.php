@@ -155,8 +155,8 @@ $resultType = $conn->query($sql);
         </div>
         <!-- Category End -->
 
-       <!-- Search Start -->
-       <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+        <!-- Search Start -->
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250, 250, 250, 0.4); padding: 35px;" data-wow-delay="0.1s">
             <div class="container">
                 <div class="row flex-row g-2 align-items-center">
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
@@ -212,6 +212,7 @@ $resultType = $conn->query($sql);
             </div>
         </div>
     </div>
+    <!-- Search End -->
     <!-- Search End -->
     <!-- Header Start -->
     <!-- <div class="container-fluid mt-5 header bg-white p-0">
