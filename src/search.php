@@ -202,7 +202,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                     <h2 class="text-white">ค้นหาช่างภาพ</h2>
                     <div class="col-md-3">
                         <form action="" method="POST" onsubmit="return validateForm()">
-                            <select class="form-select border-0 py-3 mt-3" name="type">
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
                                 <option value="" <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
@@ -226,17 +226,17 @@ $rowInfo = $resultInfo->fetch_assoc();
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>" required>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3" name="time">
+                        <select class="form-select border-0 py-3" name="time" required>
                             <option value="" <?php echo $time == '' ? 'selected' : ''; ?>>ช่วงเวลา</option>
                             <option value="1" <?php echo $time == '1' ? 'selected' : ''; ?>>เต็มวัน</option>
                             <option value="2" <?php echo $time == '2' ? 'selected' : ''; ?>>ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="scope" class="form-select border-0 py-3">
+                        <select name="scope" class="form-select border-0 py-3" required>
                             <option value="" <?php echo $scope == '' ? 'selected' : ''; ?>>สถานที่</option>
                             <option value="กรุงเทพฯ" <?php echo $scope == 'กรุงเทพฯ' ? 'selected' : ''; ?>>กรุงเทพฯ</option>
                             <option value="ภาคกลาง" <?php echo $scope == 'ภาคกลาง' ? 'selected' : ''; ?>>ภาคกลาง</option>
