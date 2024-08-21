@@ -535,14 +535,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                     <?php
                                                                     if ($rowAdmin['admin_license'] == '0') {
                                                                     ?>
-                                                                        <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                        <!-- <option value="0">รออนุมัติสิทธิ์การใช้งาน</option> -->
                                                                         <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                     <?php
                                                                     } else {
                                                                     ?>
                                                                         <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                        <!-- <option value="0">รออนุมัติสิทธิ์การใช้งาน</option> -->
                                                                         <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                     <?php
                                                                     }
