@@ -255,7 +255,6 @@ $rowInfo = $resultInfo->fetch_assoc();
         </div>
     </div>
 
-
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['search'])) {
@@ -480,6 +479,7 @@ $rowInfo = $resultInfo->fetch_assoc();
     <?php
     }
     ?>
+
 
 
     <!-- Footer Start -->
