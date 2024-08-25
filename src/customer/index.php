@@ -206,17 +206,17 @@ if (isset($_SESSION['customer_login'])) {
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" required>
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;">
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3" name="time" required>
+                        <select class="form-select border-0 py-3" name="time">
                             <option selected value="">ช่วงเวลา</option>
                             <option value="1">เต็มวัน</option>
                             <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="scope" class="form-select border-0 py-3" required>
+                        <select name="scope" class="form-select border-0 py-3">
                             <option selected value="">สถานที่</option>
                             <option value="กรุงเทพฯ">กรุงเทพฯ</option>
                             <option value="ภาคกลาง">ภาคกลาง</option>
@@ -235,6 +235,7 @@ if (isset($_SESSION['customer_login'])) {
         </div>
     </div>
     <!-- Search End -->
+    
                             
     <!-- Examples of work Start -->
     <div class="container-xxl py-5">
