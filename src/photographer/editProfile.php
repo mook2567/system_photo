@@ -7,19 +7,19 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-$sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half, tow_latest.type_of_work_rate_full
-FROM type t
-INNER JOIN (
-    SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half,  type_of_work_rate_full
-    FROM type_of_work
-    WHERE (type_id, photographer_id) IN (
-        SELECT type_id, MAX(photographer_id)
-        FROM type_of_work
-        GROUP BY type_id
-    )
-) AS tow_latest ON t.type_id = tow_latest.type_id";
-$resultTypeWorkDetail = $conn->query($sql);
-$rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc();
+// $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_details, tow_latest.type_of_work_rate_half_start, tow_latest.type_of_work_rate_half_end, tow_latest.type_of_work_rate_full_start, tow_latest.type_of_work_rate_full_end
+// FROM type t
+// INNER JOIN (
+//     SELECT type_id, photographer_id, type_of_work_details, type_of_work_rate_half_start, type_of_work_rate_half_end, type_of_work_rate_full_start, type_of_work_rate_full_end
+//     FROM type_of_work
+//     WHERE (type_id, photographer_id) IN (
+//         SELECT type_id, MAX(photographer_id)
+//         FROM type_of_work
+//         GROUP BY type_id
+//     )
+// ) AS tow_latest ON t.type_id = tow_latest.type_id";
+// $resultTypeWorkDetail = $conn->query($sql);
+// $rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc();
 
 
 if (isset($_SESSION['photographer_login'])) {
@@ -336,11 +336,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
     <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-    </div>
+    </div> -->
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
@@ -520,9 +520,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             t.type_id, 
                                             t.type_work, 
                                             tow_latest.photographer_id, 
-                                            tow_latest.type_of_work_details, 
-                                            tow_latest.type_of_work_rate_half, 
-                                            tow_latest.type_of_work_rate_full
+                                            tow_latest.type_of_work_details,
+                                            tow_latest.type_of_work_rate_half_start, 
+                                            tow_latest.type_of_work_rate_half_end, 
+                                            tow_latest.type_of_work_rate_full_start, 
+                                            tow_latest.type_of_work_rate_full_end
                                         FROM 
                                             type t
                                         INNER JOIN (
@@ -530,8 +532,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 type_id, 
                                                 photographer_id, 
                                                 type_of_work_details, 
-                                                type_of_work_rate_half, 
-                                                type_of_work_rate_full
+                                                type_of_work_rate_half_start,
+                                                type_of_work_rate_half_end,
+                                                type_of_work_rate_full_start,
+                                                type_of_work_rate_full_end
                                             FROM 
                                                 type_of_work
                                             WHERE 

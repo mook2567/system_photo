@@ -89,11 +89,11 @@ $resultType = $conn->query($sql);
 <body>
     <div class="bgIndex" style="height: auto;">
         <!-- Spinner Start -->
-        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-        </div>
+        </div> -->
         <!-- Spinner End -->
 
         <!-- Navbar Start -->
@@ -213,7 +213,7 @@ $resultType = $conn->query($sql);
         </div>
     </div>
     <!-- Search End -->
-    
+
     <!-- Header Start -->
     <!-- <div class="container-fluid mt-5 header bg-white p-0">
         <div class="col-md-12 owl-carousel header-carousel">
@@ -273,8 +273,10 @@ $resultType = $conn->query($sql);
                         p.photographer_scope,
                         p.photographer_photo,
                         p.photographer_address,
-                        tow.type_of_work_rate_half,
-                        tow.type_of_work_rate_full,
+                        tow.type_of_work_rate_half_start, 
+                        tow.type_of_work_rate_half_end,
+                        tow.type_of_work_rate_full_start,
+                        tow.type_of_work_rate_full_end,
                         t.type_work,
                         p.photographer_id
                     FROM 
@@ -300,8 +302,10 @@ $resultType = $conn->query($sql);
                                 $photographers[$row['photographer_id']]['photographer_address'] = $row['photographer_address'];
                                 $photographers[$row['photographer_id']]['type_of_work'][] = [
                                     'type_work' => $row['type_work'],
-                                    'rate_half' => (int)$row['type_of_work_rate_half'],
-                                    'rate_full' => (int)$row['type_of_work_rate_full']
+                                    'rate_half_start' => (int)$row['type_of_work_rate_half_start'],
+                                    'rate_half_end' => (int)$row['type_of_work_rate_half_end'],
+                                    'rate_full_start' => (int)$row['type_of_work_rate_full_start'],
+                                    'rate_full_end' => (int)$row['type_of_work_rate_full_end']
                                 ];
                             }
 
@@ -384,8 +388,10 @@ $resultType = $conn->query($sql);
                         t.type_work,
                         t.type_icon,
                         p.photographer_id,
-                        CAST( tow.type_of_work_rate_half  AS UNSIGNED) AS rate_half,
-                        CAST( tow.type_of_work_rate_full AS UNSIGNED) AS rate_full,
+                        CAST( tow.type_of_work_rate_half_start  AS UNSIGNED) AS rate_half_start,
+                        CAST( tow.type_of_work_rate_half_end  AS UNSIGNED) AS rate_half_end,
+                        CAST( tow.type_of_work_rate_full_start AS UNSIGNED) AS rate_full_start, 
+                        CAST( tow.type_of_work_rate_full_end AS UNSIGNED) AS rate_full_end,
                         p.photographer_name,
                         p.photographer_surname,
                         p.photographer_scope

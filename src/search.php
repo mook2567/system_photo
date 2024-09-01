@@ -275,8 +275,10 @@ $rowInfo = $resultInfo->fetch_assoc();
             p.photographer_scope,
             p.photographer_photo,
             p.photographer_address,
-            tow.type_of_work_rate_half,
-            tow.type_of_work_rate_full,
+            tow.type_of_work_rate_half_start, 
+            tow.type_of_work_rate_half_end, 
+            tow.type_of_work_rate_full_start, 
+            tow.type_of_work_rate_full_end,
             t.type_work,
             p.photographer_id
         FROM 
@@ -335,13 +337,13 @@ $rowInfo = $resultInfo->fetch_assoc();
                                                                 <b><?php echo $row_photographer['type_work']; ?> </b>
                                                             </div>
                                                             <div class="ms-3 mt-1">
-                                                                <?php if ($row_photographer['type_of_work_rate_half'] > 0) { ?>
-                                                                    <b>ราคาครึ่งวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_half'], 0); ?><b> บาท</b>
+                                                                <?php if ($row_photographer['type_of_work_rate_half_start'] > 0) { ?>
+                                                                    <b>ราคาครึ่งวัน (เริ่มต้น) : </b><?php echo number_format($row_photographer['type_of_work_rate_half_start'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
                                                             </div>
                                                             <div class="ms-3 mt-1">
-                                                                <?php if ($row_photographer['type_of_work_rate_full'] > 0) { ?>
-                                                                    <b>ราคาเต็มวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_full'], 0); ?><b> บาท</b>
+                                                                <?php if ($row_photographer['type_of_work_rate_full_start'] > 0) { ?>
+                                                                    <b>ราคาเต็มวัน (เริ่มต้น) : </b><?php echo number_format($row_photographer['type_of_work_rate_full_start'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
                                                             </div>
                                                             </p>
@@ -393,8 +395,10 @@ $rowInfo = $resultInfo->fetch_assoc();
                             p.photographer_scope,
                             p.photographer_photo,
                             p.photographer_address,
-                            tow.type_of_work_rate_half,
-                            tow.type_of_work_rate_full,
+                            tow.type_of_work_rate_half_start, 
+                            tow.type_of_work_rate_half_end, 
+                            tow.type_of_work_rate_full_start, 
+                            tow.type_of_work_rate_full_end,
                             t.type_work,
                             p.photographer_id
                         FROM 
@@ -427,8 +431,8 @@ $rowInfo = $resultInfo->fetch_assoc();
                                     if ($row['type_work'] !== null) {
                                         $photographers[$row['photographer_id']]['type_of_work'][] = [
                                             'type_work' => $row['type_work'],
-                                            'rate_half' => (int)$row['type_of_work_rate_half'],
-                                            'rate_full' => (int)$row['type_of_work_rate_full']
+                                            'rate_half' => (int)$row['type_of_work_rate_half_start'],
+                                            'rate_full' => (int)$row['type_of_work_rate_full_start']
                                         ];
                                     }
                                 }

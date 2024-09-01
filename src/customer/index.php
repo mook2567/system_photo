@@ -261,8 +261,10 @@ if (isset($_SESSION['customer_login'])) {
                         p.photographer_scope,
                         p.photographer_photo,
                         p.photographer_address,
-                        tow.type_of_work_rate_half,
-                        tow.type_of_work_rate_full,
+                        tow.type_of_work_rate_half_start, 
+                        tow.type_of_work_rate_half_end,
+                        tow.type_of_work_rate_full_start,
+                        tow.type_of_work_rate_full_end,
                         t.type_work,
                         p.photographer_id
                     FROM 
@@ -288,8 +290,10 @@ if (isset($_SESSION['customer_login'])) {
                                 $photographers[$row['photographer_id']]['photographer_address'] = $row['photographer_address'];
                                 $photographers[$row['photographer_id']]['type_of_work'][] = [
                                     'type_work' => $row['type_work'],
-                                    'rate_half' => (int)$row['type_of_work_rate_half'],
-                                    'rate_full' => (int)$row['type_of_work_rate_full']
+                                    'rate_half_start' => (int)$row['type_of_work_rate_half_start'],
+                                    'rate_half_end' => (int)$row['type_of_work_rate_half_end'],
+                                    'rate_full_start' => (int)$row['type_of_work_rate_full_start'],
+                                    'rate_full_end' => (int)$row['type_of_work_rate_full_end']
                                 ];
                             }
 
@@ -338,7 +342,6 @@ if (isset($_SESSION['customer_login'])) {
             </div>
         </div>
     </div>
-    <!-- Examples of work End -->
     <!-- Examples of work Start -->
     <div class="container-xxl py-2">
         <div class="container">
@@ -350,16 +353,18 @@ if (isset($_SESSION['customer_login'])) {
                     </div>
                 </div>
                 <div class="row g-4">
-                    <?php
-                    $sql = "SELECT 
+                <?php
+                $sql = "SELECT 
                         po.portfolio_id, 
                         po.portfolio_photo, 
                         po.portfolio_caption, 
                         t.type_work,
                         t.type_icon,
                         p.photographer_id,
-                        CAST( tow.type_of_work_rate_half  AS UNSIGNED) AS rate_half,
-                        CAST( tow.type_of_work_rate_full AS UNSIGNED) AS rate_full,
+                        CAST( tow.type_of_work_rate_half_start  AS UNSIGNED) AS rate_half_start,
+                        CAST( tow.type_of_work_rate_half_end  AS UNSIGNED) AS rate_half_end,
+                        CAST( tow.type_of_work_rate_full_start AS UNSIGNED) AS rate_full_start, 
+                        CAST( tow.type_of_work_rate_full_end AS UNSIGNED) AS rate_full_end,
                         p.photographer_name,
                         p.photographer_surname,
                         p.photographer_scope
@@ -373,28 +378,28 @@ if (isset($_SESSION['customer_login'])) {
                         type t ON t.type_id = tow.type_id
                     ORDER BY 
                         po.portfolio_id DESC;";
-                    $resultPost = $conn->query($sql);
-                    if ($resultPost->num_rows > 0) {
-                        while ($rowPost = $resultPost->fetch_assoc()) {
-                    ?>
-                            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                <div class="property-item rounded overflow-hidden bg-white">
-                                    <div class="position-relative overflow-hidden">
-                                        <a><img class="img-fluid property-img" src="../img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
-                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
-                                    </div>
-                                    <div class="p-4 pb-0">
-                                        <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
-                                        <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
-                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
-                                    </div>
+                $resultPost = $conn->query($sql);
+                if ($resultPost->num_rows > 0) {
+                    while ($rowPost = $resultPost->fetch_assoc()) {
+                ?>
+                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="property-item rounded overflow-hidden bg-white">
+                                <div class="position-relative overflow-hidden">
+                                    <a><img class="img-fluid property-img" src="../img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
+                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
+                                </div>
+                                <div class="p-4 pb-0">
+                                    <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
+                                    <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
+                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
                                 </div>
                             </div>
-                    <?php
-                        }
+                        </div>
+                <?php
                     }
-                    ?>
-                </div>
+                }
+                ?>
+            </div>
                 <div class="col-12 text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
                     <a class="btn btn-dark py-3 px-5" href="workings.php">ดูเพิ่มเติม</a>
                 </div>

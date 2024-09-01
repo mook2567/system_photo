@@ -58,19 +58,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Retrieve the rates and type_ids from the form
         $profileImage = ""; // Initialize the profileImage variable
 
-        $rate_half = $_POST['rate_half'];
-        $rate_full = $_POST['rate_full'];
+        $rate_half_start = $_POST['rate_half_s'];
+        $rate_half_end = $_POST['rate_half_e'];
+        $rate_full_start = $_POST['rate_full_s'];
+        $rate_full_end = $_POST['rate_full_e'];
         $type_id = $_POST['type_id'];
 
         foreach ($type_id as $index => $id) {
-            $half_rate = $rate_half[$index];
-            $full_rate = $rate_full[$index];
+            $half_rate_start = $rate_half_start[$index];
+            $half_rate_end = $rate_half_end[$index];
+            $full_rate_start = $rate_full_start[$index];
+            $full_rate_end = $rate_full_end[$index];
 
             $sql = "UPDATE type_of_work 
-            SET type_of_work_rate_half = ?, type_of_work_rate_full = ?
+            SET type_of_work_rate_half_start = ?, type_of_work_rate_half_end = ?, type_of_work_rate_full_start = ?, type_of_work_rate_full_end = ?
             WHERE type_id = ? AND photographer_id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param('ddii', $half_rate, $full_rate, $id, $photographer_id);
+            $stmt->bind_param('ddddii', $half_rate_start,  $half_rate_end, $full_rate_start, $full_rate_end, $id, $photographer_id);
             $stmt->execute();
             $stmt->close();
         }
@@ -221,11 +225,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id
+    $sql = "SELECT t.type_id, t.type_work, tow_latest.photographer_id, tow_latest.type_of_work_rate_half_start, tow_latest.type_of_work_rate_half_end, tow_latest.type_of_work_rate_full_start, tow_latest.type_of_work_rate_full_end
     FROM type t
     INNER JOIN (
-        SELECT type_id, MAX(photographer_id) AS photographer_id
-        FROM type_of_work
+        SELECT type_id, type_of_work_rate_half_start, type_of_work_rate_half_end, type_of_work_rate_full_start, type_of_work_rate_full_end, MAX(photographer_id) AS photographer_id
+        FROM type_of_work tow
         GROUP BY type_id
     ) AS tow_latest ON t.type_id = tow_latest.type_id;
     ";
@@ -234,14 +238,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (isset($_POST['submit_type_of_work'])) {
         $details = $_POST['details'];
-        $rate_half = isset($_POST['rate_half']) && $_POST['rate_half'] !== '' ? $_POST['rate_half'] : 0.0;
-        $rate_full = isset($_POST['rate_full']) && $_POST['rate_full'] !== '' ? $_POST['rate_full'] : 0.0;
+        $rate_half_start = isset($_POST['rate_half_s']) && $_POST['rate_half_s'] !== '' ? $_POST['rate_half_s'] : 0.0;
+        $rate_half_end = isset($_POST['rate_half_e']) && $_POST['rate_half_e'] !== '' ? $_POST['rate_half_e'] : 0.0;
+        $rate_full_start = isset($_POST['rate_full_s']) && $_POST['rate_full_s'] !== '' ? $_POST['rate_full_s'] : 0.0;
+        $rate_full_end = isset($_POST['rate_full_e']) && $_POST['rate_full_e'] !== '' ? $_POST['rate_full_e'] : 0.0;
         $photographer_id = $id_photographer;
         $type = $_POST['type'];
 
-        $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half`, `type_of_work_rate_full`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?)";
+        // INSERT query
+        $sql = "INSERT INTO `type_of_work` (`type_of_work_details`, `type_of_work_rate_half_start`, `type_of_work_rate_half_end`, `type_of_work_rate_full_start`, `type_of_work_rate_full_end`, `photographer_id`, `type_id`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $details, $rate_half, $rate_full, $photographer_id, $type);
+        $stmt->bind_param("sssssss", $details, $rate_half_start, $rate_half_end, $rate_full_start, $rate_full_end, $photographer_id, $type);
 
         if ($stmt->execute()) {
             echo '
@@ -757,7 +765,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                     <div class="col-12 text-start mt-1">
                         <h5>ติดต่อ</h5>
-                        <div class=" ms-4">
+                        <div class=" ms-2">
                             <div class="d-flex align-items-center">
                                 <i class="fa-solid fa-phone me-2"></i>
                                 <p class="mb-0"><?php echo $rowPhoto['photographer_tell']; ?></p>
@@ -776,8 +784,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 t.type_work, 
                                 tow_latest.photographer_id, 
                                 tow_latest.type_of_work_details, 
-                                tow_latest.type_of_work_rate_half, 
-                                tow_latest.type_of_work_rate_full
+                                tow_latest.type_of_work_rate_half_start, 
+                                tow_latest.type_of_work_rate_half_end,
+                                tow_latest.type_of_work_rate_full_start,
+                                tow_latest.type_of_work_rate_full_end
                             FROM 
                                 type t
                             INNER JOIN (
@@ -785,8 +795,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     type_id, 
                                     photographer_id, 
                                     type_of_work_details, 
-                                    type_of_work_rate_half, 
-                                    type_of_work_rate_full
+                                    type_of_work_rate_half_start,
+                                    type_of_work_rate_half_end,
+                                    type_of_work_rate_full_start,
+                                    type_of_work_rate_full_end
                                 FROM 
                                     type_of_work
                                 WHERE 
@@ -815,12 +827,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
 
                     // Determine if more than 3 types and set flag
-                    $moreThanThree = count($workTypes) > 3;
+
                     $displayedTypes = array_slice($workTypes, 0, 3);
+                    $hiddenTypes = array_slice($workTypes, 3);
                     ?>
                     <div class="col-12 text-start mt-2">
                         <h5>ประเภทงานที่รับ</h5>
-                        <div class="ms-4">
+                        <div class="ms-2">
                             <?php
                             foreach ($displayedTypes as $rowTypeWorkDetail) {
                             ?>
@@ -830,30 +843,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <b><?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?></b>
                                     </div>
                                     <div class="ms-3">
-                                        <?php if ($rowTypeWorkDetail['type_of_work_rate_half'] > 0) { ?>
-                                            <div><?php echo 'ราคาครึ่งวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_half'], 0) . ' บาท'; ?></div>
+                                        <?php if ($rowTypeWorkDetail['type_of_work_rate_half_start'] > 0) { ?>
+                                            <div><?php echo 'ราคาครึ่งวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_end'], 0) . ' บาท'; ?></div>
                                         <?php } ?>
                                     </div>
                                     <div class="ms-3">
-                                        <?php if ($rowTypeWorkDetail['type_of_work_rate_full'] > 0) { ?>
-                                            <div><?php echo 'ราคาเต็มวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_full'], 0) . ' บาท'; ?></div>
+                                        <?php if ($rowTypeWorkDetail['type_of_work_rate_full_start'] > 0) { ?>
+                                            <div><?php echo 'ราคาเต็มวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_end'], 0) . ' บาท'; ?></div>
                                         <?php } ?>
                                     </div>
                                 </div>
                             <?php
                             }
-                            if ($moreThanThree) {
                             ?>
-                                <div class="ms-5">
-                                    <button type="button" class="btn btn-sm ms-4" data-bs-toggle="modal" data-bs-target="#moreTypesModal">
-                                        <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
-                                    </button>
-                                </div>
-                            <?php
-                            }
-                            ?>
+                            <div class="ms-5">
+                                <button type="button" class="btn btn-sm ms-4" data-bs-toggle="modal" data-bs-target="#moreTypesModal">
+                                    <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                                </button>
+                            </div>
                         </div>
                     </div>
+
                     <!-- Modal for additional work types -->
                     <div class="modal fade" id="moreTypesModal" tabindex="-1" aria-labelledby="moreTypesModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
@@ -866,20 +876,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <div class="row">
                                         <?php foreach ($workTypes as $rowTypeWorkDetail): ?>
                                             <div class="col-12 col-md-4 mb-4">
-                                                <div class="card" style="height: 250px;">
+                                                <div class="card" style="min-height: 250px;">
                                                     <div class="card-body">
                                                         <h5 class="card-title">
-                                                        <i class="fa-solid fa-circle me-2" style="font-size: 8px;"></i>
+                                                            <i class="fa-solid fa-circle me-2" style="font-size: 8px;"></i>
                                                             <?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?>
                                                         </h5>
-                                                        <?php if ($rowTypeWorkDetail['type_of_work_rate_half'] > 0) { ?>
-                                                            <p class="card-text"><?php echo 'ราคาครึ่งวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_half'], 0) . ' บาท'; ?></p>
-                                                        <?php } ?>
-                                                        <?php if ($rowTypeWorkDetail['type_of_work_rate_full'] > 0) { ?>
-                                                            <p class="card-text"><?php echo 'ราคาเต็มวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_full'], 0) . ' บาท'; ?></p>
-                                                        <?php } ?>
+                                                        <div class="mb-1">
+                                                            <?php if ($rowTypeWorkDetail['type_of_work_rate_half_start'] > 0) { ?>
+                                                                <div><?php echo 'ราคาครึ่งวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_end'], 0) . ' บาท'; ?></div>
+                                                            <?php } ?>
+                                                        </div>
+                                                        <div class="mb-1">
+                                                            <?php if ($rowTypeWorkDetail['type_of_work_rate_full_start'] > 0) { ?>
+                                                                <div><?php echo 'ราคาเต็มวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_end'], 0) . ' บาท'; ?></div>
+                                                            <?php } ?>
+                                                        </div>
                                                         <?php if (!empty($rowTypeWorkDetail['type_of_work_details'])) { ?>
-                                                            <p class="card-text"><?php echo 'รายละเอียด: ' . htmlspecialchars($rowTypeWorkDetail['type_of_work_details']); ?></p>
+                                                            <p class="card-text"><?php echo 'รายละเอียด : ' . htmlspecialchars($rowTypeWorkDetail['type_of_work_details']); ?></p>
                                                         <?php } ?>
                                                     </div>
                                                 </div>
@@ -902,7 +916,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     ?>
                     <div class="col-12 text-start mt-2">
                         <h5>ขอบเขตพื้นที่รับงาน</h5>
-                        <div class="ms-4">
+                        <div class="ms-2">
                             <?php if (!empty($photographerScopes)) : ?>
                                 <?php foreach ($photographerScopes as $scope) : ?>
                                     <div class="d-flex align-items-center">
@@ -1011,8 +1025,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             t.type_work, 
                                                                             tow_latest.photographer_id, 
                                                                             tow_latest.type_of_work_details, 
-                                                                            tow_latest.type_of_work_rate_half, 
-                                                                            tow_latest.type_of_work_rate_full
+                                                                            tow_latest.type_of_work_rate_half_start, 
+                                                                            tow_latest.type_of_work_rate_half_end, 
+                                                                            tow_latest.type_of_work_rate_full_start,
+                                                                            tow_latest.type_of_work_rate_full_end
                                                                         FROM 
                                                                             type t
                                                                         INNER JOIN (
@@ -1020,8 +1036,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 type_id, 
                                                                                 photographer_id, 
                                                                                 type_of_work_details, 
-                                                                                type_of_work_rate_half, 
-                                                                                type_of_work_rate_full
+                                                                                type_of_work_rate_half_start,
+                                                                                type_of_work_rate_half_end,  
+                                                                                type_of_work_rate_full_start,
+                                                                                type_of_work_rate_full_end
+
                                                                             FROM 
                                                                                 type_of_work
                                                                             WHERE 
@@ -1058,10 +1077,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         <div class="mb-3">
                                                                             <div class="row">
                                                                                 <div class="col-2 mt-2">
-                                                                                    <label for="rate_half_<?php echo $index; ?>" class="form-label">ราคาครึ่งวัน:</label>
+                                                                                    <label for="rate_half_<?php echo $index; ?>" class="form-label">ราคาครึ่งวัน:<label>
                                                                                 </div>
                                                                                 <div class="col-3">
-                                                                                    <input type="number" id="rate_half_<?php echo $index; ?>" name="rate_half[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_half'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter half-day rate in บาท">
+                                                                                    <input type="number" id="rate_half_start_<?php echo $index; ?>" name="rate_half_s[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_half_start'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter half-day rate in บาท">
+                                                                                </div>
+                                                                                <div class="col-1">
+                                                                                    <center>
+                                                                                        <p>-</p>
+                                                                                    </center>
+                                                                                </div>
+                                                                                <div class="col-3">
+                                                                                    <input type="number" id="rate_half_end_<?php echo $index; ?>" name="rate_half_e[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_half_end'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter half-day rate in บาท">
                                                                                 </div>
                                                                                 <div class="col-2 mt-2">
                                                                                     <label for="rate_half_<?php echo $index; ?>" class="form-label"> บาท</label>
@@ -1074,7 +1101,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     <label for="rate_full_<?php echo $index; ?>" class="form-label">ราคาเต็มวัน:</label>
                                                                                 </div>
                                                                                 <div class="col-3">
-                                                                                    <input type="number" id="rate_full_<?php echo $index; ?>" name="rate_full[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_full'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter full-day rate in บาท">
+                                                                                    <input type="number" id="rate_full_start_<?php echo $index; ?>" name="rate_full_s[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_full_start'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter full-day rate in บาท">
+                                                                                </div>
+                                                                                <div class="col-1">
+                                                                                    <center>
+                                                                                        <p>-</p>
+                                                                                    </center>
+                                                                                </div>
+                                                                                <div class="col-3">
+                                                                                    <input type="number" id="rate_full_end_<?php echo $index; ?>" name="rate_full_e[<?php echo $index; ?>]" class="form-control" value="<?php echo htmlspecialchars($rowTypeWorkDetail['type_of_work_rate_full_end'], ENT_QUOTES, 'UTF-8'); ?>" min="0" step="0.01" placeholder="Enter full-day rate in บาท">
                                                                                 </div>
                                                                                 <div class="col-2 mt-2">
                                                                                     <label for="rate_full_<?php echo $index; ?>" class="form-label"> บาท</label>
@@ -1370,8 +1405,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     </div>
                                                 </label>
                                             </div>
-                                            <div class="col-8 mt-4">
-                                                <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_half_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_half_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                                             </div>
                                         </div>
                                         <div class="row">
@@ -1381,10 +1419,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <div class="row">
                                                         <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
                                                     </div>
-                                                </label>
                                             </div>
-                                            <div class="col-8 mt-4">
-                                                <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_full_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_full_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                                             </div>
                                         </div>
                                         <div class="post-input-container">
@@ -1736,31 +1776,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-4 mt-4">
-                                    <label for="rate_half">
-                                        <span style="color: black;">เรทราคาครึ่งวัน</span>
-                                        <div class="row">
-                                            <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_half">
+                                                    <span style="color: black;">เรทราคาครึ่งวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_half_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_half_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
                                         </div>
-                                    </label>
-                                </div>
-                                <div class="col-8 mt-4">
-                                    <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-4 mt-4">
-                                    <label for="rate_full">
-                                        <span style="color: black;">เรทราคาเต็มวัน</span>
                                         <div class="row">
-                                            <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_full">
+                                                    <span style="color: black;">เรทราคาเต็มวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
+                                                    </div>
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_full_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_full_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
                                         </div>
-                                    </label>
-                                </div>
-                                <div class="col-8 mt-4">
-                                    <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                                </div>
-                            </div>
                             <div class="post-input-container">
                                 <span style="color: black;">รายละเอียดการรับงาน</span>
                                 <span style="color: red;">*</span>
