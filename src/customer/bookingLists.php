@@ -34,14 +34,69 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $type = $_POST['type'];
         $details = $_POST['details'];
         $booking_id = $_POST['booking_id'];
+        $photographer_id = $_POST['photographer_id']; // Assuming this is passed from the form
 
-        // Assuming $conn is your MySQLi connection
+        // Check if the start and end dates have been changed
+        $check_date_change_sql = "SELECT `booking_start_date`, `booking_end_date` FROM `booking` WHERE `booking_id` = ?";
+        $check_date_change_stmt = $conn->prepare($check_date_change_sql);
+        $check_date_change_stmt->bind_param("i", $booking_id);
+        $check_date_change_stmt->execute();
+        $check_date_change_stmt->bind_result($existing_start_date, $existing_end_date);
+        $check_date_change_stmt->fetch();
+        $check_date_change_stmt->close();
+
+        if ($start_date !== $existing_start_date || $end_date !== $existing_end_date) {
+            // Check for overlapping bookings if the dates have changed
+            $check_sql = "SELECT COUNT(*) FROM `booking` 
+                          WHERE `photographer_id` = ? 
+                          AND `booking_id` != ? 
+                          AND `booking_confirm_status` = 0
+                          AND (
+                              (? BETWEEN `booking_start_date` AND `booking_end_date`)
+                              OR
+                              (? BETWEEN `booking_start_date` AND `booking_end_date`)
+                              OR
+                              (`booking_start_date` BETWEEN ? AND ?)
+                          )";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("iissss", $photographer_id, $booking_id, $start_date, $end_date, $start_date, $end_date);
+            $check_stmt->execute();
+            $check_stmt->bind_result($count);
+            $check_stmt->fetch();
+            $check_stmt->close();
+
+            if ($count > 0) {
+                // There is an overlapping booking
+?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
+                            text: 'เนื่องจากมีรายการจองของลูกค้าท่านอื่นที่รออนุมัติอยู่สำหรับช่างภาพท่านนี้',
+                            icon: 'error',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    }, 500);
+                </script>
+            <?php
+                exit; // Stop execution if there is an overlap
+            }
+        }
+
+        // Proceed with the update (dates and/or other details)
         $sql = "UPDATE `booking` SET `booking_start_date` = ?, `booking_start_time` = ?, `booking_end_date` = ?, `booking_end_time` = ?, `booking_location` = ?, `type_of_work_id` = ?, `booking_details` = ? WHERE `booking_id` = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sssssssi", $start_date, $start_time, $end_date, $end_time, $location, $type, $details, $booking_id);
 
         if ($stmt->execute()) {
-?>
+            ?>
             <script>
                 setTimeout(function() {
                     Swal.fire({
@@ -82,6 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
     }
 }
+
 
 ?>
 
@@ -233,7 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .table th:nth-child(1),
         .table td:nth-child(1) {
-            width: 200px;
+            width: 150px;
             height: 50px;
         }
 
@@ -259,7 +315,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .table td:nth-child(4),
         .table td:nth-child(5),
         .table td:nth-child(6) {
-            width: 200px;
+            width: 100px;
             height: 50px;
             overflow: hidden;
             /* Hide overflow content */
@@ -424,18 +480,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             </label>
                                                                             <input type="date" name="start_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_date']; ?>" readonly style="resize: none;">
                                                                         </div>
-                                                                        <div class="col-md-2 text-center">
-                                                                            <label for="start_time" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                                                            </label>
-                                                                            <input type="time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly style="resize: none;">
-                                                                        </div>
-
                                                                         <div class="col-md-4 text-center">
                                                                             <label for="end_date" style="font-weight: bold; display: flex; align-items: center;">
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
                                                                             </label>
                                                                             <input type="date" name="end_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_date']; ?>" readonly style="resize: none;">
+                                                                        </div>
+                                                                        <div class="col-md-2 text-center">
+                                                                            <label for="start_time" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
+                                                                            </label>
+                                                                            <input type="time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly style="resize: none;">
                                                                         </div>
                                                                         <div class="col-md-2 text-center">
                                                                             <label for="end_time" style="font-weight: bold; display: flex; align-items: center;">
@@ -546,29 +601,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
                                                                                 <span style="color: red;">*</span>
                                                                             </label>
-                                                                            <input type="date" name="start_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_date']; ?>" required>
+                                                                            <input type="date" id="start_date" name="start_date" class="form-control mt-1"
+                                                                                value="<?php echo $rowBooking['booking_start_date']; ?>"
+                                                                                required
+                                                                                min="<?php echo date('Y-m-d'); ?>">
+                                                                        </div>
+                                                                        <div class="col-md-4 text-center">
+                                                                            <label for="end_date" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
+                                                                                <span style="color: red;">*</span>
+                                                                            </label>
+                                                                            <input type="date" id="end_date" name="end_date" class="form-control mt-1"
+                                                                                value="<?php echo $rowBooking['booking_end_date']; ?>"
+                                                                                required>
                                                                         </div>
                                                                         <div class="col-md-2 text-center">
                                                                             <label for="start_time" style="font-weight: bold; display: flex; align-items: center;">
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
                                                                                 <span style="color: red;">*</span>
                                                                             </label>
-                                                                            <input type="time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" required>
-                                                                        </div>
-
-                                                                        <div class="col-md-4 text-center">
-                                                                            <label for="end_date" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
-                                                                                <span style="color: red;">*</span>
-                                                                            </label>
-                                                                            <input type="date" name="end_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_date']; ?>" required>
+                                                                            <input type="time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" required oninput="calculateEndTime()">
                                                                         </div>
                                                                         <div class="col-md-2 text-center">
                                                                             <label for="end_time" style="font-weight: bold; display: flex; align-items: center;">
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
                                                                                 <span style="color: red;">*</span>
                                                                             </label>
-                                                                            <input type="time" name="end_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_time']; ?>" required>
+                                                                            <input type="time" name="end_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_time']; ?>" readonly>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -588,7 +647,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
                                                                                 <span style="color: red;">*</span>
                                                                             </label>
-                                                                            <select class="form-select border-1 py-2" id="type" name="type" required>
+                                                                            <input type="text" name="type" class="form-control mt-1" value="<?php echo $rowBooking['type_work']; ?>" readonly style="resize: none;">
+                                                                            <!-- <select class="form-select border-1 py-2" id="type" name="type" required>
                                                                                 <option value="">เลือกประเภทงาน</option>
                                                                                 <?php
                                                                                 // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
@@ -597,7 +657,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                                                                 INNER JOIN booking b ON b.photographer_id = tow.photographer_id
                                                                                 INNER JOIN photographer p ON p.photographer_id = tow.photographer_id
-                                                                                WHERE p.photographer_id = '1'
+                                                                                WHERE p.photographer_id = b.photographer_id
                                                                                 GROUP BY t.type_id, t.type_work;
                                                                                 ;";
                                                                                 $resultTypeWork = $conn->query($sql);
@@ -611,7 +671,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     echo '<option value="">ไม่มีประเภทงาน ช่างภาพไม่มีประเภทงานที่รับ</option>';
                                                                                 }
                                                                                 ?>
-                                                                            </select>
+                                                                            </select> -->
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -654,6 +714,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         </div>
                                                     </div>
                                                     <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                    <input type="hidden" name="photographer_id" value="<?php echo $rowBooking['photographer_id']; ?>">
                                                     <div class="modal-footer justify-content-center">
                                                         <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                         <button id="saveButton" name="submit_booking_edit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
@@ -739,6 +800,72 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
                 }
             }
+        });
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var startDateInput = document.getElementById('start_date');
+        var endDateInput = document.getElementById('end_date');
+
+        // Set the min attribute for the start date to today
+        startDateInput.min = new Date().toISOString().split('T')[0];
+
+        // Adjust end date based on start date selection
+        startDateInput.addEventListener('change', function() {
+            // Set min value for end date as the greater of today or start date
+            endDateInput.min = startDateInput.value;
+            if (new Date(endDateInput.value) < new Date(startDateInput.value)) {
+                endDateInput.value = startDateInput.value;
+            }
+        });
+
+        // Set initial min value for end date
+        var today = new Date().toISOString().split('T')[0];
+        endDateInput.min = startDateInput.value || today;
+
+        // Prevent selecting a past date for the end date if it's set initially
+        if (new Date(endDateInput.value) < new Date(today)) {
+            endDateInput.value = today;
+        }
+    });
+</script>
+    <script>
+        function calculateEndTime() {
+            // Get the start time input value
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
+
+            if (startTimeInput.value) {
+                // Get selected duration
+                let hoursToAdd = 4; // Default to half-day
+
+                durationRadios.forEach(radio => {
+                    if (radio.checked) {
+                        hoursToAdd = radio.value === 'full' ? 8 : 4;
+                    }
+                });
+
+                // Create Date objects for the start time and the end time
+                const startTime = new Date(`1970-01-01T${startTimeInput.value}:00`);
+                const endTime = new Date(startTime.getTime() + hoursToAdd * 60 * 60 * 1000); // Add hours
+
+                // Format the end time as HH:MM
+                const hours = String(endTime.getHours()).padStart(2, '0');
+                const minutes = String(endTime.getMinutes()).padStart(2, '0');
+                const formattedEndTime = `${hours}:${minutes}`;
+
+                // Set the value of the end time input
+                endTimeInput.value = formattedEndTime;
+            }
+        }
+
+        // Add event listener for duration radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
+            durationRadios.forEach(radio => {
+                radio.addEventListener('change', calculateEndTime);
+            });
         });
     </script>
 </body>

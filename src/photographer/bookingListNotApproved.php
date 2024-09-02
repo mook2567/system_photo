@@ -18,8 +18,8 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
         CASE 
             WHEN (b.booking_start_time < '12:00:00' AND b.booking_end_time <= '12:00:00')
                 OR (b.booking_start_time >= '12:00:00' AND b.booking_end_time > '12:00:00') 
-            THEN tow.type_of_work_rate_half
-            ELSE tow.type_of_work_rate_full
+            THEN tow.type_of_work_rate_half_start
+            ELSE tow.type_of_work_rate_full_start
         END AS booking_price
         FROM booking b
         JOIN customer c ON b.cus_id = c.cus_id
@@ -338,18 +338,17 @@ $resultBooking = $conn->query($sql1);
                                                                         </label>
                                                                         <input type="date" name="booking-start-date" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_date']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-md-2 text-center">
-                                                                        <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                                                        </label>
-                                                                        <input type="time" name="booking-start-time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly style="resize: none;">
-                                                                    </div>
-
                                                                     <div class="col-md-4 text-center">
                                                                         <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
                                                                             <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
                                                                         </label>
                                                                         <input type="date" name="booking-end-date" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_date']; ?>" readonly style="resize: none;">
+                                                                    </div>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
+                                                                        </label>
+                                                                        <input type="time" name="booking-start-time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly style="resize: none;">
                                                                     </div>
                                                                     <div class="col-md-2 text-center">
                                                                         <label for="booking-end-time" style="font-weight: bold; display: flex; align-items: center;">
@@ -361,7 +360,7 @@ $resultBooking = $conn->query($sql1);
                                                             </div>
                                                             <div class="col-12 mt-3">
                                                                 <div class="row">
-                                                                    <div class="col-md-10 text-center">
+                                                                    <div class="col-md-8 text-center">
                                                                         <label for="location" style="font-weight: bold; display: flex; align-items: center;">
                                                                             <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
                                                                         </label>
@@ -372,6 +371,29 @@ $resultBooking = $conn->query($sql1);
                                                                             <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
                                                                         </label>
                                                                         <input type="text" name="type" class="form-control mt-1" value="<?php echo $rowBooking['type_work']; ?>" readonly style="resize: none;">
+                                                                    </div>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <label for="type" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">จำนวนชั่วโมงทำงาน</span>
+                                                                        </label>
+                                                                        <?php
+                                                                        // Convert time to DateTime objects
+                                                                        $startTime = new DateTime($rowBooking['booking_start_time']);
+                                                                        $endTime = new DateTime($rowBooking['booking_end_time']);
+
+                                                                        // Calculate the interval between the start and end times
+                                                                        $interval = $startTime->diff($endTime);
+                                                                        $hours = $interval->h; // Hours part
+                                                                        $minutes = $interval->i; // Minutes part
+
+                                                                        // Format the total hours and minutes
+                                                                        if ($minutes == 0) {
+                                                                            $workingHours = $hours . " ชั่วโมง";
+                                                                        } else {
+                                                                            $workingHours = $hours . " ชั่วโมง " . $minutes . " นาที";
+                                                                        }
+                                                                        ?>
+                                                                        <input type="text" name="type" class="form-control mt-1" value="<?php echo $workingHours; ?>" readonly style="resize: none;">
                                                                     </div>
                                                                 </div>
                                                             </div>

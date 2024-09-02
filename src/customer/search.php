@@ -177,8 +177,8 @@ if (isset($_SESSION['customer_login'])) {
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
                                 <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
-                                <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
+                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
                                 <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                             </div>
                         </div>
@@ -294,8 +294,10 @@ if (isset($_SESSION['customer_login'])) {
             p.photographer_scope,
             p.photographer_photo,
             p.photographer_address,
-            tow.type_of_work_rate_half,
-            tow.type_of_work_rate_full,
+            tow.type_of_work_rate_half_start, 
+            tow.type_of_work_rate_half_end, 
+            tow.type_of_work_rate_full_start, 
+            tow.type_of_work_rate_full_end,
             t.type_work,
             p.photographer_id
         FROM 
@@ -309,9 +311,9 @@ if (isset($_SESSION['customer_login'])) {
 
             // Add budget and time conditions if applicable
             if ($time === 1 && $budget !== null) {
-                $sql .= " AND CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0";
+                $sql .= " AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full_start  AS UNSIGNED) != 0";
             } elseif ($time === 2 && $budget !== null) {
-                $sql .= " AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0";
+                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start  AS UNSIGNED) != 0";
             }
 
             // Add scope condition if applicable
@@ -354,13 +356,13 @@ if (isset($_SESSION['customer_login'])) {
                                                                 <b><?php echo $row_photographer['type_work']; ?> </b>
                                                             </div>
                                                             <div class="ms-3 mt-1">
-                                                                <?php if ($row_photographer['type_of_work_rate_half'] > 0) { ?>
-                                                                    <b>ราคาครึ่งวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_half'], 0); ?><b> บาท</b>
+                                                                <?php if ($row_photographer['type_of_work_rate_half_start'] > 0) { ?>
+                                                                    <b>ราคาครึ่งวัน (เริ่มต้น) : </b><?php echo number_format($row_photographer['type_of_work_rate_half_start'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
                                                             </div>
                                                             <div class="ms-3 mt-1">
-                                                                <?php if ($row_photographer['type_of_work_rate_full'] > 0) { ?>
-                                                                    <b>ราคาเต็มวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_full'], 0); ?><b> บาท</b>
+                                                                <?php if ($row_photographer['type_of_work_rate_full_start'] > 0) { ?>
+                                                                    <b>ราคาเต็มวัน (เริ่มต้น) : </b><?php echo number_format($row_photographer['type_of_work_rate_full_start'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
                                                             </div>
                                                             </p>
@@ -412,8 +414,10 @@ if (isset($_SESSION['customer_login'])) {
                             p.photographer_scope,
                             p.photographer_photo,
                             p.photographer_address,
-                            tow.type_of_work_rate_half,
-                            tow.type_of_work_rate_full,
+                            tow.type_of_work_rate_half_start, 
+                            tow.type_of_work_rate_half_end, 
+                            tow.type_of_work_rate_full_start, 
+                            tow.type_of_work_rate_full_end,
                             t.type_work,
                             p.photographer_id
                         FROM 
@@ -446,8 +450,8 @@ if (isset($_SESSION['customer_login'])) {
                                     if ($row['type_work'] !== null) {
                                         $photographers[$row['photographer_id']]['type_of_work'][] = [
                                             'type_work' => $row['type_work'],
-                                            'rate_half' => (int)$row['type_of_work_rate_half'],
-                                            'rate_full' => (int)$row['type_of_work_rate_full']
+                                            'rate_half' => (int)$row['type_of_work_rate_half_start'],
+                                            'rate_full' => (int)$row['type_of_work_rate_full_start']
                                         ];
                                     }
                                 }
