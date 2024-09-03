@@ -12,7 +12,7 @@
 //     die("Connection failed: " . $conn->connect_error);
 // }
 // ----------- localhost --------------------------
-$servername = "localhost:3306";
+$servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "photo_match";
