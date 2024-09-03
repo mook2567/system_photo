@@ -600,8 +600,6 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
         });
     </script>
 
-
-
     <script>
         // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input
         function setDefaultDate() {

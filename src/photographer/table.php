@@ -18,7 +18,7 @@ if (isset($_SESSION['photographer_login'])) {
 // $booking = array();
 $booking = array(); // Initialize $booking to avoid undefined variable issues
 if ($id_photographer !== null) {
-    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ? AND booking_confirm_status = '1'");
+    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
     $stmt->bind_param("i", $id_photographer);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -204,19 +204,25 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <!-- Header Start -->
     <div class="container-fluid header bg-primary p-1" style="height: 300px;">
         <div class="row g-1 align-items-center flex-column-reverse flex-md-row">
-            <div class="col-md-4 p-5 mt-lg-5">
+        <div class="col-md-5 p-5 mt-lg-5 text-md-end">
                 <br><br>
                 <h1 class="display-7 animated fadeIn mb-1 text-white f text-md-end">ตารางงานของคุณ</h1>
+            </div>
+            <div class="col-5 p-5 mt-5 text-end text-white mt-lg-5">
+                <h5 class="mt-5 text-white">หมายเหตุ <i class="fa-solid fa-circle-exclamation"></i></h5>
+                <h5 class="text-white">สีฟ้า คือ รายการจองที่รออนุมัติ</h5>
+                <h5 class="text-white">สีเหลือง คือ รายการจองครึ่งวัน</h5>
+                <h5 class="text-white">สีส้ม คือ รายการจองเต็มวัน</h5>
             </div>
         </div>
     </div>
     <!-- Header End -->
-    <div class="center bg-white" style="height: 980px;"><br>
+    <div class="center bg-white" style="height: auto;"><br>
         <div class="bg-white">
-            <div id='calendar' style="width: 55%;" class="bg-white"></div>
+            <div id='calendar' style="width: 45%;" class="bg-white"></div>
         </div>
         <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12">
+            <div class="col-md-12 mb-3">
                 <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
                 <button id="saveButton" onclick="window.location.href='bookingListWaittingForApproval.php'" class="btn btn-primary" style="width: 150px; height: 45px;">ดูเพิ่มเติม</button>
             </div>
@@ -249,59 +255,85 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get the booking data from PHP
-        var bookings = <?php echo json_encode($booking); ?>;
+        $(function() {
+            // Get the booking data from PHP
+            var bookings = <?php echo json_encode($booking); ?>;
 
-        // Format the booking data for FullCalendar
-        var events = bookings.length > 0 ? bookings.map(function(booking) {
-            var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                (startDate.getHours() >= 12 && endDate.getHours() > 12);
+            // Format the booking data for FullCalendar
+            var events = bookings.map(function(booking) {
+                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-            var eventColor = isHalfDay ? 'yellow' : 'red';
-            var eventTextColor = isHalfDay ? 'black' : 'white';
-            var eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+                var eventColor;
+                var eventTextColor;
+                var eventTitle;
 
-            const startTime = startDate.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            const endTime = endDate.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            return {
-                title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
-                start: startDate.toISOString(),
-                end: endDate.toISOString(),
-                color: eventColor,
-                textColor: eventTextColor,
-                description: booking.booking_details,
-                extendedProps: {
-                    startTime: startTime,
-                    endTime: endTime
+                // Determine color and title based on booking confirmation status
+                if (booking.booking_confirm_status == 0) { // Unapproved bookings
+                    eventColor = '#edf6fa'; // Light gray
+                    eventTextColor = 'black';
+                    eventTitle = 'รออนุมัติ';
+                } else { // Approved bookings
+                    eventColor = isHalfDay ? '#e9ec86' : '#ecab86';
+                    eventTextColor = isHalfDay ? 'black' : 'black';
+                    eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
                 }
-            };
-        }) : []; // Provide an empty array if no bookings
 
-        // Initialize the FullCalendar
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['dayGrid'],
-            initialView: 'dayGridMonth',
-            editable: true,
-            events: events
+                const startTime = startDate.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const endTime = endDate.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return {
+                    title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
+                    start: startDate.toISOString(),
+                    end: endDate.toISOString(),
+                    color: eventColor,
+                    textColor: eventTextColor,
+                    description: booking.booking_details,
+                    extendedProps: {
+                        startTime: startTime,
+                        endTime: endTime
+                    }
+                };
+            });
+
+            // Initialize the FullCalendar
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['dayGrid', 'interaction'],
+                editable: true,
+                events: events
+            });
+
+            // Render the calendar
+            calendar.render();
         });
+    </script>
 
-        // Render the calendar
-        calendar.render();
-    });
-</script>
+    <script>
+        // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input
+        function setDefaultDate() {
+            const dateInput = document.getElementById('date-saved');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // เดือนเริ่มต้นที่ 0
+            const day = String(today.getDate()).padStart(2, '0');
 
+            const formattedDate = `${year}-${month}-${day}`;
+            dateInput.value = formattedDate;
+        }
 
+        // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
+        window.onload = setDefaultDate;
+    </script>
+    
 </body>
 
 </html>

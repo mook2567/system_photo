@@ -224,6 +224,9 @@ $resultBooking = $conn->query($sql1);
                                 <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                                 <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
+                                <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
                                 <a href="bookingListNotApproved.php" class="dropdown-item active">รายการจองที่ไม่อนุมัติ</a>
                             </div>
                         </div>
@@ -404,7 +407,7 @@ $resultBooking = $conn->query($sql1);
                                                                 <input name="details" class="form-control mt-1" value="<?php echo $rowBooking['booking_details']; ?>" readonly style="resize: none; height: 100px;"></input>
                                                             </div>
                                                             <div class="col-12">
-                                                            <div class="row mt-3">
+                                                                <div class="row mt-3">
                                                                     <div class="col-4">
                                                                         <label for="mobile" style="font-weight: bold; display: flex; align-items: center;">
                                                                             <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
@@ -436,8 +439,8 @@ $resultBooking = $conn->query($sql1);
                                         </div>
                                     </div>
                                 </div>
-            
-                                <?php
+
+                    <?php
                             }
                         }
                     } else {

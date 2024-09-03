@@ -292,9 +292,9 @@ $rowInfo = $resultInfo->fetch_assoc();
 
             // Add budget and time conditions if applicable
             if ($time === 1 && $budget !== null) {
-                $sql .= " AND CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0";
+                $sql .= " AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) != 0";
             } elseif ($time === 2 && $budget !== null) {
-                $sql .= " AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0";
+                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) != 0";
             }
 
             // Add scope condition if applicable
