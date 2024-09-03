@@ -22,13 +22,7 @@ $sql1 = "SELECT b.*,
                 c.cus_tell, 
                 c.cus_email, 
                 t.type_work, 
-                (b.booking_price * 0.30) AS deposit_price,
-                CASE 
-                    WHEN (b.booking_start_time < '12:00:00' AND b.booking_end_time <= '12:00:00')
-                        OR (b.booking_start_time >= '12:00:00' AND b.booking_end_time > '12:00:00') 
-                    THEN tow.type_of_work_rate_half_start
-                    ELSE tow.type_of_work_rate_full_start
-                END AS booking_price
+                (b.booking_price * 0.30) AS deposit_price
          FROM booking b
          JOIN customer c ON b.cus_id = c.cus_id
          JOIN `type` t ON b.type_of_work_id = t.type_id
@@ -46,13 +40,7 @@ $sql1 = "SELECT b.*,
                 c.cus_tell, 
                 c.cus_email, 
                 t.type_work, 
-                (b.booking_price * 0.30) AS deposit_price,
-                CASE 
-                    WHEN (b.booking_start_time < '12:00:00' AND b.booking_end_time <= '12:00:00')
-                        OR (b.booking_start_time >= '12:00:00' AND b.booking_end_time > '12:00:00') 
-                    THEN tow.type_of_work_rate_half_start
-                    ELSE tow.type_of_work_rate_full_start
-                END AS booking_price
+                (b.booking_price * 0.30) AS deposit_price
          FROM booking b
          JOIN customer c ON b.cus_id = c.cus_id
          JOIN `type` t ON b.type_of_work_id = t.type_id
@@ -763,15 +751,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </tbody>
             </table>
         </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12"><br><br>
-                <button onclick="window.history.back();" class="btn btn-danger" style="width: 150px; height: 45px;">ย้อนกลับ</button>
+        <div class="row justify-content-center mt-2 container-center text-center">
+            <div class="col-md-12">
+                <button onclick="window.history.back();" class="btn btn-danger mb-5 " style="width: 150px; height: 45px;">ย้อนกลับ</button>
             </div>
         </div>
     </div>
 
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+    <!-- <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
@@ -779,7 +767,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- Footer End -->
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

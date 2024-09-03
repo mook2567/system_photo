@@ -14,19 +14,36 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $resultPhoto->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 }
-$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work,
-        CASE 
-            WHEN (b.booking_start_time < '12:00:00' AND b.booking_end_time <= '12:00:00')
-                OR (b.booking_start_time >= '12:00:00' AND b.booking_end_time > '12:00:00') 
-            THEN tow.type_of_work_rate_half_start
-            ELSE tow.type_of_work_rate_full_start
-        END AS booking_price
-        FROM booking b
-        JOIN customer c ON b.cus_id = c.cus_id
-        JOIN `type` t ON b.type_of_work_id = t.type_id
-        JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
-        WHERE b.photographer_id = $id_photographer
-        AND b.booking_confirm_status = '0'
+$sql1 = "SELECT 
+            b.*, 
+            c.cus_prefix, 
+            c.cus_name, 
+            c.cus_surname, 
+            c.cus_tell, 
+            c.cus_email, 
+            t.type_work, 
+            tow.type_of_work_rate_half_end, 
+            tow.type_of_work_rate_full_end,
+            tow.type_of_work_rate_half_start,
+            tow.type_of_work_rate_full_start,
+            CASE 
+                WHEN (b.booking_start_time < '12:00:00' AND b.booking_end_time <= '12:00:00')
+                    OR (b.booking_start_time >= '12:00:00' AND b.booking_end_time > '12:00:00') 
+                THEN tow.type_of_work_rate_half_start
+                ELSE tow.type_of_work_rate_full_start
+            END AS booking_price
+            FROM 
+            booking b
+            JOIN 
+            customer c ON b.cus_id = c.cus_id
+            JOIN 
+            `type` t ON b.type_of_work_id = t.type_id
+            JOIN 
+            type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+            WHERE 
+            b.photographer_id = $id_photographer
+            AND b.booking_confirm_status = '0';
+
 ";
 $resultBooking = $conn->query($sql1);
 
@@ -664,24 +681,73 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <!-- Customer Contact Information -->
                                                             <div class="col-12">
                                                                 <div class="row mt-3">
-                                                                    <div class="col-4">
+                                                                    <div class="col-3">
                                                                         <label for="mobile" style="font-weight: bold; display: flex; align-items: center;">
                                                                             <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
                                                                         </label>
                                                                         <input type="text" name="mobile" class="form-control mt-1" value="<?php echo $rowBooking['cus_tell']; ?>" readonly>
                                                                     </div>
-                                                                    <div class="col-4 text-center">
+                                                                    <div class="col-3 text-center">
                                                                         <label for="email" style="font-weight: bold; display: flex; align-items: center;">
                                                                             <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
                                                                         </label>
                                                                         <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowBooking['cus_email']; ?>" readonly>
                                                                     </div>
+                                                                    <?php
+                                                                    // การคำนวณระยะเวลา
+                                                                    $startTime = strtotime($rowBooking['booking_start_time']);
+                                                                    $endTime = strtotime($rowBooking['booking_end_time']);
+                                                                    $hoursDifference = ($endTime - $startTime) / 3600; // แปลงวินาทีเป็นชั่วโมง
+
+                                                                    // กำหนดเรทราคาสูงสุดที่สามารถกรอกได้
+                                                                    $maxPrice = 0;
+                                                                    if ($hoursDifference <= 4) {
+                                                                        $maxPrice = $rowBooking['type_of_work_rate_half_end'];
+                                                                        $messageQ = "กรอกราคาได้ไม่เกิน " . number_format($maxPrice, 2) . " บาท (ครึ่งวัน)";
+                                                                    } elseif ($hoursDifference > 4 && $hoursDifference <= 8) {
+                                                                        $maxPrice = $rowBooking['type_of_work_rate_full_end'];
+                                                                        $messageQ = "กรอกราคาได้ไม่เกิน " . number_format($maxPrice, 2) . " บาท (เต็มวัน)";
+                                                                    } else {
+                                                                        $messageQ = "ระยะเวลาเกินขอบเขตที่กำหนด";
+                                                                    }
+                                                                    ?>
                                                                     <div class="col-4">
                                                                         <label for="confirm_status" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ราคา (บาท)</span>
+                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">ราคา (บาท)</span>
+                                                                            <span id="priceMessage" style="color: red; font-size: 13px;"><?php echo $messageQ; ?></span>
+
+                                                                        </label>
+                                                                        <input type="number" name="booking_price" id="booking_price" class="form-control mt-1"
+                                                                            value="<?php echo htmlspecialchars($rowBooking['booking_price'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                                            step="5"
+                                                                            max="<?php echo $maxPrice; ?>">
+                                                                    </div>
+                                                                    <?php
+                                                                    // การคำนวณระยะเวลา
+                                                                    $startTime = strtotime($rowBooking['booking_start_time']);
+                                                                    $endTime = strtotime($rowBooking['booking_end_time']);
+                                                                    $hoursDifference = ($endTime - $startTime) / 3600; // แปลงวินาทีเป็นชั่วโมง
+
+                                                                    // กำหนดข้อความและเรทราคา
+                                                                    if ($hoursDifference <= 4) {
+                                                                        $rateStart = $rowBooking['type_of_work_rate_half_start'];
+                                                                        $rateEnd = $rowBooking['type_of_work_rate_half_end'];
+                                                                        $message = "เรทราคาเริ่มต้นคือ " . number_format($rateStart, 0) . " บาท เรทราคาสิ้นสุดคือ " . number_format($rateEnd, 0) . " บาท";
+                                                                    } elseif ($hoursDifference > 4 && $hoursDifference <= 8) {
+                                                                        $rateStart = $rowBooking['type_of_work_rate_full_start'];
+                                                                        $rateEnd = $rowBooking['type_of_work_rate_full_end'];
+                                                                        $message = "เรทราคาเริ่มต้นคือ " . number_format($rateStart, 0) . " บาท เรทราคาสิ้นสุดคือ " . number_format($rateEnd, 0) . " บาท";
+                                                                    } else {
+                                                                        $message = "ระยะเวลาเกินขอบเขตที่กำหนด";
+                                                                    }
+                                                                    ?>
+
+                                                                    <div class="col-2">
+                                                                        <label class="" for="confirm_status" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: red; margin-right: 5px; font-size: 13px;">หมายเหตุ</span>
                                                                             <span style="color: red;">*</span>
                                                                         </label>
-                                                                        <input type="booking_price" name="booking_price" class="form-control mt-1" value="<?php echo $rowBooking['booking_price']; ?>">
+                                                                        <span id="rateMessage" style="color: red; font-size: 13px; margin-top: 10px;"><?php echo $message; ?></span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -858,15 +924,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </tbody>
             </table>
         </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12"><br><br>
-                <button onclick="window.history.back();" class="btn btn-danger" style="width: 150px; height: 45px;">ย้อนกลับ</button>
+        <div class="row justify-content-center mt-2 container-center text-center">
+            <div class="col-md-12">
+                <button onclick="window.history.back();" class="btn btn-danger mb-5" style="width: 150px; height: 45px;">ย้อนกลับ</button>
             </div>
         </div>
     </div>
 
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+    <!-- <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
@@ -874,7 +939,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- Footer End -->
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -890,6 +955,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
+    <script>
+        document.getElementById('booking_price').addEventListener('input', function() {
+            const maxPrice = parseFloat(<?php echo $maxPrice; ?>);
+            const inputPrice = parseFloat(this.value);
+            const priceMessage = document.getElementById('priceMessage');
+            const saveButton = document.getElementById('saveButton');
+
+            if (inputPrice > maxPrice) {
+                priceMessage.textContent = 'ราคาที่กรอกเกินจากที่กำหนดไว้ กรุณากรอกไม่เกิน ' + maxPrice.toFixed(2) + ' บาท';
+                saveButton.disabled = true; // ปิดการใช้งานปุ่มอนุมัติการจอง
+            } else {
+                priceMessage.textContent = '';
+                saveButton.disabled = false; // เปิดการใช้งานปุ่มอนุมัติการจอง
+            }
+        });
+    </script>
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
