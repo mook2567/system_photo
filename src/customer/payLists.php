@@ -23,6 +23,7 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     JOIN photographer p ON p.photographer_id = b.photographer_id
     WHERE c.cus_id = $id_cus
     AND b.booking_confirm_status = '1'
+    AND b.booking_pay_status ='0'
 ";
 
 $resultBooking = $conn->query($sql1);
@@ -50,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">แก้ไขข้อมูลการจองสำเร็จ</div>',
+                        title: '<div class="t1">บันทึกข้อมูลการชำระค่ามัดจำสำเร็จ</div>',
                         icon: 'success',
                         confirmButtonText: 'ตกลง',
                         allowOutsideClick: true,
@@ -69,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการแก้ไขข้อมูลการจอง</div>',
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระค่ามัดจำ</div>',
                         icon: 'error',
                         confirmButtonText: 'ออก',
                         allowOutsideClick: true,
@@ -86,6 +87,153 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $stmt->close();
     }
+    if (isset($_POST["submit_pay_deposit"])) {
+        $pay_date = $_POST['pay_date'] ?? null;
+        $pay_time = $_POST['pay_time'] ?? null;
+        $pay_type = $_POST['pay_type'] ?? null;
+        $pay_bank = $_POST['pay_bank'] ?? null;
+        $booking_id = $_POST['booking_id'] ?? null;
+        $pay_slip = null;
+        $pay_status = '0'; // Default to 0
+    
+        // Check if payment type is cash
+        if ($pay_type === "ชำระเงินสด") {
+            $pay_bank = null;
+            $pay_slip = null;
+        } else {
+            // Handle file upload if not cash payment
+            if (isset($_FILES["pay_slip"]) && $_FILES["pay_slip"]["error"] === UPLOAD_ERR_OK) {
+                $uploadDir = '../img/slip/';
+                $pay_slip = basename($_FILES["pay_slip"]["name"]);
+                $targetFilePath = $uploadDir . $pay_slip;
+                $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+    
+                // Allow certain file formats
+                $allowTypes = array('jpg', 'png', 'jpeg', 'gif', 'pdf');
+                if (in_array($fileType, $allowTypes)) {
+                    if (move_uploaded_file($_FILES["pay_slip"]["tmp_name"], $targetFilePath)) {
+                        $pay_status = '1'; // Set status to 1 if file upload is successful
+                    } else {
+                        // Handle upload error
+                        ?>
+                        <script>
+                            setTimeout(function() {
+                                Swal.fire({
+                                    title: '<div class="t1">เกิดข้อผิดพลาดในการอัพโหลดไฟล์</div>',
+                                    icon: 'error',
+                                    confirmButtonText: 'ออก',
+                                    allowOutsideClick: true,
+                                    allowEscapeKey: true,
+                                    allowEnterKey: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = "";
+                                    }
+                                });
+                            }, 500);
+                        </script>
+                        <?php
+                        exit;
+                    }
+                } else {
+                    // Handle invalid file type
+                    ?>
+                    <script>
+                        setTimeout(function() {
+                            Swal.fire({
+                                title: '<div class="t1">ประเภทไฟล์ไม่รองรับ</div>',
+                                icon: 'error',
+                                confirmButtonText: 'ออก',
+                                allowOutsideClick: true,
+                                allowEscapeKey: true,
+                                allowEnterKey: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = "";
+                                }
+                            });
+                        }, 500);
+                    </script>
+                    <?php
+                    exit;
+                }
+            }
+        }
+    
+        // Insert data into the database
+        $sql = "INSERT INTO pay (pay_date, pay_time, pay_type, pay_bank, pay_slip, pay_status, booking_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssssi", $pay_date, $pay_time, $pay_type, $pay_bank, $pay_slip, $pay_status, $booking_id);
+    
+        if ($stmt->execute()) {
+            // Update booking status
+            $updateSql = "UPDATE booking SET booking_pay_status = 1 WHERE booking_id = ?";
+            $updateStmt = $conn->prepare($updateSql);
+            $updateStmt->bind_param("i", $booking_id);
+    
+            if ($updateStmt->execute()) {
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">บันทึกข้อมูลการชำระค่ามัดจำสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    }, 500);
+                </script>
+                <?php
+            } else {
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการอัพเดตสถานะการจอง</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    }, 500);
+                </script>
+                <?php
+            }
+            $updateStmt->close();
+        } else {
+            ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระค่ามัดจำ</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                }, 500);
+            </script>
+            <?php
+        }
+        $stmt->close();
+    }
+            
 }
 
 ?>
@@ -402,136 +550,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <h5 class="modal-title" id="detailsLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิว</b></h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <form action=" " method="POST">
-                                                    <div class="modal-body" style="height: auto;">
-                                                        <div class="container-md">
-                                                            <div class="col-md-12 container-fluid">
-                                                                <h6 class="f mb-3">ข้อมูลช่างภาพ</h6>
-                                                                <div class="col-12">
-                                                                    <div class="col-4">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['photographer_prefix'] . '' . $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></span>
-                                                                    </div>
-                                                                    <div class="col-4 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['photographer_tell']; ?></span>
-                                                                    </div>
-                                                                    <div class="col-4 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['photographer_email']; ?></span>
-                                                                    </div>
-                                                                </div>
-                                                                <hr>
-                                                                <h6 class="f mb-3 mt-3">ข้อมูลการจองของคุณ</h6>
-                                                                <div class="col-12">
-                                                                    <div class="row">
-                                                                        <div class="col-2">
-                                                                            <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px; "> คำนำหน้า</span>
-                                                                            </label>
-                                                                            <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowBooking['cus_prefix']; ?>" readonly>
-                                                                        </div>
-                                                                        <div class="col-5">
-                                                                            <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                                                            </label>
-                                                                            <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowBooking['cus_name']; ?>" readonly>
-                                                                        </div>
-                                                                        <div class="col-5">
-                                                                            <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                                                            </label>
-                                                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowBooking['cus_surname']; ?>" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-12 mt-3">
-                                                                    <div class="row">
-                                                                        <div class="col-md-4 text-center">
-                                                                            <label for="start_date" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
-                                                                            </label>
-                                                                            <input type="date" name="start_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_date']; ?>" readonly style="resize: none;">
-                                                                        </div>
-
-                                                                        <div class="col-md-4 text-center">
-                                                                            <label for="end_date" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
-                                                                            </label>
-                                                                            <input type="date" name="end_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_date']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-2 text-center">
-                                                                            <label for="start_time" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                                                            </label>
-                                                                            <input type="time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-2 text-center">
-                                                                            <label for="end_time" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
-                                                                            </label>
-                                                                            <input type="time" name="end_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_time']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 mt-3">
-                                                                    <div class="row">
-                                                                        <div class="col-md-10 text-center">
-                                                                            <label for="location" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
-                                                                            </label>
-                                                                            <input type="text" name="location" class="form-control mt-1" value="<?php echo $rowBooking['booking_location']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-2 text-center">
-                                                                            <label for="type" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
-                                                                            </label>
-                                                                            <input type="text" name="type" class="form-control mt-1" value="<?php echo $rowBooking['type_work']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-12 mt-3 text-center">
-                                                                    <label for="details" style="font-weight: bold; display: flex; align-items: center;">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
-                                                                    </label>
-                                                                    <input name="details" class="form-control mt-1" value="<?php echo $rowBooking['booking_details']; ?>" readonly style="resize: none; height: 100px;"></input>
-                                                                </div>
-                                                                <div class="col-12">
-                                                                    <div class="row mt-3">
-                                                                        <div class="col-5">
-                                                                            <label for="mobile" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
-                                                                            </label>
-                                                                            <input type="text" name="mobile" class="form-control mt-1" value="<?php echo $rowBooking['cus_tell']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-5 text-center">
-                                                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
-                                                                            </label>
-                                                                            <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowBooking['cus_email']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-2">
-                                                                            <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
-                                                                            </label>
-                                                                            <input type="date" name="date-saved" class="form-control mt-1" value="<?php echo $rowBooking['booking_date']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer justify-content-center">
-                                                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Edit -->
-                                    <div class="modal fade" id="payDeposit<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="payDepositLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered modal-xl">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="payDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่ต้องการชำระค่ามัดจำ</b></h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
                                                 <div class="modal-body" style="height: auto;">
                                                     <div class="container-md">
                                                         <div class="col-md-12 container-fluid">
@@ -549,84 +567,282 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <h6 class="f mb-3 mt-3">ข้อมูลการจองของคุณ</h6>
                                                             <div class="col-12">
                                                                 <div class="row">
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
+                                                                    <div class="col-2">
+                                                                        <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px; "> คำนำหน้า</span>
+                                                                        </label>
+                                                                        <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowBooking['cus_prefix']; ?>" readonly>
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
-                                                                            </span>
-                                                                        <?php else: ?>
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
-                                                                            </span>
-                                                                        <?php endif; ?>
+                                                                    <div class="col-5">
+                                                                        <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                                                        </label>
+                                                                        <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowBooking['cus_name']; ?>" readonly>
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <?php
-                                                                        $startTime = new DateTime($rowBooking['booking_start_time']);
-                                                                        $endTime = new DateTime($rowBooking['booking_end_time']);
+                                                                    <div class="col-5">
+                                                                        <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; font-size: 13px;">นามสกุล</span>
+                                                                        </label>
+                                                                        <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowBooking['cus_surname']; ?>" readonly>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
-                                                                        $formattedStartTime = $startTime->format('H:i');
-                                                                        $formattedEndTime = $endTime->format('H:i');
-                                                                        ?>
+                                                            <div class="col-12 mt-3">
+                                                                <div class="row">
+                                                                    <div class="col-md-4 text-center">
+                                                                        <label for="start_date" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
+                                                                        </label>
+                                                                        <input type="date" name="start_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_date']; ?>" readonly style="resize: none;">
+                                                                    </div>
 
-                                                                        <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                            เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
-                                                                        </span>
+                                                                    <div class="col-md-4 text-center">
+                                                                        <label for="end_date" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
+                                                                        </label>
+                                                                        <input type="date" name="end_date" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_date']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <label for="start_time" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
+                                                                        </label>
+                                                                        <input type="time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <label for="end_time" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
+                                                                        </label>
+                                                                        <input type="time" name="end_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_end_time']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">คำอธิบาย : <?php echo  $rowBooking['booking_details']; ?></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 mt-3">
+                                                                <div class="row">
+                                                                    <div class="col-md-10 text-center">
+                                                                        <label for="location" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
+                                                                        </label>
+                                                                        <input type="text" name="location" class="form-control mt-1" value="<?php echo $rowBooking['booking_location']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <label for="type" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทงาน</span>
+                                                                        </label>
+                                                                        <input type="text" name="type" class="form-control mt-1" value="<?php echo $rowBooking['type_work']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 mt-3 text-center">
+                                                                <label for="details" style="font-weight: bold; display: flex; align-items: center;">
+                                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
+                                                                </label>
+                                                                <input name="details" class="form-control mt-1" value="<?php echo $rowBooking['booking_details']; ?>" readonly style="resize: none; height: 100px;"></input>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <div class="row mt-3">
+                                                                    <div class="col-5">
+                                                                        <label for="mobile" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
+                                                                        </label>
+                                                                        <input type="text" name="mobile" class="form-control mt-1" value="<?php echo $rowBooking['cus_tell']; ?>" readonly style="resize: none;">
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span>
+                                                                    <div class="col-5 text-center">
+                                                                        <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
+                                                                        </label>
+                                                                        <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowBooking['cus_email']; ?>" readonly style="resize: none;">
+                                                                    </div>
+                                                                    <div class="col-2">
+                                                                        <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
+                                                                        </label>
+                                                                        <input type="date" name="date-saved" class="form-control mt-1" value="<?php echo $rowBooking['booking_date']; ?>" readonly style="resize: none;">
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
                                                 <div class="modal-footer justify-content-center">
                                                     <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                    <button id="saveButton" name="submit_booking_edit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Edit -->
+                                    <div class="modal fade" id="payDeposit<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="payDepositLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="payDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่ต้องการชำระค่ามัดจำ</b></h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action=" " method="POST">
+                                                    <div class="modal-body" style="height: auto;">
+                                                        <div class="container-md">
+                                                            <div class="row">
+                                                                <div class="col-md-5 container-fluid">
+                                                                    <h6 class="f mb-3">ข้อมูลช่างภาพ</h6>
+                                                                    <div class="col-12">
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['photographer_prefix'] . '' . $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['photographer_tell']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['photographer_email']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เลขที่บัญชี : <?php echo  $rowBooking['photographer_account_number']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อธนาคาร : <?php echo  $rowBooking['photographer_bank']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อบัญชี : <?php echo  $rowBooking['photographer_account_name']; ?></span></div>
+                                                                    </div>
+                                                                    <hr>
+                                                                    <h6 class="f mb-3 mt-3">ข้อมูลการจองของคุณ</h6>
+                                                                    <div class="col-12">
+                                                                        <div class="row">
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
+                                                                                    </span>
+                                                                                <?php else: ?>
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
+                                                                                    </span>
+                                                                                <?php endif; ?>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <?php
+                                                                                $startTime = new DateTime($rowBooking['booking_start_time']);
+                                                                                $endTime = new DateTime($rowBooking['booking_end_time']);
+
+                                                                                $formattedStartTime = $startTime->format('H:i');
+                                                                                $formattedEndTime = $endTime->format('H:i');
+                                                                                ?>
+
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">คำอธิบาย : <?php echo  $rowBooking['booking_details']; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-7 card mb-3">
+                                                                    <h6 class="f mt-3">ข้อมูลการชำระค่ามัดจำ</h6>
+                                                                    <div class="col-12">
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="font-weight: bold;color: black; margin-right: 5px;font-size: 17px;">
+                                                                                ราคาค่ามัดจำที่ต้องชำระ : <?php echo number_format($rowBooking['deposit_price']) . ' บาท'; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="row mt-2">
+                                                                            <div class="form-group col-12">
+                                                                                <label for="pay_type" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทการชำระ</span>
+                                                                                </label>
+                                                                                <div class="form-group col-12">
+                                                                                    <input class="form-check-input me-1" type="radio" id="cash" name="pay_type" value="ชำระเงินสด" checked>ชำระเงินสด
+                                                                                    <input class="form-check-input me-1 ms-5" type="radio" id="transfer" name="pay_type" value="ชำระเงินโอน">ชำระเงินโอน
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div id="transferDetails" style="display: none;">
+                                                                            <label for="pay_bank" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อธนาคาร</span>
+                                                                                <span style="color: red;">*</span>
+                                                                            </label>
+                                                                            <div style="border: 1px solid black; padding: 10px; border-radius: 5px;" name="pay_bank" required>
+                                                                                <div class="row">
+                                                                                    <div class="col-6">
+                                                                                        <div class="form-check d-flex align-items-center">
+                                                                                            <input class="form-check-input" type="radio" id="kbank" name="pay_bank" value="ธนาคารกสิกรไทย">
+                                                                                            <label class="form-check-label ms-2 mb-0" for="kbank">ธนาคารกสิกรไทย</label>
+                                                                                        </div>
+                                                                                        <div class="form-check d-flex align-items-center">
+                                                                                            <input class="form-check-input" type="radio" id="scb" name="pay_bank" value="ธนาคารไทยพาณิชย์">
+                                                                                            <label class="form-check-label ms-2 mb-0" for="scb">ธนาคารไทยพาณิชย์</label>
+                                                                                        </div>
+                                                                                        <div class="form-check d-flex align-items-center">
+                                                                                            <input class="form-check-input" type="radio" id="bbl" name="pay_bank" value="ธนาคารกรุงเทพ">
+                                                                                            <label class="form-check-label ms-2 mb-0" for="bbl">ธนาคารกรุงเทพ</label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <div class="form-check d-flex align-items-center">
+                                                                                            <input class="form-check-input" type="radio" id="tmb" name="pay_bank" value="ธนาคารทหารไทย">
+                                                                                            <label class="form-check-label ms-2 mb-0" for="tmb">ธนาคารทหารไทย</label>
+                                                                                        </div>
+                                                                                        <div class="form-check d-flex align-items-center">
+                                                                                            <input class="form-check-input" type="radio" id="kcy" name="pay_bank" value="ธนาคารกรุงศรีอยุธยา">
+                                                                                            <label class="form-check-label ms-2 mb-0" for="kcy">ธนาคารกรุงศรีอยุธยา</label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <span style="color: black;font-weight: bold; margin-right: 5px; font-size: 13px;">หลักฐานการชำระเงิน</span>
+                                                                            <span style="color: red;">*</span>
+                                                                            <div class="col-12 d-flex justify-content-center align-items-center mt-3">
+                                                                                <img id="previewImage" name="pay_slip" src="../img/slip/nallslip.jpeg" alt="Image preview" style="width: 30%; max-height: 500px; min-height: 200px; object-fit: cover;">
+                                                                            </div>
+                                                                            <label for="uploadButton" class="d-flex mt-2 mb-2 align-items-center" style="width: 45%; background: none; border: none;">
+                                                                                <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
+                                                                                <p class="mb-0" style="margin-right: 5px;">เพิ่มสลีป</p>
+                                                                                <input id="uploadButton" type="file" accept="image/jpeg" style="display: none;">
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="row m-2">
+                                                                            <div class="col-6">
+                                                                                <label for="pay_date" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่ชำระ</span>
+                                                                                    <span style="color: red;">*</span>
+                                                                                </label>
+                                                                                <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required>
+                                                                            </div>
+                                                                            <div class="col-6">
+                                                                                <label for="pay_time" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">เวลาที่ชำระ</span>
+                                                                                    <span style="color: red;">*</span>
+                                                                                </label>
+                                                                                <input type="time" id="pay_time" name="pay_time" class="form-control mt-1" style="resize: none;" required>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                        <div class="modal-footer justify-content-center">
+                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                            <button id="saveButton" name="submit_pay_deposit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการชำระมัดจำ</button>
+                                                        </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-
-                        <?php
+            </div>
+<?php
                                 }
                             }
                         } else {
-                            echo "<tr><td colspan='6'>ไม่พบข้อมูลรายการอนุมัติ หรือรายการที่ต้องชำระเงิน/ค่ามัดจำ</td></tr>";
+                            echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการอนุมัติ หรือรายการที่ต้องชำระเงิน/ค่ามัดจำ</td></tr>";
                         }
 
-                        ?>
-                    </tbody>
-                </table>
-            </div><!-- Footer Start --><br><br>
-            <div class="container-fluid text-gry wow fadeIn">
-                <div class="copyright">
-                    &copy; <a class="border-bottom text-dark">2024 Photo Match</a>, All Right Reserved.
-                </div>
+?>
+</tbody>
+</table>
+        </div><!-- Footer Start --><br><br>
+        <div class="container-fluid text-gry wow fadeIn">
+            <div class="copyright">
+                &copy; <a class="border-bottom text-dark">2024 Photo Match</a>, All Right Reserved.
             </div>
-            <!-- Footer End -->
         </div>
+        <!-- Footer End -->
+    </div>
     </div>
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -686,6 +902,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         });
     </script>
+    <script>
+        document.getElementById('uploadButton').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const previewImage = document.getElementById('previewImage');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '../img/slip/nallslip.jpeg';
+            }
+        });
+    </script>
+
+    
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cashRadio = document.getElementById('cash');
+        const transferRadio = document.getElementById('transfer');
+        const transferDetails = document.getElementById('transferDetails');
+
+        function toggleTransferDetails() {
+            if (transferRadio.checked) {
+                transferDetails.style.display = 'block';
+            } else {
+                transferDetails.style.display = 'none';
+            }
+        }
+
+        cashRadio.addEventListener('change', toggleTransferDetails);
+        transferRadio.addEventListener('change', toggleTransferDetails);
+
+        // Initial call to set the correct state based on the default selection
+        toggleTransferDetails();
+    });
+</script>
 </body>
 
 </html>
