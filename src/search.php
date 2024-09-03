@@ -226,17 +226,17 @@ $rowInfo = $resultInfo->fetch_assoc();
                             </select>
                     </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>" required>
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>">
                     </div>
                     <div class="col-md-2">
-                        <select class="form-select border-0 py-3" name="time" required>
+                        <select class="form-select border-0 py-3" name="time">
                             <option value="" <?php echo $time == '' ? 'selected' : ''; ?>>ช่วงเวลา</option>
                             <option value="1" <?php echo $time == '1' ? 'selected' : ''; ?>>เต็มวัน</option>
                             <option value="2" <?php echo $time == '2' ? 'selected' : ''; ?>>ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="scope" class="form-select border-0 py-3" required>
+                        <select name="scope" class="form-select border-0 py-3">
                             <option value="" <?php echo $scope == '' ? 'selected' : ''; ?>>สถานที่</option>
                             <option value="กรุงเทพฯ" <?php echo $scope == 'กรุงเทพฯ' ? 'selected' : ''; ?>>กรุงเทพฯ</option>
                             <option value="ภาคกลาง" <?php echo $scope == 'ภาคกลาง' ? 'selected' : ''; ?>>ภาคกลาง</option>
@@ -260,42 +260,56 @@ $rowInfo = $resultInfo->fetch_assoc();
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['search'])) {
             // Sanitize and assign POST data
-            $type_id = intval($conn->real_escape_string($_POST['type']));
-            $budget = intval($conn->real_escape_string($_POST['budget']));
-            $time = intval($conn->real_escape_string($_POST['time']));
-            $scope = $conn->real_escape_string($_POST['scope']);
+            $type_id = isset($_POST['type']) && $_POST['type'] !== '' ? intval($conn->real_escape_string($_POST['type'])) : null;
+            $budget = isset($_POST['budget']) && $_POST['budget'] !== '' ? intval($conn->real_escape_string($_POST['budget'])) : null;
+            $time = isset($_POST['time']) && $_POST['time'] !== '' ? intval($conn->real_escape_string($_POST['time'])) : null;
+            $scope = isset($_POST['scope']) && $_POST['scope'] !== '' ? $conn->real_escape_string($_POST['scope']) : null;
 
             // Build the SQL query
             $sql = "SELECT 
-                p.photographer_prefix,
-                p.photographer_name,
-                p.photographer_surname,
-                p.photographer_tell,
-                p.photographer_email,
-                p.photographer_scope,
-                p.photographer_photo,
-                p.photographer_address,
-                tow.type_of_work_rate_half,
-                tow.type_of_work_rate_full,
-                t.type_work,
-                p.photographer_id
-            FROM 
-                photographer p
-            INNER JOIN 
-                type_of_work tow ON p.photographer_id = tow.photographer_id
-            INNER JOIN 
-                type t ON t.type_id = tow.type_id
-            WHERE 
-                tow.type_id = $type_id
-                AND (
-                    ($time = 1 AND CAST(tow.type_of_work_rate_full AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full AS UNSIGNED) != 0)
-                    OR
-                    ($time = 2 AND CAST(tow.type_of_work_rate_half AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half AS UNSIGNED) != 0)
-                )
-                AND p.photographer_scope LIKE '%$scope%'";
+            p.photographer_prefix,
+            p.photographer_name,
+            p.photographer_surname,
+            p.photographer_tell,
+            p.photographer_email,
+            p.photographer_scope,
+            p.photographer_photo,
+            p.photographer_address,
+            tow.type_of_work_rate_half_start, 
+            tow.type_of_work_rate_half_end, 
+            tow.type_of_work_rate_full_start, 
+            tow.type_of_work_rate_full_end,
+            t.type_work,
+            p.photographer_id
+        FROM 
+            photographer p
+        INNER JOIN 
+            type_of_work tow ON p.photographer_id = tow.photographer_id
+        INNER JOIN 
+            type t ON t.type_id = tow.type_id
+        WHERE 
+            (t.type_id = $type_id OR $type_id IS NULL)";
+
+            // Add budget and time conditions if applicable
+            if ($time === 1 && $budget !== null) {
+                $sql .= " AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) != 0";
+            } elseif ($time === 2 && $budget !== null) {
+                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) != 0";
+            }
+
+            // Add scope condition if applicable
+            if ($scope !== null) {
+                $sql .= " AND p.photographer_scope LIKE '%$scope%'";
+            }
 
             // Execute the query
             $result = $conn->query($sql);
+            if (!$result) {
+                echo "Error: " . $conn->error;
+            } else {
+                // Process the result
+            }
+
     ?>
             <!-- Examples of work Start -->
             <div class="container-xxl py-5">
@@ -323,13 +337,13 @@ $rowInfo = $resultInfo->fetch_assoc();
                                                                 <b><?php echo $row_photographer['type_work']; ?> </b>
                                                             </div>
                                                             <div class="ms-3 mt-1">
-                                                                <?php if ($row_photographer['type_of_work_rate_half'] > 0) { ?>
-                                                                    <b>ราคาครึ่งวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_half'], 0); ?><b> บาท</b>
+                                                                <?php if ($row_photographer['type_of_work_rate_half_start'] > 0) { ?>
+                                                                    <b>ราคาครึ่งวัน (เริ่มต้น) : </b><?php echo number_format($row_photographer['type_of_work_rate_half_start'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
                                                             </div>
                                                             <div class="ms-3 mt-1">
-                                                                <?php if ($row_photographer['type_of_work_rate_full'] > 0) { ?>
-                                                                    <b>ราคาเต็มวัน : </b><?php echo number_format($row_photographer['type_of_work_rate_full'], 0); ?><b> บาท</b>
+                                                                <?php if ($row_photographer['type_of_work_rate_full_start'] > 0) { ?>
+                                                                    <b>ราคาเต็มวัน (เริ่มต้น) : </b><?php echo number_format($row_photographer['type_of_work_rate_full_start'], 0); ?><b> บาท</b>
                                                                 <?php } ?>
                                                             </div>
                                                             </p>
@@ -381,8 +395,10 @@ $rowInfo = $resultInfo->fetch_assoc();
                             p.photographer_scope,
                             p.photographer_photo,
                             p.photographer_address,
-                            tow.type_of_work_rate_half,
-                            tow.type_of_work_rate_full,
+                            tow.type_of_work_rate_half_start, 
+                            tow.type_of_work_rate_half_end, 
+                            tow.type_of_work_rate_full_start, 
+                            tow.type_of_work_rate_full_end,
                             t.type_work,
                             p.photographer_id
                         FROM 
@@ -415,8 +431,8 @@ $rowInfo = $resultInfo->fetch_assoc();
                                     if ($row['type_work'] !== null) {
                                         $photographers[$row['photographer_id']]['type_of_work'][] = [
                                             'type_work' => $row['type_work'],
-                                            'rate_half' => (int)$row['type_of_work_rate_half'],
-                                            'rate_full' => (int)$row['type_of_work_rate_full']
+                                            'rate_half' => (int)$row['type_of_work_rate_half_start'],
+                                            'rate_full' => (int)$row['type_of_work_rate_full_start']
                                         ];
                                     }
                                 }

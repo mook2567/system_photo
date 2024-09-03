@@ -426,7 +426,7 @@ if (isset($_POST['submit_type_of_work'])) {
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
-    <div class="bgIndex" style="height: 560px;">
+    <div class="bgIndex" style="height: 460px;">
         <!-- <div style="background-color: rgba(	0, 41, 87, 0.6);"> -->
         <div class="d-flex justify-content-center">
             <nav class="navbar navbar-expand-lg navbar-dark col-10">
@@ -560,11 +560,11 @@ if (isset($_POST['submit_type_of_work'])) {
                                         </div>
                                     </div>
                                     <div class="mt-4">
-                                        <select class="form-select border-1 py-2" name="workPost" id="workPost">
-                                            <option required>เลือกประเภทงาน</option>
+                                        <select class="form-select border-1 py-2" name="workPost">
+                                            <option required value="">เลือกประเภทงาน</option>
                                             <?php
                                             // ทำการเชื่อมต่อฐานข้อมูล ($conn) ก่อน query
-                                            $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                            $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
                                                             FROM `type` t
                                                             INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                                             WHERE tow.photographer_id = $id_photographer
@@ -574,7 +574,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                             // ตรวจสอบว่ามีข้อมูลที่ได้จาก query หรือไม่
                                             if ($resultTypeWork->num_rows > 0) {
                                                 while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
-                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_of_work_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
                                                 }
                                             } else {
                                                 echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
@@ -590,7 +590,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                     </div>
                                     <div class="mt-2">
                                         <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
-                                        <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/*">
+                                        <input class="form-control" required type="file" name="upload[]" multiple="multiple" id="fileUpload" accept="image/jpeg, image/jpg, image/png">
                                         <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
                                         <p id="loaded_n_total"></p>
                                     </div>
@@ -693,11 +693,10 @@ if (isset($_POST['submit_type_of_work'])) {
     </div>
 
     <div style="display: flex; justify-content: center;">
-
         <!-- post -->
         <div class="col-md-6 justify-content-center mt-4">
             <div class="text-start mx-auto wow slideInLeft">
-                <h4 class="f" data-wow-delay="0.1s">ผลงานช่างภาพ</h4>
+                <h4 class="f" data-wow-delay="0.1s">ผลงานของคุณ</h4>
             </div>
 
             <div style="display: flex; justify-content: center;">
@@ -725,8 +724,8 @@ if (isset($_POST['submit_type_of_work'])) {
                                             photographer p ON p.photographer_id = tow.photographer_id
                                         JOIN 
                                             `type` t ON t.type_id = tow.type_id
-                                        ORDER BY 
-                                            po.portfolio_id DESC";
+                                        WHERE 
+                                            p.photographer_id = $id_photographer";
                         $resultPost = $conn->query($sql);
 
                         if (!$resultPost) {
@@ -743,7 +742,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                             </div>
                                             <div class="mt-2" style="flex-grow: 1;">
                                                 <b>
-                                                    <a href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>" class="text-dark">
+                                                    <a class="text-dark">
                                                         <?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?>
                                                     </a>
                                                 </b>
@@ -781,11 +780,11 @@ if (isset($_POST['submit_type_of_work'])) {
                                     <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
                                         <?php
                                         $photos = explode(',', $rowPost['portfolio_photo']);
-                                        $max_photos = min(10, count($photos)); // Limit to 10 photos
+                                        $max_photos = min(10, count($photos)); // จำกัดจำนวนภาพไม่เกิน 10
                                         for ($i = 0; $i < $max_photos; $i++) : ?>
                                             <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
-                                                <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]); ?>">
-                                                    <img class="post-img" style="max-width: 100%; height: auto;" src="../img/post/<?php echo trim($photos[$i]); ?>" alt="Post image <?php echo $i + 1; ?>">
+                                                <a data-fancybox="gallery" href="../img/post/<?php echo trim($photos[$i]) ?>">
+                                                    <img class="post-img" style="max-width: 100%; height: 100%;" src="../img/post/<?php echo trim($photos[$i]) ?>" alt="img-post" />
                                                 </a>
                                             </div>
                                         <?php endfor; ?>
@@ -823,6 +822,13 @@ if (isset($_POST['submit_type_of_work'])) {
     <script src="../lib/easing/easing.min.js"></script>
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <script>
+            document.getElementById('uploadImageButton').addEventListener('click', function() {
+                document.getElementById('postImg').click();
+            });
+        </script>
+
     <script>
         // JavaScript สำหรับควบคุมสไลด์โชว์
         let slideIndex = 0;
@@ -901,8 +907,8 @@ if (isset($_POST['submit_type_of_work'])) {
                         <select class="form-select border-1 py-2" name="workPost" id="workPost" required>
                             <option value="">เลือกประเภทงาน</option>
                             <?php
-                            $sql = "SELECT t.type_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                    FROM type t
+                            $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                            FROM type t
                                     INNER JOIN type_of_work tow ON t.type_id = tow.type_id
                                     WHERE tow.photographer_id = $id_photographer
                                     GROUP BY t.type_id, t.type_work;";

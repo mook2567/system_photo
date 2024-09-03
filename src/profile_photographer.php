@@ -350,9 +350,9 @@ $resultBooking = $conn->query($sql);
                         <div class="col-12 text-center md-3 py-3 px-4 mt-3">
                             <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
                         </div>
-                        <div class="col-12 text-start mt-2">
+                        <div class="col-12 text-start mt-1">
                             <h5>ติดต่อ</h5>
-                            <div class=" ms-4">
+                            <div class=" ms-2">
                                 <div class="d-flex align-items-center">
                                     <i class="fa-solid fa-phone me-2"></i>
                                     <p class="mb-0"><?php echo $rowPhoto['photographer_tell']; ?></p>
@@ -363,69 +363,129 @@ $resultBooking = $conn->query($sql);
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 text-start mt-2">
-                            <div class="col-12 text-start mt-2">
-                                <h5>ประเภทงานที่รับ<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                    </button></h5></a>
-                                <div class="ms-4">
-                                    <?php
-                                    $sql = "SELECT 
-                                    t.type_id, 
-                                    t.type_work, 
-                                    tow_latest.photographer_id, 
-                                    tow_latest.type_of_work_details, 
-                                    tow_latest.type_of_work_rate_half, 
-                                    tow_latest.type_of_work_rate_full
+                        <?php
+                        // Fetch all work types
+                        $sql = "SELECT 
+                                t.type_id, 
+                                t.type_icon, 
+                                t.type_work, 
+                                tow_latest.photographer_id, 
+                                tow_latest.type_of_work_details, 
+                                tow_latest.type_of_work_rate_half_start, 
+                                tow_latest.type_of_work_rate_half_end, 
+                                tow_latest.type_of_work_rate_full_start, 
+                                tow_latest.type_of_work_rate_full_end
+                            FROM 
+                                type t
+                            INNER JOIN (
+                                SELECT 
+                                    type_id, 
+                                    photographer_id, 
+                                    type_of_work_details, 
+                                    type_of_work_rate_half_start, 
+                                    type_of_work_rate_half_end, 
+                                    type_of_work_rate_full_start, 
+                                    type_of_work_rate_full_end
                                 FROM 
-                                    type t
-                                INNER JOIN (
-                                    SELECT 
-                                        type_id, 
-                                        photographer_id, 
-                                        type_of_work_details, 
-                                        type_of_work_rate_half, 
-                                        type_of_work_rate_full
-                                    FROM 
-                                        type_of_work
-                                    WHERE 
-                                        photographer_id = $id_photographer
-                                        AND (type_id, photographer_id) IN (
-                                            SELECT 
-                                                type_id, 
-                                                MAX(photographer_id) AS photographer_id
-                                            FROM 
-                                                type_of_work
-                                            WHERE 
-                                                photographer_id = $id_photographer
-                                            GROUP BY 
-                                                type_id
-                                        )
-                                ) AS tow_latest 
-                                ON 
-                                    t.type_id = tow_latest.type_id;
-                                ";
-                                    $resultTypeWorkDetail = $conn->query($sql);
+                                    type_of_work
+                                WHERE 
+                                    photographer_id = $id_photographer
+                                    AND (type_id, photographer_id) IN (
+                                        SELECT 
+                                            type_id, 
+                                            MAX(photographer_id) AS photographer_id
+                                        FROM 
+                                            type_of_work
+                                        WHERE 
+                                            photographer_id = $id_photographer
+                                        GROUP BY 
+                                            type_id
+                                    )
+                            ) AS tow_latest 
+                            ON 
+                                t.type_id = tow_latest.type_id;";
 
-                                    if ($resultTypeWorkDetail->num_rows > 0) {
-                                        while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
-                                    ?>
-                                            <div class="d-flex align-items-center">
-                                                <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
-                                                <b><?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?></b>
-                                            </div>
-                                            <div class="ms-3">
-                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_half'] > 0) { ?>
-                                                    <?php echo 'ราคาครึ่งวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_half'], 0) . ' บาท'; ?>
-                                                <?php } ?>
-                                            </div>
-                                            <div class="ms-3">
-                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_full'] > 0) { ?>
-                                                    <?php echo ' ราคาเต็มวัน: ' . number_format($rowTypeWorkDetail['type_of_work_rate_full'], 0) . ' บาท'; ?>
-                                                <?php } ?>
-                                            </div>
-                                    <?php
-                                        }
-                                    } ?>
+                        $resultTypeWorkDetail = $conn->query($sql);
+                        $workTypes = [];
+                        if ($resultTypeWorkDetail->num_rows > 0) {
+                            while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                $workTypes[] = $rowTypeWorkDetail;
+                            }
+                        }
+
+                        // Determine if more than 3 types and set flag
+                        $moreThanThree = count($workTypes) > 3;
+                        $displayedTypes = array_slice($workTypes, 0, 3);
+                        ?>
+                        <div class="col-12 text-start mt-2">
+                            <h5>ประเภทงานที่รับ</h5>
+                            <div class="ms-2">
+                                <?php
+                                foreach ($displayedTypes as $rowTypeWorkDetail) {
+                                ?>
+                                    <div class="mb-1">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-circle me-2" style="font-size: 5px;"></i>
+                                            <b><?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?></b>
+                                        </div>
+                                        <div class="ms-3">
+                                            <?php if ($rowTypeWorkDetail['type_of_work_rate_half_start'] > 0) { ?>
+                                                <div><?php echo 'ราคาครึ่งวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_end'], 0) . ' บาท'; ?></div>
+                                            <?php } ?>
+                                        </div>
+                                        <div class="ms-3">
+                                            <?php if ($rowTypeWorkDetail['type_of_work_rate_full_start'] > 0) { ?>
+                                                <div><?php echo 'ราคาเต็มวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_end'], 0) . ' บาท'; ?></div>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                <?php
+                                }
+                                ?>
+                                <div class="ms-5">
+                                    <button type="button" class="btn btn-sm ms-4" data-bs-toggle="modal" data-bs-target="#moreTypesModal">
+                                        <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal for additional work types -->
+                        <div class="modal fade" id="moreTypesModal" tabindex="-1" aria-labelledby="moreTypesModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="moreTypesModalLabel">ประเภทงานที่รับทั้งหมด</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <?php foreach ($workTypes as $rowTypeWorkDetail): ?>
+                                                <div class="col-12 col-md-4 mb-4">
+                                                    <div class="card" style="min-height: 250px;">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">
+                                                                <i class="fa-solid fa-circle me-2" style="font-size: 8px;"></i>
+                                                                <?php echo htmlspecialchars($rowTypeWorkDetail['type_work']); ?>
+                                                            </h5>
+                                                            <div class="mb-1">
+                                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_half_start'] > 0) { ?>
+                                                                    <div><?php echo 'ราคาครึ่งวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_half_end'], 0) . ' บาท'; ?></div>
+                                                                <?php } ?>
+                                                            </div>
+                                                            <div class="mb-1">
+                                                                <?php if ($rowTypeWorkDetail['type_of_work_rate_full_start'] > 0) { ?>
+                                                                    <div><?php echo 'ราคาเต็มวัน : ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_start'], 0) . ' - ' . number_format($rowTypeWorkDetail['type_of_work_rate_full_end'], 0) . ' บาท'; ?></div>
+                                                                <?php } ?>
+                                                            </div>
+                                                            <?php if (!empty($rowTypeWorkDetail['type_of_work_details'])) { ?>
+                                                                <p class="card-text"><?php echo 'รายละเอียด : ' . htmlspecialchars($rowTypeWorkDetail['type_of_work_details']); ?></p>
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -440,12 +500,8 @@ $resultBooking = $conn->query($sql);
                         }
                         ?>
                         <div class="col-12 text-start mt-2">
-                            <h5>ขอบเขตพื้นที่รับงาน
-                                <!-- <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editType<?php echo $rowPhoto['photographer_id']; ?>">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button> -->
-                            </h5>
-                            <div class="ms-4">
+                            <h5>ขอบเขตพื้นที่รับงาน</h5>
+                            <div class="ms-2">
                                 <?php if (!empty($photographerScopes)) : ?>
                                     <?php foreach ($photographerScopes as $scope) : ?>
                                         <div class="d-flex align-items-center">
@@ -456,9 +512,6 @@ $resultBooking = $conn->query($sql);
                                 <?php endif; ?>
                             </div>
                         </div>
-                    </div>
-                    <div class="mt-5 footer">
-                        &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
                     </div>
                 </div>
             </div>
