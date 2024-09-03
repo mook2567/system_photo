@@ -723,12 +723,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                         </div>
                                     </div>
-
                         <?php
                                 }
                             }
                         } else {
-                            echo "<tr><td colspan='6'>ไม่พบข้อมูลรายการจองที่รออนุมัติ</td></tr>";
+                            echo "<tr><td colspan='7' >ไม่พบข้อมูลรายการจองที่รออนุมัติ</td></tr>";
                         }
 
                         ?>
