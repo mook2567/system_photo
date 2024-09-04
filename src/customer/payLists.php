@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     });
                 }, 500);
             </script>
-<?php
+            <?php
         }
         $stmt->close();
     }
@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $booking_id = $_POST['booking_id'] ?? null;
         $pay_slip = null;
         $pay_status = '0'; // Default to 0
-    
+
         // Check if payment type is cash
         if ($pay_type === "ชำระเงินสด") {
             $pay_bank = null;
@@ -107,15 +107,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $pay_slip = basename($_FILES["pay_slip"]["name"]);
                 $targetFilePath = $uploadDir . $pay_slip;
                 $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
-    
+
                 // Allow certain file formats
-                $allowTypes = array('jpg', 'png', 'jpeg', 'gif', 'pdf');
+                $allowTypes = array('jpg', 'png', 'jpeg');
                 if (in_array($fileType, $allowTypes)) {
                     if (move_uploaded_file($_FILES["pay_slip"]["tmp_name"], $targetFilePath)) {
                         $pay_status = '1'; // Set status to 1 if file upload is successful
                     } else {
                         // Handle upload error
-                        ?>
+            ?>
                         <script>
                             setTimeout(function() {
                                 Swal.fire({
@@ -132,7 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 });
                             }, 500);
                         </script>
-                        <?php
+                    <?php
                         exit;
                     }
                 } else {
@@ -154,23 +154,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             });
                         }, 500);
                     </script>
-                    <?php
+                <?php
                     exit;
                 }
             }
         }
-    
+
         // Insert data into the database
         $sql = "INSERT INTO pay (pay_date, pay_time, pay_type, pay_bank, pay_slip, pay_status, booking_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssssssi", $pay_date, $pay_time, $pay_type, $pay_bank, $pay_slip, $pay_status, $booking_id);
-    
+
         if ($stmt->execute()) {
             // Update booking status
             $updateSql = "UPDATE booking SET booking_pay_status = 1 WHERE booking_id = ?";
             $updateStmt = $conn->prepare($updateSql);
             $updateStmt->bind_param("i", $booking_id);
-    
+
             if ($updateStmt->execute()) {
                 ?>
                 <script>
@@ -189,9 +189,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         });
                     }, 500);
                 </script>
-                <?php
+            <?php
             } else {
-                ?>
+            ?>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
@@ -208,7 +208,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         });
                     }, 500);
                 </script>
-                <?php
+            <?php
             }
             $updateStmt->close();
         } else {
@@ -229,11 +229,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     });
                 }, 500);
             </script>
-            <?php
+<?php
         }
         $stmt->close();
     }
-            
 }
 
 ?>
@@ -678,61 +677,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <h5 class="modal-title" id="payDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่ต้องการชำระค่ามัดจำ</b></h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <form action=" " method="POST">
-                                                    <div class="modal-body" style="height: auto;">
-                                                        <div class="container-md">
-                                                            <div class="row">
-                                                                <div class="col-md-5 container-fluid">
-                                                                    <h6 class="f mb-3">ข้อมูลช่างภาพ</h6>
-                                                                    <div class="col-12">
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['photographer_prefix'] . '' . $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['photographer_tell']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['photographer_email']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เลขที่บัญชี : <?php echo  $rowBooking['photographer_account_number']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อธนาคาร : <?php echo  $rowBooking['photographer_bank']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อบัญชี : <?php echo  $rowBooking['photographer_account_name']; ?></span></div>
-                                                                    </div>
-                                                                    <hr>
-                                                                    <h6 class="f mb-3 mt-3">ข้อมูลการจองของคุณ</h6>
-                                                                    <div class="col-12">
-                                                                        <div class="row">
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
-                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                        วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
-                                                                                    </span>
-                                                                                <?php else: ?>
-                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                        วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
-                                                                                    </span>
-                                                                                <?php endif; ?>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <?php
-                                                                                $startTime = new DateTime($rowBooking['booking_start_time']);
-                                                                                $endTime = new DateTime($rowBooking['booking_end_time']);
-
-                                                                                $formattedStartTime = $startTime->format('H:i');
-                                                                                $formattedEndTime = $endTime->format('H:i');
-                                                                                ?>
-
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
-                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
-                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">คำอธิบาย : <?php echo  $rowBooking['booking_details']; ?></span></div>
-                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
-                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
-                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                <div class="modal-body" style="height: auto;">
+                                                    <div class="container-md">
+                                                        <div class="row">
+                                                            <div class="col-md-5 container-fluid">
+                                                                <h6 class="f mb-3">ข้อมูลช่างภาพ</h6>
+                                                                <div class="col-12">
+                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['photographer_prefix'] . '' . $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></span></div>
+                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['photographer_tell']; ?></span></div>
+                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['photographer_email']; ?></span></div>
+                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เลขที่บัญชี : <?php echo  $rowBooking['photographer_account_number']; ?></span></div>
+                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อธนาคาร : <?php echo  $rowBooking['photographer_bank']; ?></span></div>
+                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อบัญชี : <?php echo  $rowBooking['photographer_account_name']; ?></span></div>
+                                                                </div>
+                                                                <hr>
+                                                                <h6 class="f mb-3 mt-3">ข้อมูลการจองของคุณ</h6>
+                                                                <div class="col-12">
+                                                                    <div class="row">
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
                                                                         </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
+                                                                                </span>
+                                                                            <?php else: ?>
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
+                                                                                </span>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <?php
+                                                                            $startTime = new DateTime($rowBooking['booking_start_time']);
+                                                                            $endTime = new DateTime($rowBooking['booking_end_time']);
+
+                                                                            $formattedStartTime = $startTime->format('H:i');
+                                                                            $formattedEndTime = $endTime->format('H:i');
+                                                                            ?>
+
+                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">คำอธิบาย : <?php echo  $rowBooking['booking_details']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-7 card mb-3">
+                                                            </div>
+                                                            <div class="col-7 card mb-3">
+                                                                <form action=" " method="POST">
                                                                     <h6 class="f mt-3">ข้อมูลการชำระค่ามัดจำ</h6>
                                                                     <div class="col-12">
                                                                         <div class="col-12 mt-2">
@@ -746,8 +745,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทการชำระ</span>
                                                                                 </label>
                                                                                 <div class="form-group col-12">
-                                                                                    <input class="form-check-input me-1" type="radio" id="cash" name="pay_type" value="ชำระเงินสด" checked>ชำระเงินสด
-                                                                                    <input class="form-check-input me-1 ms-5" type="radio" id="transfer" name="pay_type" value="ชำระเงินโอน">ชำระเงินโอน
+                                                                                    <input class="form-check-input me-1" type="radio" id="cash" name="pay_type" value="ชำระเงินสด" checked> ชำระเงินสด
+                                                                                    <input class="form-check-input me-1 ms-5" type="radio" id="transfer" name="pay_type" value="ชำระเงินโอน"> ชำระเงินโอน
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -792,7 +791,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             <label for="uploadButton" class="d-flex mt-2 mb-2 align-items-center" style="width: 45%; background: none; border: none;">
                                                                                 <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
                                                                                 <p class="mb-0" style="margin-right: 5px;">เพิ่มสลีป</p>
-                                                                                <input id="uploadButton" type="file" accept="image/jpeg" style="display: none;">
+                                                                                <input id="uploadButton" name="pay_slip" type="file" accept="image/jpeg" style="display: none;">
                                                                             </label>
                                                                         </div>
                                                                         <div class="row m-2">
@@ -812,37 +811,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
-                                                        <div class="modal-footer justify-content-center">
-                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                            <button id="saveButton" name="submit_pay_deposit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการชำระมัดจำ</button>
-                                                        </div>
-                                                </form>
+                                                    </div>
+                                                    <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                    <div class="modal-footer justify-content-center">
+                                                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                        <button id="saveButton" name="submit_pay_deposit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการชำระมัดจำ</button>
+                                                    </div>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-            </div>
-<?php
+                        <?php
                                 }
                             }
                         } else {
                             echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการอนุมัติ หรือรายการที่ต้องชำระเงิน/ค่ามัดจำ</td></tr>";
                         }
 
-?>
-</tbody>
-</table>
-        </div><!-- Footer Start --><br><br>
-        <div class="container-fluid text-gry wow fadeIn">
-            <div class="copyright">
-                &copy; <a class="border-bottom text-dark">2024 Photo Match</a>, All Right Reserved.
+                        ?>
+                    </tbody>
+                </table>
+            </div><!-- Footer Start --><br><br>
+            <div class="container-fluid text-gry wow fadeIn">
+                <div class="copyright">
+                    &copy; <a class="border-bottom text-dark">2024 Photo Match</a>, All Right Reserved.
+                </div>
             </div>
+            <!-- Footer End -->
         </div>
-        <!-- Footer End -->
-    </div>
     </div>
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -917,8 +916,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         });
     </script>
-
-    
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
