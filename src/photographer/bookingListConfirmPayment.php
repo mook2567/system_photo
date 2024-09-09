@@ -16,22 +16,12 @@ if (isset($_SESSION['photographer_login'])) {
 }
 
 $sql1 = "SELECT b.*, 
-            c.cus_prefix, 
-            c.cus_name, 
-            c.cus_surname, 
-            c.cus_tell, 
-            c.cus_email, 
-            t.type_work, 
-            (b.booking_price * 0.30) AS deposit_price,
             pay.*
             FROM booking b
-            JOIN customer c ON b.cus_id = c.cus_id
-            JOIN `type` t ON b.type_of_work_id = t.type_id
-            JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
             JOIN pay ON pay.booking_id = b.booking_id
             WHERE b.photographer_id = $id_photographer
             AND b.booking_confirm_status = '1'
-            AND b.booking_pay_status IN ('1', '2')
+            AND b.booking_pay_status = '1'
 ";
 $stmt = $conn->prepare($sql1);
 $resultPay = $conn->query($sql1);
@@ -50,7 +40,7 @@ $sql2 = "SELECT b.*,
          JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
          WHERE b.photographer_id = $id_photographer
          AND b.booking_confirm_status = '1'
-         AND b.booking_pay_status IN ('1', '2')
+         AND b.booking_pay_status = '1'
 ";
 $resultBooking = $conn->query($sql2);
 
@@ -62,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo $booking_id = $_POST['booking_id'];
 
         // Assuming $conn is your MySQLi connection
-        $sql = "UPDATE `booking` SET booking_price = ?, booking_confirm_status = '1' WHERE booking_id = ?";
+        $sql = "UPDATE `booking` SET booking_confirm_status = '1' WHERE booking_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $booking_price, $booking_id);
 
@@ -568,7 +558,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 <div class="modal-body" style="height: auto;">
                                                     <div class="container-md mb-5">
                                                         <div class="row">
-                                                            <div class="col-7 container-fluid">
+                                                            <div class="col-6 container-fluid">
                                                                 <div class="col-12">
                                                                     <div class="row">
                                                                         <div class="col-12 mt-2">
@@ -610,7 +600,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             <?php
                                                             if ($rowPay = $resultPay->fetch_assoc()) {
                                                             ?>
-                                                                <div class="col-5 card">
+                                                                <div class="col-6 card justify-content-center align-content-center">
                                                                     <div class="row">
                                                                         <div class="col-12">
                                                                             <div class="text-start mt-2" style="font-size: 18px;"><b>ข้อมูลการชำระค่ามัดจำ</b></div>
@@ -620,8 +610,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 <label for="email" style="font-weight: bold; display: flex; align-items: center;">
                                                                                     <span style="color: black; margin-right: 5px;font-size: 13px;">สลิปการโอนเงิน</span>
                                                                                 </label>
-                                                                                <div class="mt-5 mb-5">
-                                                                                    <img class="mb-5" id="slip" src="../img/slip/<?php echo $rowPay['pay_slip']; ?>">
+                                                                                <div class="">
+                                                                                    <img id="slip" src="../img/slip/<?php echo $rowPay['pay_slip']; ?>" style="width: 30%; max-height: 500px; min-height: 200px; object-fit: cover;">
                                                                                 </div>
                                                                                 <!-- <input type="email" name="email" class="form-control mt-1" value="<?php echo $rowBooking['cus_email']; ?>" readonly> -->
                                                                             </div>

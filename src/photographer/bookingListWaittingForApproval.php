@@ -331,7 +331,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Spinner End -->
 
         <!-- Navbar Start -->
-        <div class="container-fluid nav-bar bg-transparent">
+        <div class="mt-5 container-fluid  bg-transparent">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
                     <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">

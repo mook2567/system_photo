@@ -21,79 +21,22 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     JOIN `type` t ON b.type_of_work_id = t.type_id
     JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
     JOIN photographer p ON p.photographer_id = b.photographer_id
+
     WHERE c.cus_id = $id_cus
     AND b.booking_confirm_status = '1'
     AND b.booking_pay_status ='0'
+    -- AND p
 ";
 
 $resultBooking = $conn->query($sql1);
 
-
-$resultBooking = $conn->query($sql1);
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['submit_booking_edit'])) {
-        $start_date = $_POST['start_date'];
-        $start_time = $_POST['start_time'];
-        $end_date = $_POST['end_date'];
-        $end_time = $_POST['end_time'];
-        $location = $_POST['location'];
-        $type = $_POST['type'];
-        $details = $_POST['details'];
-        $booking_id = $_POST['booking_id'];
-
-        // Assuming $conn is your MySQLi connection
-        $sql = "UPDATE `booking` SET `booking_start_date` = ?, `booking_start_time` = ?, `booking_end_date` = ?, `booking_end_time` = ?, `booking_location` = ?, `type_of_work_id` = ?, `booking_details` = ? WHERE `booking_id` = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssi", $start_date, $start_time, $end_date, $end_time, $location, $type, $details, $booking_id);
-
-        if ($stmt->execute()) {
-?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">บันทึกข้อมูลการชำระค่ามัดจำสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                }, 500);
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระค่ามัดจำ</div>',
-                        icon: 'error',
-                        confirmButtonText: 'ออก',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                }, 500);
-            </script>
-            <?php
-        }
-        $stmt->close();
-    }
     if (isset($_POST["submit_pay_deposit"])) {
         $pay_date = $_POST['pay_date'] ?? null;
         $pay_time = $_POST['pay_time'] ?? null;
-        $pay_type = $_POST['pay_type'] ?? null;
+        echo $pay_type = $_POST['pay_type'] ?? null;
         $pay_bank = $_POST['pay_bank'] ?? null;
         $booking_id = $_POST['booking_id'] ?? null;
-        $pay_slip = null;
         $pay_status = '0'; // Default to 0
 
         // Check if payment type is cash
@@ -115,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $pay_status = '1'; // Set status to 1 if file upload is successful
                     } else {
                         // Handle upload error
-            ?>
+?>
                         <script>
                             setTimeout(function() {
                                 Swal.fire({
@@ -675,7 +618,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="payDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่ต้องการชำระค่ามัดจำ</b></h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
                                                 </div>
                                                 <div class="modal-body" style="height: auto;">
                                                     <div class="container-md">
@@ -693,7 +636,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 <hr>
                                                                 <h6 class="f mb-3 mt-3">ข้อมูลการจองของคุณ</h6>
                                                                 <div class="col-12">
-                                                                    <div class="row">
+                                                                    <div class="">
                                                                         <div class="col-12 mt-2">
                                                                             <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
                                                                         </div>
@@ -723,7 +666,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         </div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">คำอธิบาย : <?php echo  $rowBooking['booking_details']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px; overflow-wrap: break-word;">คำอธิบาย : <?php echo $rowBooking['booking_details']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
@@ -731,12 +674,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 </div>
                                                             </div>
                                                             <div class="col-7 card mb-3">
-                                                                <form action=" " method="POST">
+                                                                <form action="" enctype="multipart/form-data" method="POST">
                                                                     <h6 class="f mt-3">ข้อมูลการชำระค่ามัดจำ</h6>
                                                                     <div class="col-12">
                                                                         <div class="col-12 mt-2">
                                                                             <span style="font-weight: bold;color: black; margin-right: 5px;font-size: 17px;">
-                                                                                ราคาค่ามัดจำที่ต้องชำระ : <?php echo number_format($rowBooking['deposit_price']) . ' บาท'; ?>
+                                                                                ราคาค่ามัดจำที่ต้องชำระ : <?php echo $rowBooking['deposit_price'] . ' บาท'; ?>
                                                                             </span>
                                                                         </div>
                                                                         <div class="row mt-2">
@@ -744,94 +687,97 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 <label for="pay_type" style="font-weight: bold; display: flex; align-items: center;">
                                                                                     <span style="color: black; margin-right: 5px;font-size: 13px;">ประเภทการชำระ</span>
                                                                                 </label>
-                                                                                <div class="form-group col-12">
-                                                                                    <input class="form-check-input me-1" type="radio" id="cash" name="pay_type" value="ชำระเงินสด" checked> ชำระเงินสด
-                                                                                    <input class="form-check-input me-1 ms-5" type="radio" id="transfer" name="pay_type" value="ชำระเงินโอน"> ชำระเงินโอน
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input" type="radio" name="pay_type" value="ชำระเงินสด" id="cash<?php echo $rowBooking['booking_id']; ?>" checked onchange="toggleTransferDetails('<?php echo $rowBooking['booking_id']; ?>')">
+                                                                                    <label class="form-check-label" for="cash<?php echo $rowBooking['booking_id']; ?>" value="ชำระเงินสด">ชำระเงินสด</label>
+                                                                                </div>
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input" type="radio" name="pay_type" value="ชำระเงินโอน" id="transfer<?php echo $rowBooking['booking_id']; ?>" onchange="toggleTransferDetails('<?php echo $rowBooking['booking_id']; ?>')">
+                                                                                    <label class="form-check-label" for="transfer<?php echo $rowBooking['booking_id']; ?>" value="ชำระเงินโอน">ชำระเงินโอน</label>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                        <div id="transferDetails" style="display: none;">
-                                                                            <label for="pay_bank" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อธนาคาร</span>
+                                                                            <div id="transferDetails<?php echo $rowBooking['booking_id']; ?>" style="display: none;">
+                                                                                <label for="pay_bank" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">ชื่อธนาคาร</span>
+                                                                                    <span style="color: red;">*</span>
+                                                                                </label>
+                                                                                <div style="border: 1px solid black; padding: 10px; border-radius: 5px;" name="pay_bank" required>
+                                                                                    <div class="row">
+                                                                                        <div class="col-6">
+                                                                                            <div class="form-check d-flex align-items-center">
+                                                                                                <input class="form-check-input" type="radio" id="kbank" name="pay_bank" value="ธนาคารกสิกรไทย">
+                                                                                                <label class="form-check-label ms-2 mb-0" for="kbank">ธนาคารกสิกรไทย</label>
+                                                                                            </div>
+                                                                                            <div class="form-check d-flex align-items-center">
+                                                                                                <input class="form-check-input" type="radio" id="scb" name="pay_bank" value="ธนาคารไทยพาณิชย์">
+                                                                                                <label class="form-check-label ms-2 mb-0" for="scb">ธนาคารไทยพาณิชย์</label>
+                                                                                            </div>
+                                                                                            <div class="form-check d-flex align-items-center">
+                                                                                                <input class="form-check-input" type="radio" id="bbl" name="pay_bank" value="ธนาคารกรุงเทพ">
+                                                                                                <label class="form-check-label ms-2 mb-0" for="bbl">ธนาคารกรุงเทพ</label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="col-6">
+                                                                                            <div class="form-check d-flex align-items-center">
+                                                                                                <input class="form-check-input" type="radio" id="tmb" name="pay_bank" value="ธนาคารทหารไทย">
+                                                                                                <label class="form-check-label ms-2 mb-0" for="tmb">ธนาคารทหารไทย</label>
+                                                                                            </div>
+                                                                                            <div class="form-check d-flex align-items-center">
+                                                                                                <input class="form-check-input" type="radio" id="kcy" name="pay_bank" value="ธนาคารกรุงศรีอยุธยา">
+                                                                                                <label class="form-check-label ms-2 mb-0" for="kcy">ธนาคารกรุงศรีอยุธยา</label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <span style="color: black;font-weight: bold; margin-right: 5px; font-size: 13px;">หลักฐานการชำระเงิน</span>
                                                                                 <span style="color: red;">*</span>
-                                                                            </label>
-                                                                            <div style="border: 1px solid black; padding: 10px; border-radius: 5px;" name="pay_bank" required>
-                                                                                <div class="row">
-                                                                                    <div class="col-6">
-                                                                                        <div class="form-check d-flex align-items-center">
-                                                                                            <input class="form-check-input" type="radio" id="kbank" name="pay_bank" value="ธนาคารกสิกรไทย">
-                                                                                            <label class="form-check-label ms-2 mb-0" for="kbank">ธนาคารกสิกรไทย</label>
-                                                                                        </div>
-                                                                                        <div class="form-check d-flex align-items-center">
-                                                                                            <input class="form-check-input" type="radio" id="scb" name="pay_bank" value="ธนาคารไทยพาณิชย์">
-                                                                                            <label class="form-check-label ms-2 mb-0" for="scb">ธนาคารไทยพาณิชย์</label>
-                                                                                        </div>
-                                                                                        <div class="form-check d-flex align-items-center">
-                                                                                            <input class="form-check-input" type="radio" id="bbl" name="pay_bank" value="ธนาคารกรุงเทพ">
-                                                                                            <label class="form-check-label ms-2 mb-0" for="bbl">ธนาคารกรุงเทพ</label>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-6">
-                                                                                        <div class="form-check d-flex align-items-center">
-                                                                                            <input class="form-check-input" type="radio" id="tmb" name="pay_bank" value="ธนาคารทหารไทย">
-                                                                                            <label class="form-check-label ms-2 mb-0" for="tmb">ธนาคารทหารไทย</label>
-                                                                                        </div>
-                                                                                        <div class="form-check d-flex align-items-center">
-                                                                                            <input class="form-check-input" type="radio" id="kcy" name="pay_bank" value="ธนาคารกรุงศรีอยุธยา">
-                                                                                            <label class="form-check-label ms-2 mb-0" for="kcy">ธนาคารกรุงศรีอยุธยา</label>
-                                                                                        </div>
-                                                                                    </div>
+                                                                                <div class="col-12 d-flex justify-content-center align-items-center mt-3">
+                                                                                    <img id="previewImage<?php echo $rowBooking['booking_id']; ?>" name="pay_slip" src="../img/slip/nallslip.jpeg" alt="Image preview" style="width: 30%; max-height: 500px; min-height: 200px; object-fit: cover;">
                                                                                 </div>
-                                                                            </div>
-                                                                            <span style="color: black;font-weight: bold; margin-right: 5px; font-size: 13px;">หลักฐานการชำระเงิน</span>
-                                                                            <span style="color: red;">*</span>
-                                                                            <div class="col-12 d-flex justify-content-center align-items-center mt-3">
-                                                                                <img id="previewImage" name="pay_slip" src="../img/slip/nallslip.jpeg" alt="Image preview" style="width: 30%; max-height: 500px; min-height: 200px; object-fit: cover;">
-                                                                            </div>
-                                                                            <label for="uploadButton" class="d-flex mt-2 mb-2 align-items-center" style="width: 45%; background: none; border: none;">
-                                                                                <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
-                                                                                <p class="mb-0" style="margin-right: 5px;">เพิ่มสลีป</p>
-                                                                                <input id="uploadButton" name="pay_slip" type="file" accept="image/jpeg" style="display: none;">
-                                                                            </label>
-                                                                        </div>
-                                                                        <div class="row m-2">
-                                                                            <div class="col-6">
-                                                                                <label for="pay_date" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่ชำระ</span>
-                                                                                    <span style="color: red;">*</span>
+                                                                                <label for="uploadButton<?php echo $rowBooking['booking_id']; ?>" class="d-flex mt-2 mb-2 align-items-center" style="width: 45%; background: none; border: none;">
+                                                                                    <i class="fa-solid fa-images me-2" style="font-size: 30px; color: #69D40F; cursor: pointer;"></i>
+                                                                                    <p class="mb-0" style="margin-right: 5px;">เพิ่มสลีป</p>
+                                                                                    <input id="uploadButton<?php echo $rowBooking['booking_id']; ?>" name="pay_slip" type="file" accept="image/jpeg" style="display: none;" onchange="handleFileInput(event, '<?php echo $rowBooking['booking_id']; ?>')">
                                                                                 </label>
-                                                                                <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required>
                                                                             </div>
-                                                                            <div class="col-6">
-                                                                                <label for="pay_time" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                    <span style="color: black; margin-right: 5px; font-size: 13px;">เวลาที่ชำระ</span>
-                                                                                    <span style="color: red;">*</span>
-                                                                                </label>
-                                                                                <input type="time" id="pay_time" name="pay_time" class="form-control mt-1" style="resize: none;" required>
+                                                                            <div class="row m-2">
+                                                                                <div class="col-6">
+                                                                                    <label for="pay_date" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่ชำระ</span>
+                                                                                        <span style="color: red;">*</span>
+                                                                                    </label>
+                                                                                    <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <label for="pay_time" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">เวลาที่ชำระ</span>
+                                                                                        <span style="color: red;">*</span>
+                                                                                    </label>
+                                                                                    <input type="time" id="pay_time" name="pay_time" class="form-control mt-1" style="resize: none;" required>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                             </div>
                                                         </div>
+                                                        <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                        <div class="modal-footer justify-content-center">
+                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal" onclick="location.reload();">ปิด</button>
+                                                            <button id="saveButton" name="submit_pay_deposit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการชำระมัดจำ</button>
+                                                        </div>
+                                                        </form>
                                                     </div>
-                                                    <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
-                                                    <div class="modal-footer justify-content-center">
-                                                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                        <button id="saveButton" name="submit_pay_deposit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการชำระมัดจำ</button>
-                                                    </div>
-                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                        <?php
+                            <?php
                                 }
                             }
                         } else {
                             echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการอนุมัติ หรือรายการที่ต้องชำระเงิน/ค่ามัดจำ</td></tr>";
                         }
 
-                        ?>
+                            ?>
                     </tbody>
                 </table>
             </div><!-- Footer Start --><br><br>
@@ -901,7 +847,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         });
     </script>
-    <script>
+    <!-- <script>
         document.getElementById('uploadButton').addEventListener('change', function(event) {
             const file = event.target.files[0];
             const previewImage = document.getElementById('previewImage');
@@ -915,29 +861,74 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 previewImage.src = '../img/slip/nallslip.jpeg';
             }
         });
-    </script>
+    </script> -->
+    <script>
+        // Function to update the image preview in the modal
+        function handleFileInput(event, bookingId) {
+            const file = event.target.files[0];
+            const previewImage = document.getElementById('previewImage' + bookingId); // Update ID for each modal
+            const modalImage = document.getElementById('modalImage' + bookingId); // Update ID for each modal
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cashRadio = document.getElementById('cash');
-        const transferRadio = document.getElementById('transfer');
-        const transferDetails = document.getElementById('transferDetails');
-
-        function toggleTransferDetails() {
-            if (transferRadio.checked) {
-                transferDetails.style.display = 'block';
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    modalImage.src = e.target.result; // Update modal image
+                };
+                reader.readAsDataURL(file);
             } else {
-                transferDetails.style.display = 'none';
+                previewImage.src = '../img/slip/nallslip.jpeg';
+                modalImage.src = '../img/slip/nallslip.jpeg'; // Reset modal image
             }
         }
 
-        cashRadio.addEventListener('change', toggleTransferDetails);
-        transferRadio.addEventListener('change', toggleTransferDetails);
+        // Function to show or hide transfer details based on payment type
+        function toggleTransferDetails(bookingId) {
+            const cashRadio = document.getElementById('cash' + bookingId);
+            const transferDetails = document.getElementById('transferDetails' + bookingId);
 
-        // Initial call to set the correct state based on the default selection
-        toggleTransferDetails();
-    });
-</script>
+            if (cashRadio.checked) {
+                transferDetails.style.display = 'none'; // Hide transfer details
+            } else {
+                transferDetails.style.display = 'block'; // Show transfer details
+            }
+        }
+    </script>
+
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cashRadio = document.getElementById('cash');
+            const transferRadio = document.getElementById('transfer');
+            const transferDetails = document.getElementById('transferDetails');
+
+            function toggleTransferDetails() {
+                if (transferRadio.checked) {
+                    transferDetails.style.display = 'block';
+                } else {
+                    transferDetails.style.display = 'none';
+                }
+            }
+
+            cashRadio.addEventListener('change', toggleTransferDetails);
+            transferRadio.addEventListener('change', toggleTransferDetails);
+
+            // Initial call to set the correct state based on the default selection
+            toggleTransferDetails();
+        });
+    </script> -->
+    <!-- <script>
+        // ฟังก์ชันในการแสดง/ซ่อนฟอร์มชำระเงินโอน
+        function toggleTransferDetails(bookingId) {
+            var cashRadio = document.getElementById('cash' + bookingId);
+            var transferDetails = document.getElementById('transferDetails' + bookingId);
+
+            if (cashRadio.checked) {
+                transferDetails.style.display = 'none'; // ซ่อนรายละเอียดการโอนเงิน
+            } else {
+                transferDetails.style.display = 'block'; // แสดงรายละเอียดการโอนเงิน
+            }
+        }
+    </script> -->
 </body>
 
 </html>

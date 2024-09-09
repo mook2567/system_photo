@@ -725,7 +725,8 @@ if (isset($_POST['submit_type_of_work'])) {
                                         JOIN 
                                             `type` t ON t.type_id = tow.type_id
                                         WHERE 
-                                            p.photographer_id = $id_photographer";
+                                            p.photographer_id = $id_photographer
+                                        ORDER BY portfolio_date DESC ";
                         $resultPost = $conn->query($sql);
 
                         if (!$resultPost) {
@@ -824,10 +825,10 @@ if (isset($_POST['submit_type_of_work'])) {
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
     <script>
-            document.getElementById('uploadImageButton').addEventListener('click', function() {
-                document.getElementById('postImg').click();
-            });
-        </script>
+        document.getElementById('uploadImageButton').addEventListener('click', function() {
+            document.getElementById('postImg').click();
+        });
+    </script>
 
     <script>
         // JavaScript สำหรับควบคุมสไลด์โชว์
