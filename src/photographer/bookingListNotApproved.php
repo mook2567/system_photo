@@ -206,7 +206,7 @@ $resultBooking = $conn->query($sql1);
         <!-- Spinner End -->
 
         <!-- Navbar Start -->
-        <div class="container-fluid nav-bar bg-transparent">
+        <div class="container-fluid mt-5 bg-transparent">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4">
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
                     <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
@@ -460,7 +460,7 @@ $resultBooking = $conn->query($sql1);
 
 
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+    <!-- <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
@@ -468,7 +468,7 @@ $resultBooking = $conn->query($sql1);
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- Footer End -->
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

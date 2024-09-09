@@ -15,6 +15,18 @@ if (isset($_SESSION['photographer_login'])) {
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
+$sql1 = "SELECT b.*, 
+            pay.*
+            FROM booking b
+            JOIN pay ON pay.booking_id = b.booking_id
+            WHERE b.photographer_id = $id_photographer
+            AND b.booking_confirm_status = '1'
+            AND b.booking_pay_status = '1'
+            AND pay.pay_status = '0'
+";
+$stmt = $conn->prepare($sql1);
+$resultPay = $conn->query($sql1);
+
 $sql2 = "SELECT b.*, 
                 c.cus_prefix, 
                 c.cus_name, 
@@ -29,11 +41,64 @@ $sql2 = "SELECT b.*,
          JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
          WHERE b.photographer_id = $id_photographer
          AND b.booking_confirm_status = '1'
-        --  AND b.booking_pay_status = '1'
+         AND b.booking_pay_status = '1'
 ";
 $resultBooking = $conn->query($sql2);
 
 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['submit_booking_confirm_status'])) {
+        // echo $booking_price = $_POST['booking_price'];
+        // echo $confirm_status = $_POST['confirm_status'];
+        $booking_id = $_POST['booking_id'];
+
+        // Assuming $conn is your MySQLi connection
+        $sql = "UPDATE `booking` SET booking_pay_status = '2' WHERE booking_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $booking_id);
+
+        if ($stmt->execute()) {
+?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">ยืนยันการรับชำระค่ามัดจำสำเร็จ</div>',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+        <?php
+        } else {
+        ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการยืนยันการรับชำระค่ามัดจำ</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                });
+            </script>
+<?php
+        }
+        $stmt->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -157,8 +222,8 @@ $resultBooking = $conn->query($sql2);
             /* สลับสีพื้นหลังแถว */
         }
 
-        .table th:nth-child(8),
-        .table td:nth-child(8) {
+        .table th:nth-child(7),
+        .table td:nth-child(7) {
             width: 500px;
             height: 50px;
             text-align: center;
@@ -190,13 +255,11 @@ $resultBooking = $conn->query($sql2);
         .table th:nth-child(4),
         .table th:nth-child(5),
         .table th:nth-child(6),
-        .table th:nth-child(7),
         .table td:nth-child(2),
         .table td:nth-child(3),
         .table td:nth-child(4),
         .table td:nth-child(5),
-        .table td:nth-child(6),
-        .table td:nth-child(7) {
+        .table td:nth-child(6) {
             width: 180px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -220,6 +283,7 @@ $resultBooking = $conn->query($sql2);
                 <a href="index.php" class="navbar-brand d-flex align-items-center text-center" style="height: 70px;">
                     <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
                 </a>
+                </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon text-primary"></span>
                 </button>
@@ -232,10 +296,10 @@ $resultBooking = $conn->query($sql2);
                             <div class="dropdown-menu rounded-0 m-0">
                                 <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                                <a href="bookingListApproved.php" class="dropdown-item active">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListConfirmDeposit.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                                <a href="bookingListConfirmDeposit.php" class="dropdown-item active">รายการจองที่รอตรวจสอบการชำระ</a>
                                 <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
-                                <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
+                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                             </div>
                         </div>
@@ -260,22 +324,22 @@ $resultBooking = $conn->query($sql2);
     <!-- Header Start -->
     <div class="container-fluid header bg-primary p-1" style="height: 300px;">
         <div class="row g-1 align-items-center flex-column-reverse flex-md-row">
-            <div class="col-md-4 p-5 mt-lg-5">
+            <div class="col-md-5 p-5 mt-lg-5">
                 <br><br>
-                <h1 class="display-7 animated fadeIn mb-1 text-white f text-md-end">รายการจองที่อนุมัติแล้ว</h1>
-                <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ของคุณ</h1>
+                <h1 class="display-7 animated fadeIn mb-1 text-white f text-md-end">รายการจองที่รอตรวจสอบการชำระ</h1>
+                <h1 class="display-9 animated fadeIn mb-1 text-white f text-md-end">ค่ามัดจำของคุณ</h1>
             </div>
         </div>
     </div>
     <!-- Header End -->
     <div class="center container mt-5" style="height: 520px;">
-        <h1 class="footer-title text-center f mt-3">ตารางรายการจองที่อนุมัติแล้ว</h1>
+        <h1 class="footer-title text-center f mt-3">รายการจองที่รอตรวจสอบการชำระค่ามัดจำ</h1>
         <div class="row justify-content-end">
-            <div class="col-md-4">
+            <div class="col-md-5 mt-2 mb-2">
                 <!-- <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button> -->
-                <button type="button" onclick="window.location.href='bookingListWaittingForApproval.php'" class="btn btn-outline-dark">รออนุมัติ</button>
-                <button type="button" onclick="window.location.href='bookingListApproved.php'" class="btn btn-outline-dark active">อนุมัติแล้ว</button>
-                <button type="button" onclick="window.location.href='bookingListNotApproved.php'" class="btn btn-outline-dark">ไม่อนุมัติ</button>
+                <button type="button" onclick="window.location.href='bookingListConfirmDeposit.php'" class="btn btn-outline-dark active">รอตรวจสอบค่ามัดจำ</button>
+                <button type="button" onclick="window.location.href='bookingListConfirmPayment.php'" class="btn btn-outline-dark">รอตรวจสอบชำระเงิน</button>
+                <button type="button" onclick="window.location.href='bookingListPaymentFinish.php'" class="btn btn-outline-dark">เสร็จสิ้นการชำระ</button>
             </div>
         </div>
         <div class="table-responsive mt-1">
@@ -288,7 +352,7 @@ $resultBooking = $conn->query($sql2);
                         <th scope="col">เวลาเริ่มงาน</th>
                         <th scope="col">ประเภทงาน</th>
                         <th scope="col">ราคา (บาท)</th>
-                        <th scope="col">สถานะการชำระ</th>
+                        <!-- <th scope="col">สถานะการชำระ</th> -->
                         <th scope="col">ดำเนินการ</th>
                     </tr>
                 </thead>
@@ -305,7 +369,7 @@ $resultBooking = $conn->query($sql2);
                                     <td><?php echo $rowBooking['booking_start_time']; ?></td>
                                     <td><?php echo $rowBooking['type_work']; ?></td>
                                     <td><?php echo $rowBooking['booking_price']; ?></td>
-                                    <td>
+                                    <!-- <td>
                                         <?php
                                         if ($rowBooking['booking_pay_status'] == '0') {
                                             echo '<p class="mt-3">ยังไม่ชำระ</p>';
@@ -317,9 +381,18 @@ $resultBooking = $conn->query($sql2);
                                             echo '<p>สถานะไม่ถูกต้อง</p>';
                                         }
                                         ?>
+                                    </td> -->
+                                    <td>
+                                        <?php
+                                        if ($rowBooking['booking_pay_status'] == '1') {
+
+                                        ?>
+                                            <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
+                                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#checkDeposit<?php echo $rowBooking['booking_id']; ?>">ตรวจสอบการชำระ</button>
+                                       <?php } ?>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
+                                        <!-- <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#edite<?php echo $rowBooking['booking_id']; ?>">อนุมัติการจอง</button> -->
                                     </td>
                                 </tr>
                                 <!-- details -->
@@ -370,6 +443,7 @@ $resultBooking = $conn->query($sql2);
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '0') ? 'ยังไม่ชำระ' : (($rowBooking['booking_pay_status'] == '1') ? 'ชำระค่ามัดจำแล้ว' : 'ชำระแล้ว'); ?></span></div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -378,6 +452,97 @@ $resultBooking = $conn->query($sql2);
                                                 </div>
                                                 <div class="modal-footer justify-content-center">
                                                     <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- checkDeposit -->
+                                <div class="modal fade" id="checkDeposit<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="checkDepositLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="checkDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่ต้องการตรวจ</b></h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="" method="POST">
+                                                <div class="modal-body" style="height: auto;">
+                                                    <div class="container-md mb-5">
+                                                        <div class="row">
+                                                            <div class="col-6 container-fluid">
+                                                                <div class="col-11">
+                                                                    <div class="row">
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
+                                                                                </span>
+                                                                            <?php else: ?>
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
+                                                                                </span>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <?php
+                                                                            $startTime = new DateTime($rowBooking['booking_start_time']);
+                                                                            $endTime = new DateTime($rowBooking['booking_end_time']);
+
+                                                                            $formattedStartTime = $startTime->format('H:i');
+                                                                            $formattedEndTime = $endTime->format('H:i');
+                                                                            ?>
+
+                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px; overflow-wrap: break-word;">คำอธิบาย : <?php echo $rowBooking['booking_details']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <?php
+                                                            if ($rowPay = $resultPay->fetch_assoc()) {
+                                                            ?>
+                                                                <div class="col-6 card justify-content-center align-content-center" style="height: auto;">
+                                                                    <div class="row">
+                                                                        <div class="col-12 mt-2 mb-2">
+                                                                            <div class="text-start mt-2" style="font-size: 18px;"><b>ข้อมูลการชำระค่ามัดจำ</b></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่ชำระ : <?php echo $rowPay['pay_date']; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เวลาที่ชำระ : <?php echo $rowPay['pay_time'] . ' น.'; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทการชำระ : <?php echo $rowPay['pay_type']; ?></span></div>
+                                                                            <?php if ($rowPay['pay_type'] != 'ชำระเงินสด') { ?>
+                                                                                <!-- แสดงเฉพาะเมื่อไม่ใช่การชำระเงินสด -->
+                                                                                <div class="col-12 mt-2 text-center">
+                                                                                    <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">สลิปการโอนเงิน</span>
+                                                                                    </label>
+                                                                                    <div class="">
+                                                                                        <img id="slip" src="../img/slip/<?php echo $rowPay['pay_slip']; ?>" style="width: 30%; max-height: 500px; min-height: 200px; object-fit: cover;">
+                                                                                    </div>
+                                                                                </div>
+                                                                            <?php } ?>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">จำนวนเงินที่ต้องชำระ : <?php echo $rowBooking['deposit_price'] . ' บาท'; ?></span></div>
+                                                                            <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '0') ? 'ยังไม่ชำระ' : (($rowBooking['booking_pay_status'] == '1') ? 'ชำระค่ามัดจำแล้ว' : 'ชำระแล้ว'); ?></span></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            <?php
+                                                            } ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                <div class="modal-footer justify-content-center">
+                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                    <button id="saveButton" name="submit_booking_confirm_status" class="btn btn-primary" style="width: 170px; height:45px;">ยืนยันการรับชำระมัดจำ</button>
                                                 </div>
                                             </form>
                                         </div>

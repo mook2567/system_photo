@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $allowTypes = array('jpg', 'png', 'jpeg');
                 if (in_array($fileType, $allowTypes)) {
                     if (move_uploaded_file($_FILES["pay_slip"]["tmp_name"], $targetFilePath)) {
-                        $pay_status = '1'; // Set status to 1 if file upload is successful
+                        $pay_status = '0'; // Set status to 1 if file upload is successful
                     } else {
                         // Handle upload error
 ?>
@@ -431,7 +431,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <h1 class="text-center f">รายการจองคิวที่ต้องชำระค่ามัดจำ</h1>
             <div class="row justify-content-end">
                 <div class="col-md-4">
-                    <button type="button" onclick="" class="btn btn-outline-dark active">รอชำระค่ามัดจำ</button>
+                    <button type="button" onclick="window.location.href='payLists.php'" class="btn btn-outline-dark active">รอชำระค่ามัดจำ</button>
                     <button type="button" onclick="window.location.href='bookingListWaittingForApproval.php'" class="btn btn-outline-dark">รอชำระเงิน</button>
                     <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ชำระแล้ว</button>
                 </div>
