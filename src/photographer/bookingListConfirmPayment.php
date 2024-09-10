@@ -21,7 +21,7 @@ $sql1 = "SELECT b.*,
             JOIN pay ON pay.booking_id = b.booking_id
             WHERE b.photographer_id = $id_photographer
             AND b.booking_confirm_status = '1'
-            AND b.booking_pay_status = '3'
+            AND b.booking_pay_status = '4'
             AND pay.pay_status = '1'
 ";
 $stmt = $conn->prepare($sql1);
@@ -41,7 +41,7 @@ $sql2 = "SELECT b.*,
          JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
          WHERE b.photographer_id = $id_photographer
          AND b.booking_confirm_status = '1'
-         AND b.booking_pay_status = '3'
+         AND b.booking_pay_status = '4'
 ";
 $resultBooking = $conn->query($sql2);
 
@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo $booking_id = $_POST['booking_id'];
 
         // Assuming $conn is your MySQLi connection
-        $sql = "UPDATE `booking` SET booking_confirm_status = '1' WHERE booking_id = ?";
+        $sql = "UPDATE `booking` SET booking_confirm_status = '5' WHERE booking_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $booking_price, $booking_id);
 
@@ -384,7 +384,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </td> -->
                                     <td>
                                         <?php
-                                        if ($rowBooking['booking_pay_status'] == '1') {
+                                        if ($rowBooking['booking_pay_status'] == '4') {
 
                                         ?>
                                             <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
@@ -552,7 +552,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             }
                         }
                     } else {
-                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่อนุมัติ</td></tr>";
+                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการชำระเงินแล้ว</td></tr>";
                     }
                     ?>
                 </tbody>
