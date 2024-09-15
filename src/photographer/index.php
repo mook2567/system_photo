@@ -793,7 +793,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                                         for ($i = 0; $i < $max_photos; $i++) : ?>
                                                             <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
                                                                 <a data-fancybox="gallery" href="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>">
-                                                                    <img class="post-img" style="max-width: auto; height: auto;" src="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>" alt="img-post" />
+                                                                    <img class="post-img" style="width: 100%; height: 200px; object-fit: cover;" src="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>" alt="img-post" />
                                                                 </a>
                                                             </div>
                                                         <?php endfor; ?>
