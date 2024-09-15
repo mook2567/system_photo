@@ -15,7 +15,7 @@ if (isset($_SESSION['customer_login'])) {
     $id_cus = $rowCus['cus_id'];
 }
 
-$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work, p.*, pay.*, 
+$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work, p.*, pay.*, sub.*,
         (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
         (b.booking_price * 0.30) AS deposit_price
     FROM booking b
@@ -24,9 +24,11 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
     JOIN photographer p ON p.photographer_id = b.photographer_id
     JOIN pay ON pay.booking_id = b.booking_id
-    WHERE c.cus_id = $id_cus
+    JOIN submit sub ON sub.booking_id = b.booking_id
+    WHERE c.cus_id = 1
     AND b.booking_confirm_status = '1'
     AND b.booking_pay_status = '3'
+    AND sub.submit_details IS NOT NULL
 ";
 
 $resultBooking = $conn->query($sql1);
@@ -60,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $allowTypes = array('jpg', 'png', 'jpeg');
                 if (in_array($fileType, $allowTypes)) {
                     if (move_uploaded_file($_FILES["pay_slip"]["tmp_name"], $targetFilePath)) {
-                        $pay_status = '0'; // Set status to 1 if file upload is successful
+                        $pay_status = '1'; // Set status to 1 if file upload is successful
                     } else {
                         // Handle upload error
 ?>
@@ -598,6 +600,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     </span>
                                                                                 </div>
                                                                             <?php endif; ?>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="card mt-3" style="height: 50%;">
+                                                                    <div class="mt-3 mb-3 ms-3 me-3">
+                                                                        <div class="col-md-12 ms-3">
+                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการส่งมอบงาน</h6>
+                                                                            <!-- <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    ไดฟ์ส่งงาน : <?php echo '<a href="' . $rowBooking['submit_details'] . '" target="_blank">ดูไดร์ฟส่งงาน</a>'; ?>
+                                                                                </span>
+                                                                            </div> -->
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    ไดรฟ์ส่งงาน :<a href="#" onclick="alert('กรุณาชำระเงินก่อน'); return false;">ดูไดรฟ์ส่งงาน</a>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่ส่งงาน : <?php echo $rowBooking['submit_date']; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    เวลาที่ส่งงาน : <?php echo $rowBooking['submit_time'] . ' น.'; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-5">
+                                                                                <h6 class="f mt-3 mb-3" style="color: red;">หมายเหตุ</h6>
+                                                                                <span style="color: red; margin-right: 5px; font-size: 18px;">
+                                                                                    หากท่านยังไม่ชำระเงินจะไม่สามารถดูไดรฟ์ส่งงานได้
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>

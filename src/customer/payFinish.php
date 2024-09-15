@@ -16,7 +16,7 @@ if (isset($_SESSION['customer_login'])) {
 }
 
 
-$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work, p.*,
+$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work, p.*, sub.*,
         (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
         (b.booking_price * 0.30) AS deposit_price
     FROM booking b
@@ -24,10 +24,12 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     JOIN `type` t ON b.type_of_work_id = t.type_id
     JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
     JOIN photographer p ON p.photographer_id = b.photographer_id
+    JOIN submit sub ON sub.booking_id = b.booking_id
     WHERE c.cus_id = $id_cus
     AND b.booking_confirm_status = '1'
-    AND b.booking_pay_status = '4'
-";
+    AND b.booking_pay_status = '5'
+    AND sub.submit_details IS NOT NULL
+    ";
 
 $resultBooking = $conn->query($sql1);
 
@@ -407,10 +409,11 @@ $resultPay1 = $conn->query($sql3);
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px; overflow-wrap: break-word;">คำอธิบาย : <?php echo $rowBooking['booking_details']; ?></span></div>
+                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
-                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '0') ? 'ยังไม่ชำระ' : (($rowBooking['booking_pay_status'] == '2') ? 'ชำระค่ามัดจำแล้ว' : 'รอชำระเงิน'); ?></span></div>
+                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '3') ? 'รอชำระเงิน' : (($rowBooking['booking_pay_status'] == '4') ? 'ชำระเงินแล้วรอตรวจสอบ' : 'รอตรวจสอบ'); ?></span></div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -418,10 +421,10 @@ $resultPay1 = $conn->query($sql3);
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6 container-fluid mb-3">
-                                                                <div class="card" style="height: 50%;">
+                                                                <div class="card" style="height: auto;">
                                                                     <div class="mt-3 mb-3 ms-3 me-3">
                                                                         <div class="col-md-12 ms-3">
-                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ</h6>
+                                                                            <h6 class="f mb-3">ข้อมูลการชำระค่ามัดจำ</h6>
                                                                             <?php
                                                                             if ($rowPay0 = $resultPay0->fetch_assoc()) :
                                                                             ?>
@@ -457,16 +460,16 @@ $resultPay1 = $conn->query($sql3);
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="card mt-3" style="height: 50%;">
+                                                                <div class="card mt-3" style="height: auto;">
                                                                     <div class="mt-3 mb-3 ms-3 me-3">
                                                                         <div class="col-md-12 ms-3">
-                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการชำระเงิน</h6>
+                                                                            <h6 class="f mb-3">ข้อมูลการชำระเงิน</h6>
                                                                             <?php
                                                                             if ($rowPay1 = $resultPay1->fetch_assoc()) :
                                                                             ?>
                                                                                 <div class="col-12 mt-2">
                                                                                     <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                        ค่ามัดจำที่จ่าย : <?php echo $rowPay1['payment_price'] . ' บาท'; ?>
+                                                                                        จำนวนเงินที่ชำระ : <?php echo $rowPay1['payment_price'] . ' บาท'; ?>
                                                                                     </span>
                                                                                 </div>
                                                                                 <div class="col-12 mt-2">
@@ -495,6 +498,28 @@ $resultPay1 = $conn->query($sql3);
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <div class="card mt-3" style="height: auto;">
+                                                                    <div class="mt-3 mb-3 ms-3 me-3">
+                                                                        <div class="col-md-12 ms-3">
+                                                                            <h6 class="f mb-3">ข้อมูลการส่งมอบงาน</h6>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    ไดฟ์ส่งงาน : <?php echo '<a href="' . $rowBooking['submit_details'] . '" target="_blank">ดูไดร์ฟส่งงาน</a>'; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่ส่งงาน : <?php echo $rowBooking['submit_date']; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    เวลาที่ส่งงาน : <?php echo $rowBooking['submit_time'] . ' น.'; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer justify-content-center mt-3">
@@ -510,7 +535,7 @@ $resultPay1 = $conn->query($sql3);
                                 }
                             }
                         } else {
-                            echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่รอชำระเงิน</td></tr>";
+                            echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่ชำระเสร็จสิ้นแล้ว</td></tr>";
                         }
 
                         ?>
