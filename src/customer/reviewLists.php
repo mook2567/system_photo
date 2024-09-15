@@ -40,6 +40,92 @@ $sql3 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_p
 (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'";
 $resultPay1 = $conn->query($sql3);
 
+$sql4 = "SELECT * FROM review";
+$resultReview = $conn->query($sql4);
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST["submit_review"])) {
+        $details = $_POST['details'];
+        $rating = $_POST['rating'];
+        $review_date = $_POST['review_date'];
+        $review_time = $_POST['review_time'];
+        $booking_id = $_POST['booking_id'];
+
+        // Insert data into the database
+        $sql = "INSERT INTO `review` (`booking_id`, `review_date`, `review_time`, `review_caption`, `review_level`) VALUES ( ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("issss", $booking_id, $review_date, $review_time, $details, $rating);
+
+        if ($stmt->execute()) {
+            // Update booking status
+            $updateSql = "UPDATE booking SET booking_confirm_status = '3' WHERE booking_id = ?";
+            $updateStmt = $conn->prepare($updateSql);
+            $updateStmt->bind_param("i", $booking_id);
+
+            if ($updateStmt->execute()) {
+?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">บันทึกข้อมูลการรีวิวสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    }, 500);
+                </script>
+            <?php
+            } else {
+            ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการอัพเดตสถานะการจอง</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    }, 500);
+                </script>
+            <?php
+            }
+            $updateStmt->close();
+        } else {
+            ?>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกข้อมูลการรีวิว</div>',
+                        icon: 'error',
+                        confirmButtonText: 'ออก',
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "";
+                        }
+                    });
+                }, 500);
+            </script>
+<?php
+        }
+        $stmt->close();
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -79,186 +165,187 @@ $resultPay1 = $conn->query($sql3);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
-    <head>
-    <meta charset="utf-8">
-    <title>Photo Match</title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link rel="icon" type="image/png" href="../img/icon-logo.png">
-    <meta content="" name="keywords">
-    <meta content="" name="description">
 
-    <!-- Favicon
+    <head>
+        <meta charset="utf-8">
+        <title>Photo Match</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link rel="icon" type="image/png" href="../img/icon-logo.png">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
+
+        <!-- Favicon
     <link href="img/favicon.ico" rel="icon"> -->
 
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
 
-    <!-- Icon Font Stylesheet -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+        <!-- Icon Font Stylesheet -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Libraries Stylesheet -->
-    <link href="../lib/animate/animate.min.css" rel="stylesheet">
-    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+        <!-- Libraries Stylesheet -->
+        <link href="../lib/animate/animate.min.css" rel="stylesheet">
+        <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Template Stylesheet -->
-    <link href="../css/style.css" rel="stylesheet">
+        <!-- Template Stylesheet -->
+        <link href="../css/style.css" rel="stylesheet">
 
-    <!-- font awaysome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <!-- font awaysome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Athiti', sans-serif;
-            overflow-x: hidden;
-            background: #F0F2F5;
-        }
+        <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Athiti', sans-serif;
+                overflow-x: hidden;
+                background: #F0F2F5;
+            }
 
-        .f {
-            font-family: 'Athiti', sans-serif;
-        }
+            .f {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        p {
-            font-family: 'Athiti', sans-serif;
-        }
+            p {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        h1 {
-            font-family: 'Athiti', sans-serif;
-        }
+            h1 {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        h2 {
-            font-family: 'Athiti', sans-serif;
-        }
+            h2 {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        h3 {
-            font-family: 'Athiti', sans-serif;
-        }
+            h3 {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        h4 {
-            font-family: 'Athiti', sans-serif;
-        }
+            h4 {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        h5 {
-            font-family: 'Athiti', sans-serif;
-        }
+            h5 {
+                font-family: 'Athiti', sans-serif;
+            }
 
-        .circle {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            overflow: hidden;
-            position: relative;
-        }
+            .circle {
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                overflow: hidden;
+                position: relative;
+            }
 
-        .circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+            .circle img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
 
-        .write-post-container {
-            width: 100%;
-            background: #fff;
-            border-radius: 4px;
-            padding: 20px;
-            color: #626262;
-        }
+            .write-post-container {
+                width: 100%;
+                background: #fff;
+                border-radius: 4px;
+                padding: 20px;
+                color: #626262;
+            }
 
-        .post-img {
-            width: 100%;
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
+            .post-img {
+                width: 100%;
+                border-radius: 4px;
+                margin-bottom: 5px;
+            }
 
-        .post-text {
-            color: #626262;
-            margin: 15px;
-            font-size: 15px;
-        }
+            .post-text {
+                color: #626262;
+                margin: 15px;
+                font-size: 15px;
+            }
 
-        .bgIndex {
-            background-image: url('../img/bgIndex2.jpg');
-            background-attachment: fixed;
-            background-size: cover;
-            /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
-        }
+            .bgIndex {
+                background-image: url('../img/bgIndex2.jpg');
+                background-attachment: fixed;
+                background-size: cover;
+                /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
+            }
 
-        .table th,
-        .table td {
-            vertical-align: middle;
-            /* จัดการให้เนื้อหาตรงกลางของเซลล์ */
-        }
+            .table th,
+            .table td {
+                vertical-align: middle;
+                /* จัดการให้เนื้อหาตรงกลางของเซลล์ */
+            }
 
-        .table th.text-center,
-        .table td.text-center {
-            text-align: center;
-            /* จัดการให้เนื้อหาอยู่ตรงกลางของเซลล์ */
-        }
+            .table th.text-center,
+            .table td.text-center {
+                text-align: center;
+                /* จัดการให้เนื้อหาอยู่ตรงกลางของเซลล์ */
+            }
 
-        .table .btn {
-            width: 150px;
-        }
+            .table .btn {
+                width: 150px;
+            }
 
-        /* 3. เพิ่มการเรียงลำดับให้เป็นแถวคู่-คี่ */
-        .table tbody tr:nth-child(odd) {
-            background-color: #f2f2f2;
-            /* สลับสีพื้นหลังแถว */
-        }
+            /* 3. เพิ่มการเรียงลำดับให้เป็นแถวคู่-คี่ */
+            .table tbody tr:nth-child(odd) {
+                background-color: #f2f2f2;
+                /* สลับสีพื้นหลังแถว */
+            }
 
 
-        .table th:nth-child(7),
-        .table td:nth-child(7) {
-            width: 500px;
-            height: 50px;
-            text-align: center;
-            /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
-        }
+            .table th:nth-child(7),
+            .table td:nth-child(7) {
+                width: 500px;
+                height: 50px;
+                text-align: center;
+                /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
+            }
 
-        .table th:nth-child(1),
-        .table td:nth-child(1) {
-            width: 200px;
-            height: 50px;
-            text-align: center;
-            /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
-        }
+            .table th:nth-child(1),
+            .table td:nth-child(1) {
+                width: 200px;
+                height: 50px;
+                text-align: center;
+                /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
+            }
 
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-        }
+            .footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+            }
 
-        .modal-dialog {
-            width: 70%;
-            /* เปลี่ยนเป็นค่าที่คุณต้องการ เช่น 50% หรือ 70% */
-        }
+            .modal-dialog {
+                width: 70%;
+                /* เปลี่ยนเป็นค่าที่คุณต้องการ เช่น 50% หรือ 70% */
+            }
 
-        .table th:nth-child(2),
-        .table th:nth-child(3),
-        .table th:nth-child(4),
-        .table th:nth-child(5),
-        .table th:nth-child(6),
-        .table td:nth-child(2),
-        .table td:nth-child(3),
-        .table td:nth-child(4),
-        .table td:nth-child(5),
-        .table td:nth-child(6) {
-            width: 180px;
-            height: 50px;
-            /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
-        }
-    </style>
-</head>
+            .table th:nth-child(2),
+            .table th:nth-child(3),
+            .table th:nth-child(4),
+            .table th:nth-child(5),
+            .table th:nth-child(6),
+            .table td:nth-child(2),
+            .table td:nth-child(3),
+            .table td:nth-child(4),
+            .table td:nth-child(5),
+            .table td:nth-child(6) {
+                width: 180px;
+                height: 50px;
+                /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
+            }
+        </style>
+    </head>
 </head>
 
 <body>
@@ -313,10 +400,10 @@ $resultPay1 = $conn->query($sql3);
             <!-- Navbar End -->
             <!-- Header Start -->
             <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
-            <div class="col-md-6 ms-5 p-5">
-                <h1 class="display-5 animated fadeIn text-white f">รายการจองคิวที่ต้องรีวิว</h1>
-                <p class="text-white">คุณสามารถเลือกดูรายการที่คุณต้องรีวิวหรือทำการรีวิวได้ที่หน้าต่างนี้</p>
-            </div>
+                <div class="col-md-6 ms-5 p-5">
+                    <h1 class="display-5 animated fadeIn text-white f">รายการจองคิวที่ต้องรีวิว</h1>
+                    <p class="text-white">คุณสามารถเลือกดูรายการที่คุณต้องรีวิวหรือทำการรีวิวได้ที่หน้าต่างนี้</p>
+                </div>
             </div>
             <!-- Header End -->
         </div>
@@ -368,8 +455,8 @@ $resultPay1 = $conn->query($sql3);
                                             ?>
                                         </td>
                                         <td>
-                                        <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
-                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#review<?php echo $rowBooking['booking_id']; ?>">รีวิว</button>
+                                            <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
+                                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#review<?php echo $rowBooking['booking_id']; ?>">รีวิว</button>
                                         </td>
                                     </tr>
                                     <!-- details -->
@@ -561,69 +648,174 @@ $resultPay1 = $conn->query($sql3);
                                         <div class="modal-dialog modal-dialog-centered modal-xl">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="reviewLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fa-solid fa-pen"></i>&nbsp;&nbsp;เขียนรีวิว</b></h5>
+                                                    <h5 class="modal-title" id="reviewLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fa-solid fa-pen"></i>&nbsp;&nbsp;เขียนรีวิวให้ช่างภาพ คุณ<?php echo $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></b></h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="modal-body" style="height: 600px;">
+                                                <div class="modal-body" style="height: auto;">
                                                     <div class="mt-3 container-md">
                                                         <div class="mt-3 col-md-8 container-fluid">
                                                             <div class="col-12">
                                                                 <div class="row">
                                                                     <div class="col-4">
-                                                                        <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ-นามสกุล ช่างภาพ</span>
-                                                                        </label>
-                                                                        <input type="text" name="name" class="form-control mt-1" placeholder="กรุณากรอกชื่อ">
+                                                                        <h6 class="f mt-2">ข้อมูลการจอง</h6>
                                                                     </div>
-                                                                    <div class="col-4 mt-4">
-                                                                        <input type="text" name="surname" class="form-control " placeholder="กรุณากรอกนามสกุล">
-                                                                    </div>
-                                                                    <div class="col-4">
-                                                                        <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
-                                                                        </label>
-                                                                        <input type="date" name="date-saved" class="form-control mt-1" style="resize: none;">
+                                                                    <div class="col-8">
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล ช่างภาพ : <?php echo  $rowBooking['photographer_prefix'] . '' . $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-12 mt-4">
-                                                                <div class="row">
-                                                                    <div class="col-3 mt-1">
-                                                                        <label for="Score" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">คะแนนความพึงพอใจ</span>
-                                                                        </label>
+                                                            <form action=" " enctype="multipart/form-data" method="POST">
+                                                                <div class="col-12 mt-5">
+                                                                    <div class="row">
+                                                                        <div class="col-4">
+                                                                            <h6 class="f mt-2">ข้อมูลคะแนนความพึงพอใจ</h6>
+                                                                        </div>
+                                                                        <div class="col-8">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <i class="far fa-star star-icon" style="font-size: 30px;color:goldenrod;" data-rating="1"></i>
+                                                                                    <i class="far fa-star star-icon" style="font-size: 30px;color:goldenrod;" data-rating="2"></i>
+                                                                                    <i class="far fa-star star-icon" style="font-size: 30px;color:goldenrod;" data-rating="3"></i>
+                                                                                    <i class="far fa-star star-icon" style="font-size: 30px;color:goldenrod;" data-rating="4"></i>
+                                                                                    <i class="far fa-star star-icon" style="font-size: 30px;color:goldenrod;" data-rating="5"></i>
+                                                                                    <input type="hidden" name="rating" id="rating" value="0">
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <h6 class="f mt-2" style="color:goldenrod; margin-right: 5px;font-size: 18px;" id="rating-text"></h6>
+                                                                                    <small id="rating-error" class="text-danger" style="display:none;">กรุณาเลือกคะแนนความพึงพอใจ</small>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <script>
+                                                                            document.querySelectorAll('.star-icon').forEach(function(star) {
+                                                                                star.addEventListener('click', function() {
+                                                                                    let rating = this.getAttribute('data-rating');
+                                                                                    document.getElementById('rating').value = rating;
+
+                                                                                    // อัปเดตข้อความระดับความพึงพอใจ
+                                                                                    let ratingText = '';
+                                                                                    switch (rating) {
+                                                                                        case '5':
+                                                                                            ratingText = 'พึงพอใจมากที่สุด';
+                                                                                            break;
+                                                                                        case '4':
+                                                                                            ratingText = 'พึงพอใจมาก';
+                                                                                            break;
+                                                                                        case '3':
+                                                                                            ratingText = 'พึงพอใจปานกลาง';
+                                                                                            break;
+                                                                                        case '2':
+                                                                                            ratingText = 'พึงพอใจน้อย';
+                                                                                            break;
+                                                                                        case '1':
+                                                                                            ratingText = 'พึงพอใจน้อยที่สุด';
+                                                                                            break;
+                                                                                        default:
+                                                                                            ratingText = '';
+                                                                                    }
+                                                                                    document.getElementById('rating-text').innerText = ratingText;
+
+                                                                                    // รีเซ็ตดาว
+                                                                                    document.querySelectorAll('.star-icon').forEach(function(star) {
+                                                                                        star.classList.remove('fas');
+                                                                                        star.classList.add('far');
+                                                                                    });
+
+                                                                                    // ไฮไลต์ดาวที่เลือก
+                                                                                    for (let i = 1; i <= rating; i++) {
+                                                                                        document.querySelector('.star-icon[data-rating="' + i + '"]').classList.remove('far');
+                                                                                        document.querySelector('.star-icon[data-rating="' + i + '"]').classList.add('fas');
+                                                                                    }
+
+                                                                                    // ซ่อนข้อความเตือนเมื่อเลือกคะแนนแล้ว
+                                                                                    document.getElementById('rating-error').style.display = 'none';
+                                                                                });
+                                                                            });
+
+                                                                            document.querySelector('form').addEventListener('submit', function(event) {
+                                                                                var rating = document.getElementById('rating').value;
+
+                                                                                // ตรวจสอบว่ามีการเลือกคะแนนหรือไม่
+                                                                                if (rating == 0) {
+                                                                                    event.preventDefault(); // ยกเลิกการส่งแบบฟอร์ม
+                                                                                    document.getElementById('rating-error').style.display = 'block'; // แสดงข้อความเตือน
+                                                                                } else {
+                                                                                    document.getElementById('rating-error').style.display = 'none'; // ซ่อนข้อความเตือนถ้าถูกต้อง
+                                                                                }
+                                                                            });
+                                                                        </script>
                                                                     </div>
-                                                                    <div class="col-4">
-                                                                        <i class="far fa-star star-icon" style="font-size: 30px;" data-rating="1"></i>
-                                                                        <i class="far fa-star star-icon" style="font-size: 30px;" data-rating="2"></i>
-                                                                        <i class="far fa-star star-icon" style="font-size: 30px;" data-rating="3"></i>
-                                                                        <i class="far fa-star star-icon" style="font-size: 30px;" data-rating="4"></i>
-                                                                        <i class="far fa-star star-icon" style="font-size: 30px;" data-rating="5"></i>
-                                                                        <input type="hidden" name="rating" id="rating" value="0">
+                                                                </div>
+                                                                <div class="col-12 mt-5">
+                                                                    <div class="row">
+                                                                        <div class="col-4">
+                                                                            <h6 class="f mt-2">ข้อมูลคำอธิบาย</h6>
+                                                                        </div>
+                                                                        <div class="col-8 mt-2">
+                                                                            <small id="details-counter" class="text-muted">0/20 ตัวอักษร</small> <!-- แสดงจำนวนตัวอักษร -->
+                                                                            <textarea id="details" name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย (อย่างน้อย 20 ตัวอักษร)" style="resize: none; height: 100px;" required></textarea>
+                                                                            <small id="details-error" class="text-danger" style="display:none;">กรุณากรอกคำอธิบายไม่ต่ำกว่า 20 ตัวอักษร</small>
+                                                                        </div>
                                                                     </div>
-                                                                    <!-- <div class="col-3 mt-1">
-                        <label for="booking-id" style="font-weight: bold; display: flex; align-items: center;">
-                            <span style="color: black; margin-right: 5px;font-size: 13px;">คะแนนความพึงพอใจ</span>
-                        </label>
-                    </div> -->
                                                                 </div>
-                                                            </div>
-                                                            <div class="row mt-3">
-                                                                <div class="col-12 ">
-                                                                    <label for="Information-caption" style="font-weight: bold; display: flex; align-items: center;">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
-                                                                    </label>
-                                                                    <textarea class="form-control mt-1" name="Information-caption" rows="3"></textarea>
-                                                                </div>
-                                                            </div>
+
+                                                                <script>
+                                                                    var detailsInput = document.getElementById('details');
+                                                                    var detailsError = document.getElementById('details-error');
+                                                                    var detailsCounter = document.getElementById('details-counter');
+
+                                                                    // ฟังก์ชันสำหรับอัปเดตจำนวนตัวอักษรที่กรอก
+                                                                    detailsInput.addEventListener('input', function() {
+                                                                        var detailsLength = detailsInput.value.length;
+                                                                        detailsCounter.textContent = detailsLength + "/20 ตัวอักษร";
+
+                                                                        // ตรวจสอบความยาวของคำอธิบาย
+                                                                        if (detailsLength < 20) {
+                                                                            detailsError.style.display = 'block'; // แสดงข้อความเตือน
+                                                                        } else {
+                                                                            detailsError.style.display = 'none'; // ซ่อนข้อความเตือนเมื่อกรอกครบ
+                                                                        }
+                                                                    });
+
+                                                                    // ตรวจสอบคำอธิบายเมื่อส่งฟอร์ม
+                                                                    document.querySelector('form').addEventListener('submit', function(event) {
+                                                                        if (detailsInput.value.length < 20) {
+                                                                            event.preventDefault(); // ยกเลิกการส่งแบบฟอร์ม
+                                                                            detailsError.style.display = 'block'; // แสดงข้อความเตือน
+                                                                        }
+                                                                    });
+                                                                </script>
+
                                                         </div>
                                                     </div>
-                                                    <div class="row justify-content-center mt-5">
+                                                    <input type="hidden" id="review_date" name="review_date" class="form-control mt-1" style="resize: none;" required>
+                                                    <input type="hidden" id="review_time" name="review_time" class="form-control mt-1" style="resize: none;" required>
+                                                    <script>
+                                                        window.onload = function() {
+                                                            // ตั้งค่าวันที่ปัจจุบัน
+                                                            let today = new Date();
+                                                            let year = today.getFullYear();
+                                                            let month = ('0' + (today.getMonth() + 1)).slice(-2); // เพิ่มเลข 0 ถ้าเดือนเป็นตัวเลขหลักเดียว
+                                                            let day = ('0' + today.getDate()).slice(-2); // เพิ่มเลข 0 ถ้าวันเป็นตัวเลขหลักเดียว
+                                                            document.getElementById('review_date').value = year + '-' + month + '-' + day;
+
+                                                            // ตั้งค่าเวลาปัจจุบัน
+                                                            let hours = ('0' + today.getHours()).slice(-2); // เพิ่มเลข 0 ถ้าเป็นเลขหลักเดียว
+                                                            let minutes = ('0' + today.getMinutes()).slice(-2);
+                                                            document.getElementById('review_time').value = hours + ':' + minutes;
+                                                        };
+                                                    </script>
+                                                    <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                    <div class="modal-footer mt-5 justify-content-center">
                                                         <div class="col-md-12 text-center">
-                                                            <button type="button" class="btn btn-primary" style="width: 150px;height:45px;">ยืนยันการรีวิว</button>
+                                                            <button id="saveButton" name="submit_review" class="btn btn-primary" style="width: 150px; height:45px;">ยืนยันการรีวิว</button>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -632,7 +824,7 @@ $resultPay1 = $conn->query($sql3);
                                 }
                             }
                         } else {
-                            echo "<tr><td  colspan='7'>ไม่พบข้อมูลรายการที่ชำระเสร็จสิ้นแล้ว</td></tr>";
+                            echo "<tr><td  colspan='7'>ไม่พบข้อมูลรายการที่ต้องรีวิว</td></tr>";
                         }
 
                         ?>
@@ -647,139 +839,6 @@ $resultPay1 = $conn->query($sql3);
             <!-- Footer End -->
         </div>
     </div>
-    <!-- <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailsLabel"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิว</b></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="height: 600px;">
-                    <div class="mt-3 container-md">
-                        <div class="mt-3 col-md-12 container-fluid">
-                            <div class="col-12">
-                                <div class="row mt-2">
-                                    <div class="col-2">
-                                        <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px; "> คำนำหน้า</span>
-                                        </label>
-                                        <select class="form-select border-1 mt-1">
-                                            <option value="1">นาย</option>
-                                            <option value="2">นางสาว</option>
-                                            <option value="3">นาง</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-5">
-                                        <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                        </label>
-                                        <input type="text" name="name" class="form-control mt-1" placeholder="กรุณากรอกชื่อ">
-                                    </div>
-                                    <div class="col-5">
-                                        <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                        </label>
-                                        <input type="text" name="surname" class="form-control mt-1" placeholder="กรุณากรอกนามสกุล">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mt-3">
-                                <div class="row">
-                                    <div class="col-md-4 text-center">
-                                        <label for="booking-start-date" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
-                                        </label>
-                                        <input type="date" name="booking-start-date" class="form-control mt-1" style="resize: none;">
-                                    </div>
-                                    <div class="col-md-2 text-center">
-                                        <label for="booking-start-time" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                        </label>
-                                        <input type="time" name="booking-start-time" class="form-control mt-1" style="resize: none;">
-                                    </div>
-
-                                    <div class="col-md-4 text-center">
-                                        <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
-                                        </label>
-                                        <input type="date" name="booking-end-date" class="form-control mt-1" style="resize: none;">
-                                    </div>
-                                    <div class="col-md-2 text-center">
-                                        <label for="booking-end-time" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาสิ้นสุด</span>
-                                        </label>
-                                        <input type="time" name="booking-end-time" class="form-control mt-1" style="resize: none;">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mt-3">
-                                <div class="row">
-                                    <div class="col-md-12 text-center">
-                                        <label for="location" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">สถานที่</span>
-
-                                        </label>
-                                        <input type="text" name="location" class="form-control mt-1" placeholder="กรุณากรอกสถานที่" style="resize: none;">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 mt-3 text-center">
-                                <label for="dInformation_caption" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px;font-size: 13px;">คำอธิบาย</span>
-                                </label>
-                                <textarea name="Information_caption" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย" style="resize: none; height: 100px;"></textarea>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="row mt-3">
-                                    <div class="col-5">
-                                        <label for="mobile" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เบอร์โทรศัพท์มือถือ</span>
-                                        </label>
-                                        <input type="text" name="mobile" class="form-control mt-1" placeholder="กรุณากรอกเบอร์โทร" style="resize: none;">
-                                    </div>
-                                    <div class="col-5">
-                                        <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">อีเมล</span>
-                                        </label>
-                                        <input type="email" name="email" class="form-control mt-1" placeholder="กรุณากรอกอีเมล" style="resize: none;">
-                                    </div>
-                                    <div class="col-2">
-                                        <label for="date-saved" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่บันทึก</span>
-                                        </label>
-                                        <input type="date" name="date-saved" class="form-control mt-1" style="resize: none;">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="mt-3 row">
-                                    <div class="col-5">
-                                        <label for="rate" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ราคา</span>
-                                        </label>
-                                        <input type="text" name="rate" class="form-control mt-1" placeholder="กรุณากรอกราคา" style="resize: none;">
-                                    </div>
-                                    <div class="col-5">
-                                        <label for="Submit" style="font-weight: bold; display: flex; align-items: center;">
-                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ส่งงาน</span>
-                                        </label>
-                                        <input type="text" name="Submit" class="form-control mt-1" placeholder="กรุณาใส้ลิงก์รูปภาพ" style="resize: none;">
-                                    </div>
-                                    <div class="col-2 mt-3">
-                                        <button type="submit" class="btn btn-warning btn-block mt-2" style="width: 155px;" data-bs-toggle="modal" data-bs-target="#review">ทำการรีวิว</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
