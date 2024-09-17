@@ -667,6 +667,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 </div>
                                                             </div>
                                                             <form action=" " enctype="multipart/form-data" method="POST">
+                                                                <!-- รีวิวเริ่มต้น -->
                                                                 <div class="col-12 mt-5">
                                                                     <div class="row">
                                                                         <div class="col-4">
@@ -688,7 +689,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-
                                                                         <script>
                                                                             document.querySelectorAll('.star-icon').forEach(function(star) {
                                                                                 star.addEventListener('click', function() {
@@ -761,7 +761,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
+                                                                <!-- รีวิวสิ้นสุด -->
                                                                 <script>
                                                                     var detailsInput = document.getElementById('details');
                                                                     var detailsError = document.getElementById('details-error');

@@ -532,6 +532,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <!-- ยืนยันการชำระค่ามัดจำเริ่มต้น -->
                                                             <div class="col-md-6 container-fluid" style="height: 50%;">
                                                                 <div class="card">
                                                                     <div class="mt-3 mb-3 ms-3 me-3">
@@ -580,6 +581,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                         <button id="saveButton" name="submit_booking_confirm_status" class="btn btn-primary" style="width: 170px; height:45px;">ยืนยันการรับชำระมัดจำ</button>
                                                     </div>
+                                                    <!-- ยืนยันการชำระค่ามัดสิ้นสุด -->
                                             </form>
                                         </div>
                                     </div>

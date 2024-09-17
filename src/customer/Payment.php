@@ -731,6 +731,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 ราคาที่ต้องชำระ : <?php echo $rowBooking['payment_price'] . ' บาท'; ?>
                                                                             </span>
                                                                         </div>
+                                                                        <!-- ชำระเงินเริ่มต้น -->
                                                                         <div class="row mt-2">
                                                                             <div class="form-group col-12">
                                                                                 <label for="pay_type" style="font-weight: bold; display: flex; align-items: center;">
@@ -812,6 +813,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                        <!-- ชำระเงินสิ้นสุด -->
                                                                     </div>
                                                             </div>
                                                         </div>

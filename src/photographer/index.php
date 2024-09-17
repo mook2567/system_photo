@@ -793,7 +793,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                                         for ($i = 0; $i < $max_photos; $i++) : ?>
                                                             <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
                                                                 <a data-fancybox="gallery" href="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>">
-                                                                    <img class="post-img" style="width: 100%; height: 200px; object-fit: cover;" src="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>" alt="img-post" />
+                                                                    <img class="post-img" style="width: 100%; height: 100%; object-fit: cover;" src="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>" alt="img-post" />
                                                                 </a>
                                                             </div>
                                                         <?php endfor; ?>
@@ -813,7 +813,6 @@ if (isset($_POST['submit_type_of_work'])) {
                         <h4 class="f" data-wow-delay="0.1s">คำรีวิว</h4>
                     </div>
                     <div class="card bg-white mt-3 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
-
                         <div class="card-body">
                             <!-- Card Title -->
                             <h5 class="card-title">Card Title</h5>
@@ -821,8 +820,6 @@ if (isset($_POST['submit_type_of_work'])) {
                             <!-- Card Text -->
                             <p class="card-text">This is some text inside the card body. You can add any content you like here, such as additional information, links, or images.</p>
 
-                            <!-- Example Button -->
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>
                 </div>

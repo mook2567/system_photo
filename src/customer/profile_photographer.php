@@ -869,6 +869,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                     </div>
                                 </div>
+                                <!-- จองคิวช่างภาพเริ่มต้น -->
                                 <div class="col-12 mt-3">
                                     <div class="row">
                                         <div class="form-group col-12">
@@ -979,6 +980,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                     </div>
                                 </div>
+                                <!-- จองคิวช่างภาพสิ้นสุด -->
                             </div>
                             <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
                             <input type="hidden" name="cus_id" value="<?php echo $rowCus['cus_id']; ?>">

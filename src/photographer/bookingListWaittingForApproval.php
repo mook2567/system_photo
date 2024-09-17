@@ -710,6 +710,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         $messageQ = "ระยะเวลาเกินขอบเขตที่กำหนด";
                                                                     }
                                                                     ?>
+                                                                    <!-- รับจองคิวช่างภาพเริ่มต้น -->
                                                                     <div class="col-4">
                                                                         <label for="confirm_status" style="font-weight: bold; display: flex; align-items: center;">
                                                                             <span style="color: black; margin-right: 5px; font-size: 13px;">ราคา (บาท)</span>
@@ -721,6 +722,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             step="5"
                                                                             max="<?php echo $maxPrice; ?>">
                                                                     </div>
+                                                                    <!-- รับจองคิวช่างภาพสิ้นสุด -->
                                                                     <?php
                                                                     // การคำนวณระยะเวลา
                                                                     $startTime = strtotime($rowBooking['booking_start_time']);

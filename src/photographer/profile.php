@@ -1295,7 +1295,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
                                 <div class="modal-body" style="height:auto;">
-                                    <!-- Form for editing photographer's information -->
+                                    <!-- ลงผลงานเริ่มต้น -->
                                     <div class="container">
                                         <div class="form-container">
                                             <div class="d-flex align-items-center justify-content-start mt-3">
@@ -1344,6 +1344,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- ลงผลงานสิ้นสุด -->
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
@@ -1362,7 +1363,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="">
                                 <div class="modal-body" style="height: auto;">
-                                    <!-- Form for editing photographer's information -->
+                                    <!-- ลงประเภทงานที่รับเริ่มต้น -->
                                     <div class="container">
                                         <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
                                             <div class="circle me-3" style="width: 60px; height: 60px;">
@@ -1434,6 +1435,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             <textarea name="details" placeholder="รายละเอียดการรับงาน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" required></textarea>
                                         </div>
                                     </div>
+                                    <!-- ลงผลประเภทงาที่รับสิ้นสุด -->
                                 </div>
                                 <input type="hidden" name="photographer_id" value="<?php echo $rowPhoto['photographer_id']; ?>">
                                 <div class="modal-footer">

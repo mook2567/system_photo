@@ -646,6 +646,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 ราคาค่ามัดจำที่ต้องชำระ : <?php echo $rowBooking['deposit_price'] . ' บาท'; ?>
                                                                             </span>
                                                                         </div>
+                                                                        <!-- ชำระค่ามัดจำเริ่มต้น -->
                                                                         <div class="row mt-2">
                                                                             <div class="form-group col-12">
                                                                                 <label for="pay_type" style="font-weight: bold; display: flex; align-items: center;">
@@ -721,6 +722,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                        <!-- ชำระค่ามัดจำสิ้นสุด -->
                                                                     </div>
                                                             </div>
                                                         </div>

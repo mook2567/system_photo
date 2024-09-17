@@ -589,6 +589,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                         </div>
                                                         <div class="col-6 mt-3">
                                                             <form action=" " method="POST">
+                                                                <!-- ส่งงานเริ่มต้น -->
                                                                 <h6 class="f mb-3 mt-3">ข้อมูลการส่งมอบงาน</h6>
                                                                 <div class="col-md-12 mt-3 text-center">
                                                                     <!-- Google Drive Link Input -->
@@ -614,6 +615,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         <input type="text" id="submitTime<?php echo $rowBooking['booking_id']; ?>" name="submitTime" readonly class="form-control">
                                                                     </div>
                                                                 </div>
+                                                                <!-- ส่งงานสิ้นสุด -->
                                                                 <script>
                                                                     function setCurrentDateTime(bookingId) {
                                                                         const now = new Date();
