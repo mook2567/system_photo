@@ -45,9 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $cus_id = $_POST['cus_id'];
         $date = $_POST["date"];
         $type = $_POST["type"];
-        $id_photographer = $_POST["photographer_id"]; // Assumes photographer_id is passed in the form
 
-        // ตรวจสอบการจองที่ซ้ำกันสำหรับ photographer_id เดียวกัน
         $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` WHERE (`booking_start_date` BETWEEN ? AND ? OR `booking_end_date` BETWEEN ? AND ?) AND `photographer_id` = ? AND `booking_confirm_status` = 0");
         if ($check_stmt) {
             $check_stmt->bind_param("ssssi", $start_date, $end_date, $start_date, $end_date, $id_photographer);
@@ -413,11 +411,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
     <!-- Spinner Start -->
-    <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-    </div> -->
+    </div>
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
