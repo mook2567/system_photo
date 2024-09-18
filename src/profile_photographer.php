@@ -14,21 +14,9 @@ $rowPhoto = $resultPhoto->fetch_assoc();
 
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = $id_photographer  -- กรองข้อมูลสำหรับช่างภาพที่มี ID เป็น 1
-        AND booking_confirm_status = '1'  -- กรองข้อมูลสำหรับการจองที่ได้รับการยืนยัน (สถานะ 1)
-        AND (
-            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ปัจจุบัน
-            (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันเสาร์ของสัปดาห์นี้
-            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์นี้
-            OR
-            -- เงื่อนไขสำหรับรายการที่อยู่ในช่วงสัปดาห์ที่แล้ว
-            (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY  -- วันที่เริ่มต้นต้องก่อนหรือภายในวันอาทิตย์ของสัปดาห์นี้
-            AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)  -- วันที่สิ้นสุดต้องหลังหรือภายในวันอาทิตย์ของสัปดาห์ที่แล้ว
-        )
+        WHERE photographer_id = $id_photographer
         ";
 $resultBooking = $conn->query($sql);
-
-
 ?>
 
 <!DOCTYPE html>
@@ -621,18 +609,22 @@ $resultBooking = $conn->query($sql);
 
             // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
             $bookedDates = [];
-            $bookedPeriods = []; // เก็บช่วงเวลาการจอง
+            $unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
 
             if ($resultBooking->num_rows > 0) {
                 while ($rowBooking = $resultBooking->fetch_assoc()) {
                     $startDate = $rowBooking['booking_start_date'];
                     $endDate = $rowBooking['booking_end_date'];
+                    $confirmStatus = $rowBooking['booking_confirm_status'];
 
                     // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
-                    $bookedPeriods[] = [$startDate, $endDate];
-
-                    // เพิ่มวันเริ่มต้นการจองลงในอาร์เรย์
-                    $bookedDates[] = $startDate;
+                    for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
+                        if ($confirmStatus == 1) {
+                            $bookedDates[] = $date;
+                        } else {
+                            $unconfirmedDates[] = $date;
+                        }
+                    }
                 }
             }
 
@@ -644,19 +636,9 @@ $resultBooking = $conn->query($sql);
                 $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
             }
 
-            // ตรวจสอบช่วงเวลาการจองและอัพเดตวันในช่วงเวลาที่จอง
-            foreach ($bookedPeriods as $period) {
-                list($periodStart, $periodEnd) = $period;
-
-                foreach ($allDates as $date) {
-                    if ($date >= $periodStart && $date <= $periodEnd) {
-                        $bookedDates[] = $date;
-                    }
-                }
-            }
-
             // ลบวันจองที่ซ้ำออก
             $bookedDates = array_unique($bookedDates);
+            $unconfirmedDates = array_unique($unconfirmedDates);
 
             ?>
 
@@ -672,13 +654,22 @@ $resultBooking = $conn->query($sql);
                     // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
                     $currentDate = $startOfWeek;
                     for ($i = 0; $i < 7; $i++) {
-                        $backgroundColor = in_array($currentDate, $bookedDates) ? 'lightcoral' : 'lightgreen';
-                        echo "<div id='bookingStatus' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+                        $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
+
+                        if (in_array($currentDate, $bookedDates)) {
+                            $backgroundColor = 'lightcoral'; // มีการจองแล้ว
+                        } elseif (in_array($currentDate, $unconfirmedDates)) {
+                            $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
+                        }
+
+                        echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
                         echo "<p class='mb-0'>";
                         echo "วันที่: " . htmlspecialchars($currentDate);
 
                         if (in_array($currentDate, $bookedDates)) {
                             echo " - จองแล้ว";
+                        } elseif (in_array($currentDate, $unconfirmedDates)) {
+                            echo " - จองแต่ยังไม่อนุมัติ";
                         } else {
                             echo " - ว่าง";
                         }
