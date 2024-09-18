@@ -658,8 +658,11 @@ if (isset($_POST['submit_type_of_work'])) {
                                             </div>
                                         </label>
                                     </div>
-                                    <div class="col-8 mt-4">
-                                        <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                    <div class="col-4 mt-4">
+                                        <input type="text" name="rate_half_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                    </div>
+                                    <div class="col-4 mt-4">
+                                        <input type="text" name="rate_half_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -669,10 +672,12 @@ if (isset($_POST['submit_type_of_work'])) {
                                             <div class="row">
                                                 <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
                                             </div>
-                                        </label>
                                     </div>
-                                    <div class="col-8 mt-4">
-                                        <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                    <div class="col-4 mt-4">
+                                        <input type="text" name="rate_full_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                    </div>
+                                    <div class="col-4 mt-4">
+                                        <input type="text" name="rate_full_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                                     </div>
                                 </div>
                                 <div class="post-input-container">
@@ -930,47 +935,47 @@ if (isset($_POST['submit_type_of_work'])) {
             // Function to display photo post content
             function displayPhotoPostContent() {
                 postContentDiv.innerHTML = `
-        <div class="col-12 mt-3">
-            <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
-                <div class="form-container">
-                    <div>
-                        <select class="form-select border-1 py-2" name="workPost" id="workPost" required>
-                            <option value="">เลือกประเภทงาน</option>
-                            <?php
-                            $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
-                                            FROM type t
-                                    INNER JOIN type_of_work tow ON t.type_id = tow.type_id
-                                    WHERE tow.photographer_id = $id_photographer
-                                    GROUP BY t.type_id, t.type_work;";
-                            $resultTypeWork = $conn->query($sql);
+                    <div class="col-12 mt-3">
+                        <form class="upe-mutistep-form" method="post" id="Upemultistepsform" action="" enctype="multipart/form-data">
+                            <div class="form-container">
+                                <div>
+                                    <select class="form-select border-1 py-2" name="workPost" id="workPost" required>
+                                        <option value="">เลือกประเภทงาน</option>
+                                        <?php
+                                        $sql = "SELECT tow.type_of_work_id, t.type_work, MAX(tow.photographer_id) AS photographer_id
+                                                FROM type t
+                                                INNER JOIN type_of_work tow ON t.type_id = tow.type_id
+                                                WHERE tow.photographer_id = $id_photographer
+                                                GROUP BY t.type_id, t.type_work;";
+                                        $resultTypeWork = $conn->query($sql);
 
-                            if ($resultTypeWork->num_rows > 0) {
-                                while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
-                                    echo '<option value="' . htmlspecialchars($rowTypeWork['type_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
-                                }
-                            } else {
-                                echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
-                            }
-                            ?>
-                        </select>
+                                        if ($resultTypeWork->num_rows > 0) {
+                                            while ($rowTypeWork = $resultTypeWork->fetch_assoc()) {
+                                                echo '<option value="' . htmlspecialchars($rowTypeWork['type_of_work_id']) . '">' . htmlspecialchars($rowTypeWork['type_work']) . '</option>';
+                                            }
+                                        } else {
+                                            echo '<option value="">ไม่มีประเภทงาน ต้องลงประเภทงานที่รับก่อน</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="post-input-container">
+                                <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
+                            </div>
+                            <div class="post-image-preview" id="preview-containerT" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                            <div class="mt-2">
+                                <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
+                                <input class="form-control" type="file" name="upload[]" multiple="multiple" id="fileUploadT" accept="image/*" required>
+                                <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
+                                <p id="loaded_n_total"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
+                            </div>
+                        </form>
                     </div>
-                </div>
-                <div class="post-input-container">
-                    <textarea name="caption" rows="8" required placeholder="วันนี้คุณถ่ายอะไร"></textarea>
-                </div>
-                <div class="post-image-preview" id="preview-containerT" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-                <div class="mt-2">
-                    <label class="form-label" for="imp_event"><strong>อัพโหลดภาพ (ไม่เกิน 10 ภาพ)</strong><br></label>
-                    <input class="form-control" type="file" name="upload[]" multiple="multiple" id="fileUploadT" accept="image/*" required>
-                    <progress id="progressBar" value="0" max="100" style="width:300px;display:none"></progress>
-                    <p id="loaded_n_total"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="submit_post_portfolio" class="btn text-white" style="background:#0F52BA; width: 100%;">โพสต์</button>
-                </div>
-            </form>
-        </div>
-        `;
+                    `;
                 addFileUploadListener();
             }
 
@@ -1004,31 +1009,36 @@ if (isset($_POST['submit_type_of_work'])) {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-4 mt-4">
-                                    <label for="rate_half">
-                                        <span style="color: black;">เรทราคาครึ่งวัน</span>
-                                        <div class="row">
-                                            <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_half">
+                                                    <span style="color: black;">เรทราคาครึ่งวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับครึ่งวันไม่ต้องกรอก</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_half_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_half_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
                                         </div>
-                                    </label>
-                                </div>
-                                <div class="col-8 mt-4">
-                                    <input type="text" name="rate_half" placeholder="กรอกเรทราคาครึ่งวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-4 mt-4">
-                                    <label for="rate_full">
-                                        <span style="color: black;">เรทราคาเต็มวัน</span>
                                         <div class="row">
-                                            <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
+                                            <div class="col-4 mt-4">
+                                                <label for="rate_full">
+                                                    <span style="color: black;">เรทราคาเต็มวัน</span>
+                                                    <div class="row">
+                                                        <span style="color: red;font-size: 13px;">หากไม่รับเต็มวันไม่ต้องกรอก</span>
+                                                    </div>
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_full_s" placeholder="ราคาเริ่มต้น" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
+                                            <div class="col-4 mt-4">
+                                                <input type="text" name="rate_full_e" placeholder="ราคาสิ้นสุด" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                                            </div>
                                         </div>
-                                    </label>
-                                </div>
-                                <div class="col-8 mt-4">
-                                    <input type="text" name="rate_full" placeholder="กรอกเรทราคาเต็มวัน" style="outline: none; width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                                </div>
-                            </div>
                             <div class="post-input-container">
                                 <span style="color: black;">รายละเอียดการรับงาน</span>
                                 <span style="color: red;">*</span>
