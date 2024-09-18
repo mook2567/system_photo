@@ -1,0 +1,9 @@
+2024-09-18T08:50:34.194705Z 0 [Warning] [MY-010918] [Server] 'default_authentication_plugin' is deprecated and will be removed in a future release. Please use authentication_policy instead.
+2024-09-18T08:50:34.195010Z 0 [System] [MY-013169] [Server] C:\laragon\bin\mysql\mysql-8.0.30-winx64\bin\mysqld.exe (mysqld 8.0.30) initializing of server in progress as process 9236
+2024-09-18T08:50:34.304461Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2024-09-18T08:50:34.743001Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2024-09-18T08:50:35.700890Z 0 [Warning] [MY-013829] [Server] Missing data directory for ICU regular expressions: C:\laragon\bin\mysql\mysql-8.0.30-winx64\lib\private\.
+2024-09-18T08:50:35.992404Z 0 [ERROR] [MY-000068] [Server] unknown option '--no-default'.
+2024-09-18T08:50:35.992737Z 0 [ERROR] [MY-013236] [Server] The designated data directory D:\system_photo\src\mysql-8\ is unusable. You can remove all files that the server added to it.
+2024-09-18T08:50:35.993344Z 0 [ERROR] [MY-010119] [Server] Aborting
+2024-09-18T08:50:38.073078Z 0 [System] [MY-010910] [Server] C:\laragon\bin\mysql\mysql-8.0.30-winx64\bin\mysqld.exe: Shutdown complete (mysqld 8.0.30)  MySQL Community Server - GPL.
