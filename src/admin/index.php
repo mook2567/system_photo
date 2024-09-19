@@ -244,7 +244,15 @@ $row = $result->fetch_assoc();
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายงาน</a>
+                    <div class="dropdown-menu rounded-0 m-0">
+                        <a href="reportUser.php" class="dropdown-item">รายงานข้อมูลผู้ใช้งานระบบ</a>
+                        <a href="reportCustomer.php" class="dropdown-item ">รายงาน</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงาน</a>
+                        <a href="reportType.php" class="dropdown-item">รายงาน</a>
+                    </div>
+                </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
@@ -258,7 +266,6 @@ $row = $result->fetch_assoc();
     </nav>
     <!-- Navbar End -->
 
-
     <!-- Sidebar Card Start -->
     <aside class="sidebar">
         <div class="card">
@@ -269,7 +276,53 @@ $row = $result->fetch_assoc();
         </div>
     </aside>
     <!-- Sidebar Card End gg-->
+    
+    <div class="container-fluid text-center">
+        <div class="d-sm-flex align-items-center justify-content-between mt-2 mb-2"></div>
+        <h5 class="card-title">เลือกเมนูเพื่อจัดทำรายงาน</h5>
+        <!-- Row for the first set of cards -->
+        <div class="row align-items-center justify-content-center mt-3">
+            <!-- Card for "ข้อมูลระบบ" -->
+            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
+                <a href="reportUser.php" class="text-decoration-none">
+                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                        <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b>
+                        </div>
+                    </div>
+                </a>
+            </div>
 
+            <!-- Card for "ข้อมูลผู้ดูแลระบบ" -->
+            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
+                <a href="manageAdmin.php" class="text-decoration-none">
+                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                        <div class="card-body"><b>รายงานข้อมูลลูกค้า</b>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card for "ข้อมูลลูกค้า" -->
+            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
+                <a href="manageCustomer.php" class="text-decoration-none">
+                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                        <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card for "ข้อมูลช่างภาพ" -->
+            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
+                <a href="managePhotographer.php" class="text-decoration-none">
+                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                        <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
     <!-- Chart Section Start -->
     <section class="container mt-5">
         <div class="row">
@@ -277,7 +330,7 @@ $row = $result->fetch_assoc();
                 <div class="card border">
                     <div class="card-body">
                         <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
-                        <div class="text-end mb-3">
+                        <!-- <div class="text-end mb-3">
                             <button id="downloadPDF1" class="btn btn-primary mt-3">ดาวน์โหลด PDF</button>
                         </div>
                         <script>
@@ -305,7 +358,7 @@ $row = $result->fetch_assoc();
                                 doc.addImage(imgData, 'PNG', 10, 20, 180, 90); // Adjust size as needed
                                 doc.save('report.pdf');
                             });
-                        </script>
+                        </script> -->
 
                         <div class="d-flex justify-content-center">
                             <div class="col-8">
@@ -376,8 +429,6 @@ $row = $result->fetch_assoc();
             })
             .catch(error => console.error('Error fetching data:', error));
     </script>
-
-
 
     <div class="container mt-5">
         <div class="col-lg-12">

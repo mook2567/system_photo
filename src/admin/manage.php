@@ -215,82 +215,84 @@ $conn->close();
                         <div class="card-header"><b><i class="fa fa-briefcase"></i>&nbsp;&nbsp;ข้อมูลประเภทงาน</b></div>
                         <div class="card-body">
                             <h3 class="text-white">
-                                <?php echo $row_count_data[4]['row_count']; ?> 
+                                <?php echo $row_count_data[4]['row_count']; ?>
                             </h3>
                         </div>
                     </div>
                 </a>
             </div>
+        </div>
+    </div>
 
 
-            <div class="container-fluid bg-dark text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
-                <div class="copyright">
-                    <div class="row">
-                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                        </div>
-                    </div>
+    <div class="container-fluid bg-dark text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
+        <div class="copyright">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
             </div>
-            <!-- Footer End -->
-            <!-- JavaScript Libraries -->
-            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="../lib/wow/wow.min.js"></script>
-            <script src="../lib/easing/easing.min.js"></script>
-            <script src="../lib/waypoints/waypoints.min.js"></script>
-            <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="../lib/wow/wow.min.js"></script>
-            <script src="../lib/easing/easing.min.js"></script>
-            <script src="../lib/waypoints/waypoints.min.js"></script>
-            <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+        </div>
+    </div>
+    <!-- Footer End -->
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/wow/wow.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/wow/wow.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-            <!-- Template Javascript -->
-            <script src="../js/main.js"></script>
-            <script>
-                // Mock data for charts
-                const overviewData = {
-                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                    datasets: [{
-                        label: 'Total Visits',
-                        backgroundColor: 'rgb(54, 162, 235)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        data: [1000, 1500, 2000, 1800, 2500, 2200, 3000],
-                    }]
-                };
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
+    <script>
+        // Mock data for charts
+        const overviewData = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'Total Visits',
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: [1000, 1500, 2000, 1800, 2500, 2200, 3000],
+            }]
+        };
 
-                const userData = {
-                    labels: ['Admin', 'Photographer', 'Customer'],
-                    datasets: [{
-                        label: 'User Type',
-                        backgroundColor: ['#FF5733', '#FFC300', '#36A2EB'],
-                        borderColor: ['#FF5733', '#FFC300', '#36A2EB'],
-                        data: [500, 800, 1200],
-                    }]
-                };
+        const userData = {
+            labels: ['Admin', 'Photographer', 'Customer'],
+            datasets: [{
+                label: 'User Type',
+                backgroundColor: ['#FF5733', '#FFC300', '#36A2EB'],
+                borderColor: ['#FF5733', '#FFC300', '#36A2EB'],
+                data: [500, 800, 1200],
+            }]
+        };
 
-                // Render charts
-                const overviewChartCtx = document.getElementById('overviewChart').getContext('2d');
-                const overviewChart = new Chart(overviewChartCtx, {
-                    type: 'line',
-                    data: overviewData,
-                });
+        // Render charts
+        const overviewChartCtx = document.getElementById('overviewChart').getContext('2d');
+        const overviewChart = new Chart(overviewChartCtx, {
+            type: 'line',
+            data: overviewData,
+        });
 
-                const userChartCtx = document.getElementById('userChart').getContext('2d');
-                const userChart = new Chart(userChartCtx, {
-                    type: 'bar',
-                    data: userData,
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
+        const userChartCtx = document.getElementById('userChart').getContext('2d');
+        const userChart = new Chart(userChartCtx, {
+            type: 'bar',
+            data: userData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
-                });
-            </script>
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
