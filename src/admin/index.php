@@ -223,13 +223,13 @@ $row = $result->fetch_assoc();
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
-        <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+        <a href="index.php" class="navbar-brand ms-5 d-flex align-items-center text-center">
             <img class="img-fluid" src="../img/logo/<?php echo $row['information_icon']; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="collapse navbar-collapse me-5" id="navbarCollapse">
             <div class="navbar-nav ms-auto f">
                 <a href="index.php" class="nav-item nav-link active">หน้าหลัก</a>
                 <div class="nav-item dropdown">
@@ -248,19 +248,20 @@ $row = $result->fetch_assoc();
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายงาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
                         <a href="reportUser.php" class="dropdown-item">รายงานข้อมูลผู้ใช้งานระบบ</a>
-                        <a href="reportCustomer.php" class="dropdown-item ">รายงาน</a>
-                        <a href="reportPhotographer.php" class="dropdown-item">รายงาน</a>
-                        <a href="reportType.php" class="dropdown-item">รายงาน</a>
+                        <a href="reportCustomer.php" class="dropdown-item ">รายงานข้อมูลลูกค้า</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงานข้อมูลช่างภาพ</a>
+                        <a href="reportType.php" class="dropdown-item">รายงานข้อมูลประเภทงาน</a>
                     </div>
                 </div>
-                <div class="nav-item dropdown">
+                <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
+
+                <!-- <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
-
+                        <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                         <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </nav>
@@ -282,7 +283,7 @@ $row = $result->fetch_assoc();
         <h5 class="card-title">เลือกเมนูเพื่อจัดทำรายงาน</h5>
         <!-- Row for the first set of cards -->
         <div class="row align-items-center justify-content-center mt-3">
-            <!-- Card for "ข้อมูลระบบ" -->
+
             <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
                 <a href="reportUser.php" class="text-decoration-none">
                     <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
@@ -292,9 +293,8 @@ $row = $result->fetch_assoc();
                 </a>
             </div>
 
-            <!-- Card for "ข้อมูลผู้ดูแลระบบ" -->
             <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="manageAdmin.php" class="text-decoration-none">
+                <a href="reportCustomer.php" class="text-decoration-none">
                     <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
                         <div class="card-body"><b>รายงานข้อมูลลูกค้า</b>
                         </div>
@@ -302,9 +302,8 @@ $row = $result->fetch_assoc();
                 </a>
             </div>
 
-            <!-- Card for "ข้อมูลลูกค้า" -->
             <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="manageCustomer.php" class="text-decoration-none">
+                <a href="reportPhotographer.php" class="text-decoration-none">
                     <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
                         <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b>
                         </div>
@@ -312,9 +311,8 @@ $row = $result->fetch_assoc();
                 </a>
             </div>
 
-            <!-- Card for "ข้อมูลช่างภาพ" -->
             <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="managePhotographer.php" class="text-decoration-none">
+                <a href="reportType.php" class="text-decoration-none">
                     <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
                         <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b>
                         </div>
