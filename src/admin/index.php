@@ -402,7 +402,70 @@ $row = $result->fetch_assoc();
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
-                    <canvas name="userChart" width="800" height="400"></canvas>
+                    <div class="d-flex justify-content-center">
+                        <div class="col-8">
+                            <canvas id="overviewChart1" width="800" height="400"></canvas>
+                        </div>
+                        <script>
+        // Fetch data from the PHP script
+        fetch('grap2.php')
+            .then(response => response.json())
+            .then(data => {
+                // Make sure data is in the expected format
+                const malePhotographersCount = data.malePhotographersCount || 0;
+                const femalePhotographersCount = data.femalePhotographersCount || 0;
+                const maleCustomersCount = data.maleCustomersCount || 0;
+                const femaleCustomersCount = data.femaleCustomersCount || 0;
+
+                // Create the bar chart
+                const ctx = document.getElementById('overviewChart1').getContext('2d');
+                const overviewChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [''],
+                        datasets: [{
+                                label: 'ช่างภาพ (ชาย)',
+                                data: [malePhotographersCount],
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ช่างภาพ (หญิง)',
+                                data: [femalePhotographersCount],
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ลูกค้า (ชาย)',
+                                data: [maleCustomersCount],
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ลูกค้า (หญิง)',
+                                data: [femaleCustomersCount],
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+
+                    </div>
                 </div>
             </div>
         </div>
