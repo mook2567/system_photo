@@ -11,8 +11,12 @@ $sqlInformation = "SELECT * FROM `information`";
 $resultInformation = $conn->query($sqlInformation);
 $rowInformation = $resultInformation->fetch_assoc();
 
+$information_name = $rowInformation['information_name'];
+$information_caption = $rowInformation['information_caption'];
+$rowInformation['information_icon'];
 // สร้างพาธของไฟล์ภาพ
 $image_path = '../img/logo/' . $rowInformation['information_icon'];
+
 if (file_exists($image_path)) {
     $image_data = base64_encode(file_get_contents($image_path));
     $image_type = pathinfo($image_path, PATHINFO_EXTENSION);
@@ -305,7 +309,17 @@ $rowUser = $resultUser->fetch_assoc();
             var imgBase64 = "<?php echo $image_base64; ?>";
             if (imgBase64) {
                 const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-                doc.addImage(imgBase64, imageType, 10, 10, 75, 20); // ปรับขนาดของภาพ
+                doc.addImage(imgBase64, imageType, 10, 10, 45, 12); // ปรับขนาดของภาพ
+
+                // Add system name under the image
+                var informationName = "<?php echo $information_name; ?>";
+                doc.setFontSize(20); // ขนาดตัวอักษร
+                doc.text(informationName, 15, 30); // ปรับตำแหน่งตัวอักษรใต้ภาพ
+
+                // Add detail text on a new line
+                var informationCaption = "<?php echo $information_caption; ?>";
+                doc.setFontSize(16); // ขนาดตัวอักษร
+                doc.text(informationCaption, 15, 37); // ปรับตำแหน่งข้อความเพิ่มเติม
             }
 
             // Define table content
@@ -317,7 +331,7 @@ $rowUser = $resultUser->fetch_assoc();
 
             // Add table with adjusted position
             doc.autoTable({
-                startY: 70, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
+                startY: 40, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
                 head: [
                     ['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']
                 ],
