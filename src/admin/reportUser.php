@@ -302,40 +302,57 @@ $rowUser = $resultUser->fetch_assoc();
             }
 
             // Add image
-var imgBase64 = "<?php echo $image_base64; ?>";
-if (imgBase64) {
-    const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-    doc.addImage(imgBase64, imageType, 10, 10, 75, 20); // ปรับขนาดของภาพ
-}
+            var imgBase64 = "<?php echo $image_base64; ?>";
+            if (imgBase64) {
+                const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
+                doc.addImage(imgBase64, imageType, 10, 10, 75, 20); // ปรับขนาดของภาพ
+            }
 
-// Define table content
-const table = document.getElementById("example");
-const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
-    const cells = tr.querySelectorAll('td');
-    return [...cells].map(td => td.innerText);
-});
+            // Define table content
+            const table = document.getElementById("example");
+            const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
+                const cells = tr.querySelectorAll('td');
+                return [...cells].map(td => td.innerText);
+            });
 
-// Add table with adjusted position
-doc.autoTable({
-    startY: 70, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
-    head: [['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']],
-    body: rows,
-    styles: {
-        font: 'customFont',
-    }
-});
-
-// Save the PDF
-doc.save("user_list.pdf");
-
+            // Add table with adjusted position
+            doc.autoTable({
+                startY: 70, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
+                head: [
+                    ['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']
+                ],
+                body: rows,
+                styles: {
+                    font: 'customFont',
+                }
+            });
 
             // Save the PDF
             doc.save("user_list.pdf");
+
+
         });
     </script>
     <script>
-        var imgBase64 = "<?php echo $image_base64; ?>";
-        console.log(imgBase64); // ตรวจสอบ base64
+        $(document).ready(function() {
+            $('#example').DataTable({
+                "language": {
+                    "sProcessing": "กำลังดำเนินการ...",
+                    "sLengthMenu": "แสดง _MENU_ แถว",
+                    "sZeroRecords": "ไม่พบข้อมูล",
+                    "sInfo": "แสดง _START_ ถึง _END_ จาก _TOTAL_ แถว",
+                    "sInfoEmpty": "แสดง 0 ถึง 0 จาก 0 แถว",
+                    "sInfoFiltered": "(กรองข้อมูล _MAX_ ทุกแถว)",
+                    "sSearch": "ค้นหา:",
+                    "oPaginate": {
+                        "sFirst": "แรก",
+                        "sPrevious": "ก่อนหน้า",
+                        "sNext": "ถัดไป",
+                        "sLast": "สุดท้าย"
+                    }
+                }
+            });
+        });
     </script>
 
 </body>
