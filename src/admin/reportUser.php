@@ -11,6 +11,20 @@ $sqlInformation = "SELECT * FROM `information`";
 $resultInformation = $conn->query($sqlInformation);
 $rowInformation = $resultInformation->fetch_assoc();
 
+// สร้างพาธของไฟล์ภาพ
+$image_path = '../img/logo/' . $rowInformation['information_icon'];
+
+// แปลงภาพเป็น Base64
+if (file_exists($image_path)) {
+    $image_base64 = base64_encode(file_get_contents($image_path));
+    $image_type = pathinfo($image_path, PATHINFO_EXTENSION);
+    $image_data = 'data:image/' . $image_type . ';base64,' . $image_base64;
+} else {
+    $image_data = ''; // Handle missing image
+}
+
+
+
 $sqlUser = "SELECT id, prefix, firstname, surname, phone, district, province, email, license, types
         FROM (
             SELECT photographer_id AS id, photographer_prefix AS prefix, photographer_name AS firstname, photographer_surname AS surname, photographer_tell AS phone, photographer_district AS district, photographer_province AS province, photographer_email AS email, photographer_license AS license, 'ช่างภาพ' AS types
@@ -275,51 +289,46 @@ $rowUser = $resultUser->fetch_assoc();
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Initialize DataTable
-            $('#example').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "info": true
-            });
+document.getElementById("generatePDF").addEventListener("click", function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-            // Event handler for PDF generation
-            document.getElementById("generatePDF").addEventListener("click", function() {
-                // Create jsPDF instance
-                const {
-                    jsPDF
-                } = window.jspdf;
-                const doc = new jsPDF();
+    // Add font
+    var fontBase64 = "<?php echo $fontBase64; ?>";
+    if (fontBase64) {
+        doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+        doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+        doc.setFont('customFont');
+    }
 
-                // เพิ่มฟอนต์ (แปลงฟอนต์เป็น Base64)
-                var fontBase64 = "<?php echo $fontBase64; ?>";
-                doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-                doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-                doc.setFont('customFont');
+    // Define table content
+    const table = document.getElementById("example");
+    const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
+        const cells = tr.querySelectorAll('td');
+        return [...cells].map(td => td.innerText);
+    });
 
-                // Define table content for the PDF
-                const table = document.getElementById("example");
-                const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
-                    const cells = tr.querySelectorAll('td');
-                    return [...cells].map(td => td.innerText);
-                });
+    // Add image
+    var imgBase64 = "<?php echo $image_data; ?>";
+    if (imgBase64) {
+        doc.addImage(imgBase64, 'PNG', 15, 10, 180, 80); // Adjust dimensions if needed
+    }
 
-                // Add table using autoTable plugin
-                doc.autoTable({
-                    head: [
-                        ['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']
-                    ],
-                    body: rows,
-                    styles: {
-                        font: 'customFont', // Use custom font in the table
-                    }
-                });
-                // Save the PDF
-                doc.save("user_list.pdf");
-            });
-        });
-    </script>
+    // Add table
+    doc.autoTable({
+        head: [['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']],
+        body: rows,
+        styles: {
+            font: 'customFont', // Make sure the font is correctly applied
+        }
+    });
+
+    // Save the PDF
+    doc.save("user_list.pdf");
+});
+</script>
+
+
 </body>
 
 </html>
