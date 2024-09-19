@@ -251,7 +251,7 @@ if (isset($_POST['submit_add'])) {
                 });
             });
         </script>
-        <?php
+    <?php
     }
 }
 
@@ -267,7 +267,7 @@ if (isset($_POST['submit_delete'])) {
     $stmt->close();
 
     if ($admin_count <= 1) {
-        ?>
+    ?>
         <script>
             setTimeout(function() {
                 Swal.fire({
@@ -307,7 +307,7 @@ if (isset($_POST['submit_delete'])) {
             $stmt->bind_param("i", $admin_id);
 
             if ($stmt->execute()) {
-                ?>
+        ?>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
@@ -324,9 +324,9 @@ if (isset($_POST['submit_delete'])) {
                         });
                     });
                 </script>
-                <?php
+            <?php
             } else {
-                ?>
+            ?>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
@@ -343,7 +343,7 @@ if (isset($_POST['submit_delete'])) {
                         });
                     });
                 </script>
-                <?php
+            <?php
             }
             $stmt->close();
         } else {
@@ -364,7 +364,7 @@ if (isset($_POST['submit_delete'])) {
                     });
                 });
             </script>
-            <?php
+<?php
         }
     }
 }
@@ -458,7 +458,7 @@ if (isset($_POST['submit_delete'])) {
 
         .table th:nth-child(5),
         .table td:nth-child(5) {
-            width: 500px;
+            width: 600px;
             height: 50px;
             text-align: center;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -466,11 +466,13 @@ if (isset($_POST['submit_delete'])) {
 
         .table th:nth-child(1),
         .table th:nth-child(2),
-        .table th:nth-child(3),.table th:nth-child(4),
+        .table th:nth-child(3),
+        .table th:nth-child(4),
         .table td:nth-child(1),
-        .table td:nth-child(2),.table td:nth-child(3),
-        .table td:nth-child(4){
-            width: 200px;
+        .table td:nth-child(2),
+        .table td:nth-child(3),
+        .table td:nth-child(4) {
+            width: 160px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
         }
@@ -560,7 +562,10 @@ if (isset($_POST['submit_delete'])) {
                 <tbody>
                     <?php
                     if ($resultAdmin->num_rows > 0) {
+                        $rowIndex = 0; // Initialize row index
                         while ($rowAdmin = $resultAdmin->fetch_assoc()) {
+                            $rowIndex++; // Increment row index
+                            $isFirstRow = ($rowIndex == 1); // Check if it's the first row
                     ?>
                             <tr>
                                 <!-- <th class="text-center" scope="row"><?php echo $rowAdmin['admin_id']; ?></th> -->
@@ -570,21 +575,135 @@ if (isset($_POST['submit_delete'])) {
                                 <td><?php echo $rowAdmin['admin_email']; ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $rowAdmin['admin_id']; ?>">ดูเพิ่มเติม</button>
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowAdmin['admin_id']; ?>">กำหนดสิทธิ์</button>
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $rowAdmin['admin_id']; ?>">ลบ</button>
-                                </td>
-                            </tr>
-                            <!-- Detail Modal -->
-                            <div class="modal fade" id="detaileModal<?php echo $rowAdmin['admin_id']; ?>" tabindex="-1" aria-labelledby="detaileModalLabel<?php echo $rowAdmin['admin_id']; ?>" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-xl">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="detaileModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;รายละเอียดข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
+                                    <?php if (!$isFirstRow) { ?>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowAdmin['admin_id']; ?>">กำหนดสิทธิ์</button>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $rowAdmin['admin_id']; ?>">ลบ</button>
+                                    <?php } ?>
+                                    <!-- Detail Modal -->
+                                    <div class="modal fade" id="detaileModal<?php echo $rowAdmin['admin_id']; ?>" tabindex="-1" aria-labelledby="detaileModalLabel<?php echo $rowAdmin['admin_id']; ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="detaileModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;รายละเอียดข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mt-1 container-md ">
+                                                        <div class="mt-1 col-md-12 container-fluid ">
+                                                            <div class="mt-1 container-md">
+                                                                <div class="mt-3 col-md-10 container-fluid">
+                                                                    <div class="row">
+                                                                        <div class="col-8">
+                                                                            <div class="col-12">
+                                                                                <div class="row mt-2">
+                                                                                    <div class="col-2">
+                                                                                        <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowAdmin['admin_prefix']; ?>" readonly>
+                                                                                    </div>
+                                                                                    <div class="col-5">
+                                                                                        <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowAdmin['admin_name']; ?>" readonly>
+                                                                                    </div>
+                                                                                    <div class="col-5">
+                                                                                        <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; font-size: 13px;">นามสกุล</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowAdmin['admin_surname']; ?>" readonly>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12 text-center">
+                                                                                        <label for="address" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowAdmin['admin_address']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-12 mt-2">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="district" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowAdmin['admin_district']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="province" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowAdmin['admin_province']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowAdmin['admin_zip_code']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-12 mt-2">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowAdmin['admin_tell']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
+                                                                                        </label>
+                                                                                        <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowAdmin['admin_email']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
+                                                                                        </label>
+                                                                                        <input type="password" name="password" class="form-control mt-1" value="<?php echo $rowAdmin['admin_password']; ?>" readonly style="resize: none;">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-4 mt-5">
+                                                                            <div class="d-flex justify-content-center align-items-center md mt-2">
+                                                                                <div class="circle">
+                                                                                    <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mt-2">
+                                                                                <label for="license" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                    <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
+                                                                                </label>
+                                                                                <input type="text" name="license" class="form-control mt-1" value="<?php echo ($rowAdmin['admin_license'] == '1') ? 'มีสิทธิ์การเข้าใช้งาน' : 'รออนุมัติสิทธิ์การใช้งาน'; ?>" readonly style="resize: none;">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer justify-content-center">
+                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="mt-1 container-md ">
-                                                <div class="mt-1 col-md-12 container-fluid ">
-                                                    <div class="mt-1 container-md">
+                                    </div>
+                                    <!-- Edit Modal -->
+                                    <div class="modal fade" id="editModal<?php echo $rowAdmin['admin_id']; ?>" tabindex="-1" aria-labelledby="editModalLabel<?php echo $rowAdmin['admin_id']; ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp; กำหนดสิทธิ์การใช้งานผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="container-md">
                                                         <div class="mt-3 col-md-10 container-fluid">
                                                             <div class="row">
                                                                 <div class="col-8">
@@ -664,305 +783,191 @@ if (isset($_POST['submit_delete'])) {
                                                                             </div>
                                                                         </div>
                                                                     </div>
+
                                                                 </div>
                                                                 <div class="col-4 mt-5">
                                                                     <div class="d-flex justify-content-center align-items-center md mt-2">
                                                                         <div class="circle">
-                                                                        <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
+                                                                            <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
                                                                         </div>
                                                                     </div>
-                                                                    <div class="mt-2">
-                                                                        <label for="license" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
-                                                                        </label>
-                                                                        <input type="text" name="license" class="form-control mt-1" value="<?php echo ($rowAdmin['admin_license'] == '1') ? 'มีสิทธิ์การเข้าใช้งาน' : 'รออนุมัติสิทธิ์การใช้งาน'; ?>" readonly style="resize: none;">
-                                                                    </div>
+                                                                    <form method="post" action="">
+                                                                        <div class="mt-2">
+                                                                            <label for="license" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
+                                                                            </label>
+                                                                            <select class="form-select border-1 mt-1" name="license">
+                                                                                <?php
+                                                                                if ($rowAdmin['admin_license'] == '0') {
+                                                                                ?>
+                                                                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                                    <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                    <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                <?php
+                                                                                } else {
+                                                                                ?>
+                                                                                    <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                    <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                                    <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                <?php
+                                                                                }
+                                                                                ?>
+                                                                            </select>
+                                                                        </div>
+                                                                        <input type="hidden" name="admin_id" value="<?php echo $rowAdmin['admin_id']; ?>">
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="modal-footer justify-content-center">
+                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                    <button type="submit" name="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
+                                                </div>
+                                                </form>
                                             </div>
                                         </div>
-                                        <div class="modal-footer justify-content-center">
-                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <!-- Edit Modal -->
-                            <div class="modal fade" id="editModal<?php echo $rowAdmin['admin_id']; ?>" tabindex="-1" aria-labelledby="editModalLabel<?php echo $rowAdmin['admin_id']; ?>" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-xl">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp; กำหนดสิทธิ์การใช้งานผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></h5>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="container-md">
-                                                <div class="mt-3 col-md-10 container-fluid">
-                                                    <div class="row">
-                                                        <div class="col-8">
-                                                            <div class="col-12">
-                                                                <div class="row mt-2">
-                                                                    <div class="col-2">
-                                                                        <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
-                                                                        </label>
-                                                                        <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowAdmin['admin_prefix']; ?>" readonly>
-                                                                    </div>
-                                                                    <div class="col-5">
-                                                                        <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                                                        </label>
-                                                                        <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowAdmin['admin_name']; ?>" readonly>
-                                                                    </div>
-                                                                    <div class="col-5">
-                                                                        <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                                                        </label>
-                                                                        <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowAdmin['admin_surname']; ?>" readonly>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12 mt-2">
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal<?php echo $rowAdmin['admin_id']; ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?php echo $rowAdmin['admin_id']; ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;ลบคุณ&nbsp;<?php echo $rowAdmin['admin_name']; ?>&nbsp;ออกจากผู้ดูแลระบบ</b></h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="container-md">
+                                                        <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-user-cog"></i>&nbsp;&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></div>
+                                                        <div class="mt-3 col-md-10 container-fluid">
+                                                            <form method="post" action="" enctype="multipart/form-data">
                                                                 <div class="row">
-                                                                    <div class="col-md-12 text-center">
-                                                                        <label for="address" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
-                                                                        </label>
-                                                                        <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowAdmin['admin_address']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-12 mt-2">
-                                                                <div class="row">
-                                                                    <div class="col-md-4">
-                                                                        <label for="district" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
-                                                                        </label>
-                                                                        <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowAdmin['admin_district']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="province" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
-                                                                        </label>
-                                                                        <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowAdmin['admin_province']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
-                                                                        </label>
-                                                                        <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowAdmin['admin_zip_code']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-12 mt-2">
-                                                                <div class="row">
-                                                                    <div class="col-md-4">
-                                                                        <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
-                                                                        </label>
-                                                                        <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowAdmin['admin_tell']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
-                                                                        </label>
-                                                                        <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowAdmin['admin_email']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <label for="password" style="font-weight: bold; display: flex; align-items: center;">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
-                                                                        </label>
-                                                                        <input type="password" name="password" class="form-control mt-1" value="<?php echo $rowAdmin['admin_password']; ?>" readonly style="resize: none;">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                                    <div class="col-8">
+                                                                        <div class="col-12">
+                                                                            <div class="row mt-2">
+                                                                                <div class="col-2">
+                                                                                    <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowAdmin['admin_prefix']; ?>" readonly>
+                                                                                </div>
+                                                                                <div class="col-5">
+                                                                                    <label for="name" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowAdmin['admin_name']; ?>" readonly>
+                                                                                </div>
+                                                                                <div class="col-5">
+                                                                                    <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; font-size: 13px;">นามสกุล</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowAdmin['admin_surname']; ?>" readonly>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <div class="row">
+                                                                                <div class="col-md-12 text-center">
+                                                                                    <label for="address" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowAdmin['admin_address']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-12 mt-2">
+                                                                            <div class="row">
+                                                                                <div class="col-md-4">
+                                                                                    <label for="district" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowAdmin['admin_district']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                                <div class="col-md-4">
+                                                                                    <label for="province" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowAdmin['admin_province']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                                <div class="col-md-4">
+                                                                                    <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowAdmin['admin_zip_code']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-12 mt-2">
+                                                                            <div class="row">
+                                                                                <div class="col-md-4">
+                                                                                    <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowAdmin['admin_tell']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                                <div class="col-md-4">
+                                                                                    <label for="email" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
+                                                                                    </label>
+                                                                                    <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowAdmin['admin_email']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                                <div class="col-md-4">
+                                                                                    <label for="password" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
+                                                                                    </label>
+                                                                                    <input type="password" name="password" class="form-control mt-1" value="<?php echo $rowAdmin['admin_password']; ?>" readonly style="resize: none;">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
 
-                                                        </div>
-                                                        <div class="col-4 mt-5">
-                                                            <div class="d-flex justify-content-center align-items-center md mt-2">
-                                                                <div class="circle">
-                                                                <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
+                                                                    </div>
+                                                                    <div class="col-4 mt-5">
+                                                                        <div class="d-flex justify-content-center align-items-center md mt-2">
+                                                                            <div class="circle">
+                                                                                <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mt-2">
+                                                                            <label for="license" style="font-weight: bold; display: flex; align-items: center;">
+                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
+                                                                            </label>
+                                                                            <select class="form-select border-1 mt-1" name="license" readonly disabled>
+                                                                                <?php
+                                                                                if ($row['admin_license'] == '0') {
+                                                                                ?>
+                                                                                    <option value="0" selected disabled>รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                                    <option value="1" disabled>มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                    <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                <?php
+                                                                                } else {
+                                                                                ?>
+                                                                                    <option value="1" selected disabled>มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                    <option value="0" disabled>รออนุมัติสิทธิ์การใช้งาน</option>
+                                                                                    <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                                <?php
+                                                                                }
+                                                                                ?>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <form method="post" action="">
-                                                                <div class="mt-2">
-                                                                    <label for="license" style="font-weight: bold; display: flex; align-items: center;">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
-                                                                    </label>
-                                                                    <select class="form-select border-1 mt-1" name="license">
-                                                                        <?php
-                                                                        if ($rowAdmin['admin_license'] == '0') {
-                                                                        ?>
-                                                                            <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
-                                                                            <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <?php
-                                                                        } else {
-                                                                        ?>
-                                                                            <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
-                                                                            <option value="0">รออนุมัติสิทธิ์การใช้งาน</option>
-                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <?php
-                                                                        }
-                                                                        ?>
-                                                                    </select>
-                                                                </div>
-                                                                <input type="hidden" name="admin_id" value="<?php echo $rowAdmin['admin_id']; ?>">
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer justify-content-center">
-                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                            <button type="submit" name="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
-                                        </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Delete Modal -->
-                            <div class="modal fade" id="deleteModal<?php echo $rowAdmin['admin_id']; ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?php echo $rowAdmin['admin_id']; ?>" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-xl">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteModalLabel<?php echo $rowAdmin['admin_id']; ?>"><b><i class="fas fa-file-alt"></i>&nbsp;&nbsp;ลบคุณ&nbsp;<?php echo $rowAdmin['admin_name']; ?>&nbsp;ออกจากผู้ดูแลระบบ</b></h5>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="container-md">
-                                                <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-user-cog"></i>&nbsp;&nbsp;ข้อมูลผู้ดูแลระบบ คุณ <?php echo $rowAdmin['admin_name']; ?></b></div>
-                                                <div class="mt-3 col-md-10 container-fluid">
-                                                    <form method="post" action="" enctype="multipart/form-data">
-                                                        <div class="row">
-                                                            <div class="col-8">
-                                                                <div class="col-12">
-                                                                    <div class="row mt-2">
-                                                                        <div class="col-2">
-                                                                            <label for="prefix" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;"> คำนำหน้า</span>
-                                                                            </label>
-                                                                            <input type="text" name="prefix" class="form-control mt-1" value="<?php echo $rowAdmin['admin_prefix']; ?>" readonly>
-                                                                        </div>
-                                                                        <div class="col-5">
-                                                                            <label for="name" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ชื่อ</span>
-                                                                            </label>
-                                                                            <input type="text" name="name" class="form-control mt-1" value="<?php echo $rowAdmin['admin_name']; ?>" readonly>
-                                                                        </div>
-                                                                        <div class="col-5">
-                                                                            <label for="surname" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; font-size: 13px;">นามสกุล</span>
-                                                                            </label>
-                                                                            <input type="text" name="surname" class="form-control mt-1" value="<?php echo $rowAdmin['admin_surname']; ?>" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 mt-2">
-                                                                    <div class="row">
-                                                                        <div class="col-md-12 text-center">
-                                                                            <label for="address" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px;font-size: 13px;">ที่อยู่</span>
-                                                                            </label>
-                                                                            <input type="text" name="address" class="form-control mt-1" value="<?php echo $rowAdmin['admin_address']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-12 mt-2">
-                                                                    <div class="row">
-                                                                        <div class="col-md-4">
-                                                                            <label for="district" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อำเภอ</span>
-                                                                            </label>
-                                                                            <input type="text" name="district" class="form-control mt-1" value="<?php echo $rowAdmin['admin_district']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label for="province" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">จังหวัด</span>
-                                                                            </label>
-                                                                            <input type="text" name="province" class="form-control mt-1" value="<?php echo $rowAdmin['admin_province']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label for="zipcode" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">ไปรษณีย์</span>
-                                                                            </label>
-                                                                            <input type="text" name="zipcode" class="form-control mt-1" value="<?php echo $rowAdmin['admin_zip_code']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-12 mt-2">
-                                                                    <div class="row">
-                                                                        <div class="col-md-4">
-                                                                            <label for="tell" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">เบอร์โทรศัพท์</span>
-                                                                            </label>
-                                                                            <input type="text" name="tell" class="form-control mt-1" value="<?php echo $rowAdmin['admin_tell']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label for="email" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">อีเมล</span>
-                                                                            </label>
-                                                                            <input type="text" name="email" class="form-control mt-1" value="<?php echo $rowAdmin['admin_email']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                        <div class="col-md-4">
-                                                                            <label for="password" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 13px;">รหัสผ่าน</span>
-                                                                            </label>
-                                                                            <input type="password" name="password" class="form-control mt-1" value="<?php echo $rowAdmin['admin_password']; ?>" readonly style="resize: none;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                            <div class="col-4 mt-5">
-                                                                <div class="d-flex justify-content-center align-items-center md mt-2">
-                                                                    <div class="circle">
-                                                                    <img id="userImage" src="../img/profile/<?php echo $rowAdmin['admin_photo'] ? $rowAdmin['admin_photo'] : 'null.png'; ?>">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mt-2">
-                                                                    <label for="license" style="font-weight: bold; display: flex; align-items: center;">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">สิทธิ์การใช้งาน</span>
-                                                                    </label>
-                                                                    <select class="form-select border-1 mt-1" name="license" readonly disabled>
-                                                                        <?php
-                                                                        if ($row['admin_license'] == '0') {
-                                                                        ?>
-                                                                            <option value="0" selected disabled>รออนุมัติสิทธิ์การใช้งาน</option>
-                                                                            <option value="1" disabled>มีสิทธิ์การเข้าใช้งาน</option>
-                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <?php
-                                                                        } else {
-                                                                        ?>
-                                                                            <option value="1" selected disabled>มีสิทธิ์การเข้าใช้งาน</option>
-                                                                            <option value="0" disabled>รออนุมัติสิทธิ์การใช้งาน</option>
-                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
-                                                                        <?php
-                                                                        }
-                                                                        ?>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                <div class="modal-footer justify-content-center">
+                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
+                                                    <button type="submit" name="submit_delete" class="btn btn-warning" style="width: 150px; height:45px;">ลบ</button>
                                                 </div>
+                                                <input type="hidden" name="admin_id" value="<?php echo $rowAdmin['admin_id']; ?>">
+                                                </form>
                                             </div>
                                         </div>
-                                        <div class="modal-footer justify-content-center">
-                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
-                                            <button type="submit" name="submit_delete" class="btn btn-warning" style="width: 150px; height:45px;">ลบ</button>
-                                        </div>
-                                        <input type="hidden" name="admin_id" value="<?php echo $rowAdmin['admin_id']; ?>">
-                                        </form>
                                     </div>
-                                </div>
-                            </div>
-                    <?php
+                            <?php
                         }
                     } else {
                         echo "<tr><td colspan='6'>ไม่พบข้อมูลผู้ดูแลระบบ</td></tr>";
                     }
-                    ?>
+                            ?>
                 </tbody>
             </table>
         </div>
@@ -1228,7 +1233,8 @@ if (isset($_POST['submit_delete'])) {
                 reader.readAsDataURL(file);
             }
         }
-    </script><script>
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const userImage1 = document.getElementById('userImage1');
 

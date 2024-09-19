@@ -254,7 +254,6 @@ $row = $result->fetch_assoc();
                     </div>
                 </div>
                 <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
-
                 <!-- <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
