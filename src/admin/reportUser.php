@@ -313,7 +313,7 @@ $rowUser = $resultUser->fetch_assoc();
 
                 // Add system name under the image
                 var informationName = "<?php echo $information_name; ?>";
-                doc.setFontSize(20); // ขนาดตัวอักษร
+                doc.setFontSize(18); // ขนาดตัวอักษร
                 doc.text(informationName, 15, 30); // ปรับตำแหน่งตัวอักษรใต้ภาพ
 
                 // Add detail text on a new line
@@ -337,7 +337,7 @@ $rowUser = $resultUser->fetch_assoc();
                 ],
                 body: rows,
                 styles: {
-                    fontSize: 16, // ขนาดตัวอักษร
+                    fontSize: 12, // ขนาดตัวอักษร
                     font: 'customFont',
                 }
             });

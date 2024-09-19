@@ -6,6 +6,48 @@ $sql = "SELECT * FROM `information`";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 
+// SQL query to get the total count
+$sql1 = "
+    SELECT SUM(row_count) AS total_count
+    FROM (
+        SELECT COUNT(*) AS row_count FROM admin
+        UNION ALL
+        SELECT COUNT(*) AS row_count FROM customer
+        UNION ALL
+        SELECT COUNT(*) AS row_count FROM photographer
+    ) AS all_counts
+";
+
+// Execute SQL query
+$result1 = $conn->query($sql1);
+
+if ($result1) {
+    // Fetch the result
+    $row_count_data = $result1->fetch_assoc(); // Use fetch_assoc for a single row result
+
+    // Display the total count
+    htmlspecialchars($row_count_data['total_count']);
+} else {
+    "Error: " . $conn->error;
+}
+// SQL query to count rows from multiple tables
+$sql1 = "SELECT 'admin' AS table_name, COUNT(*) AS row_count FROM admin
+        UNION ALL
+        SELECT 'customer' AS table_name, COUNT(*) AS row_count FROM customer
+        UNION ALL
+        SELECT 'photographer' AS table_name, COUNT(*) AS row_count FROM photographer"; // Removed trailing UNION ALL
+
+// Execute SQL query
+$result1 = $conn->query($sql1);
+
+// Check if query executed successfully
+if ($result1) {
+    // Fetch associative array
+    $row_count_data1 = $result1->fetch_all(MYSQLI_ASSOC); // Corrected from $result to $result1
+} else {
+    echo "Error executing query: " . $conn->error;
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -276,342 +318,438 @@ $row = $result->fetch_assoc();
         </div>
     </aside>
     <!-- Sidebar Card End gg-->
-
-    <div class="container-fluid text-center">
-        <div class="d-sm-flex align-items-center justify-content-between mt-2 mb-2"></div>
-        <h5 class="card-title">เลือกเมนูเพื่อจัดทำรายงาน</h5>
-        <!-- Row for the first set of cards -->
-        <div class="row align-items-center justify-content-center mt-3">
-
-            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="reportUser.php" class="text-decoration-none">
-                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                        <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b>
+    <!-- 
+    <div class="col-12">
+        <div class="container-fluid text-center mt-3">
+            <div class="row">
+                <h5>เลือกเมนูเพื่อจัดทำรายงาน</h5>
+                <div class=" col-3 mt-2 mb-2">
+                    <a href="reportUser.php" class="text-decoration-none">
+                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                            <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b></div>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="reportCustomer.php" class="text-decoration-none">
-                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                        <div class="card-body"><b>รายงานข้อมูลลูกค้า</b>
+                <div class=" col-3 mt-2 mb-2">
+                    <a href="reportCustomer.php" class="text-decoration-none">
+                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                            <div class="card-body"><b>รายงานข้อมูลลูกค้า</b></div>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="reportPhotographer.php" class="text-decoration-none">
-                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                        <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b>
+                <div class=" col-3 mt-2 mb-2">
+                    <a href="reportPhotographer.php" class="text-decoration-none">
+                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                            <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b></div>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-6 mt-2 mb-2 ms-2">
-                <a href="reportType.php" class="text-decoration-none">
-                    <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                        <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b>
+                <div class=" col-3 mt-2 mb-2">
+                    <a href="reportType.php" class="text-decoration-none">
+                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
+                            <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b></div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Chart Section Start -->
-    <section class="container mt-5">
+    </div> -->
+
+    <div class="container mt-3">
         <div class="row">
-            <div class="col-lg-12">
-                <div class="card border">
-                    <div class="card-body">
-                        <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
-                        <div class="d-flex justify-content-center">
-                            <div class="col-8">
-                                <canvas id="overviewChart1" width="800" height="400"></canvas>
+            <!-- Chart Section Start -->
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-lg-10">
+                        <div class="card border">
+                            <div class="card-body">
+                                <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
+                                <div class="d-flex justify-content-center mt-3">
+                                    <div class="col-10">
+                                        <canvas id="overviewChart1"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="card text-dark mb-3 shadow " style="max-width: 18rem;">
+                            <div class="card-header"><b>จำนวนผู้ใช้งานทั้งหมด</b></div>
+                            <div class="card-body"><b>
+                                    <h3 class="text-dark text-center">
+                                        <?php echo $row_count_data['total_count'] . ' คน'; ?> <!-- แสดงจำนวนแถวของตาราง admin -->
+                                    </h3>
+                                </b>
+                            </div>
+                        </div>
+                        <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                            <div class="card-header"><b>จำนวนช่างภาพ</b></div>
+                            <div class="card-body">
+                                <b>
+                                    <h3 class="text-dark text-center">
+                                        <?php echo $row_count_data1[2]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง photographer -->
+                                    </h3>
+                                </b>
+                            </div>
+                        </div>
+
+                        <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                            <div class="card-header"><b>จำนวนลูกค้า</b></div>
+                            <div class="card-body">
+                                <b>
+                                    <h3 class="text-dark text-center">
+                                        <?php echo $row_count_data1[1]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง customer -->
+                                    </h3>
+                                </b>
+                            </div>
+                        </div>
+
+                        <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                            <div class="card-header"><b>จำนวนผู้ดูแลระบบ</b></div>
+                            <div class="card-body">
+                                <b>
+                                    <h3 class="text-dark text-center">
+                                        <?php echo $row_count_data1[0]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง admin -->
+                                    </h3>
+                                </b>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-lg-6 mt-5">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลลูกค้า</h5>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="col-10">
+                                            <canvas id="overviewChart2"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mt-5">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="col-10">
+                                            <canvas id="overviewChart3"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 mt-5">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
+                                <div class="d-flex justify-content-center">
+                                    <div class="col-8">
+                                        <canvas id="overviewChart4" width="800" height="400"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-3">
+                <div class="container-fluid text-center mt-3">
+                    <h5>เลือกเมนูเพื่อจัดทำรายงาน</h5>
+                    <div class="mt-3">
+                        <div class="mt-2 mb-2">
+                            <a href="reportUser.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b></div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="mt-2 mb-2">
+                            <a href="reportCustomer.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลลูกค้า</b></div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="mt-2 mb-2">
+                            <a href="reportPhotographer.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b></div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="mt-2 mb-2">
+                            <a href="reportType.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-fluid text-center mt-5">
+                    <h5>เลือกเมนูเพื่อจัดทำรายงาน</h5>
+                    <div class="mt-3">
+                        <div class="mt-2 mb-2">
+                            <a href="reportUser.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b></div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="mt-2 mb-2">
+                            <a href="reportCustomer.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลลูกค้า</b></div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="mt-2 mb-2">
+                            <a href="reportPhotographer.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b></div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="mt-2 mb-2">
+                            <a href="reportType.php" class="text-decoration-none">
+                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
+                                    <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
             </div>
         </div>
-    </section>
 
-    <script>
-        // Fetch data from the PHP script
-        fetch('grap1.php')
-            .then(response => response.json())
-            .then(data => {
-                // Make sure data is in the expected format
-                const malePhotographersCount = data.malePhotographersCount || 0;
-                const femalePhotographersCount = data.femalePhotographersCount || 0;
-                const maleCustomersCount = data.maleCustomersCount || 0;
-                const femaleCustomersCount = data.femaleCustomersCount || 0;
+        <script>
+            // Fetch data from the PHP script
+            fetch('grap1.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Make sure data is in the expected format
+                    const malePhotographersCount = data.malePhotographersCount || 0;
+                    const femalePhotographersCount = data.femalePhotographersCount || 0;
+                    const maleCustomersCount = data.maleCustomersCount || 0;
+                    const femaleCustomersCount = data.femaleCustomersCount || 0;
+                    const maleAdminCount = data.maleAdminCount || 0;
+                    const femaleAdminCount = data.femaleAdminCount || 0;
 
-                // Create the bar chart
-                const ctx = document.getElementById('overviewChart1').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ช่างภาพ (ชาย)',
-                                data: [malePhotographersCount],
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ช่างภาพ (หญิง)',
-                                data: [femalePhotographersCount],
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (ชาย)',
-                                data: [maleCustomersCount],
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (หญิง)',
-                                data: [femaleCustomersCount],
-                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-    <section class="container mt-5">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
-                    <div class="d-flex justify-content-center">
-                        <div class="col-8">
-                            <canvas id="overviewChart2" width="800" height="400"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </section>
-    <script>
-        // Fetch data from the PHP script
-        fetch('grap2.php')
-            .then(response => response.json())
-            .then(data => {
-                // Make sure data is in the expected format
-                const malePhotographersCount = data.malePhotographersCount || 0;
-                const femalePhotographersCount = data.femalePhotographersCount || 0;
-                const maleCustomersCount = data.maleCustomersCount || 0;
-                const femaleCustomersCount = data.femaleCustomersCount || 0;
-
-                // Create the bar chart
-                const ctx = document.getElementById('overviewChart2').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ช่างภาพ (ชาย)',
-                                data: [malePhotographersCount],
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ช่างภาพ (หญิง)',
-                                data: [femalePhotographersCount],
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (ชาย)',
-                                data: [maleCustomersCount],
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (หญิง)',
-                                data: [femaleCustomersCount],
-                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-
-    <section class="container mt-5">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
-                    <div class="d-flex justify-content-center">
-                        <div class="col-8">
-                            <canvas id="overviewChart3" width="800" height="400"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </section>
-    <script>
-        // Fetch data from the PHP script
-        fetch('grap3.php')
-            .then(response => response.json())
-            .then(data => {
-                // Make sure data is in the expected format
-                const malePhotographersCount = data.malePhotographersCount || 0;
-                const femalePhotographersCount = data.femalePhotographersCount || 0;
-                const maleCustomersCount = data.maleCustomersCount || 0;
-                const femaleCustomersCount = data.femaleCustomersCount || 0;
-
-                // Create the bar chart
-                const ctx = document.getElementById('overviewChart3').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ช่างภาพ (ชาย)',
-                                data: [malePhotographersCount],
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ช่างภาพ (หญิง)',
-                                data: [femalePhotographersCount],
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (ชาย)',
-                                data: [maleCustomersCount],
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (หญิง)',
-                                data: [femaleCustomersCount],
-                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-
-
-<section class="container mt-5">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
-                    <div class="d-flex justify-content-center">
-                        <div class="col-8">
-                            <canvas id="overviewChart4" width="800" height="400"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </section>
-    <script>
-    // Fetch data from the PHP script
-    fetch('grap4.php')
-        .then(response => response.json())
-        .then(data => {
-            // Ensure data is in the expected format
-            const malePhotographersCount = data.malePhotographersCount || 0;
-            const femalePhotographersCount = data.femalePhotographersCount || 0;
-            const maleCustomersCount = data.maleCustomersCount || 0;
-            const femaleCustomersCount = data.femaleCustomersCount || 0;
-
-            // Create the pie chart
-            const ctx = document.getElementById('overviewChart4').getContext('2d');
-            const overviewChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['ช่างภาพ (ชาย)', 'ช่างภาพ (หญิง)', 'ลูกค้า (ชาย)', 'ลูกค้า (หญิง)'],
-                    datasets: [{
-                        data: [malePhotographersCount, femalePhotographersCount, maleCustomersCount, femaleCustomersCount],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.2)', // ช่างภาพ (ชาย)
-                            'rgba(255, 99, 132, 0.2)', // ช่างภาพ (หญิง)
-                            'rgba(75, 192, 192, 0.2)', // ลูกค้า (ชาย)
-                            'rgba(153, 102, 255, 0.2)' // ลูกค้า (หญิง)
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top', // Show legend at the top
+                    // Create the bar chart
+                    const ctx = document.getElementById('overviewChart1').getContext('2d');
+                    const overviewChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: [''],
+                            datasets: [{
+                                    label: 'ช่างภาพ (ชาย)',
+                                    data: [malePhotographersCount],
+                                    backgroundColor: 'rgba(255, 159, 64, 0.2)', // Orange
+                                    borderColor: 'rgba(255, 159, 64, 1)', // Darker orange
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ช่างภาพ (หญิง)',
+                                    data: [femalePhotographersCount],
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Pink
+                                    borderColor: 'rgba(255, 99, 132, 1)', // Darker pink
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ลูกค้า (ชาย)',
+                                    data: [maleCustomersCount],
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Teal
+                                    borderColor: 'rgba(75, 192, 192, 1)', // Darker teal
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ลูกค้า (หญิง)',
+                                    data: [femaleCustomersCount],
+                                    backgroundColor: 'rgba(153, 102, 255, 0.2)', // Purple
+                                    borderColor: 'rgba(153, 102, 255, 1)', // Darker purple
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ผู้ดูแลระบบ (ชาย)',
+                                    data: [maleAdminCount],
+                                    backgroundColor: 'rgba(255, 205, 86, 0.2)', // Yellow
+                                    borderColor: 'rgba(255, 205, 86, 1)', // Darker yellow
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ผู้ดูแลระบบ (หญิง)',
+                                    data: [femaleAdminCount],
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue
+                                    borderColor: 'rgba(54, 162, 235, 1)', // Darker blue
+                                    borderWidth: 1
+                                },
+                            ]
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    const value = tooltipItem.raw;
-                                    return tooltipItem.label + ': ' + value;
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
                                 }
                             }
                         }
-                    }
-                }
-            });
-        })
-        .catch(error => console.error('Error fetching data:', error));
-</script>
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        </script>
 
+        <script>
+            // Fetch data from the PHP script
+            fetch('grap2.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Make sure data is in the expected format
+                    const maleCustomersCount = data.maleCustomersCount || 0;
+                    const femaleCustomersCount = data.femaleCustomersCount || 0;
+
+                    // Create the bar chart
+                    const ctx = document.getElementById('overviewChart2').getContext('2d');
+                    const overviewChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: [''],
+                            datasets: [{
+                                    label: 'ลูกค้า (ชาย)',
+                                    data: [maleCustomersCount],
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ลูกค้า (หญิง)',
+                                    data: [femaleCustomersCount],
+                                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                    borderColor: 'rgba(153, 102, 255, 1)',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        </script>
+        <script>
+            // Fetch data from the PHP script
+            fetch('grap3.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Make sure data is in the expected format
+                    const malePhotographersCount = data.malePhotographersCount || 0;
+                    const femalePhotographersCount = data.femalePhotographersCount || 0;
+
+                    // Create the bar chart
+                    const ctx = document.getElementById('overviewChart3').getContext('2d');
+                    const overviewChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: [''],
+                            datasets: [{
+                                    label: 'ช่างภาพ (ชาย)',
+                                    data: [malePhotographersCount],
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ช่างภาพ (หญิง)',
+                                    data: [femalePhotographersCount],
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        </script>
+        <script>
+            // Fetch data from the PHP script
+            fetch('grap4.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Ensure data is in the expected format
+                    const malePhotographersCount = data.malePhotographersCount || 0;
+                    const femalePhotographersCount = data.femalePhotographersCount || 0;
+                    const maleCustomersCount = data.maleCustomersCount || 0;
+                    const femaleCustomersCount = data.femaleCustomersCount || 0;
+
+                    // Create the pie chart
+                    const ctx = document.getElementById('overviewChart4').getContext('2d');
+                    const overviewChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['ช่างภาพ (ชาย)', 'ช่างภาพ (หญิง)', 'ลูกค้า (ชาย)', 'ลูกค้า (หญิง)'],
+                            datasets: [{
+                                data: [malePhotographersCount, femalePhotographersCount, maleCustomersCount, femaleCustomersCount],
+                                backgroundColor: [
+                                    'rgba(54, 162, 235, 0.2)', // ช่างภาพ (ชาย)
+                                    'rgba(255, 99, 132, 0.2)', // ช่างภาพ (หญิง)
+                                    'rgba(75, 192, 192, 0.2)', // ลูกค้า (ชาย)
+                                    'rgba(153, 102, 255, 0.2)' // ลูกค้า (หญิง)
+                                ],
+                                borderColor: [
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top', // Show legend at the top
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const value = tooltipItem.raw;
+                                            return tooltipItem.label + ': ' + value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        </script>
+    </div>
 
 
 
