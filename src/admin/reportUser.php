@@ -13,17 +13,13 @@ $rowInformation = $resultInformation->fetch_assoc();
 
 // สร้างพาธของไฟล์ภาพ
 $image_path = '../img/logo/' . $rowInformation['information_icon'];
-
-// แปลงภาพเป็น Base64
 if (file_exists($image_path)) {
-    $image_base64 = base64_encode(file_get_contents($image_path));
+    $image_data = base64_encode(file_get_contents($image_path));
     $image_type = pathinfo($image_path, PATHINFO_EXTENSION);
-    $image_data = 'data:image/' . $image_type . ';base64,' . $image_base64;
+    $image_base64 = 'data:image/' . $image_type . ';base64,' . $image_data;
 } else {
-    $image_data = ''; // Handle missing image
+    $image_base64 = ''; // Handle case if the image doesn't exist
 }
-
-
 
 $sqlUser = "SELECT id, prefix, firstname, surname, phone, district, province, email, license, types
         FROM (
@@ -85,7 +81,9 @@ $rowUser = $resultUser->fetch_assoc();
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
 
     <style>
@@ -289,45 +287,56 @@ $rowUser = $resultUser->fetch_assoc();
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
-document.getElementById("generatePDF").addEventListener("click", function() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+        document.getElementById("generatePDF").addEventListener("click", function() {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF();
 
-    // Add font
-    var fontBase64 = "<?php echo $fontBase64; ?>";
-    if (fontBase64) {
-        doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-        doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-        doc.setFont('customFont');
-    }
+            // Add custom font (THSarabunNew)
+            var fontBase64 = "<?php echo $fontBase64; ?>";
+            if (fontBase64) {
+                doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                doc.setFont('customFont');
+            }
 
-    // Define table content
-    const table = document.getElementById("example");
-    const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
-        const cells = tr.querySelectorAll('td');
-        return [...cells].map(td => td.innerText);
-    });
+            // Add image
+var imgBase64 = "<?php echo $image_base64; ?>";
+if (imgBase64) {
+    const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
+    doc.addImage(imgBase64, imageType, 10, 10, 75, 20); // ปรับขนาดของภาพ
+}
 
-    // Add image
-    var imgBase64 = "<?php echo $image_data; ?>";
-    if (imgBase64) {
-        doc.addImage(imgBase64, 'PNG', 15, 10, 180, 80); // Adjust dimensions if needed
-    }
-
-    // Add table
-    doc.autoTable({
-        head: [['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']],
-        body: rows,
-        styles: {
-            font: 'customFont', // Make sure the font is correctly applied
-        }
-    });
-
-    // Save the PDF
-    doc.save("user_list.pdf");
+// Define table content
+const table = document.getElementById("example");
+const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
+    const cells = tr.querySelectorAll('td');
+    return [...cells].map(td => td.innerText);
 });
-</script>
 
+// Add table with adjusted position
+doc.autoTable({
+    startY: 70, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
+    head: [['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']],
+    body: rows,
+    styles: {
+        font: 'customFont',
+    }
+});
+
+// Save the PDF
+doc.save("user_list.pdf");
+
+
+            // Save the PDF
+            doc.save("user_list.pdf");
+        });
+    </script>
+    <script>
+        var imgBase64 = "<?php echo $image_base64; ?>";
+        console.log(imgBase64); // ตรวจสอบ base64
+    </script>
 
 </body>
 
