@@ -40,7 +40,6 @@ $sqlUser = "SELECT id, prefix, firstname, surname, phone, district, province, em
             WHERE admin_license = '1'
         ) AS users;";
 $resultUser = $conn->query($sqlUser);
-$rowUser = $resultUser->fetch_assoc();
 ?>
 
 
@@ -213,17 +212,12 @@ $rowUser = $resultUser->fetch_assoc();
                     <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">รายงาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
                         <a href="reportUser.php" class="dropdown-item active">รายงานข้อมูลผู้ใช้งานระบบ</a>
-                        <a href="reportCustomer.php" class="dropdown-item">รายงาน</a>
-                        <a href="reportPhotographer.php" class="dropdown-item">รายงาน</a>
-                        <a href="reportType.php" class="dropdown-item">รายงาน</a>
+                        <a href="reportCustomer.php" class="dropdown-item">รายงานข้อมูลลูกค้า</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงานข้อมูลช่างภาพ</a>
+                        <a href="reportType.php" class="dropdown-item">รายงานข้อมูลประเภทงาน</a>
                     </div>
                 </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
-                    <div class="dropdown-menu rounded-0 m-0">
-                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
-                    </div>
-                </div>
+                <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
             </div>
         </div>
     </nav>
@@ -263,7 +257,7 @@ $rowUser = $resultUser->fetch_assoc();
                     <?php
                         }
                     } else {
-                        echo "<tr><td colspan='8'>ไม่พบข้อมูลผู้ดูแลระบบ</td></tr>";
+                        echo "<tr><td colspan='8'>ไม่พบข้อมูล</td></tr>";
                     }
                     ?>
                 </tbody>

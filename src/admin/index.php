@@ -48,7 +48,37 @@ if ($result1) {
     echo "Error executing query: " . $conn->error;
 }
 
+$sql2 = "SELECT COUNT(type_id) AS total_count FROM type";
 
+// Execute SQL query
+$result2 = $conn->query($sql2);
+
+// Check if query executed successfully
+if ($result2) {
+    // Fetch associative array
+    $row_count_data2 = $result2->fetch_all(MYSQLI_ASSOC);
+} else {
+    echo "Error executing query: " . $conn->error;
+}
+
+
+$sql3 = "SELECT t.type_work, COUNT(tow.type_id) AS total_count
+         FROM type_of_work tow
+         JOIN type t ON t.type_id = tow.type_id
+         GROUP BY t.type_work
+         ORDER BY total_count DESC
+         LIMIT 3";
+
+// Execute SQL query
+$result3 = $conn->query($sql3);
+
+// Check if query executed successfully
+if ($result3) {
+    // Fetch associative array
+    $row_count_data3 = $result3->fetch_all(MYSQLI_ASSOC);
+} else {
+    echo "Error executing query: " . $conn->error;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -421,8 +451,8 @@ if ($result1) {
                 </div>
                 <div class="col-12">
                     <div class="row">
-                        <div class="col-lg-6 mt-5">
-                            <div class="card">
+                        <div class="col-lg-6 mt-2">
+                            <div class="card"style="height: 300px;">
                                 <div class="card-body">
                                     <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลลูกค้า</h5>
                                     <div class="d-flex justify-content-center">
@@ -432,27 +462,62 @@ if ($result1) {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 mt-5">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="col-10">
-                                            <canvas id="overviewChart3"></canvas>
+                            <div class="col-lg-12 mt-4">
+                                <div class="card"style="height: 300px;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="col-10">
+                                                <canvas id="overviewChart3"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-12 mt-5">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
-                                <div class="d-flex justify-content-center">
-                                    <div class="col-8">
-                                        <canvas id="overviewChart4" width="800" height="400"></canvas>
+                        <div class="col-lg-6 mt-2">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="card text-dark shadow" style="max-width: 18rem; height: 150px;">
+                                        <div class="card-header"><b>จำนวนประเภทงาน</b></div>
+                                        <div class="card-body">
+                                            <b>
+                                                <h3 class="text-dark text-center">
+                                                    <?php echo $row_count_data2[0]['total_count']; ?>
+                                                </h3>
+                                            </b>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
+                                        <div class="card-header"><b>3 อันดับประเภทงานที่นิยมรับ</b></div>
+                                        <div class="card-body">
+                                            <?php if (!empty($row_count_data3)): ?>
+                                                <ol>
+                                                    <?php foreach ($row_count_data3 as $index => $row): ?>
+                                                        <li>
+                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b>
+                                                            - จำนวน: <?php echo htmlspecialchars($row['total_count']); ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ol>
+                                            <?php else: ?>
+                                                <p>ไม่มีข้อมูลประเภทงาน</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 mt-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="col-9">
+                                                <canvas id="overviewChart4"></canvas>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -600,6 +665,19 @@ if ($result1) {
                             ]
                         },
                         options: {
+                    plugins: {
+                        legend: {
+                            position: 'right' // Move legend to the right
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const value = tooltipItem.raw;
+                                    return tooltipItem.label + ': ' + value;
+                                }
+                            }
+                        }
+                    },
                             scales: {
                                 y: {
                                     beginAtZero: true
@@ -700,31 +778,40 @@ if ($result1) {
             fetch('grap4.php')
                 .then(response => response.json())
                 .then(data => {
-                    // Ensure data is in the expected format
-                    const malePhotographersCount = data.malePhotographersCount || 0;
-                    const femalePhotographersCount = data.femalePhotographersCount || 0;
-                    const maleCustomersCount = data.maleCustomersCount || 0;
-                    const femaleCustomersCount = data.femaleCustomersCount || 0;
+                    // Process the data from the JSON
+                    const labels = [];
+                    const counts = [];
+
+                    data.forEach(item => {
+                        labels.push(item.type_work); // Add type_work to the labels
+                        counts.push(item.total_count); // Add total_count to the dataset
+                    });
 
                     // Create the pie chart
                     const ctx = document.getElementById('overviewChart4').getContext('2d');
                     const overviewChart = new Chart(ctx, {
                         type: 'pie',
                         data: {
-                            labels: ['ช่างภาพ (ชาย)', 'ช่างภาพ (หญิง)', 'ลูกค้า (ชาย)', 'ลูกค้า (หญิง)'],
+                            labels: labels, // Use dynamic labels from the PHP response
                             datasets: [{
-                                data: [malePhotographersCount, femalePhotographersCount, maleCustomersCount, femaleCustomersCount],
+                                data: counts, // Use dynamic counts from the PHP response
                                 backgroundColor: [
-                                    'rgba(54, 162, 235, 0.2)', // ช่างภาพ (ชาย)
-                                    'rgba(255, 99, 132, 0.2)', // ช่างภาพ (หญิง)
-                                    'rgba(75, 192, 192, 0.2)', // ลูกค้า (ชาย)
-                                    'rgba(153, 102, 255, 0.2)' // ลูกค้า (หญิง)
+                                    'rgba(255, 99, 132, 0.2)', // สีแดงอ่อน
+                                    'rgba(54, 162, 235, 0.2)', // สีฟ้าอ่อน
+                                    'rgba(255, 206, 86, 0.2)', // สีเหลืองอ่อน
+                                    'rgba(75, 192, 192, 0.2)', // สีเขียวอ่อน
+                                    'rgba(153, 102, 255, 0.2)', // สีม่วงอ่อน
+                                    'rgba(255, 159, 64, 0.2)', // สีส้มอ่อน
+                                    'rgba(201, 203, 207, 0.2)' // สีเทาอ่อน
                                 ],
                                 borderColor: [
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)'
+                                    'rgba(255, 99, 132, 1)', // สีแดง
+                                    'rgba(54, 162, 235, 1)', // สีฟ้า
+                                    'rgba(255, 206, 86, 1)', // สีเหลือง
+                                    'rgba(75, 192, 192, 1)', // สีเขียว
+                                    'rgba(153, 102, 255, 1)', // สีม่วง
+                                    'rgba(255, 159, 64, 1)', // สีส้ม
+                                    'rgba(201, 203, 207, 1)' // สีเทา
                                 ],
                                 borderWidth: 1
                             }]
@@ -733,7 +820,7 @@ if ($result1) {
                             responsive: true,
                             plugins: {
                                 legend: {
-                                    position: 'top', // Show legend at the top
+                                    position: 'right', // Show legend at the top
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -749,6 +836,7 @@ if ($result1) {
                 })
                 .catch(error => console.error('Error fetching data:', error));
         </script>
+
     </div>
 
 

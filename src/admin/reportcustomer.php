@@ -25,22 +25,9 @@ if (file_exists($image_path)) {
     $image_base64 = ''; // Handle case if the image doesn't exist
 }
 
-$sqlUser = "SELECT id, prefix, firstname, surname, phone, district, province, email, license, types
-        FROM (
-            SELECT photographer_id AS id, photographer_prefix AS prefix, photographer_name AS firstname, photographer_surname AS surname, photographer_tell AS phone, photographer_district AS district, photographer_province AS province, photographer_email AS email, photographer_license AS license, 'ช่างภาพ' AS types
-            FROM photographer 
-            WHERE photographer_license = '1'
-            UNION ALL
-            SELECT cus_id AS id, cus_prefix AS prefix, cus_name AS firstname, cus_surname AS surname, cus_tell AS phone, cus_district AS district, cus_province AS province, cus_email AS email, cus_license AS license, 'ลูกค้า' AS types
-            FROM customer  
-            WHERE cus_license = '1'
-            UNION ALL
-            SELECT admin_id AS id, admin_prefix AS prefix, admin_name AS firstname, admin_surname AS surname, admin_tell AS phone, admin_district AS district, admin_province AS province, admin_email AS email, admin_license AS license, 'ผู้ดูแลระบบ' AS types
-            FROM admin  
-            WHERE admin_license = '1'
-        ) AS users;";
+$sqlUser = "SELECT cus.cus_id AS id, cus.cus_prefix AS prefix, cus.cus_name AS firstname, cus.cus_surname AS surname, cus.cus_tell AS phone, cus.cus_district AS district, cus.cus_province AS province, cus.cus_email AS email, cus.cus_license AS license, 'ลูกค้า' AS types, COUNT(b.cus_id) AS num FROM customer cus LEFT JOIN booking b ON b.cus_id = cus.cus_id WHERE cus.cus_license = '1' GROUP BY cus.cus_id, cus.cus_prefix, cus.cus_name, cus.cus_surname, cus.cus_tell, cus.cus_district, cus.cus_province, cus.cus_email, cus.cus_license;
+            ";
 $resultUser = $conn->query($sqlUser);
-$rowUser = $resultUser->fetch_assoc();
 ?>
 
 
@@ -212,24 +199,19 @@ $rowUser = $resultUser->fetch_assoc();
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">รายงาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="reportUser.php" class="dropdown-item active">รายงานข้อมูลผู้ใช้งานระบบ</a>
-                        <a href="reportCustomer.php" class="dropdown-item">รายงาน</a>
-                        <a href="reportPhotographer.php" class="dropdown-item">รายงาน</a>
-                        <a href="reportType.php" class="dropdown-item">รายงาน</a>
+                        <a href="reportUser.php" class="dropdown-item">รายงานข้อมูลผู้ใช้งานระบบ</a>
+                        <a href="reportCustomer.php" class="dropdown-item active">รายงานข้อมูลลูกค้า</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงานข้อมูลช่างภาพ</a>
+                        <a href="reportType.php" class="dropdown-item">รายงานข้อมูลประเภทงาน</a>
                     </div>
                 </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
-                    <div class="dropdown-menu rounded-0 m-0">
-                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
-                    </div>
-                </div>
+                <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
             </div>
         </div>
     </nav>
     <!-- Navbar End -->
     <div style="height: 100%;">
-        <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลผู้ใช้งานระบบ</b></div>
+        <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลลูกค้า</b></div>
         <div class="container-sm mt-2 table-responsive col-10">
             <table id="example" class="table bg-white table-hover table-bordered-3">
                 <thead>
@@ -241,29 +223,29 @@ $rowUser = $resultUser->fetch_assoc();
                         <th scope="col">อำเภอ</th>
                         <th scope="col">จังหวัด</th>
                         <th scope="col">อีเมล</th>
-                        <th scope="col">ประเภท</th>
+                        <th scope="col">จำนวนการจอง</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     if ($resultUser->num_rows > 0) {
-                        $counter = 1; // เริ่มตัวนับที่ 1
+                        $counter = 1;
                         while ($rowUser = $resultUser->fetch_assoc()) {
                     ?>
                             <tr>
-                                <td><?php echo $counter++; ?></td> <!-- ใช้ตัวนับแทน id -->
-                                <td><?php echo $rowUser['prefix'] . '' . $rowUser['firstname']; ?></td>
+                                <td><?php echo $counter++; ?></td>
+                                <td><?php echo $rowUser['prefix'] . ' ' . $rowUser['firstname']; ?></td>
                                 <td><?php echo $rowUser['surname']; ?></td>
                                 <td><?php echo $rowUser['phone']; ?></td>
                                 <td><?php echo $rowUser['district']; ?></td>
                                 <td><?php echo $rowUser['province']; ?></td>
                                 <td><?php echo $rowUser['email']; ?></td>
-                                <td><?php echo $rowUser['types']; ?></td>
+                                <td><?php echo $rowUser['num']; ?></td>
                             </tr>
                     <?php
                         }
                     } else {
-                        echo "<tr><td colspan='8'>ไม่พบข้อมูลผู้ดูแลระบบ</td></tr>";
+                        echo "<tr><td colspan='8'>ไม่พบข้อมูล</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -333,7 +315,7 @@ $rowUser = $resultUser->fetch_assoc();
             doc.autoTable({
                 startY: 40, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
                 head: [
-                    ['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'ประเภท']
+                    ['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'จำนวนการจอง']
                 ],
                 body: rows,
                 styles: {
