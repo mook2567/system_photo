@@ -138,16 +138,16 @@
             </div>
         </div>
     </div>
-       <!-- Content Section -->
-       <div class="container">
-    <div class="row justify-content-center"> <!-- เพิ่ม justify-content-center เพื่อจัดให้อยู่ตรงกลาง -->
-        <div class="col-md-6 d-flex flex-column align-items-center"> <!-- เพิ่ม flex-column และ align-items-center เพื่อจัดให้ส่วนนี้อยู่ตรงกลาง -->
-            <canvas id="overviewChart"></canvas>
-            <!-- Export Report Button -->
-            <button id="exportReportButton" class="btn btn-primary mt-5">ส่งออกรายงาน</button>
+    <!-- Content Section -->
+    <div class="container">
+        <div class="row justify-content-center"> <!-- เพิ่ม justify-content-center เพื่อจัดให้อยู่ตรงกลาง -->
+            <div class="col-md-6 d-flex flex-column align-items-center"> <!-- เพิ่ม flex-column และ align-items-center เพื่อจัดให้ส่วนนี้อยู่ตรงกลาง -->
+                <canvas id="overviewChart"></canvas>
+                <!-- Export Report Button -->
+                <button id="exportReportButton" class="btn btn-primary mt-5">ส่งออกรายงาน</button>
+            </div>
         </div>
     </div>
-</div>
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
         <div class="copyright">
@@ -168,7 +168,7 @@
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <script>
+    <script>
         // สร้างฟังก์ชันสำหรับการส่งออกรายงาน
         function exportReport() {
             // โค้ดสำหรับการส่งออกรายงานไปยังเซิร์ฟเวอร์หรือการดาวน์โหลดไฟล์
