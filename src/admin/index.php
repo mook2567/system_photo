@@ -329,7 +329,7 @@ $row = $result->fetch_assoc();
                         <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
                         <div class="d-flex justify-content-center">
                             <div class="col-8">
-                                <canvas id="overviewChart" width="800" height="400"></canvas>
+                                <canvas id="overviewChart1" width="800" height="400"></canvas>
                             </div>
                         </div>
                     </div>
@@ -341,74 +341,6 @@ $row = $result->fetch_assoc();
     <script>
         // Fetch data from the PHP script
         fetch('grap1.php')
-            .then(response => response.json())
-            .then(data => {
-                // Make sure data is in the expected format
-                const malePhotographersCount = data.malePhotographersCount || 0;
-                const femalePhotographersCount = data.femalePhotographersCount || 0;
-                const maleCustomersCount = data.maleCustomersCount || 0;
-                const femaleCustomersCount = data.femaleCustomersCount || 0;
-
-                // Create the bar chart
-                const ctx = document.getElementById('overviewChart').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ช่างภาพ (ชาย)',
-                                data: [malePhotographersCount],
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ช่างภาพ (หญิง)',
-                                data: [femalePhotographersCount],
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (ชาย)',
-                                data: [maleCustomersCount],
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (หญิง)',
-                                data: [femaleCustomersCount],
-                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-    <div class="container mt-5">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
-                    <div class="d-flex justify-content-center">
-                        <div class="col-8">
-                            <canvas id="overviewChart1" width="800" height="400"></canvas>
-                        </div>
-                        <script>
-        // Fetch data from the PHP script
-        fetch('grap2.php')
             .then(response => response.json())
             .then(data => {
                 // Make sure data is in the expected format
@@ -465,12 +397,225 @@ $row = $result->fetch_assoc();
             .catch(error => console.error('Error fetching data:', error));
     </script>
 
+    <section class="container mt-5">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
+                    <div class="d-flex justify-content-center">
+                        <div class="col-8">
+                            <canvas id="overviewChart2" width="800" height="400"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
     </section>
+    <script>
+        // Fetch data from the PHP script
+        fetch('grap2.php')
+            .then(response => response.json())
+            .then(data => {
+                // Make sure data is in the expected format
+                const malePhotographersCount = data.malePhotographersCount || 0;
+                const femalePhotographersCount = data.femalePhotographersCount || 0;
+                const maleCustomersCount = data.maleCustomersCount || 0;
+                const femaleCustomersCount = data.femaleCustomersCount || 0;
+
+                // Create the bar chart
+                const ctx = document.getElementById('overviewChart2').getContext('2d');
+                const overviewChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [''],
+                        datasets: [{
+                                label: 'ช่างภาพ (ชาย)',
+                                data: [malePhotographersCount],
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ช่างภาพ (หญิง)',
+                                data: [femalePhotographersCount],
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ลูกค้า (ชาย)',
+                                data: [maleCustomersCount],
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ลูกค้า (หญิง)',
+                                data: [femaleCustomersCount],
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+
+
+    <section class="container mt-5">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
+                    <div class="d-flex justify-content-center">
+                        <div class="col-8">
+                            <canvas id="overviewChart3" width="800" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <script>
+        // Fetch data from the PHP script
+        fetch('grap3.php')
+            .then(response => response.json())
+            .then(data => {
+                // Make sure data is in the expected format
+                const malePhotographersCount = data.malePhotographersCount || 0;
+                const femalePhotographersCount = data.femalePhotographersCount || 0;
+                const maleCustomersCount = data.maleCustomersCount || 0;
+                const femaleCustomersCount = data.femaleCustomersCount || 0;
+
+                // Create the bar chart
+                const ctx = document.getElementById('overviewChart3').getContext('2d');
+                const overviewChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [''],
+                        datasets: [{
+                                label: 'ช่างภาพ (ชาย)',
+                                data: [malePhotographersCount],
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ช่างภาพ (หญิง)',
+                                data: [femalePhotographersCount],
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ลูกค้า (ชาย)',
+                                data: [maleCustomersCount],
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ลูกค้า (หญิง)',
+                                data: [femaleCustomersCount],
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+
+
+
+<section class="container mt-5">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">กราฟจำนวนผู้ใช้งานระบบ</h5>
+                    <div class="d-flex justify-content-center">
+                        <div class="col-8">
+                            <canvas id="overviewChart4" width="800" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <script>
+    // Fetch data from the PHP script
+    fetch('grap4.php')
+        .then(response => response.json())
+        .then(data => {
+            // Ensure data is in the expected format
+            const malePhotographersCount = data.malePhotographersCount || 0;
+            const femalePhotographersCount = data.femalePhotographersCount || 0;
+            const maleCustomersCount = data.maleCustomersCount || 0;
+            const femaleCustomersCount = data.femaleCustomersCount || 0;
+
+            // Create the pie chart
+            const ctx = document.getElementById('overviewChart4').getContext('2d');
+            const overviewChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['ช่างภาพ (ชาย)', 'ช่างภาพ (หญิง)', 'ลูกค้า (ชาย)', 'ลูกค้า (หญิง)'],
+                    datasets: [{
+                        data: [malePhotographersCount, femalePhotographersCount, maleCustomersCount, femaleCustomersCount],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.2)', // ช่างภาพ (ชาย)
+                            'rgba(255, 99, 132, 0.2)', // ช่างภาพ (หญิง)
+                            'rgba(75, 192, 192, 0.2)', // ลูกค้า (ชาย)
+                            'rgba(153, 102, 255, 0.2)' // ลูกค้า (หญิง)
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top', // Show legend at the top
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const value = tooltipItem.raw;
+                                    return tooltipItem.label + ': ' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+
+
+
+
+
     <!-- Chart Section End -->
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn mt-5">
