@@ -204,25 +204,25 @@ if (isset($_SESSION['customer_login'])) {
                                     }
                                 } ?>
                             </select>
-                    </div>
+                            </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>">
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time">
-                            <option selected value="">ช่วงเวลา</option>
-                            <option value="1">เต็มวัน</option>
-                            <option value="2">ครึ่งวัน</option>
+                            <option value="0" >ช่วงเวลา</option>
+                            <option value="1" >เต็มวัน</option>
+                            <option value="2" >ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <select name="scope" class="form-select border-0 py-3">
-                            <option selected value="">สถานที่</option>
-                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
-                            <option value="ภาคกลาง">ภาคกลาง</option>
-                            <option value="ภาคใต้">ภาคใต้</option>
-                            <option value="ภาคเหนือ">ภาคเหนือ</option>
-                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="" >สถานที่</option>
+                            <option value="กรุงเทพฯ" >กรุงเทพฯ</option>
+                            <option value="ภาคกลาง" >ภาคกลาง</option>
+                            <option value="ภาคใต้" >ภาคใต้</option>
+                            <option value="ภาคเหนือ" >ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ" >ภาคตะวันออกเฉียงเหนือ</option>
                             <option value="ภาคตะวันตก">ภาคตะวันตก</option>
                         </select>
                     </div>

@@ -188,6 +188,7 @@ $rowInfo = $resultInfo->fetch_assoc();
         </div>
         <!-- Header End -->
 
+
         <?php
         // Assuming form data is submitted via POST
         $type = isset($_POST['type']) ? $_POST['type'] : '';
@@ -230,7 +231,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time">
-                            <option value="" <?php echo $time == '' ? 'selected' : ''; ?>>ช่วงเวลา</option>
+                            <option value="0" <?php echo $time == '0' ? 'selected' : ''; ?>>ช่วงเวลา</option>
                             <option value="1" <?php echo $time == '1' ? 'selected' : ''; ?>>เต็มวัน</option>
                             <option value="2" <?php echo $time == '2' ? 'selected' : ''; ?>>ครึ่งวัน</option>
                         </select>
@@ -292,15 +293,21 @@ $rowInfo = $resultInfo->fetch_assoc();
 
             // Add budget and time conditions if applicable
             if ($time === 1 && $budget !== null) {
-                $sql .= " AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) != 0";
+                $sql .= " AND CAST(tow.type_of_work_rate_full_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_full_start  AS UNSIGNED) != 0";
             } elseif ($time === 2 && $budget !== null) {
-                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) != 0";
+                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start  AS UNSIGNED) != 0";
+            }
+
+            if ($time === 0 && $budget !== null) {
+                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start  AS UNSIGNED) != 0";
             }
 
             // Add scope condition if applicable
             if ($scope !== null) {
                 $sql .= " AND p.photographer_scope LIKE '%$scope%'";
             }
+
+            $sql .= " ORDER BY tow.type_of_work_rate_half_start ASC";
 
             // Execute the query
             $result = $conn->query($sql);
@@ -322,7 +329,7 @@ $rowInfo = $resultInfo->fetch_assoc();
                                     while ($row_photographer = $result->fetch_assoc()) {
                                 ?>
                                         <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                                            <div class="property-item rounded overflow-hidden bg-white" style="height: auto; width: 600px;">
+                                            <div class="property-item rounded overflow-hidden bg-white" style="min-height: 240px; width: 600px;">
                                                 <div class="row">
                                                     <div class="col-6 position-relative overflow-hidden">
                                                         <a href="profile_photographer.php?photographer_id=<?php echo $row_photographer['photographer_id']; ?>"><img class="img-fluid" src="../img/profile/<?php echo isset($row_photographer['photographer_photo']) ? $row_photographer['photographer_photo'] : 'default.jpg'; ?>" alt=""></a>
@@ -352,7 +359,24 @@ $rowInfo = $resultInfo->fetch_assoc();
                                                         <?php } ?>
                                                         <a class="d-block mb-3" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
                                                         <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
-                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                        <?php
+                                                        // สมมติว่า photographer_scope เก็บข้อมูลเป็นสตริง เช่น "กรุงเทพฯ, ภาคกลาง, ภาคใต้"
+                                                        $photographer_scope = $row_photographer['photographer_scope'];
+
+                                                        // แยกข้อมูลออกตามเครื่องหมายคั่น (เช่น ลูกน้ำ)
+                                                        $scopes = explode(',', $photographer_scope);
+
+                                                        // ตรวจสอบว่ามีมากกว่า 2 รายการหรือไม่
+                                                        if (count($scopes) > 2) {
+                                                            // ถ้ามีมากกว่า 2 รายการ ให้แสดงแค่ 2 รายการแรก และตามด้วย "อื่น ๆ"
+                                                            $displayScopes = array_slice($scopes, 0, 2);
+                                                            $displayScopesString = implode(', ', $displayScopes) . ', อื่น ๆ';
+                                                        } else {
+                                                            // ถ้ามีไม่เกิน 2 รายการ ให้แสดงทั้งหมด
+                                                            $displayScopesString = implode(', ', $scopes);
+                                                        }
+                                                        ?>
+                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $displayScopesString; ?></p>
                                                     </div>
                                                 </div>
                                             </div>

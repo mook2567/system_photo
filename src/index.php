@@ -89,11 +89,11 @@ $resultType = $conn->query($sql);
 <body>
     <div class="bgIndex" style="height: auto;">
         <!-- Spinner Start -->
-        <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-        </div> -->
+        </div>
         <!-- Spinner End -->
 
         <!-- Navbar Start -->
@@ -182,25 +182,25 @@ $resultType = $conn->query($sql);
                                     }
                                 } ?>
                             </select>
-                    </div>
+                            </div>
                     <div class="col-md-2">
-                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;">
+                        <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>">
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time">
-                            <option selected value="">ช่วงเวลา</option>
-                            <option value="1">เต็มวัน</option>
-                            <option value="2">ครึ่งวัน</option>
+                            <option value="0" >ช่วงเวลา</option>
+                            <option value="1" >เต็มวัน</option>
+                            <option value="2" >ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <select name="scope" class="form-select border-0 py-3">
-                            <option selected value="">สถานที่</option>
-                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
-                            <option value="ภาคกลาง">ภาคกลาง</option>
-                            <option value="ภาคใต้">ภาคใต้</option>
-                            <option value="ภาคเหนือ">ภาคเหนือ</option>
-                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="" >สถานที่</option>
+                            <option value="กรุงเทพฯ" >กรุงเทพฯ</option>
+                            <option value="ภาคกลาง" >ภาคกลาง</option>
+                            <option value="ภาคใต้" >ภาคใต้</option>
+                            <option value="ภาคเหนือ" >ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ" >ภาคตะวันออกเฉียงเหนือ</option>
                             <option value="ภาคตะวันตก">ภาคตะวันตก</option>
                         </select>
                     </div>
@@ -213,19 +213,6 @@ $resultType = $conn->query($sql);
         </div>
     </div>
     <!-- Search End -->
-
-    <!-- Header Start -->
-    <!-- <div class="container-fluid mt-5 header bg-white p-0">
-        <div class="col-md-12 owl-carousel header-carousel">
-            <div class="owl-carousel-item d-flex justify-content-center align-items-center">
-                <img class="img-fluid" src="img/dev5.jpg" alt="">
-            </div>
-            <div class="owl-carousel-item d-flex justify-content-center align-items-center">
-                <img class="img-fluid" src="img/dev4.jpg" alt="">
-            </div>
-        </div>
-    </div> -->
-    <!-- Header End -->
 
     <!-- About Start -->
     <div class="container-xxl py-5">

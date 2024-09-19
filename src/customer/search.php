@@ -186,8 +186,8 @@ if (isset($_SESSION['customer_login'])) {
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
-                                <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
+                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
                                 <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                             </div>
                         </div>
@@ -198,8 +198,8 @@ if (isset($_SESSION['customer_login'])) {
         <!-- Navbar End -->
 
 
-       <!-- Header Start -->
-       <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
+        <!-- Header Start -->
+        <div class="container-fluid row g-0 align-items-center flex-column-reverse flex-md-row">
             <div class="col-md-6 p-5 mt-lg-5">
                 <h1 class="display-5 animated fadeIn text-white mb-4 f">ค้นหาช่างภาพ</h1>
                 <p class="text-white">คุณสามารถค้นหาช่างภาพตามความสนใจของคุณได้</p>
@@ -249,7 +249,7 @@ if (isset($_SESSION['customer_login'])) {
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time">
-                            <option value="" <?php echo $time == '' ? 'selected' : ''; ?>>ช่วงเวลา</option>
+                            <option value="0" <?php echo $time == '0' ? 'selected' : ''; ?>>ช่วงเวลา</option>
                             <option value="1" <?php echo $time == '1' ? 'selected' : ''; ?>>เต็มวัน</option>
                             <option value="2" <?php echo $time == '2' ? 'selected' : ''; ?>>ครึ่งวัน</option>
                         </select>
@@ -316,10 +316,16 @@ if (isset($_SESSION['customer_login'])) {
                 $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start  AS UNSIGNED) != 0";
             }
 
+            if ($time === 0 && $budget !== null) {
+                $sql .= " AND CAST(tow.type_of_work_rate_half_start AS UNSIGNED) <= $budget AND CAST(tow.type_of_work_rate_half_start  AS UNSIGNED) != 0";
+            }
+
             // Add scope condition if applicable
             if ($scope !== null) {
                 $sql .= " AND p.photographer_scope LIKE '%$scope%'";
             }
+
+            $sql .= " ORDER BY tow.type_of_work_rate_half_start ASC";
 
             // Execute the query
             $result = $conn->query($sql);
@@ -371,7 +377,24 @@ if (isset($_SESSION['customer_login'])) {
                                                         <?php } ?>
                                                         <a class="d-block mb-3" href="mailto:<?php echo $row_photographer['photographer_email']; ?>"><?php echo $row_photographer['photographer_email']; ?></a>
                                                         <p class="text-dark mb-3">โทร <?php echo $row_photographer['photographer_tell']; ?></p>
-                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $row_photographer['photographer_scope']; ?></p>
+                                                        <?php
+                                                        // สมมติว่า photographer_scope เก็บข้อมูลเป็นสตริง เช่น "กรุงเทพฯ, ภาคกลาง, ภาคใต้"
+                                                        $photographer_scope = $row_photographer['photographer_scope'];
+
+                                                        // แยกข้อมูลออกตามเครื่องหมายคั่น (เช่น ลูกน้ำ)
+                                                        $scopes = explode(',', $photographer_scope);
+
+                                                        // ตรวจสอบว่ามีมากกว่า 2 รายการหรือไม่
+                                                        if (count($scopes) > 2) {
+                                                            // ถ้ามีมากกว่า 2 รายการ ให้แสดงแค่ 2 รายการแรก และตามด้วย "อื่น ๆ"
+                                                            $displayScopes = array_slice($scopes, 0, 2);
+                                                            $displayScopesString = implode(', ', $displayScopes) . ', อื่น ๆ';
+                                                        } else {
+                                                            // ถ้ามีไม่เกิน 2 รายการ ให้แสดงทั้งหมด
+                                                            $displayScopesString = implode(', ', $scopes);
+                                                        }
+                                                        ?>
+                                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $displayScopesString; ?></p>
                                                     </div>
                                                 </div>
                                             </div>
