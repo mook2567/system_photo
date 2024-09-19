@@ -327,36 +327,6 @@ $row = $result->fetch_assoc();
                 <div class="card border">
                     <div class="card-body">
                         <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
-                        <!-- <div class="text-end mb-3">
-                            <button id="downloadPDF1" class="btn btn-primary mt-3">ดาวน์โหลด PDF</button>
-                        </div>
-                        <script>
-                            document.getElementById('downloadPDF1').addEventListener('click', function() {
-                                const {
-                                    jsPDF
-                                } = window.jspdf;
-                                const doc = new jsPDF();
-
-                                // เพิ่มฟอนต์ (แปลงฟอนต์เป็น Base64)
-                                var fontBase64 = "<?php echo $fontBase64; ?>";
-                                doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-                                doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-                                doc.setFont('customFont');
-
-
-
-                                doc.setFontSize(16);
-                                doc.text("แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน", 10, 10);
-
-                                // Fetch chart data and draw it to the PDF
-                                const canvas = document.getElementById('overviewChart');
-                                const imgData = canvas.toDataURL('image/png');
-
-                                doc.addImage(imgData, 'PNG', 10, 20, 180, 90); // Adjust size as needed
-                                doc.save('report.pdf');
-                            });
-                        </script> -->
-
                         <div class="d-flex justify-content-center">
                             <div class="col-8">
                                 <canvas id="overviewChart" width="800" height="400"></canvas>
