@@ -337,6 +337,7 @@ $rowUser = $resultUser->fetch_assoc();
                 ],
                 body: rows,
                 styles: {
+                    fontSize: 16, // ขนาดตัวอักษร
                     font: 'customFont',
                 }
             });
