@@ -1,59 +1,123 @@
 <?php
+session_start();
 include '../config_db.php'; // Include your database configuration
 
-// Query to get photographer counts
-$photographer_query = "
-    SELECT 
-        SUM(CASE WHEN photographer_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_photographers,
-        SUM(CASE WHEN photographer_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_photographers
-    FROM photographer
-";
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $timeFrame = isset($_GET['timeFrame']) ? intval($_GET['timeFrame']) : 3;
 
-// Query to get customer counts
-$customer_query = "
-    SELECT 
-        SUM(CASE WHEN cus_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_customers,
-        SUM(CASE WHEN cus_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_customers
-    FROM customer
-";
-$admin_query = "
-    SELECT 
-        SUM(CASE WHEN admin_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_admin,
-        SUM(CASE WHEN admin_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_admin
-    FROM admin
-";
-// Execute queries
-$photographer_result = $conn->query($photographer_query);
-$customer_result = $conn->query($customer_query);
-$admin_result = $conn->query($admin_query);
+    // Use a prepared statement for security
+    $stmt = $conn->prepare("SELECT * FROM photographer WHERE photographer_email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $resultPhoto = $stmt->get_result();
 
-// Check for errors in query execution
-if (!$photographer_result || !$customer_result || !$admin_result) {
-    $error = [
-        'error' => 'Query failed: ' . $conn->error
-    ];
-    echo json_encode($error);
-    $conn->close();
-    exit;
+    if ($resultPhoto->num_rows > 0) {
+        $rowPhoto = $resultPhoto->fetch_assoc();
+        $id_photographer = $rowPhoto['photographer_id'];
+
+        // Calculate the date range based on the time frame
+        $dateEnd = date('Y-m-d');
+        $dateStart = date('Y-m-d', strtotime("-$timeFrame months"));
+
+        // Create an array for storing all months
+        $months = [];
+        $currentDate = new DateTime($dateStart);
+        $endDate = new DateTime($dateEnd);
+
+        while ($currentDate <= $endDate) {
+            $monthKey = $currentDate->format('Y-m');
+            $months[$monthKey] = ['deposit_price' => 0, 'payment_price' => 0];
+            $currentDate->modify('+1 month');
+        }
+
+        // Query to get booking details for the photographer
+        $money_query = "
+            SELECT 
+    b.photographer_id, 
+    t.type_work, 
+    pay.pay_date, 
+    (b.booking_price * 0.30) AS deposit_price, 
+    0 AS payment_price
+FROM 
+    booking b 
+JOIN 
+    type_of_work tow ON b.type_of_work_id = tow.type_of_work_id 
+JOIN 
+    type t ON t.type_id = tow.type_id 
+JOIN 
+    pay ON pay.booking_id = b.booking_id 
+WHERE 
+    b.photographer_id = ?
+    AND b.booking_pay_status = 5 
+    AND pay.pay_status = 0
+    AND pay.pay_date BETWEEN ? AND ?
+    
+UNION ALL
+
+SELECT 
+    b.photographer_id, 
+    t.type_work, 
+    pay.pay_date, 
+    0 AS deposit_price, 
+    (b.booking_price - (b.booking_price * 0.30)) AS payment_price
+FROM 
+    booking b 
+JOIN 
+    type_of_work tow ON b.type_of_work_id = tow.type_of_work_id 
+JOIN 
+    type t ON t.type_id = tow.type_id 
+JOIN 
+    pay ON pay.booking_id = b.booking_id 
+WHERE 
+    b.photographer_id = ? 
+    AND b.booking_pay_status = 5 
+    AND pay.pay_status = 1
+    AND pay.pay_date BETWEEN ? AND ?;
+
+        ";
+
+        // Prepare and bind the statement
+        $money_stmt = $conn->prepare($money_query);
+        $money_stmt->bind_param("ississ", $id_photographer, $dateStart, $dateEnd, $id_photographer, $dateStart, $dateEnd);
+        $money_stmt->execute();
+        $money_result = $money_stmt->get_result();
+
+        // Check for errors in query execution
+        if (!$money_result) {
+            $error = ['error' => 'Query failed: ' . $conn->error];
+            echo json_encode($error);
+            $conn->close();
+            exit;
+        }
+
+        // Process query results and add to months array
+        while ($money_data = $money_result->fetch_assoc()) {
+            $payMonth = date('Y-m', strtotime($money_data['pay_date']));
+            if (isset($months[$payMonth])) {
+                $months[$payMonth]['deposit_price'] += (float)$money_data['deposit_price'];
+                $months[$payMonth]['payment_price'] += (float)$money_data['payment_price'];
+            }
+        }
+
+        // Prepare data for JSON output
+        $data = [];
+        foreach ($months as $month => $values) {
+            $data[] = [
+                'pay_date' => $month . '-01', // Just to show the month
+                'deposit_price' => $values['deposit_price'],
+                'payment_price' => $values['payment_price']
+            ];
+        }
+
+        // Output data as JSON
+        echo json_encode($data);
+    } else {
+        echo json_encode(['error' => 'Photographer not found.']);
+    }
+} else {
+    echo json_encode(['error' => 'User not logged in.']);
 }
-
-// Fetch data
-$photographer_data = $photographer_result->fetch_assoc();
-$customer_data = $customer_result->fetch_assoc();
-$admin_data = $admin_result->fetch_assoc();
-
-// Prepare data for JSON output
-$data = [
-    'malePhotographersCount' => (int)$photographer_data['male_photographers'],
-    'femalePhotographersCount' => (int)$photographer_data['female_photographers'],
-    'maleCustomersCount' => (int)$customer_data['male_customers'],
-    'femaleCustomersCount' => (int)$customer_data['female_customers'],
-    'maleAdminCount' => (int)$admin_data['male_admin'],
-    'femaleAdminCount' => (int)$admin_data['female_admin']
-];
-
-// Output data as JSON
-echo json_encode($data);
 
 // Close connection
 $conn->close();

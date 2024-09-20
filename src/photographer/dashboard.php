@@ -65,7 +65,8 @@ $rowPort = $resultPort->fetch_assoc();
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: 'Athiti', sans-serif;
@@ -275,8 +276,6 @@ $rowPort = $resultPort->fetch_assoc();
             background-size: cover;
             /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
         }
-
-
     </style>
 </head>
 
@@ -337,95 +336,104 @@ $rowPort = $resultPort->fetch_assoc();
                 <h1 class="f" style="color:aliceblue;"><?php echo $rowInfo['information_name']; ?></h1>
                 <p style="color:aliceblue;"><?php echo $rowInfo['information_caption']; ?></p>
             </div><br>
-           
-            <center><div class="col-lg-8 justify-content-center">
-                <div class="card border">
-                    <div class="card-body">
-                        <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
-                        <div class="d-flex justify-content-center mt-3">
-                            <div class="col-10">
-                                <canvas id="overviewChart1"></canvas>
+            <center>
+                <div class="col-lg-8 justify-content-center">
+                    <div class="card border">
+                        <div class="card-body">
+                            <h5 class="card-title">กราฟแสดงรายรับ</h5>
+                            <div class="d-flex justify-content-center mt-3">
+                                <div class="col-10">
+                                    <canvas id="overviewChart1"></canvas>
+                                </div>
+                            </div>
+                            <!-- Add a select input for time frame -->
+                            <div class="d-flex justify-content-center mt-3">
+                                <select id="timeFrame" onchange="updateChart()">
+                                    <option value="3">3 เดือน</option>
+                                    <option value="6">6 เดือน</option>
+                                    <option value="12">1 ปี</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div></center>
-
+            </center>
 
             <script>
-                // Fetch data from the PHP script
-                fetch('grap1.php')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Make sure data is in the expected format
-                        const malePhotographersCount = data.malePhotographersCount || 0;
-                        const femalePhotographersCount = data.femalePhotographersCount || 0;
-                        const maleCustomersCount = data.maleCustomersCount || 0;
-                        const femaleCustomersCount = data.femaleCustomersCount || 0;
-                        const maleAdminCount = data.maleAdminCount || 0;
-                        const femaleAdminCount = data.femaleAdminCount || 0;
+                const ctx = document.getElementById('overviewChart1').getContext('2d');
+                let chart;
 
-                        // Create the bar chart
-                        const ctx = document.getElementById('overviewChart1').getContext('2d');
-                        const overviewChart = new Chart(ctx, {
-                            type: 'bar',
+                function fetchData(timeFrame) {
+                    return $.ajax({
+                        url: 'grap1.php', // Adjust the path if needed
+                        method: 'GET',
+                        data: {
+                            timeFrame: timeFrame
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            return data;
+                        },
+                        error: function() {
+                            alert('Error fetching data.');
+                            return [];
+                        }
+                    });
+                }
+
+
+                function updateChart() {
+                    const timeFrame = $('#timeFrame').val();
+
+                    fetchData(timeFrame).done(function(data) {
+                        if (chart) {
+                            chart.destroy();
+                        }
+
+                        const labels = data.map(item => item.pay_date);
+                        const depositPrices = data.map(item => item.deposit_price);
+                        const paymentPrices = data.map(item => item.payment_price);
+
+                        chart = new Chart(ctx, {
+                            type: 'line',
                             data: {
-                                labels: [''],
+                                labels: labels,
                                 datasets: [{
-                                        label: 'ช่างภาพ (ชาย)',
-                                        data: [malePhotographersCount],
-                                        backgroundColor: 'rgba(255, 159, 64, 0.2)', // Orange
-                                        borderColor: 'rgba(255, 159, 64, 1)', // Darker orange
-                                        borderWidth: 1
+                                        label: 'ชำระค่ามัดจำ',
+                                        data: depositPrices,
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        fill: false
                                     },
                                     {
-                                        label: 'ช่างภาพ (หญิง)',
-                                        data: [femalePhotographersCount],
-                                        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Pink
-                                        borderColor: 'rgba(255, 99, 132, 1)', // Darker pink
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: 'ลูกค้า (ชาย)',
-                                        data: [maleCustomersCount],
-                                        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Teal
-                                        borderColor: 'rgba(75, 192, 192, 1)', // Darker teal
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: 'ลูกค้า (หญิง)',
-                                        data: [femaleCustomersCount],
-                                        backgroundColor: 'rgba(153, 102, 255, 0.2)', // Purple
-                                        borderColor: 'rgba(153, 102, 255, 1)', // Darker purple
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: 'ผู้ดูแลระบบ (ชาย)',
-                                        data: [maleAdminCount],
-                                        backgroundColor: 'rgba(255, 205, 86, 0.2)', // Yellow
-                                        borderColor: 'rgba(255, 205, 86, 1)', // Darker yellow
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: 'ผู้ดูแลระบบ (หญิง)',
-                                        data: [femaleAdminCount],
-                                        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue
-                                        borderColor: 'rgba(54, 162, 235, 1)', // Darker blue
-                                        borderWidth: 1
-                                    },
+                                        label: 'ชำระเงิน',
+                                        data: paymentPrices,
+                                        borderColor: 'rgba(153, 102, 255, 1)',
+                                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                        fill: false
+                                    }
                                 ]
                             },
                             options: {
+                                responsive: true,
                                 scales: {
+                                    x: {
+                                        beginAtZero: true
+                                    },
                                     y: {
                                         beginAtZero: true
                                     }
                                 }
                             }
                         });
-                    })
-                    .catch(error => console.error('Error fetching data:', error));
+                    });
+                }
+
+                // Initial chart load
+                updateChart();
             </script>
+
+
 
 
 
