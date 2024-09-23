@@ -49,9 +49,9 @@ $resultBooking = $conn->query($sql1);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_booking_confirm_status'])) {
-        echo $booking_price = $_POST['booking_price'];
+        $booking_price = $_POST['booking_price'];
         // echo $confirm_status = $_POST['confirm_status'];
-        echo $booking_id = $_POST['booking_id'];
+        $booking_id = $_POST['booking_id'];
 
         // Assuming $conn is your MySQLi connection
         $sql = "UPDATE `booking` SET booking_price = ?, booking_confirm_status = '1' WHERE booking_id = ?";
@@ -355,7 +355,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                             </div>
                         </div>
-                        <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
+                        <a href="report.php" class="nav-item nav-link">รายงาน</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                             <div class="dropdown-menu rounded-0 m-0">
@@ -956,7 +956,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <script>
+    <!-- <script>
         document.getElementById('booking_price').addEventListener('input', function() {
             const maxPrice = parseFloat(<?php echo $maxPrice; ?>);
             const inputPrice = parseFloat(this.value);
@@ -971,7 +971,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 saveButton.disabled = false; // เปิดการใช้งานปุ่มอนุมัติการจอง
             }
         });
-    </script>
+    </script> -->
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>

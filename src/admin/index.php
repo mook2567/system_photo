@@ -6,56 +6,38 @@ $sql = "SELECT * FROM `information`";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 
-// SQL query to get the total count
-$sql1 = "
-    SELECT SUM(row_count) AS total_count
-    FROM (
-        SELECT COUNT(*) AS row_count FROM admin
-        UNION ALL
-        SELECT COUNT(*) AS row_count FROM customer
-        UNION ALL
-        SELECT COUNT(*) AS row_count FROM photographer
-    ) AS all_counts
-";
-
-// Execute SQL query
+$sql1 = "SELECT SUM(row_count) AS total_count
+        FROM (
+            SELECT COUNT(*) AS row_count FROM admin
+            UNION ALL
+            SELECT COUNT(*) AS row_count FROM customer
+            UNION ALL
+            SELECT COUNT(*) AS row_count FROM photographer
+        ) AS all_counts";
 $result1 = $conn->query($sql1);
 
 if ($result1) {
-    // Fetch the result
-    $row_count_data = $result1->fetch_assoc(); // Use fetch_assoc for a single row result
-
-    // Display the total count
+    $row_count_data = $result1->fetch_assoc();
     htmlspecialchars($row_count_data['total_count']);
 } else {
     "Error: " . $conn->error;
 }
-// SQL query to count rows from multiple tables
+
 $sql1 = "SELECT 'admin' AS table_name, COUNT(*) AS row_count FROM admin
         UNION ALL
         SELECT 'customer' AS table_name, COUNT(*) AS row_count FROM customer
         UNION ALL
-        SELECT 'photographer' AS table_name, COUNT(*) AS row_count FROM photographer"; // Removed trailing UNION ALL
-
-// Execute SQL query
+        SELECT 'photographer' AS table_name, COUNT(*) AS row_count FROM photographer";
 $result1 = $conn->query($sql1);
-
-// Check if query executed successfully
 if ($result1) {
-    // Fetch associative array
-    $row_count_data1 = $result1->fetch_all(MYSQLI_ASSOC); // Corrected from $result to $result1
+    $row_count_data1 = $result1->fetch_all(MYSQLI_ASSOC);
 } else {
     echo "Error executing query: " . $conn->error;
 }
 
 $sql2 = "SELECT COUNT(type_id) AS total_count FROM type";
-
-// Execute SQL query
 $result2 = $conn->query($sql2);
-
-// Check if query executed successfully
 if ($result2) {
-    // Fetch associative array
     $row_count_data2 = $result2->fetch_all(MYSQLI_ASSOC);
 } else {
     echo "Error executing query: " . $conn->error;
@@ -68,14 +50,24 @@ $sql3 = "SELECT t.type_work, COUNT(tow.type_id) AS total_count
          GROUP BY t.type_work
          ORDER BY total_count DESC
          LIMIT 3";
-
-// Execute SQL query
 $result3 = $conn->query($sql3);
-
-// Check if query executed successfully
 if ($result3) {
-    // Fetch associative array
     $row_count_data3 = $result3->fetch_all(MYSQLI_ASSOC);
+} else {
+    echo "Error executing query: " . $conn->error;
+}
+
+$sql4 = "SELECT t.type_work, COUNT(tow.type_of_work_id) AS total_count
+FROM type_of_work tow
+JOIN type t ON t.type_id = tow.type_id
+JOIN booking b ON b.type_of_work_id = tow.type_of_work_id
+GROUP BY t.type_work
+ORDER BY total_count DESC
+LIMIT 3;
+";
+$result4 = $conn->query($sql4);
+if ($result4) {
+    $row_count_data4 = $result4->fetch_all(MYSQLI_ASSOC);
 } else {
     echo "Error executing query: " . $conn->error;
 }
@@ -120,6 +112,7 @@ if ($result3) {
 
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         body {
@@ -307,7 +300,7 @@ if ($result3) {
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark " data-bs-toggle="dropdown">ข้อมูลพื้นฐาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a>
+                        <!-- <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a> -->
                         <a href="manageWeb.php" class="dropdown-item">ข้อมูลระบบ</a>
                         <a href="manageAdmin.php" class="dropdown-item">ข้อมูลผู้ดูแลระบบ</a>
                         <a href="manageCustomer.php" class="dropdown-item">ข้อมูลลูกค้า</a>
@@ -347,50 +340,9 @@ if ($result3) {
             </div>
         </div>
     </aside>
-    <!-- Sidebar Card End gg-->
-    <!-- 
-    <div class="col-12">
-        <div class="container-fluid text-center mt-3">
-            <div class="row">
-                <h5>เลือกเมนูเพื่อจัดทำรายงาน</h5>
-                <div class=" col-3 mt-2 mb-2">
-                    <a href="reportUser.php" class="text-decoration-none">
-                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                            <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b></div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class=" col-3 mt-2 mb-2">
-                    <a href="reportCustomer.php" class="text-decoration-none">
-                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                            <div class="card-body"><b>รายงานข้อมูลลูกค้า</b></div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class=" col-3 mt-2 mb-2">
-                    <a href="reportPhotographer.php" class="text-decoration-none">
-                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                            <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b></div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class=" col-3 mt-2 mb-2">
-                    <a href="reportType.php" class="text-decoration-none">
-                        <div class="card text-white mb-3 shadow h-100 py-2 bg-primary" style="max-width: 18rem;">
-                            <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div> -->
 
     <div class="container mt-3">
         <div class="row">
-            <!-- Chart Section Start -->
             <div class="col-12">
                 <div class="row">
                     <div class="col-lg-10">
@@ -410,7 +362,7 @@ if ($result3) {
                             <div class="card-header"><b>จำนวนผู้ใช้งานทั้งหมด</b></div>
                             <div class="card-body"><b>
                                     <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data['total_count'] . ' คน'; ?> <!-- แสดงจำนวนแถวของตาราง admin -->
+                                        <?php echo $row_count_data['total_count'] . ' คน'; ?>
                                     </h3>
                                 </b>
                             </div>
@@ -420,7 +372,7 @@ if ($result3) {
                             <div class="card-body">
                                 <b>
                                     <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data1[2]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง photographer -->
+                                        <?php echo $row_count_data1[2]['row_count'] . ' คน'; ?>
                                     </h3>
                                 </b>
                             </div>
@@ -431,7 +383,7 @@ if ($result3) {
                             <div class="card-body">
                                 <b>
                                     <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data1[1]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง customer -->
+                                        <?php echo $row_count_data1[1]['row_count'] . ' คน'; ?>
                                     </h3>
                                 </b>
                             </div>
@@ -442,7 +394,7 @@ if ($result3) {
                             <div class="card-body">
                                 <b>
                                     <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data1[0]['row_count']; ?> <!-- แสดงจำนวนแถวของตาราง admin -->
+                                        <?php echo $row_count_data1[0]['row_count'] . ' คน'; ?>
                                     </h3>
                                 </b>
                             </div>
@@ -452,7 +404,7 @@ if ($result3) {
                 <div class="col-12">
                     <div class="row">
                         <div class="col-lg-6 mt-2">
-                            <div class="card"style="height: 300px;">
+                            <div class="card" style="height: 300px;">
                                 <div class="card-body">
                                     <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลลูกค้า</h5>
                                     <div class="d-flex justify-content-center">
@@ -462,14 +414,24 @@ if ($result3) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-12 mt-4">
-                                <div class="card"style="height: 300px;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
-                                        <div class="d-flex justify-content-center">
-                                            <div class="col-10">
-                                                <canvas id="overviewChart3"></canvas>
-                                            </div>
+                            <div class="card mt-4" style="height: 300px;">
+                                <div class="card-body">
+                                    <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="col-10">
+                                            <canvas id="overviewChart3"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mt-4" style="height: 60px;">
+                                <div class="d-flex justify-content-center">
+                                    <div class="row mt-2 ms-3">
+                                        <div class="col-6 mt-2">
+                                            <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
+                                        </div>
+                                        <div class="col-6">
+                                            <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
                                         </div>
                                     </div>
                                 </div>
@@ -477,21 +439,21 @@ if ($result3) {
                         </div>
                         <div class="col-lg-6 mt-2">
                             <div class="row">
-                                <div class="col-4">
+                                <!-- <div class="col-4">
                                     <div class="card text-dark shadow" style="max-width: 18rem; height: 150px;">
                                         <div class="card-header"><b>จำนวนประเภทงาน</b></div>
                                         <div class="card-body">
                                             <b>
-                                                <h3 class="text-dark text-center">
+                                                <h3 class="text-dark text-center mt-3">
                                                     <?php echo $row_count_data2[0]['total_count']; ?>
                                                 </h3>
                                             </b>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-8">
+                                </div> -->
+                                <div class="col-6">
                                     <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
-                                        <div class="card-header"><b>3 อันดับประเภทงานที่นิยมรับ</b></div>
+                                        <div class="card-header"><b>3 อันดับประเภทงานที่ช่างภาพนิยมรับ</b></div>
                                         <div class="card-body">
                                             <?php if (!empty($row_count_data3)): ?>
                                                 <ol>
@@ -508,15 +470,33 @@ if ($result3) {
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-6">
+                                    <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
+                                        <div class="card-header"><b>3 อันดับประเภทงานที่ลูกค้านิยมจ้าง</b></div>
+                                        <div class="card-body">
+                                            <?php if (!empty($row_count_data4)): ?>
+                                                <ol>
+                                                    <?php foreach ($row_count_data4 as $index => $row): ?>
+                                                        <li>
+                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b>
+                                                            - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ol>
+                                            <?php else: ?>
+                                                <p>ไม่มีข้อมูลการจ้างงาน</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-lg-12 mt-4">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
-                                        <div class="d-flex justify-content-center">
-                                            <div class="col-9">
-                                                <canvas id="overviewChart4"></canvas>
-                                            </div>
+                            <div class="card mt-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
+                                    <p class="card-title">มีประเภทงาน <?php echo $row_count_data2[0]['total_count']; ?> ประเภท</p>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="col-9">
+                                            <canvas id="overviewChart4"></canvas>
                                         </div>
                                     </div>
                                 </div>
@@ -524,85 +504,29 @@ if ($result3) {
                         </div>
                     </div>
                 </div>
-                <!-- <div class="col-3">
-                <div class="container-fluid text-center mt-3">
-                    <h5>เลือกเมนูเพื่อจัดทำรายงาน</h5>
-                    <div class="mt-3">
-                        <div class="mt-2 mb-2">
-                            <a href="reportUser.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="mt-2 mb-2">
-                            <a href="reportCustomer.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลลูกค้า</b></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="mt-2 mb-2">
-                            <a href="reportPhotographer.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="mt-2 mb-2">
-                            <a href="reportType.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="container-fluid text-center mt-5">
-                    <h5>เลือกเมนูเพื่อจัดทำรายงาน</h5>
-                    <div class="mt-3">
-                        <div class="mt-2 mb-2">
-                            <a href="reportUser.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลผู้ใช้งานระบบ</b></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="mt-2 mb-2">
-                            <a href="reportCustomer.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลลูกค้า</b></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="mt-2 mb-2">
-                            <a href="reportPhotographer.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลช่างภาพ</b></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="mt-2 mb-2">
-                            <a href="reportType.php" class="text-decoration-none">
-                                <div class="card text-white mb-3 shadow h-100 bg-primary" style="max-width: 18rem;">
-                                    <div class="card-body"><b>รายงานข้อมูลประเภทงาน</b></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
             </div>
         </div>
 
         <script>
-            // Fetch data from the PHP script
+        // Handle button click event to generate PDF
+        document.getElementById("generatePDF").addEventListener("click", function () {
+            // Import jsPDF
+            const { jsPDF } = window.jspdf;
+            // Create a new jsPDF instance
+            const doc = new jsPDF();
+
+            // Select content to convert
+            const content = document.getElementById("contentToConvert").innerText;
+
+            // Add content to PDF
+            doc.text(content, 10, 10);
+
+            // Save the generated PDF
+            doc.save("exportedFile.pdf");
+        });
+    </script>
+
+        <script>
             fetch('grap1.php')
                 .then(response => response.json())
                 .then(data => {
@@ -665,19 +589,19 @@ if ($result3) {
                             ]
                         },
                         options: {
-                    plugins: {
-                        legend: {
-                            position: 'right' // Move legend to the right
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    const value = tooltipItem.raw;
-                                    return tooltipItem.label + ': ' + value;
+                            plugins: {
+                                legend: {
+                                    position: 'right' // Move legend to the right
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const value = tooltipItem.raw;
+                                            return tooltipItem.label + ': ' + value;
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                    },
+                            },
                             scales: {
                                 y: {
                                     beginAtZero: true
@@ -688,7 +612,6 @@ if ($result3) {
                 })
                 .catch(error => console.error('Error fetching data:', error));
         </script>
-
         <script>
             // Fetch data from the PHP script
             fetch('grap2.php')
@@ -836,13 +759,9 @@ if ($result3) {
                 })
                 .catch(error => console.error('Error fetching data:', error));
         </script>
-
     </div>
-
-
-
-
     <!-- Chart Section End -->
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn mt-5">
         <div class="copyright">

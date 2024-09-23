@@ -192,19 +192,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
-        <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+        <a href="index.php" class="navbar-brand ms-5 d-flex align-items-center text-center">
             <img class="img-fluid" src="../img/logo/<?php echo isset($rowInformation['information_icon']) ? $rowInformation['information_icon'] : ''; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="collapse navbar-collapse me-5" id="navbarCollapse">
             <div class="navbar-nav ms-auto f">
-                <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">ข้อมูลพื้นฐาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a>
+                        <!-- <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a> -->
                         <a href="manageWeb.php" class="dropdown-item">ข้อมูลระบบ</a>
                         <a href="manageAdmin.php" class="dropdown-item">ข้อมูลผู้ดูแลระบบ</a>
                         <a href="manageCustomer.php" class="dropdown-item">ข้อมูลลูกค้า</a>
@@ -213,15 +213,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
+                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายงาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
-
-                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <a href="reportUser.php" class="dropdown-item">รายงานข้อมูลผู้ใช้งานระบบ</a>
+                        <a href="reportCustomer.php" class="dropdown-item ">รายงานข้อมูลลูกค้า</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงานข้อมูลช่างภาพ</a>
+                        <a href="reportType.php" class="dropdown-item">รายงานข้อมูลประเภทงาน</a>
                     </div>
                 </div>
+                <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
             </div>
         </div>
     </nav>
@@ -352,7 +353,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <div class="col-4 mt-5">
                                                         <div class="d-flex justify-content-center align-items-center md mt-2">
                                                             <div class="circle">
-                                                            <img id="userImage" src="../img/profile/<?php echo $row['photographer_photo'] ? $row['photographer_photo'] : 'null.png'; ?>">
+                                                                <img id="userImage" src="../img/profile/<?php echo $row['photographer_photo'] ? $row['photographer_photo'] : 'null.png'; ?>">
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">
@@ -523,7 +524,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     <div class="col-4 mt-5">
                                                         <div class="d-flex justify-content-center align-items-center md">
                                                             <div class="circle">
-                                                            <img id="userImage" src="../img/profile/<?php echo $row['photographer_photo'] ? $row['photographer_photo'] : 'null.png'; ?>">
+                                                                <img id="userImage" src="../img/profile/<?php echo $row['photographer_photo'] ? $row['photographer_photo'] : 'null.png'; ?>">
                                                             </div>
                                                         </div>
                                                         <form method="post" action="">

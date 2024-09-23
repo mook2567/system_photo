@@ -29,7 +29,7 @@ $sql2 = "SELECT b.*,
          JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
          WHERE b.photographer_id = $id_photographer
          AND b.booking_confirm_status = '1'
-        --  AND b.booking_pay_status = '1'
+         AND b.booking_pay_status = '0'
 ";
 $resultBooking = $conn->query($sql2);
 

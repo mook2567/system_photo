@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST["submit_pay_deposit"])) {
         $pay_date = $_POST['pay_date'] ?? null;
         $pay_time = $_POST['pay_time'] ?? null;
-        echo $pay_type = $_POST['pay_type'] ?? null;
+        $pay_type = $_POST['pay_type'] ?? null;
         $pay_bank = $_POST['pay_bank'] ?? null;
         $booking_id = $_POST['booking_id'] ?? null;
         $pay_status = '0'; // Default to 0

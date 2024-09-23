@@ -91,16 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-
-
-
-
-
 $sql = "SELECT * FROM `information`";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -178,7 +173,7 @@ $row = $result->fetch_assoc();
 
         .bgIconImg {
             background-image: url('../img/bgIconImg.jpg');
-            
+
             /* เพิ่มการปรับแต่งในการขยับภาพตามต้องการ */
         }
     </style>
@@ -196,19 +191,19 @@ $row = $result->fetch_assoc();
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
-        <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+        <a href="index.php" class="navbar-brand ms-5 d-flex align-items-center text-center">
             <img class="img-fluid" src="../img/logo/<?php echo $row['information_icon']; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="collapse navbar-collapse me-5" id="navbarCollapse">
             <div class="navbar-nav ms-auto f">
-                <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">ข้อมูลพื้นฐาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a>
+                        <!-- <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a> -->
                         <a href="manageWeb.php" class="dropdown-item active">ข้อมูลระบบ</a>
                         <a href="manageAdmin.php" class="dropdown-item">ข้อมูลผู้ดูแลระบบ</a>
                         <a href="manageCustomer.php" class="dropdown-item">ข้อมูลลูกค้า</a>
@@ -217,15 +212,16 @@ $row = $result->fetch_assoc();
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
+                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายงาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
-
-                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <a href="reportUser.php" class="dropdown-item">รายงานข้อมูลผู้ใช้งานระบบ</a>
+                        <a href="reportCustomer.php" class="dropdown-item ">รายงานข้อมูลลูกค้า</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงานข้อมูลช่างภาพ</a>
+                        <a href="reportType.php" class="dropdown-item">รายงานข้อมูลประเภทงาน</a>
                     </div>
                 </div>
+                <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
             </div>
         </div>
     </nav>
@@ -254,24 +250,24 @@ $row = $result->fetch_assoc();
                 </div>
                 <div class="col-12">
                     <div class="row mt-2">
-                        <div class="col-6 " >
+                        <div class="col-6 ">
                             <label for="information_icon" style="font-weight: bold; display: flex; align-items: center;">
                                 <span style="color: black; margin-right: 5px;font-size: 13px;">โลโก้</span>
                                 <span style="color: red;">*</span>
                             </label>
                             <div class="d-flex bgIconImg justify-content-center align-items-center md" style="height: 115px;">
                                 <div class="mt-1 mb-1">
-                                <img id="previewImage" src="../img/logo/<?php echo $row['information_icon'] ? $row['information_icon'] : 'null.png'; ?>" style="height: 115px;">
+                                    <img id="previewImage" src="../img/logo/<?php echo $row['information_icon'] ? $row['information_icon'] : 'null.png'; ?>" style="height: 115px;">
                                 </div>
                             </div>
                         </div>
                         <div class="col-6">
-                                <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
-                                    <span style="color: black; margin-right: 5px; font-size: 13px;">แก้ไข logo</span>
-                                    <span style="color: red;">*</span>
-                                    <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น)</span>
-                                </label>
-                                <input type="file" required id="iconImage" name="logoImage" class="form-control" onchange="updateImage()">
+                            <label for="photo" style="font-weight: bold; display: flex; align-items: center;">
+                                <span style="color: black; margin-right: 5px; font-size: 13px;">แก้ไข logo</span>
+                                <span style="color: red;">*</span>
+                                <span style="color: red;font-size: 13px;">(อัปโหลดไฟล์รูปภาพเฉพาะรูปแบบ JPG, JPEG, PNG และ GIF เท่านั้น)</span>
+                            </label>
+                            <input type="file" required id="iconImage" name="logoImage" class="form-control" onchange="updateImage()">
                         </div>
                     </div>
                 </div>
@@ -357,22 +353,21 @@ $row = $result->fetch_assoc();
     </script>
     <script>
         document.getElementById('saveButton').addEventListener('click', function() {
-    const form = new FormData(document.querySelector('form'));
-    fetch('manageWeb.php?id=<?php echo $row['information_id']; ?>', {
-        method: 'POST',
-        body: form,
-    })
-    .then(response => response.text())
-    .then(result => {
-        // Handle the result
-        console.log(result);
-    })
-    .catch(error => {
-        // Handle the error
-        console.error(error);
-    });
-});
-
+            const form = new FormData(document.querySelector('form'));
+            fetch('manageWeb.php?id=<?php echo $row['information_id']; ?>', {
+                    method: 'POST',
+                    body: form,
+                })
+                .then(response => response.text())
+                .then(result => {
+                    // Handle the result
+                    console.log(result);
+                })
+                .catch(error => {
+                    // Handle the error
+                    console.error(error);
+                });
+        });
     </script>
 </body>
 

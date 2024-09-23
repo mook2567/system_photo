@@ -12,9 +12,6 @@ if ($resultInformation->num_rows > 0) {
     $rowInformation = ['information_icon' => ''];
 }
 
-
-
-
 // Handle form submission to insert new type_work
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type_work = $_POST['type_work'];
@@ -104,6 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
 if (isset($_POST['submit_edit'])) {
     $type_id = $_POST['type_id'];
 
@@ -190,7 +188,6 @@ if (isset($_POST['submit_edit'])) {
         echo "ไม่มีไฟล์ที่อัปโหลด";
     }
 }
-
 if (isset($_POST['submit_delete'])) {
     $type_id = $_POST['type_id'];
 
@@ -210,35 +207,20 @@ if (isset($_POST['submit_delete'])) {
             unlink($path);
         }
 
-        // Prepare SQL statement to delete the record
-        $stmt = $conn->prepare("DELETE FROM `type` WHERE `type_id` = ?");
+        // Check if there are any related records in `type_of_work`
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM `type_of_work` WHERE `type_id` = ?");
         $stmt->bind_param("i", $type_id);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
 
-        if ($stmt->execute()) {
+        if ($count > 0) {
             ?>
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">ลบข้อมูลสำเร็จ</div>',
-                        icon: 'success',
-                        confirmButtonText: 'ตกลง',
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        allowEnterKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "";
-                        }
-                    });
-                });
-            </script>
-        <?php
-        } else {
-        ?>
-            <script>
-                setTimeout(function() {
-                    Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการลบข้อมูล</div>',
+                        title: '<div class="t1">ไม่สามารถลบข้อมูลได้ เนื่องจากมีการใช้งานอยู่</div>',
                         icon: 'error',
                         confirmButtonText: 'ออก',
                         allowOutsideClick: true,
@@ -251,9 +233,52 @@ if (isset($_POST['submit_delete'])) {
                     });
                 });
             </script>
-<?php
+            <?php
+        } else {
+            // If no related records, proceed with deletion
+            $stmt = $conn->prepare("DELETE FROM `type` WHERE `type_id` = ?");
+            $stmt->bind_param("i", $type_id);
+
+            if ($stmt->execute()) {
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">ลบข้อมูลสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+                <?php
+            } else {
+                ?>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการลบข้อมูล</div>',
+                            icon: 'error',
+                            confirmButtonText: 'ออก',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "";
+                            }
+                        });
+                    });
+                </script>
+                <?php
+            }
         }
-        $stmt->close();
     } else {
         echo "ไม่พบข้อมูลที่ต้องการลบ";
     }
@@ -302,6 +327,8 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
+    
     <style>
         body {
             font-family: 'Athiti', sans-serif;
@@ -379,7 +406,7 @@ $result = $conn->query($sql);
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
         }
-        
+
         .table th:nth-child(3),
         .table td:nth-child(3) {
             width: 500px;
@@ -401,19 +428,19 @@ $result = $conn->query($sql);
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
-        <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+        <a href="index.php" class="navbar-brand ms-5 d-flex align-items-center text-center">
             <img class="img-fluid" src="../img/logo/<?php echo isset($rowInformation['information_icon']) ? $rowInformation['information_icon'] : ''; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="collapse navbar-collapse me-5" id="navbarCollapse">
             <div class="navbar-nav ms-auto f">
-                <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
+                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">ข้อมูลพื้นฐาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a>
+                        <!-- <a href="manage.php" class="dropdown-item ">ข้อมูลพื้นฐาน</a> -->
                         <a href="manageWeb.php" class="dropdown-item">ข้อมูลระบบ</a>
                         <a href="manageAdmin.php" class="dropdown-item">ข้อมูลผู้ดูแลระบบ</a>
                         <a href="manageCustomer.php" class="dropdown-item">ข้อมูลลูกค้า</a>
@@ -422,18 +449,20 @@ $result = $conn->query($sql);
                     </div>
                 </div>
                 <a href="approvMember.php" class="nav-item nav-link ">อนุมัติสมาชิก</a>
-                <!-- <a href="report.php" class="nav-item nav-link ">รายงาน</a> -->
                 <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
+                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายงาน</a>
                     <div class="dropdown-menu rounded-0 m-0">
-                        <!-- <a href="profile.php" class="dropdown-item">โปรไฟล์</a> -->
-
-                        <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <a href="reportUser.php" class="dropdown-item">รายงานข้อมูลผู้ใช้งานระบบ</a>
+                        <a href="reportCustomer.php" class="dropdown-item ">รายงานข้อมูลลูกค้า</a>
+                        <a href="reportPhotographer.php" class="dropdown-item">รายงานข้อมูลช่างภาพ</a>
+                        <a href="reportType.php" class="dropdown-item">รายงานข้อมูลประเภทงาน</a>
                     </div>
                 </div>
+                <a href="../logout.php" class="nav-item nav-link">ออกจากระบบ</a>
             </div>
         </div>
     </nav>
+    <!-- Navbar End -->
     <div class="mt-5 " style="height: 100%;">
         <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-briefcase"></i>&nbsp;&nbsp;ข้อมูลประเภทงาน</b></div>
         <div class="mt-3  col-7 container-fluid ">
