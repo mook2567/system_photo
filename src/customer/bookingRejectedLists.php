@@ -179,6 +179,7 @@ $resultBooking = $conn->query($sql1);
         .table td:nth-child(1) {
             width: 200px;
             height: 50px;
+            text-align: center;
         }
 
         .footer {
@@ -203,6 +204,7 @@ $resultBooking = $conn->query($sql1);
         .table td:nth-child(5) {
             width: 200px;
             height: 50px;
+            text-align: center;
             overflow: hidden;
             /* Hide overflow content */
             text-overflow: ellipsis;
@@ -244,8 +246,8 @@ $resultBooking = $conn->query($sql1);
                                 <div class="dropdown-menu rounded-0 m-0">
                                     <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
                                     <a href="payLists.php" class="dropdown-item">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                    <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
-                                    <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
+                                    <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                    <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
                                     <a href="bookingRejectedLists.php" class="dropdown-item active">รายการจองคิวที่ถูกปฏิเสธ</a>
                                 </div>
                             </div>

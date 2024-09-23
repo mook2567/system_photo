@@ -732,106 +732,114 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- ตารางงาน -->
             <?php
-            $bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
+$bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
 
-            if ($resultBooking->num_rows > 0) {
-                $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
+if ($resultBooking->num_rows > 0) {
+    $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
+}
+
+// คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
+$today = date('Y-m-d');
+$dayOfWeek = date('w', strtotime($today));
+$startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
+$endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+
+// ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
+$bookedDates = [];
+$unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
+$completedDates = []; // เก็บวันที่ที่จองเสร็จสิ้น
+
+if ($resultBooking->num_rows > 0) {
+    while ($rowBooking = $resultBooking->fetch_assoc()) {
+        $startDate = $rowBooking['booking_start_date'];
+        $endDate = $rowBooking['booking_end_date'];
+        $confirmStatus = $rowBooking['booking_confirm_status'];
+
+        // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+        for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
+            if ($confirmStatus == 1) {
+                $bookedDates[] = $date;
+            } elseif ($confirmStatus == 2) {
+                $unconfirmedDates[] = $date;
+            } elseif ($confirmStatus == 3) {
+                $completedDates[] = $date;
+            }
+        }
+    }
+}
+
+// สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+$allDates = [];
+$currentDate = $startOfWeek;
+for ($i = 0; $i < 7; $i++) {
+    $allDates[] = $currentDate;
+    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+}
+
+// ลบวันจองที่ซ้ำออก
+$bookedDates = array_unique($bookedDates);
+$unconfirmedDates = array_unique($unconfirmedDates);
+$completedDates = array_unique($completedDates);
+?>
+
+<div class="col-3 flex-fill" style="margin-left: auto;">
+    <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
+        <div class="d-flex justify-content-center align-items-center mt-3">
+            <h4>ตารางงาน</h4>
+        </div>
+        <div class="ms-2 mb-2">
+            ตารางงานสัปดาห์นี้
+        </div>
+        <?php
+        // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+        $currentDate = $startOfWeek;
+        for ($i = 0; $i < 7; $i++) {
+            $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
+
+            if (in_array($currentDate, $bookedDates)) {
+                $backgroundColor = 'lightcoral'; // มีการจองแล้ว
+            } elseif (in_array($currentDate, $unconfirmedDates)) {
+                $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
+            } elseif (in_array($currentDate, $completedDates)) {
+                $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
             }
 
-            // คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
-            $today = date('Y-m-d');
-            $dayOfWeek = date('w', strtotime($today));
-            $startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
-            $endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+            echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+            echo "<p class='mb-0'>";
+            echo "วันที่: " . htmlspecialchars($currentDate);
 
-            // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
-            $bookedDates = [];
-            $unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
-
-            if ($resultBooking->num_rows > 0) {
-                while ($rowBooking = $resultBooking->fetch_assoc()) {
-                    $startDate = $rowBooking['booking_start_date'];
-                    $endDate = $rowBooking['booking_end_date'];
-                    $confirmStatus = $rowBooking['booking_confirm_status'];
-
-                    // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
-                    for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
-                        if ($confirmStatus == 1) {
-                            $bookedDates[] = $date;
-                        } else {
-                            $unconfirmedDates[] = $date;
-                        }
-                    }
-                }
+            if (in_array($currentDate, $bookedDates)) {
+                echo " - จองแล้ว";
+            } elseif (in_array($currentDate, $unconfirmedDates)) {
+                echo " - จองแต่ยังไม่อนุมัติ";
+            } elseif (in_array($currentDate, $completedDates)) {
+                echo " - จองเสร็จสิ้นแล้ว";
+            } else {
+                echo " - ว่าง";
             }
 
-            // สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
-            $allDates = [];
-            $currentDate = $startOfWeek;
-            for ($i = 0; $i < 7; $i++) {
-                $allDates[] = $currentDate;
-                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-            }
-
-            // ลบวันจองที่ซ้ำออก
-            $bookedDates = array_unique($bookedDates);
-            $unconfirmedDates = array_unique($unconfirmedDates);
-
-            ?>
-
-            <div class="col-3 flex-fill" style="margin-left: auto;">
-                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-                    <div class="d-flex justify-content-center align-items-center mt-3">
-                        <h4>ตารางงาน</h4>
-                    </div>
-                    <div class="ms-2 mb-2">
-                        ตารางงานสัปดาห์นี้
-                    </div>
-                    <?php
-                    // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
-                    $currentDate = $startOfWeek;
-                    for ($i = 0; $i < 7; $i++) {
-                        $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
-
-                        if (in_array($currentDate, $bookedDates)) {
-                            $backgroundColor = 'lightcoral'; // มีการจองแล้ว
-                        } elseif (in_array($currentDate, $unconfirmedDates)) {
-                            $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
-                        }
-
-                        echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
-                        echo "<p class='mb-0'>";
-                        echo "วันที่: " . htmlspecialchars($currentDate);
-
-                        if (in_array($currentDate, $bookedDates)) {
-                            echo " - จองแล้ว";
-                        } elseif (in_array($currentDate, $unconfirmedDates)) {
-                            echo " - จองแต่ยังไม่อนุมัติ";
-                        } else {
-                            echo " - ว่าง";
-                        }
-
-                        echo "</p>";
-                        echo "</div>";
-                        $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-                    }
-                    ?>
-                    <div class="justify-content-center py-4 text-center">
-                        <div class="row justify-content-center">
-                            <div class="col-5">
-                                <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
-                                    <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
-                                    <i class="fa-solid fa-bookmark"></i> จองคิว
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            echo "</p>";
+            echo "</div>";
+            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+        }
+        ?>
+        <div class="justify-content-center py-4 text-center">
+            <div class="row justify-content-center">
+                <div class="col-5">
+                    <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
+                        <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                    </button>
+                </div>
+                <div class="col-5">
+                    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
+                        <i class="fa-solid fa-bookmark"></i> จองคิว
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
     <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">

@@ -207,8 +207,8 @@ $rowType = $resultType->fetch_assoc();
                     <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
                     <div class="col-md-3">
                         <form action="" method="POST" onsubmit="return validateForm()">
-                            <select class="form-select border-0 py-3 mt-3" name="type" required>
-                                <option value="" disabled <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
+                        <select class="form-select border-0 py-3 mt-3" name="type" required>
+                                <option value="" <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
                                 <?php
                                 $sql = "SELECT t.type_id, t.type_work
                                 FROM type t
@@ -233,7 +233,7 @@ $rowType = $resultType->fetch_assoc();
                     <div class="col-md-4">
                         <input type="text" id="dateRangePicker" name="date_range" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์" value="<?php echo htmlspecialchars($date_range); ?>">
                     </div>
-                    <div class="col-md-3">
+                    <!-- <div class="col-md-3">
                         <select name="score" class="form-select border-0 py-3">
                             <option value="" disabled selected>คะแนนช่างภาพ</option>
                             <option value="desc">คะแนนจากมากไปน้อย</option>
@@ -244,7 +244,7 @@ $rowType = $resultType->fetch_assoc();
                             <option value="2">2</option>
                             <option value="1">1</option>
                         </select>
-                    </div>  
+                    </div>   -->
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
                     </div>
@@ -309,8 +309,6 @@ $rowType = $resultType->fetch_assoc();
                             photographer p ON p.photographer_id = tow.photographer_id
                         JOIN 
                             `type` t ON t.type_id = tow.type_id
-                        JOIN
-                            
                         WHERE 
                             1 = 1" . ($type_id ? " AND t.type_id = $type_id" : "") . " $date_filter
                         GROUP BY 
@@ -328,7 +326,7 @@ $rowType = $resultType->fetch_assoc();
                                     <div class="d-flex align-items-center justify-content-start mt-3">
                                         <div style="display: flex; align-items: center;">
                                             <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                <img src="img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
+                                                <img src="../img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
                                             </div>
                                             <div class="mt-2" style="flex-grow: 1;">
                                                 <b>
@@ -442,7 +440,7 @@ $rowType = $resultType->fetch_assoc();
                                     <div class="d-flex align-items-center justify-content-start mt-3">
                                         <div style="display: flex; align-items: center;">
                                             <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                <img src="img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
+                                                <img src="../img/profile/<?php echo $rowPost['photographer_photo'] ? $rowPost['photographer_photo'] : 'null.png'; ?>" alt="Photographer's photo">
                                             </div>
                                             <div class="mt-2" style="flex-grow: 1;">
                                                 <b>
@@ -527,7 +525,6 @@ $rowType = $resultType->fetch_assoc();
             </div>
         </div>
     </div>
-
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
 

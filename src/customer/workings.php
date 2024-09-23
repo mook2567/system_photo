@@ -182,10 +182,10 @@ if (isset($_SESSION['customer_login'])) {
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
+                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
                                 <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
-                                <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
+                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
                                 <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                             </div>
                         </div>
@@ -213,42 +213,42 @@ if (isset($_SESSION['customer_login'])) {
         </div>
         <!-- Header End -->
         <?php
-$type = isset($_POST['type']) ? $_POST['type'] : '';
-$date_range = isset($_POST['date_range']) ? $_POST['date_range'] : '';
-?>
-<div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
-    <div class="container">
-        <div class="row flex-row g-2 align-items-center justify-content-center">
-            <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
-            <div class="col-md-3">
-                <form action="" method="POST" onsubmit="return validateForm()">
-                    <select class="form-select border-0 py-3 mt-3" name="type" required>
-                        <option value="" disabled <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
-                        <?php
-                        $sql = "SELECT t.type_id, t.type_work
+        $type = isset($_POST['type']) ? $_POST['type'] : '';
+        $date_range = isset($_POST['date_range']) ? $_POST['date_range'] : '';
+        ?>
+        <div class="mt-5 wow fadeIn" style="background-color: rgba(250,250,250, 0.4); padding: 35px;" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row flex-row g-2 align-items-center justify-content-center">
+                    <h2 class="text-white f">ค้นหาผลงานช่างภาพ</h2>
+                    <div class="col-md-3">
+                        <form action="" method="POST" onsubmit="return validateForm()">
+                            <select class="form-select border-0 py-3 mt-3" name="type" required>
+                                <option value="" disabled <?php echo $type == '' ? 'selected' : ''; ?>>ประเภทงาน</option>
+                                <?php
+                                $sql = "SELECT t.type_id, t.type_work
                                 FROM type t
                                 INNER JOIN (
                                     SELECT type_id, MAX(photographer_id) AS photographer_id
                                     FROM type_of_work
                                     GROUP BY type_id
                                 ) AS tow_latest ON t.type_id = tow_latest.type_id";
-                        $resultTypeWorkDetail = $conn->query($sql);
+                                $resultTypeWorkDetail = $conn->query($sql);
 
-                        if ($resultTypeWorkDetail->num_rows > 0) {
-                            while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
-                        ?>
-                                <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>" <?php echo $type == $rowTypeWorkDetail['type_id'] ? 'selected' : ''; ?>>
-                                    <?php echo $rowTypeWorkDetail['type_work']; ?>
-                                </option>
-                        <?php
-                            }
-                        } ?>
-                    </select>
-            </div>
-            <div class="col-md-4">
-                <input type="text" id="dateRangePicker" name="date_range" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์" value="<?php echo htmlspecialchars($date_range); ?>">
-            </div>
-            <!-- <div class="col-md-3">
+                                if ($resultTypeWorkDetail->num_rows > 0) {
+                                    while ($rowTypeWorkDetail = $resultTypeWorkDetail->fetch_assoc()) {
+                                ?>
+                                        <option value="<?php echo $rowTypeWorkDetail['type_id']; ?>" <?php echo $type == $rowTypeWorkDetail['type_id'] ? 'selected' : ''; ?>>
+                                            <?php echo $rowTypeWorkDetail['type_work']; ?>
+                                        </option>
+                                <?php
+                                    }
+                                } ?>
+                            </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="dateRangePicker" name="date_range" class="form-control border-0 py-3 f bg-white" placeholder="ช่วงวันที่โพสต์" value="<?php echo htmlspecialchars($date_range); ?>">
+                    </div>
+                    <!-- <div class="col-md-3">
                 <select name="score" class="form-select border-0 py-3">
                     <option value="" disabled selected>คะแนนช่างภาพ</option>
                     <option value="desc">คะแนนจากมากไปน้อย</option>
@@ -260,14 +260,14 @@ $date_range = isset($_POST['date_range']) ? $_POST['date_range'] : '';
                     <option value="1">1</option>
                 </select>
             </div> -->
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary border-0 w-100 py-3" name="search">ค้นหา</button>
+                    </div>
+                    </form>
+                </div>
             </div>
-                </form>
         </div>
     </div>
-</div>
-</div>
     <!-- Search End -->
     <div style="display: flex; justify-content: center;">
         <!-- post -->

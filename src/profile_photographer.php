@@ -610,6 +610,7 @@ $resultBooking = $conn->query($sql);
             // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
             $bookedDates = [];
             $unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
+            $completedDates = []; // เก็บวันที่ที่จองเสร็จสิ้น
 
             if ($resultBooking->num_rows > 0) {
                 while ($rowBooking = $resultBooking->fetch_assoc()) {
@@ -621,8 +622,10 @@ $resultBooking = $conn->query($sql);
                     for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
                         if ($confirmStatus == 1) {
                             $bookedDates[] = $date;
-                        } else {
+                        } elseif ($confirmStatus == 2) {
                             $unconfirmedDates[] = $date;
+                        } elseif ($confirmStatus == 3) {
+                            $completedDates[] = $date;
                         }
                     }
                 }
@@ -639,7 +642,7 @@ $resultBooking = $conn->query($sql);
             // ลบวันจองที่ซ้ำออก
             $bookedDates = array_unique($bookedDates);
             $unconfirmedDates = array_unique($unconfirmedDates);
-
+            $completedDates = array_unique($completedDates);
             ?>
 
             <div class="col-3 flex-fill" style="margin-left: auto;">
@@ -660,6 +663,8 @@ $resultBooking = $conn->query($sql);
                             $backgroundColor = 'lightcoral'; // มีการจองแล้ว
                         } elseif (in_array($currentDate, $unconfirmedDates)) {
                             $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
+                        } elseif (in_array($currentDate, $completedDates)) {
+                            $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
                         }
 
                         echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
@@ -670,6 +675,8 @@ $resultBooking = $conn->query($sql);
                             echo " - จองแล้ว";
                         } elseif (in_array($currentDate, $unconfirmedDates)) {
                             echo " - จองแต่ยังไม่อนุมัติ";
+                        } elseif (in_array($currentDate, $completedDates)) {
+                            echo " - จองเสร็จสิ้นแล้ว";
                         } else {
                             echo " - ว่าง";
                         }

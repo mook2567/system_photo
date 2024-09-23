@@ -426,7 +426,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <th scope="col">เวลาเริ่มงาน</th>
                             <th scope="col">ราคาจ่าย</th>
                             <th scope="col">ราคามัดจำ</th>
-                            <th scope="col">สถานะการชำระ</th>
+                            <th scope="col">ลิงก์ส่งงาน</th>
                             <th scope="col">ดำเนินการ</th>
                         </tr>
                     </thead>
@@ -443,17 +443,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <td><?php echo $rowBooking['booking_start_time']; ?></td>
                                         <td><?php echo $rowBooking['booking_price']; ?></td>
                                         <td><?php echo $rowBooking['deposit_price']; ?></td>
-                                        <td>
-                                            <?php
-                                            if ($rowBooking['booking_pay_status'] == '0') {
-                                                echo '<p class="mt-3">รอชำระค่ามัดจำ</p>';
-                                            } else if ($rowBooking['booking_pay_status'] == '3') {
-                                                echo '<p class="mt-3">รอชำระเงิน</p>';
-                                            } else {
-                                                echo '<p class="mt-3">สถานะไม่ถูกต้อง</p>';
-                                            }
-                                            ?>
-                                        </td>
+                                        <td><?php echo '<a href="' . $rowBooking['submit_details'] . '" target="_blank">ดูไดร์ฟส่งงาน</a>'; ?></td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
                                             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#review<?php echo $rowBooking['booking_id']; ?>">รีวิว</button>
@@ -527,7 +517,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
-                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '3') ? 'รอชำระเงิน' : (($rowBooking['booking_pay_status'] == '4') ? 'ชำระเงินแล้วรอตรวจสอบ' : 'รอตรวจสอบ'); ?></span></div>
+                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '2') ? 'รอชำระเงิน' : (($rowBooking['booking_pay_status'] == '4') ? 'ชำระเงินแล้วรอตรวจสอบ' : 'ตรวจสอบแล้ว'); ?></span></div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -663,6 +653,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล ช่างภาพ : <?php echo  $rowBooking['photographer_prefix'] . '' . $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></span></div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
                                                                         <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
+                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px;">ไดฟ์ส่งงาน : <?php echo '<a href="' . $rowBooking['submit_details'] . '" target="_blank">ดูไดร์ฟส่งงาน</a>'; ?></span></div>
                                                                     </div>
                                                                 </div>
                                                             </div>

@@ -291,6 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .table td:nth-child(1) {
             width: 150px;
             height: 50px;
+            text-align: center;
         }
 
         .footer {
@@ -315,14 +316,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .table td:nth-child(4),
         .table td:nth-child(5),
         .table td:nth-child(6) {
-            width: 100px;
+            width: 180px;
             height: 50px;
-            overflow: hidden;
-            /* Hide overflow content */
-            text-overflow: ellipsis;
-            /* Show "..." for overflow text */
-            white-space: nowrap;
-            /* Prevent text from wrapping to the next line */
+            /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
         }
     </style>
 </head>
@@ -358,8 +354,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <div class="dropdown-menu rounded-0 m-0">
                                     <a href="bookingLists.php" class="dropdown-item active">รายการจองคิวที่รออนุมัติ</a>
                                     <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                    <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
-                                    <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
+                                    <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                    <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
                                     <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                                 </div>
                             </div>
@@ -727,7 +723,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 }
                             }
                         } else {
-                            echo "<tr><td colspan='7' >ไม่พบข้อมูลรายการจองที่รออนุมัติ</td></tr>";
+                            echo "<tr><td  colspan='7' >ไม่พบข้อมูลรายการจองที่รออนุมัติ</td></tr>";
                         }
 
                         ?>
