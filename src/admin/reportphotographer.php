@@ -203,13 +203,13 @@ $resultUser = $conn->query($sqlUser);
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
-        <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+        <a href="index.html" class="navbar-brand ms-5 d-flex align-items-center text-center">
             <img class="img-fluid" src="../img/logo/<?php echo isset($rowInformation['information_icon']) ? $rowInformation['information_icon'] : ''; ?>" style="height: 30px;">
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon text-primary"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="collapse me-5 navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto f">
                 <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
                 <div class="nav-item dropdown">
