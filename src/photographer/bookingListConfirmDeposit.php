@@ -57,10 +57,30 @@ JOIN
     customer c ON b.cus_id = c.cus_id 
 WHERE 
     b.photographer_id = $id_photographer 
-    AND pay.pay_status = '0';
+    AND pay.pay_status = '0'
+         AND b.booking_pay_status = '1'
+    ;
 ";
 $resultPay0 = $conn->query($sql3);
 
+$sql4 = "SELECT 
+    pay.*, 
+    (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
+    (b.booking_price * 0.30) AS deposit_price,
+    b.booking_id
+FROM 
+    pay 
+JOIN 
+    booking b ON b.booking_id = pay.booking_id 
+JOIN 
+    customer c ON b.cus_id = c.cus_id 
+WHERE 
+    b.photographer_id = $id_photographer 
+    AND pay.pay_status = '0'
+         AND b.booking_pay_status = '1'
+;
+";
+$resultPay1 = $conn->query($sql4);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_booking_confirm_status'])) {
@@ -86,7 +106,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         allowEnterKey: false
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = "bookingListSend.php";
+                            window.location.href = "";
+                            // window.location.href = "bookingListSend.php";
                         }
                     });
                 });
@@ -413,53 +434,100 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 </tr>
                                 <!-- details -->
                                 <div class="modal fade" id="details<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="detailsLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="detailsLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่อนุมัติแล้ว</b></h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body" style="height: auto;">
-                                                <div class="container-md mb-5">
+                                                <div class="container-md mb-3">
                                                     <div class="row">
-                                                        <div class="col-10 container-fluid">
-                                                            <div class="col-12">
-                                                                <div class="row">
-                                                                    <div class="col-12 mt-2">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
+                                                        <div class="col-md-6 container-fluid">
+                                                            <div class="card">
+                                                                <div class="mt-3 mb-3 ms-3 me-3">
+                                                                    <div class="col-md-12 ms-3">
+                                                                        <h6 class="f mb-3">ข้อมูลการจองของลูกค้า</h6>
+                                                                        <div class="col-12">
+                                                                            <div class="row">
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                            วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
+                                                                                        </span>
+                                                                                    <?php else: ?>
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                            วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
+                                                                                        </span>
+                                                                                    <?php endif; ?>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <?php
+                                                                                    $startTime = new DateTime($rowBooking['booking_start_time']);
+                                                                                    $endTime = new DateTime($rowBooking['booking_end_time']);
+
+                                                                                    $formattedStartTime = $startTime->format('H:i');
+                                                                                    $formattedEndTime = $endTime->format('H:i');
+                                                                                    ?>
+
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px; overflow-wrap: break-word;">คำอธิบาย : <?php echo $rowBooking['booking_details']; ?></span></div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                                                <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '3') ? 'รอชำระเงิน' : (($rowBooking['booking_pay_status'] == '4') ? 'ชำระเงินแล้วรอตรวจสอบ' : 'รอตรวจสอบ'); ?></span></div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
-                                                                            </span>
-                                                                        <?php else: ?>
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
-                                                                            </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 container-fluid mb-3">
+                                                            <div class="card" style="height: 50%;">
+                                                                <div class="mt-3 mb-3 ms-3 me-3">
+                                                                    <div class="col-md-12 ms-3">
+                                                                        <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ</h6>
+                                                                        <?php
+                                                                        if ($rowPay0 = $resultPay0->fetch_assoc()) :
+                                                                        ?>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    ค่ามัดจำที่จ่าย : <?php echo $rowPay0['deposit_price'] . ' บาท'; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    หลักฐานการชำระเงิน :
+                                                                                    <?php
+                                                                                    if (empty($rowPay0['pay_slip'])) {
+                                                                                        echo 'ลูกค้าชำระเป็นเงินสด';
+                                                                                    } else {
+                                                                                        echo '<a href="../img/slip/' . $rowPay0['pay_slip'] . '" target="_blank">ดูหลักฐานการชำระเงิน</a>';
+                                                                                    }
+                                                                                    ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    วันที่ชำระ : <?php echo $rowPay0['pay_date']; ?>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="col-12 mt-2">
+                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                    เวลาที่ชำระ : <?php echo $rowPay0['pay_time'] . ' น.'; ?>
+                                                                                </span>
+                                                                            </div>
                                                                         <?php endif; ?>
                                                                     </div>
-                                                                    <div class="col-12 mt-2">
-                                                                        <?php
-                                                                        $startTime = new DateTime($rowBooking['booking_start_time']);
-                                                                        $endTime = new DateTime($rowBooking['booking_end_time']);
-
-                                                                        $formattedStartTime = $startTime->format('H:i');
-                                                                        $formattedEndTime = $endTime->format('H:i');
-                                                                        ?>
-
-                                                                        <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                            เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px; overflow-wrap: break-word;">คำอธิบาย : <?php echo $rowBooking['booking_details']; ?></span></div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
-                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '0') ? 'ยังไม่ชำระ' : (($rowBooking['booking_pay_status'] == '1') ? 'ชำระค่ามัดจำแล้วรอตรวจสอบ' : 'รอชำระเงิน'); ?></span></div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -537,38 +605,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                 <div class="card">
                                                                     <div class="mt-3 mb-3 ms-3 me-3">
                                                                         <div class="col-md-12 ms-3">
-                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ</h6>
+                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ </h6>
                                                                             <?php
-                                                                        if ($rowPay0 = $resultPay0->fetch_assoc()) :
-                                                                        ?>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    ค่ามัดจำที่จ่าย : <?php echo $rowPay0['pay_id'] . ' บาท'; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    หลักฐานการชำระเงิน :
-                                                                                    <?php
-                                                                                    if (empty($rowPay0['pay_slip'])) {
-                                                                                        echo 'ลูกค้าชำระเป็นเงินสด';
-                                                                                    } else {
-                                                                                        echo '<a href="../img/slip/' . $rowPay0['pay_slip'] . '" target="_blank">ดูหลักฐานการชำระเงิน</a>';
-                                                                                    }
-                                                                                    ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    วันที่ชำระ : <?php echo $rowPay0['pay_date']; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    เวลาที่ชำระ : <?php echo $rowPay0['pay_time'] . ' น.'; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                        <?php endif; ?>
+                                                                        if ($rowPay1 = $resultPay1->fetch_assoc()): ?>
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                ค่ามัดจำที่จ่าย : <?php echo number_format($rowPay1['deposit_price'], 2) . ' บาท'; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                หลักฐานการชำระเงิน :
+                                                                                <?php if (empty($rowPay1['pay_slip'])): ?>
+                                                                                    ลูกค้าชำระเป็นเงินสด
+                                                                                <?php else: ?>
+                                                                                    <a href="../img/slip/<?php echo htmlspecialchars($rowPay1['pay_slip']); ?>" target="_blank">ดูหลักฐานการชำระเงิน</a>
+                                                                                <?php endif; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                วันที่ชำระ : <?php echo htmlspecialchars($rowPay1['pay_date']); ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="col-12 mt-2">
+                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                เวลาที่ชำระ : <?php echo htmlspecialchars($rowPay1['pay_time']) . ' น.'; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                    <?php endif; ?>
+                                                                    
 
                                                                         </div>
                                                                     </div>

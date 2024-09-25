@@ -705,13 +705,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     <input id="uploadButton<?php echo $rowBooking['booking_id']; ?>" name="pay_slip" type="file" accept="image/jpeg" style="display: none;" onchange="handleFileInput(event, '<?php echo $rowBooking['booking_id']; ?>')">
                                                                                 </label>
                                                                             </div>
+                                                                            <?php
+                                                                            // Fetch booking data and format booking date
+                                                                            $minDate = date('Y-m-d', strtotime($rowBooking['booking_date'])); // Ensure format is YYYY-MM-DD
+                                                                            ?>
+
                                                                             <div class="row m-2">
                                                                                 <div class="col-6">
                                                                                     <label for="pay_date" style="font-weight: bold; display: flex; align-items: center;">
-                                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่ชำระ</span>
+                                                                                        <span style="color: black; margin-right: 5px; font-size: 13px;">วันที่ชำระ</span>
                                                                                         <span style="color: red;">*</span>
                                                                                     </label>
-                                                                                    <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required>
+                                                                                    <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required min="<?php echo $minDate; ?>">
                                                                                 </div>
                                                                                 <div class="col-6">
                                                                                     <label for="pay_time" style="font-weight: bold; display: flex; align-items: center;">
@@ -721,6 +726,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                     <input type="time" id="pay_time" name="pay_time" class="form-control mt-1" style="resize: none;" required>
                                                                                 </div>
                                                                             </div>
+
+                                                                            <!-- <script>
+                                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                                    const payDateInput = document.getElementById('pay_date');
+
+                                                                                    // Disable past dates
+                                                                                    const today = new Date().toISOString().split('T')[0];
+                                                                                    payDateInput.setAttribute('min', today);
+
+                                                                                    // Fetch unavailable dates from the server
+                                                                                    function fetchUnavailableDates() {
+                                                                                        return fetch('path_to_your_php_file.php') // Update with your actual path
+                                                                                            .then(response => response.json())
+                                                                                            .then(data => data)
+                                                                                            .catch(error => {
+                                                                                                console.error('Error fetching unavailable dates:', error);
+                                                                                                return [];
+                                                                                            });
+                                                                                    }
+
+                                                                                    // Update date pickers with unavailable dates
+                                                                                    function updateDatePickers(unavailableDates) {
+                                                                                        // Disable unavailable dates in pay date input
+                                                                                        payDateInput.addEventListener('input', function() {
+                                                                                            const selectedDate = payDateInput.value;
+                                                                                            if (unavailableDates.includes(selectedDate)) {
+                                                                                                alert('Selected payment date is unavailable.');
+                                                                                                payDateInput.value = '';
+                                                                                            }
+                                                                                        });
+                                                                                    }
+
+                                                                                    // Initialize
+                                                                                    fetchUnavailableDates().then(unavailableDates => {
+                                                                                        updateDatePickers(unavailableDates);
+                                                                                    });
+                                                                                });
+                                                                            </script> -->
+
                                                                         </div>
                                                                         <!-- ชำระค่ามัดจำสิ้นสุด -->
                                                                     </div>

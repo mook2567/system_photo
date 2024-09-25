@@ -45,7 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $cus_id = $_POST['cus_id'];
         $date = $_POST["date"];
         $type = $_POST["type"];
+        $id_photographer = $_POST["photographer_id"]; // Assumes photographer_id is passed in the form
 
+        // ตรวจสอบการจองที่ซ้ำกันสำหรับ photographer_id เดียวกัน
         $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` WHERE (`booking_start_date` BETWEEN ? AND ? OR `booking_end_date` BETWEEN ? AND ?) AND `photographer_id` = ? AND `booking_confirm_status` = 0");
         if ($check_stmt) {
             $check_stmt->bind_param("ssssi", $start_date, $end_date, $start_date, $end_date, $id_photographer);
@@ -160,6 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
+
     <!-- Libraries Stylesheet -->
     <link href="../lib/animate/animate.min.css" rel="stylesheet">
     <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
@@ -180,7 +183,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 
     <!-- Fancybox CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" />
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
@@ -759,7 +761,7 @@ if ($resultBooking->num_rows > 0) {
         for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
             if ($confirmStatus == 1) {
                 $bookedDates[] = $date;
-            } elseif ($confirmStatus == 2) {
+            } elseif ($confirmStatus == 0) {
                 $unconfirmedDates[] = $date;
             } elseif ($confirmStatus == 3) {
                 $completedDates[] = $date;
@@ -803,7 +805,7 @@ $completedDates = array_unique($completedDates);
             } elseif (in_array($currentDate, $completedDates)) {
                 $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
             }
-
+            
             echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
             echo "<p class='mb-0'>";
             echo "วันที่: " . htmlspecialchars($currentDate);
@@ -1146,43 +1148,47 @@ $completedDates = array_unique($completedDates);
     });
 </script>
     <script>
-        function calculateEndTime() {
-            // Get the start time input value
-            const startTimeInput = document.getElementById('start_time');
-            const endTimeInput = document.getElementById('end_time');
-            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
+    function calculateEndTime() {
+        // Get the start time input value
+        const startTimeInput = document.getElementById('start_time');
+        const endTimeInput = document.getElementById('end_time');
+        const durationRadios = document.querySelectorAll('input[name="userIcon"]');
 
-            if (startTimeInput.value) {
-                // Get selected duration
-                let hoursToAdd = 4; // Default to half-day
+        if (startTimeInput.value) {
+            // Get selected duration
+            let hoursToAdd = 4; // Default to half-day
 
-                durationRadios.forEach(radio => {
-                    if (radio.checked) {
-                        hoursToAdd = radio.value === 'full' ? 8 : 4;
-                    }
-                });
-
-                // Create Date objects for the start time and the end time
-                const startTime = new Date(`1970-01-01T${startTimeInput.value}:00`);
-                const endTime = new Date(startTime.getTime() + hoursToAdd * 60 * 60 * 1000); // Add hours
-
-                // Format the end time as HH:MM
-                const hours = String(endTime.getHours()).padStart(2, '0');
-                const minutes = String(endTime.getMinutes()).padStart(2, '0');
-                const formattedEndTime = `${hours}:${minutes}`;
-
-                // Set the value of the end time input
-                endTimeInput.value = formattedEndTime;
-            }
-        }
-
-        // Add event listener for duration radio buttons
-        document.addEventListener('DOMContentLoaded', function() {
-            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
             durationRadios.forEach(radio => {
-                radio.addEventListener('change', calculateEndTime);
+                if (radio.checked) {
+                    hoursToAdd = radio.value === 'full' ? 8 : 4;
+                }
             });
+
+            // Create Date objects for the start time and the end time
+            const startTime = new Date(`1970-01-01T${startTimeInput.value}:00`);
+            const endTime = new Date(startTime.getTime() + hoursToAdd * 60 * 60 * 1000); // Add hours
+
+            // Format the end time as HH:MM
+            const hours = String(endTime.getHours()).padStart(2, '0');
+            const minutes = String(endTime.getMinutes()).padStart(2, '0');
+            const formattedEndTime = `${hours}:${minutes}`;
+
+            // Set the value of the end time input
+            endTimeInput.value = formattedEndTime;
+        }
+    }
+
+    // Add event listeners for duration radio buttons and start time input
+    document.addEventListener('DOMContentLoaded', function() {
+        const durationRadios = document.querySelectorAll('input[name="userIcon"]');
+        const startTimeInput = document.getElementById('start_time');
+
+        durationRadios.forEach(radio => {
+            radio.addEventListener('change', calculateEndTime);
         });
-    </script>
+
+        startTimeInput.addEventListener('input', calculateEndTime);
+    });
+</script>
 
 </html>

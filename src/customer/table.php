@@ -47,6 +47,7 @@ if ($id_photographer !== null) {
         $booking[] = $row;
     }
 }
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_book'])) {
         $location = $_POST["location"];
