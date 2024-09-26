@@ -826,31 +826,31 @@ if (isset($_POST['submit_type_of_work'])) {
                         <div class="col-6">
                             <?php
                             // SQL Query for Reviews
-                            $sql3 = "
-                            SELECT 
-                                SUM(r.review_level) AS scor, 
-                                r.review_caption,
-                                c.cus_name,
-                                c.cus_surname
-                            FROM 
-                                review r
-                            JOIN 
-                                booking b ON r.booking_id = b.booking_id 
-                            JOIN 
-                                photographer p ON b.photographer_id = p.photographer_id
-                            JOIN
-                                customer c ON b.cus_id = c.cus_id
-                            WHERE
-                                p.photographer_id = $id_photographer
-                            GROUP BY
-                                r.review_caption, c.cus_name, c.cus_surname
-                            ORDER BY
-                                r.review_date DESC -- เรียงลำดับตามวันที่รีวิวล่าสุด
-                            LIMIT 5 -- ดึงข้อมูล 5 ชุดล่าสุด
-                        ";
+                            $sql3 = "SELECT 
+                                            SUM(r.review_level) AS scor, 
+                                            r.review_caption,
+                                            c.cus_name,
+                                            c.cus_surname,
+                                            cus_photo
+                                        FROM 
+                                            review r
+                                        JOIN 
+                                            booking b ON r.booking_id = b.booking_id 
+                                        JOIN 
+                                            photographer p ON b.photographer_id = p.photographer_id
+                                        JOIN
+                                            customer c ON b.cus_id = c.cus_id
+                                        WHERE
+                                            p.photographer_id = $id_photographer
+                                        GROUP BY
+                                            r.review_caption, c.cus_name, c.cus_surname
+                                        ORDER BY
+                                            r.review_date DESC -- เรียงลำดับตามวันที่รีวิวล่าสุด
+                                        LIMIT 3 -- ดึงข้อมูล 5 ชุดล่าสุด
+                                    ";
                             $resultReview = $conn->query($sql3);
                             if ($resultReview->num_rows > 0) {
-                                
+
                                 echo '<div class="row"><div class="text-start mx-auto wow slideInLeft">
                                         <div class="col-11 justify-content-center mt-4"><h4 class="f" data-wow-delay="0.1s">คำรีวิว</h4>
                                     </div></div>';  // เริ่ม row สำหรับการ์ดทั้งหมด
@@ -861,15 +861,52 @@ if (isset($_POST['submit_type_of_work'])) {
                                         <div class="card bg-white mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
                                             <div class="card-body">
                                                 <!-- Card Title -->
-                                                <h5 class="card-title">
-                                                    <?php echo $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?>
-                                                </h5>
-
+                                                <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                                    <div class="circle me-3" style="width: 40px; height: 40px;">
+                                                        <img id="userImage" src="../img/profile/<?php echo $rowReview['cus_photo'] ? $rowReview['cus_photo'] : 'null.png'; ?>">
+                                                    </div>
+                                                    <div>
+                                                        <p><?php echo $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?></p>
+                                                    </div>
+                                                </div>
                                                 <!-- Card Text -->
                                                 <p class="card-text">
                                                     <?php echo $rowReview['review_caption']; ?>
                                                 </p>
                                                 <p>คะแนนรีวิว: <?php echo $rowReview['scor']; ?></p>
+                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                    <?php
+                                                    $reviewLevel = $rowReview['scor'];
+                                                    for ($i = 1; $i <= 5; $i++) {
+                                                        if ($i <= $reviewLevel) {
+                                                            echo '<i class="fas fa-star" style="color: gold; margin-right: 2px;"></i>'; // ดาวเต็มสีทอง
+                                                        } else {
+                                                            echo '<i class="far fa-star" style="color: gold; margin-right: 2px;"></i>'; // ดาวว่างเปล่าสีทอง
+                                                        }
+                                                    }
+                                                    $satisfactionText = '';
+                                                    switch ($reviewLevel) {
+                                                        case 1:
+                                                            $satisfactionText = 'ไม่พอใจอย่างยิ่ง';
+                                                            break;
+                                                        case 2:
+                                                            $satisfactionText = 'ไม่พอใจ';
+                                                            break;
+                                                        case 3:
+                                                            $satisfactionText = 'ปานกลาง';
+                                                            break;
+                                                        case 4:
+                                                            $satisfactionText = 'พอใจ';
+                                                            break;
+                                                        case 5:
+                                                            $satisfactionText = 'พอใจอย่างยิ่ง';
+                                                            break;
+                                                        default:
+                                                            $satisfactionText = 'ไม่มีข้อมูลการรีวิว';
+                                                    }
+                                                    echo ' - ' . $satisfactionText;
+                                                    ?>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
