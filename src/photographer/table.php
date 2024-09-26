@@ -18,7 +18,7 @@ if (isset($_SESSION['photographer_login'])) {
 // $booking = array();
 $booking = array(); // Initialize $booking to avoid undefined variable issues
 if ($id_photographer !== null) {
-    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ? AND booking_confirm_status IN (0, 1, 3)");
     $stmt->bind_param("i", $id_photographer);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -26,6 +26,7 @@ if ($id_photographer !== null) {
         $booking[] = $row;
     }
 }
+
 
 // ตรวจสอบข้อมูล
 // echo '<pre>';

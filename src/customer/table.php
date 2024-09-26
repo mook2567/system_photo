@@ -38,7 +38,7 @@ $booking = array();
 $id_photographer = isset($_GET['id_photographer']) ? intval($_GET['id_photographer']) : null;
 
 if ($id_photographer !== null) {
-    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM booking WHERE photographer_id = ? AND booking_confirm_status IN (0, 1, 3)");
     $stmt->bind_param("i", $id_photographer);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -332,6 +332,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
                 <h5 class="text-white">สีฟ้า คือ รายการจองที่รออนุมัติ</h5>
                 <h5 class="text-white">สีเหลือง คือ รายการจองครึ่งวัน</h5>
                 <h5 class="text-white">สีส้ม คือ รายการจองเต็มวัน</h5>
+                <h5 class="text-white">สีม่วง คือ รายการจองที่เสร็จสิ้น</h5>
             </div>
         </div>
     </div>
@@ -539,67 +540,72 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
     <script src="../js/main.js"></script>
 
     <script type="text/javascript">
-        $(function() {
-            // Get the booking data from PHP
-            var bookings = <?php echo json_encode($booking); ?>;
+    $(function() {
+        // Get the booking data from PHP
+        var bookings = <?php echo json_encode($booking); ?>;
 
-            // Format the booking data for FullCalendar
-            var events = bookings.map(function(booking) {
-                var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
-                var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
-                var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
-                    (startDate.getHours() >= 12 && endDate.getHours() > 12);
+        // Format the booking data for FullCalendar
+        var events = bookings.map(function(booking) {
+            var startDate = new Date(booking.booking_start_date + 'T' + booking.booking_start_time);
+            var endDate = new Date(booking.booking_end_date + 'T' + booking.booking_end_time);
+            var isHalfDay = (startDate.getHours() < 12 && endDate.getHours() <= 12) ||
+                (startDate.getHours() >= 12 && endDate.getHours() > 12);
 
-                var eventColor;
-                var eventTextColor;
-                var eventTitle;
+            var eventColor;
+            var eventTextColor;
+            var eventTitle;
 
-                // Determine color and title based on booking confirmation status
-                if (booking.booking_confirm_status == 0) { // Unapproved bookings
-                    eventColor = '#edf6fa'; // Light gray
-                    eventTextColor = 'black';
-                    eventTitle = 'รออนุมัติ';
-                } else { // Approved bookings
-                    eventColor = isHalfDay ? '#e9ec86' : '#ecab86';
-                    eventTextColor = isHalfDay ? 'black' : 'black';
-                    eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+            // Determine color and title based on booking confirmation status
+            if (booking.booking_confirm_status == 0) { // Unapproved bookings
+                eventColor = '#edf6fa'; // Light gray
+                eventTextColor = 'black';
+                eventTitle = 'รออนุมัติ';
+            } else if (booking.booking_confirm_status == 1) { // Approved bookings
+                eventColor = isHalfDay ? '#e9ec86' : '#ecab86'; // Light yellow for half-day/full-day
+                eventTextColor = 'black';
+                eventTitle = isHalfDay ? 'ครึ่งวัน' : 'เต็มวัน';
+            } else if (booking.booking_confirm_status == 3) { // New completed bookings
+                eventColor = '#f8d7da'; // Light red for finished bookings
+                eventTextColor = 'black';
+                eventTitle = 'เสร็จสิ้นแล้ว';
+            }
+
+            const startTime = startDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const endTime = endDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return {
+                title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
+                start: startDate.toISOString(),
+                end: endDate.toISOString(),
+                color: eventColor,
+                textColor: eventTextColor,
+                description: booking.booking_details,
+                extendedProps: {
+                    startTime: startTime,
+                    endTime: endTime
                 }
-
-                const startTime = startDate.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                const endTime = endDate.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                return {
-                    title: eventTitle + ' (' + startTime + ' - ' + endTime + ')',
-                    start: startDate.toISOString(),
-                    end: endDate.toISOString(),
-                    color: eventColor,
-                    textColor: eventTextColor,
-                    description: booking.booking_details,
-                    extendedProps: {
-                        startTime: startTime,
-                        endTime: endTime
-                    }
-                };
-            });
-
-            // Initialize the FullCalendar
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['dayGrid', 'interaction'],
-                editable: true,
-                events: events
-            });
-
-            // Render the calendar
-            calendar.render();
+            };
         });
-    </script>
+
+        // Initialize the FullCalendar
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['dayGrid', 'interaction'],
+            editable: true,
+            events: events
+        });
+
+        // Render the calendar
+        calendar.render();
+    });
+</script>
+
 
     <script>
         // ฟังก์ชันเพื่อกำหนดวันที่ปัจจุบันให้กับฟิลด์ input

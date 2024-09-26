@@ -472,7 +472,7 @@ if (isset($_POST['submit_type_of_work'])) {
         <!-- Category Start -->
         <div class="mb-5 mt-4 text-center mx-auto  wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
             <h1 class="f" style="color:aliceblue;"><?php echo $rowInfo['information_name']; ?></h1>
-            <p style="color:aliceblue;"><?php echo $rowInfo['information_caption']; ?></p>
+            <p style="color:aliceblue;">เว็บไซต์ลงผลงานเพื่อโพรโมตคุณ</p>
         </div>
         <div class="col-12 container" style="height: 160px; border-radius: 10px; background-color: rgb(255,255,255, 0.7);">
             <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">

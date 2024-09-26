@@ -22,16 +22,7 @@ if (isset($_SESSION['customer_login'])) {
 
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = $id_photographer
-        -- AND booking_confirm_status = all
-        -- AND (
-        --     (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY 
-        --     AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY)
-        --     OR
-        --     (booking_start_date <= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY 
-        --     AND booking_end_date >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY - INTERVAL 1 WEEK)
-        -- )
-        ";
+        WHERE photographer_id = $id_photographer";
 $resultBooking = $conn->query($sql);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -84,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $stmt->bind_param("sssssssiii", $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
                     if ($stmt->execute()) {
                 ?>
-                        <script>
+                        <div><script>
                             console.log('Swal script should be executed');
                             setTimeout(function() {
                                 Swal.fire({
@@ -100,11 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     }
                                 });
                             }, 0);
-                        </script>
+                        </script></div>
                     <?php
                     } else {
                     ?>
-                        <script>
+                        <div><script>
                             setTimeout(function() {
                                 Swal.fire({
                                     title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
@@ -119,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     }
                                 });
                             });
-                        </script>
+                        </script></div>
 <?php
                     }
                     $stmt->close();
@@ -815,7 +806,7 @@ $completedDates = array_unique($completedDates);
             } elseif (in_array($currentDate, $unconfirmedDates)) {
                 echo " - จองแต่ยังไม่อนุมัติ";
             } elseif (in_array($currentDate, $completedDates)) {
-                echo " - จองเสร็จสิ้นแล้ว";
+                echo " - เสร็จสิ้นแล้ว";
             } else {
                 echo " - ว่าง";
             }
