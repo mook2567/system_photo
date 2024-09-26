@@ -113,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_booking_confirm_status'])) {
         // echo $booking_price = $_POST['booking_price'];
         // echo $confirm_status = $_POST['confirm_status'];
-        echo $booking_id = $_POST['booking_id'];
+        $booking_id = $_POST['booking_id'];
 
         // Assuming $conn is your MySQLi connection
         $sql = "UPDATE `booking` SET booking_pay_status = '5' WHERE booking_id = ?";
@@ -125,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">บันทึกสถานะการจองสำเร็จ</div>',
+                        title: '<div class="t1">ยืนยันการรับชำระเงินสำเร็จ</div>',
                         icon: 'success',
                         confirmButtonText: 'ตกลง',
                         allowOutsideClick: true,
@@ -144,7 +144,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <script>
                 setTimeout(function() {
                     Swal.fire({
-                        title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกสถานะการจอง</div>',
+                        title: '<div class="t1">เกิดข้อผิดพลาดในการยืนยันการรับชำระเงิน</div>',
                         icon: 'error',
                         confirmButtonText: 'ออก',
                         allowOutsideClick: true,
@@ -398,11 +398,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="center container mt-5" style="height: 520px;">
         <h1 class="footer-title text-center f mt-3">รายการจองที่รอตรวจสอบการชำระค่ามัดจำ</h1>
         <div class="row justify-content-end">
-            <div class="col-md-5 mt-2 mb-2">
+            <div class="col-md-5 ms-5 mt-2 mb-2">
                 <!-- <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button> -->
                 <button type="button" onclick="window.location.href='bookingListConfirmDeposit.php'" class="btn btn-outline-dark">รอตรวจสอบค่ามัดจำ</button>
                 <button type="button" onclick="window.location.href='bookingListConfirmPayment.php'" class="btn btn-outline-dark active">รอตรวจสอบชำระเงิน</button>
-                <button type="button" onclick="window.location.href='bookingListPaymentFinish.php'" class="btn btn-outline-dark">เสร็จสิ้นการชำระ</button>
+                <!-- <button type="button" onclick="window.location.href='bookingListPaymentFinish.php'" class="btn btn-outline-dark">เสร็จสิ้นการชำระ</button> -->
             </div>
         </div>
         <div class="table-responsive mt-1">
@@ -680,14 +680,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 </div>
                                                                                 <div class="col-12 mt-2">
                                                                                     <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                        หลักฐานการชำระเงิน :
-                                                                                        <?php
-                                                                                        if (empty($rowPay2['pay_slip'])) {
-                                                                                            echo 'ลูกค้าชำระเป็นเงินสด';
-                                                                                        } else {
-                                                                                            echo '<a href="../img/slip/' . $rowPay2['pay_slip'] . '" target="_blank">ดูหลักฐานการชำระเงิน</a>';
-                                                                                        }
-                                                                                        ?>
+                                                                                        หลักฐานการชำระเงิน:
+                                                                                        <?php if (empty($rowPay2['pay_slip'])): ?>
+                                                                                            ลูกค้าชำระเป็นเงินสด
+                                                                                        <?php else: ?>
+                                                                                            <span style="color: black; margin-left: 5px; font-size: 18px;">
+                                                                                                <?php echo htmlspecialchars($rowPay2['pay_bank']); ?>
+                                                                                            </span>
+                                                                                            <a href="../img/slip/<?php echo htmlspecialchars($rowPay2['pay_slip']); ?>" target="_blank">ดูหลักฐานการชำระเงิน</a>
+                                                                                        <?php endif; ?>
                                                                                     </span>
                                                                                 </div>
                                                                                 <div class="col-12 mt-2">
@@ -718,14 +719,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                 </div>
                                                                                 <div class="col-12 mt-2">
                                                                                     <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                        หลักฐานการชำระเงิน :
-                                                                                        <?php
-                                                                                        if (empty($rowPay3['pay_slip'])) {
-                                                                                            echo 'ลูกค้าชำระเป็นเงินสด';
-                                                                                        } else {
-                                                                                            echo '<a href="../img/slip/' . $rowPay3['pay_slip'] . '" target="_blank">ดูหลักฐานการชำระเงิน</a>';
-                                                                                        }
-                                                                                        ?>
+                                                                                        หลักฐานการชำระเงิน:
+                                                                                        <?php if (empty($rowPay3['pay_slip'])): ?>
+                                                                                            ลูกค้าชำระเป็นเงินสด
+                                                                                        <?php else: ?>
+                                                                                            <span style="color: black; margin-left: 5px; font-size: 18px;">
+                                                                                                <?php echo htmlspecialchars($rowPay3['pay_bank']); ?>
+                                                                                            </span>
+                                                                                            <a href="../img/slip/<?php echo htmlspecialchars($rowPay3['pay_slip']); ?>" target="_blank">ดูหลักฐานการชำระเงิน</a>
+                                                                                        <?php endif; ?>
                                                                                     </span>
                                                                                 </div>
                                                                                 <div class="col-12 mt-2">

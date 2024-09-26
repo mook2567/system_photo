@@ -29,6 +29,7 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     AND b.booking_confirm_status = '1'
     AND b.booking_pay_status = '4' OR b.booking_pay_status = '5'
     AND sub.submit_details IS NOT NULL
+     ORDER BY b.booking_pay_status DESC
     ";
 
 $resultBooking = $conn->query($sql1);
@@ -218,16 +219,22 @@ $resultPay3 = $conn->query($sql5);
             /* เปลี่ยนเป็นค่าที่คุณต้องการ เช่น 50% หรือ 70% */
         }
 
+        .table th:nth-child(6),
+        .table td:nth-child(6){
+            width: 300px;
+            height: 50px;
+            text-align: center;
+            /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
+        }
+
         .table th:nth-child(2),
         .table th:nth-child(3),
         .table th:nth-child(4),
         .table th:nth-child(5),
-        .table th:nth-child(6),
         .table td:nth-child(2),
         .table td:nth-child(3),
         .table td:nth-child(4),
-        .table td:nth-child(5),
-        .table td:nth-child(6) {
+        .table td:nth-child(5) {
             width: 180px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -315,11 +322,10 @@ $resultPay3 = $conn->query($sql5);
                         </tr> -->
                         <tr>
                             <th scope="col">ประเภทงาน</th>
-                            <!-- <th scope="col">สถานที่</th> -->
                             <th scope="col">วันที่เริ่มงาน</th>
-                            <th scope="col">เวลาเริ่มงาน</th>
                             <th scope="col">ราคาจ่าย</th>
                             <th scope="col">ราคามัดจำ</th>
+                            <th scope="col">ราคาชำระเงิน</th>
                             <th scope="col">สถานะการชำระ</th>
                             <th scope="col">ดำเนินการ</th>
                         </tr>
@@ -334,15 +340,16 @@ $resultPay3 = $conn->query($sql5);
                                     <tr>
                                         <td><?php echo $rowBooking['type_work']; ?></td>
                                         <td><?php echo $rowBooking['booking_start_date']; ?></td>
-                                        <td><?php echo $rowBooking['booking_start_time']; ?></td>
                                         <td><?php echo $rowBooking['booking_price']; ?></td>
                                         <td><?php echo $rowBooking['deposit_price']; ?></td>
+                                        <td><?php echo $rowBooking['payment_price']; ?></td>
                                         <td>
                                             <?php
                                             if ($rowBooking['booking_pay_status'] == '4') {
-                                                echo '<p class="mt-3">รอตรวจสอบการชำระเงิน</p>';
+                                                echo '<div class="card" style="height: 30px; background-color:FFCFB3; bold:none"><p>รอตรวจสอบการชำระเงิน</p><div>';
                                             } else if ($rowBooking['booking_pay_status'] == '5') {
-                                                echo '<p class="mt-3">ชำระเงินแล้ว</p>';
+                                                echo '<div class="card" style="height: 30px; background-color:B7E0FF; bold:none"><p>ตรวจสอบการชำระเงินแล้ว</p><div>';
+
                                             } else {
                                                 echo '<p class="mt-3">สถานะไม่ถูกต้อง</p>';
                                             }

@@ -665,7 +665,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             }
                         }
                     } else {
-                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่อนุมัติ</td></tr>";
+                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่ต้องส่งงาน</td></tr>";
                     }
                     ?>
                 </tbody>

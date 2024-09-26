@@ -376,7 +376,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <!-- <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button> -->
                 <button type="button" onclick="window.location.href='bookingListConfirmDeposit.php'" class="btn btn-outline-dark active">รอตรวจสอบค่ามัดจำ</button>
                 <button type="button" onclick="window.location.href='bookingListConfirmPayment.php'" class="btn btn-outline-dark">รอตรวจสอบชำระเงิน</button>
-                <button type="button" onclick="window.location.href='bookingListPaymentFinish.php'" class="btn btn-outline-dark">เสร็จสิ้นการชำระ</button>
+                <!-- <button type="button" onclick="window.location.href='bookingListPaymentFinish.php'" class="btn btn-outline-dark">เสร็จสิ้นการชำระ</button> -->
             </div>
         </div>
         <div class="table-responsive mt-1">
@@ -607,34 +607,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         <div class="col-md-12 ms-3">
                                                                             <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ </h6>
                                                                             <?php
-                                                                        if ($rowPay1 = $resultPay1->fetch_assoc()): ?>
-                                                                        <div class="col-12 mt-2">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                ค่ามัดจำที่จ่าย : <?php echo number_format($rowPay1['deposit_price'], 2) . ' บาท'; ?>
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="col-12 mt-2">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                หลักฐานการชำระเงิน :
-                                                                                <?php if (empty($rowPay1['pay_slip'])): ?>
-                                                                                    ลูกค้าชำระเป็นเงินสด
-                                                                                <?php else: ?>
-                                                                                    <a href="../img/slip/<?php echo htmlspecialchars($rowPay1['pay_slip']); ?>" target="_blank">ดูหลักฐานการชำระเงิน</a>
-                                                                                <?php endif; ?>
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="col-12 mt-2">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                วันที่ชำระ : <?php echo htmlspecialchars($rowPay1['pay_date']); ?>
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="col-12 mt-2">
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                เวลาที่ชำระ : <?php echo htmlspecialchars($rowPay1['pay_time']) . ' น.'; ?>
-                                                                            </span>
-                                                                        </div>
-                                                                    <?php endif; ?>
-                                                                    
+                                                                            if ($rowPay1 = $resultPay1->fetch_assoc()): ?>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        ค่ามัดจำที่จ่าย : <?php echo number_format($rowPay1['deposit_price'], 2) . ' บาท'; ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        หลักฐานการชำระเงิน:
+                                                                                        <?php if (empty($rowPay1['pay_slip'])): ?>
+                                                                                            ลูกค้าชำระเป็นเงินสด
+                                                                                        <?php else: ?>
+                                                                                            <span style="color: black; margin-left: 5px; font-size: 18px;">
+                                                                                                <?php echo htmlspecialchars($rowPay1['pay_bank']); ?>
+                                                                                            </span>
+                                                                                            <a href="../img/slip/<?php echo htmlspecialchars($rowPay1['pay_slip']); ?>" target="_blank">ดูหลักฐานการชำระเงิน</a>
+                                                                                        <?php endif; ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        วันที่ชำระ : <?php echo htmlspecialchars($rowPay1['pay_date']); ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        เวลาที่ชำระ : <?php echo htmlspecialchars($rowPay1['pay_time']) . ' น.'; ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                            <?php endif; ?>
+
 
                                                                         </div>
                                                                     </div>
@@ -656,7 +659,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             }
                         }
                     } else {
-                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่อนุมัติ</td></tr>";
+                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการชำระค่ามัดจำแล้ว</td></tr>";
                     }
                     ?>
                 </tbody>

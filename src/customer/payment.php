@@ -453,9 +453,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <th scope="col">ประเภทงาน</th>
                             <!-- <th scope="col">สถานที่</th> -->
                             <th scope="col">วันที่เริ่มงาน</th>
-                            <th scope="col">เวลาเริ่มงาน</th>
                             <th scope="col">ราคาจ่าย</th>
                             <th scope="col">ราคามัดจำ</th>
+                            <th scope="col">ราคาชำระเงิน</th>
                             <th scope="col">สถานะการชำระ</th>
                             <th scope="col">ดำเนินการ</th>
                         </tr>
@@ -470,9 +470,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <td><?php echo $rowBooking['type_work']; ?></td>
                                         <!-- <td><?php echo $rowBooking['booking_location']; ?></td> -->
                                         <td><?php echo $rowBooking['booking_start_date']; ?></td>
-                                        <td><?php echo $rowBooking['booking_start_time']; ?></td>
                                         <td><?php echo $rowBooking['booking_price']; ?></td>
                                         <td><?php echo $rowBooking['deposit_price']; ?></td>
+                                        <td><?php echo $rowBooking['payment_price']; ?></td>
                                         <td>
                                             <?php
                                             if ($rowBooking['booking_pay_status'] == '0') {
