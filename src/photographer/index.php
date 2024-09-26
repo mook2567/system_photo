@@ -3,43 +3,24 @@ session_start();
 include '../config_db.php';
 require_once '../popup.php';
 
-$sql = "SELECT * FROM `information`";
-$resultInfo = $conn->query($sql);
+$sql1 = "SELECT * FROM `information`";
+$resultInfo = $conn->query($sql1);
 $rowInfo = $resultInfo->fetch_assoc();
 
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
+    $sql11 = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
+    $resultPhoto = $conn->query($sql11);
     $rowPhoto = $resultPhoto->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
 
-$sql = "SELECT * FROM `portfolio`";
-$resultPort = $conn->query($sql);
+$sql2 = "SELECT * FROM `portfolio`";
+$resultPort = $conn->query($sql2);
 $rowPort = $resultPort->fetch_assoc();
 
-$sql = "SELECT 
-            SUM(r.review_level) AS scor, 
-            r.review_caption,
-            c.cus_name,
-            c.cus_surname
-        FROM 
-            review r
-        JOIN 
-            booking b ON r.booking_id = b.booking_id 
-        JOIN 
-            photographer p ON b.photographer_id = p.photographer_id
-        JOIN
-            customer c ON b.cus_id = c.cus_id
-        WHERE
-            p.photographer_id = '1'
-        GROUP BY
-            r.review_caption, c.cus_name, c.cus_surname
-";
-$resultReview = $conn->query($sql);
-$rowReview = $resultReview->fetch_assoc();
+
 
 if (isset($_POST['submit_post_portfolio'])) {
 
@@ -439,11 +420,11 @@ if (isset($_POST['submit_type_of_work'])) {
 
 <body>
     <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-    </div>
+    </div> -->
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
@@ -725,130 +706,181 @@ if (isset($_POST['submit_type_of_work'])) {
         <div class="col-12">
             <div class="row">
                 <div class="col-1"></div>
-                <!-- Post Container -->
-                <div class="col-6">
-                    <div class="col-11 justify-content-center mt-4">
-                        <div class="text-start mx-auto wow slideInLeft">
-                            <h4 class="f" data-wow-delay="0.1s">ผลงานของคุณ</h4>
-                        </div>
 
-                        <div class="d-flex justify-content-center">
-                            <!-- Posts -->
-                            <div class="justify-content-center">
-                                <div class="row">
-                                    <!-- PHP to Fetch and Display Posts -->
-                                    <?php
-                                    // SQL Query
-                                    $sql = "SELECT 
-                                    po.portfolio_id, 
-                                    po.portfolio_photo, 
-                                    po.portfolio_caption, 
-                                    po.portfolio_date,
-                                    t.type_work,
-                                    p.photographer_id,
-                                    p.photographer_name,
-                                    p.photographer_surname,
-                                    p.photographer_photo
-                                FROM 
-                                    portfolio po
-                                JOIN 
-                                    type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
-                                JOIN 
-                                    photographer p ON p.photographer_id = tow.photographer_id
-                                JOIN 
-                                    `type` t ON t.type_id = tow.type_id
-                                WHERE 
-                                    p.photographer_id = ?
-                                ORDER BY portfolio_date DESC";
+                <!-- Flexbox to Wrap Portfolio and Review Sections -->
+                <div class="col-10">
+                    <div class="row">
+                        <!-- Post Container (Left) -->
+                        <div class="col-6">
+                            <div class="col-11 justify-content-center mt-4">
+                                <div class="text-start mx-auto wow slideInLeft">
+                                    <h4 class="f" data-wow-delay="0.1s">ผลงานของคุณ</h4>
+                                </div>
 
-                                    // Prepare and Execute Query
-                                    if ($stmt = $conn->prepare($sql)) {
-                                        $stmt->bind_param("i", $id_photographer);
-                                        $stmt->execute();
-                                        $resultPost = $stmt->get_result();
-                                    } else {
-                                        echo "Error: " . $conn->error;
-                                    }
+                                <div class="d-flex justify-content-center">
+                                    <div class="justify-content-center">
+                                        <div class="row">
+                                            <!-- PHP to Fetch and Display Posts -->
+                                            <?php
+                                            // SQL Query for Posts
+                                            $sql = "SELECT 
+                                        po.portfolio_id, 
+                                        po.portfolio_photo, 
+                                        po.portfolio_caption, 
+                                        po.portfolio_date,
+                                        t.type_work,
+                                        p.photographer_id,
+                                        p.photographer_name,
+                                        p.photographer_surname,
+                                        p.photographer_photo
+                                    FROM 
+                                        portfolio po
+                                    JOIN 
+                                        type_of_work tow ON po.type_of_work_id = tow.type_of_work_id 
+                                    JOIN 
+                                        photographer p ON p.photographer_id = tow.photographer_id
+                                    JOIN 
+                                        `type` t ON t.type_id = tow.type_id
+                                    WHERE 
+                                        p.photographer_id = ?
+                                    ORDER BY portfolio_date DESC";
 
-                                    if ($resultPost->num_rows === 0) {
-                                        echo "<p>No posts available.</p>";
-                                    } else {
-                                        while ($rowPost = $resultPost->fetch_assoc()) : ?>
-                                            <div class="col-12 card-body bg-white mt-2 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
-                                                <div class="py-1 px-5 mt-1 ms-2 mb-1">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="circle me-3" style="width: 60px; height: 60px;">
-                                                            <img src="../img/profile/<?php echo htmlspecialchars($rowPost['photographer_photo']) ?: 'null.png'; ?>" alt="Photographer's photo">
-                                                        </div>
-                                                        <div class="mt-2" style="flex-grow: 1;">
-                                                            <b>
-                                                                <a class="text-dark">
-                                                                    <?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?>
-                                                                </a>
-                                                            </b>
-                                                            <p style="margin-bottom: 0;">
-                                                                <?php
-                                                                $months_th = array(
-                                                                    '01' => 'มกราคม',
-                                                                    '02' => 'กุมภาพันธ์',
-                                                                    '03' => 'มีนาคม',
-                                                                    '04' => 'เมษายน',
-                                                                    '05' => 'พฤษภาคม',
-                                                                    '06' => 'มิถุนายน',
-                                                                    '07' => 'กรกฎาคม',
-                                                                    '08' => 'สิงหาคม',
-                                                                    '09' => 'กันยายน',
-                                                                    '10' => 'ตุลาคม',
-                                                                    '11' => 'พฤศจิกายน',
-                                                                    '12' => 'ธันวาคม'
-                                                                );
+                                            // Prepare and Execute Query
+                                            if ($stmt = $conn->prepare($sql)) {
+                                                $stmt->bind_param("i", $id_photographer);
+                                                $stmt->execute();
+                                                $resultPost = $stmt->get_result();
+                                            } else {
+                                                echo "Error: " . $conn->error;
+                                            }
 
-                                                                $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
-                                                                    $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
-                                                                    (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
+                                            if ($resultPost->num_rows === 0) {
+                                                echo "<p>No posts available.</p>";
+                                            } else {
+                                                while ($rowPost = $resultPost->fetch_assoc()) : ?>
+                                                    <div class="col-12 card-body bg-white mt-2 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
+                                                        <div class="py-1 px-5 mt-1 ms-2 mb-1">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="circle me-3" style="width: 60px; height: 60px;">
+                                                                    <img src="../img/profile/<?php echo htmlspecialchars($rowPost['photographer_photo']) ?: 'null.png'; ?>" alt="Photographer's photo">
+                                                                </div>
+                                                                <div class="mt-2" style="flex-grow: 1;">
+                                                                    <b>
+                                                                        <a class="text-dark">
+                                                                            <?php echo htmlspecialchars($rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']); ?>
+                                                                        </a>
+                                                                    </b>
+                                                                    <p style="margin-bottom: 0;">
+                                                                        <?php
+                                                                        $months_th = array(
+                                                                            '01' => 'มกราคม',
+                                                                            '02' => 'กุมภาพันธ์',
+                                                                            '03' => 'มีนาคม',
+                                                                            '04' => 'เมษายน',
+                                                                            '05' => 'พฤษภาคม',
+                                                                            '06' => 'มิถุนายน',
+                                                                            '07' => 'กรกฎาคม',
+                                                                            '08' => 'สิงหาคม',
+                                                                            '09' => 'กันยายน',
+                                                                            '10' => 'ตุลาคม',
+                                                                            '11' => 'พฤศจิกายน',
+                                                                            '12' => 'ธันวาคม'
+                                                                        );
 
-                                                                echo htmlspecialchars($rowPost['type_work']) . ' โพสต์เมื่อ ' . $date_thai;
-                                                                ?>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo htmlspecialchars($rowPost['portfolio_caption']); ?></p>
-                                                    </div>
-                                                    <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
-                                                        <?php
-                                                        $photos = explode(',', $rowPost['portfolio_photo']);
-                                                        $max_photos = min(10, count($photos)); // Limit to 10 photos
-                                                        for ($i = 0; $i < $max_photos; $i++) : ?>
-                                                            <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
-                                                                <a data-fancybox="gallery" href="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>">
-                                                                    <img class="post-img" style="width: 100%; height: 100%; object-fit: cover;" src="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>" alt="img-post" />
-                                                                </a>
+                                                                        $date_thai = date('d', strtotime($rowPost['portfolio_date'])) . ' ' .
+                                                                            $months_th[date('m', strtotime($rowPost['portfolio_date']))] . ' ' .
+                                                                            (date('Y', strtotime($rowPost['portfolio_date'])) + 543); // ปี พ.ศ.
+
+                                                                        echo htmlspecialchars($rowPost['type_work']) . ' โพสต์เมื่อ ' . $date_thai;
+                                                                        ?>
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                        <?php endfor; ?>
+                                                            <div>
+                                                                <p class="mt-4 post-text center" style="font-size: 18px;"><?php echo htmlspecialchars($rowPost['portfolio_caption']); ?></p>
+                                                            </div>
+                                                            <div class="row row-scroll" style="display: flex; flex-wrap: nowrap;">
+                                                                <?php
+                                                                $photos = explode(',', $rowPost['portfolio_photo']);
+                                                                $max_photos = min(10, count($photos)); // Limit to 10 photos
+                                                                for ($i = 0; $i < $max_photos; $i++) : ?>
+                                                                    <div class="col-md-4 mb-2" style="flex: 0 0 calc(33.33% - 10px); max-width: calc(33.33% - 10px);">
+                                                                        <a data-fancybox="gallery" href="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>">
+                                                                            <img class="post-img" style="width: 100%; height: 100%; object-fit: cover;" src="../img/post/<?php echo htmlspecialchars(trim($photos[$i])); ?>" alt="img-post" />
+                                                                        </a>
+                                                                    </div>
+                                                                <?php endfor; ?>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                    <?php endwhile;
-                                    }
-                                    ?>
+                                            <?php endwhile;
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-4 mt-2 card-body">
-                    <div class="text-start mx-auto wow slideInLeft">
-                        <h4 class="f" data-wow-delay="0.1s">คำรีวิว</h4>
-                    </div>
-                    <div class="card bg-white mt-3 mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
-                        <div class="card-body">
-                            <!-- Card Title -->
-                            <h5 class="card-title">Card Title</h5>
 
-                            <!-- Card Text -->
-                            <p class="card-text">This is some text inside the card body. You can add any content you like here, such as additional information, links, or images.</p>
+                        <!-- Review Section (Right) -->
+                        <div class="col-6">
+                            <?php
+                            // SQL Query for Reviews
+                            $sql3 = "
+                            SELECT 
+                                SUM(r.review_level) AS scor, 
+                                r.review_caption,
+                                c.cus_name,
+                                c.cus_surname
+                            FROM 
+                                review r
+                            JOIN 
+                                booking b ON r.booking_id = b.booking_id 
+                            JOIN 
+                                photographer p ON b.photographer_id = p.photographer_id
+                            JOIN
+                                customer c ON b.cus_id = c.cus_id
+                            WHERE
+                                p.photographer_id = $id_photographer
+                            GROUP BY
+                                r.review_caption, c.cus_name, c.cus_surname
+                            ORDER BY
+                                r.review_date DESC -- เรียงลำดับตามวันที่รีวิวล่าสุด
+                            LIMIT 5 -- ดึงข้อมูล 5 ชุดล่าสุด
+                        ";
+                            $resultReview = $conn->query($sql3);
+                            if ($resultReview->num_rows > 0) {
+                                
+                                echo '<div class="row"><div class="text-start mx-auto wow slideInLeft">
+                                        <div class="col-11 justify-content-center mt-4"><h4 class="f" data-wow-delay="0.1s">คำรีวิว</h4>
+                                    </div></div>';  // เริ่ม row สำหรับการ์ดทั้งหมด
+                                while ($rowReview = $resultReview->fetch_assoc()) {
+                            ?>
+                                    <div class="col-12 mt-1"> <!-- เปลี่ยนเป็น col-12 เพื่อให้การ์ดแต่ละใบเต็มแถว -->
 
+                                        <div class="card bg-white mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
+                                            <div class="card-body">
+                                                <!-- Card Title -->
+                                                <h5 class="card-title">
+                                                    <?php echo $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?>
+                                                </h5>
+
+                                                <!-- Card Text -->
+                                                <p class="card-text">
+                                                    <?php echo $rowReview['review_caption']; ?>
+                                                </p>
+                                                <p>คะแนนรีวิว: <?php echo $rowReview['scor']; ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                            <?php
+                                }
+                                echo '</div>';  // ปิด row
+                            } else {
+                                echo "ไม่มีข้อมูลรีวิว";
+                            }
+
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -856,6 +888,7 @@ if (isset($_POST['submit_type_of_work'])) {
             </div>
         </div>
     </div>
+
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
