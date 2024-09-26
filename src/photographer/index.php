@@ -15,10 +15,31 @@ if (isset($_SESSION['photographer_login'])) {
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
+
 $sql = "SELECT * FROM `portfolio`";
 $resultPort = $conn->query($sql);
 $rowPort = $resultPort->fetch_assoc();
 
+$sql = "SELECT 
+            SUM(r.review_level) AS scor, 
+            r.review_caption,
+            c.cus_name,
+            c.cus_surname
+        FROM 
+            review r
+        JOIN 
+            booking b ON r.booking_id = b.booking_id 
+        JOIN 
+            photographer p ON b.photographer_id = p.photographer_id
+        JOIN
+            customer c ON b.cus_id = c.cus_id
+        WHERE
+            p.photographer_id = '1'
+        GROUP BY
+            r.review_caption, c.cus_name, c.cus_surname
+";
+$resultReview = $conn->query($sql);
+$rowReview = $resultReview->fetch_assoc();
 
 if (isset($_POST['submit_post_portfolio'])) {
 

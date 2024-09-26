@@ -27,11 +27,31 @@ if (isset($_SESSION['photographer_login'])) {
 } else {
     die("Session not started.");
 }
+$sql = "SELECT 
+            (SUM(r.review_level)/COUNT(r.review_level)) AS scor, 
+            p.photographer_id, 
+            p.photographer_prefix, 
+            p.photographer_name, 
+            p.photographer_surname
+        FROM 
+            review r
+        JOIN 
+            booking b ON r.booking_id = b.booking_id 
+        JOIN 
+            photographer p ON b.photographer_id = p.photographer_id
+        WHERE 
+            p.photographer_id = $id_photographer";
+
+$resultScor = $conn->query($sql);
+$rowScor = $resultScor->fetch_assoc();
+
+$reviewLevel = isset($rowScor['scor']) ? $rowScor['scor'] : 0;  // ค่าเฉลี่ยจริง ไม่ต้องปัดเศษ
+$reviewPercentage = ($reviewLevel / 5) * 100;  // คิดเป็นเปอร์เซ็นต์
 
 // Fetch bookings
 $sql = "SELECT *
         FROM `booking` 
-        WHERE photographer_id = $id_photographer AND booking_confirm_status IN (0, 1, 3)
+        WHERE photographer_id = $id_photographer 
         -- AND booking_confirm_status = '1'
         -- AND (
         --     (booking_start_date <= CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY
@@ -760,9 +780,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 text-center md-3 py-3 px-4 mt-3">
+                    <div class="col-12 d-flex flex-column align-items-center justify-content-center md-3 py-3 px-4 mt-3">
+                        <div class="col-8 mt-1 text-center mb-2">
+                            <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                <?php
+                                // แสดงดาวตามคะแนนที่ได้ (เต็ม 5 ดาว)
+                                for ($i = 1; $i <= 5; $i++) {
+                                    if ($i <= floor($reviewLevel)) {
+                                        // ดาวเต็มสีทอง
+                                        echo '<i class="fas fa-star" style="color: gold; margin-right: 2px;"></i>';
+                                    } elseif ($i - $reviewLevel < 1) {
+                                        // ดาวครึ่งดวงถ้าค่ามีทศนิยม
+                                        echo '<i class="fas fa-star-half-alt" style="color: gold; margin-right: 2px;"></i>';
+                                    } else {
+                                        // ดาวว่างเปล่าสีทอง
+                                        echo '<i class="far fa-star" style="color: gold; margin-right: 2px;"></i>';
+                                    }
+                                }
+                                ?>
+                            </span>
+                        </div>
+                        <!-- แสดงชื่อช่างภาพ -->
                         <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
-                        <button type="button" class="btn btn-sm" style="color: #424242; background-color: #f5f5f5; width: 150px; height:45px;" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowPhoto['photographer_id']; ?>"><i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลโปรไฟล์</button>
+
+                        <!-- ปุ่มแก้ไขโปรไฟล์ -->
+                        <button type="button" class="btn btn-sm" style="color: #424242; background-color: #f5f5f5; width: 150px; height: 45px;" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $rowPhoto['photographer_id']; ?>">
+                            <i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลโปรไฟล์
+                        </button>
                     </div>
                     <div class="col-12 text-start mt-1">
                         <h5>ติดต่อ</h5>
