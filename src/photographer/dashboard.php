@@ -183,8 +183,8 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <!-- Load external libraries first -->
-        <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <!-- Load external libraries first -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -414,7 +414,7 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
         <!-- Spinner End -->
 
         <!-- Navbar Start -->
-        <div class="bgIndex" style="height: 250px;">
+        <div class="bgIndex" style="height: 350px;">
             <!-- <div style="background-color: rgba(	0, 41, 87, 0.6);"> -->
             <div class="d-flex justify-content-center">
                 <nav class="navbar navbar-expand-lg navbar-dark col-10">
@@ -424,22 +424,26 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                     <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="navbar-toggler-icon text-primary"></span>
                     </button>
-                    <div class="collapse navbar-collapse m-4" id="navbarCollapse">
-                        <div class="navbar-nav ms-auto">
-                            <a href="index.php" class="nav-item nav-link active">หน้าหลัก</a>
+                    <div class="collapse navbar-collapse mt-5" id="navbarCollapse">
+                        <div class="navbar-nav ms-auto f">
+                            <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
                             <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
                             <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจอง</a>
+                                <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
                                 <div class="dropdown-menu rounded-0 m-0">
-                                    <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
+                                    <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                     <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                                     <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                                    <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                    <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
+                                    <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
                                     <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                                 </div>
                             </div>
-                            <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
+                            <a href="report.php" class="nav-item nav-link">รายงาน</a>
+                            <a href="dashboard.php" class="nav-item nav-link active">สถิติ</a>
                             <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                                <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                                 <div class="dropdown-menu rounded-0 m-0">
                                     <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                                     <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
@@ -452,6 +456,7 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                     </div>
                 </nav>
             </div>
+
             <!-- Navbar End -->
 
 
@@ -459,47 +464,94 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
             <div class="mb-5 mt-4 text-center mx-auto  wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
                 <h1 class="f" style="color:aliceblue;"><?php echo $rowInfo['information_name']; ?></h1>
                 <p style="color:aliceblue;"><?php echo $rowInfo['information_caption']; ?></p>
-            </div><br>
-            <center>
-                <div id="contentToConvert">
-                    <div class="container mt-3">
-                        <div class="row">
+            </div>
+        </div>
+        <center>
+            <div id="contentToConvert" class="mt-5">
+                <div class="container mt-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card border">
+                                        <div class="card-body">
+                                            <h5 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ</h5>
+                                            <div class="d-flex justify-content-center mt-3">
+                                                <div class="col-10">
+                                                    <canvas id="overviewChart1"></canvas>
+                                                </div>
+                                                <script>
+                                                    document.addEventListener("DOMContentLoaded", function() {
+                                                        var ctx = document.getElementById('overviewChart1').getContext('2d');
+
+                                                        var chartData = {
+                                                            labels: <?= json_encode($months) ?>, // x-axis (Months)
+                                                            datasets: [{
+                                                                    label: 'Total Deposit',
+                                                                    data: <?= json_encode($deposits) ?>,
+                                                                    backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for Deposit
+                                                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                                                    borderWidth: 1
+                                                                },
+                                                                {
+                                                                    label: 'Total Payment',
+                                                                    data: <?= json_encode($payments) ?>,
+                                                                    backgroundColor: 'rgba(75, 192, 192, 0.6)', // Green for Payment
+                                                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                                                    borderWidth: 1
+                                                                }
+                                                            ]
+                                                        };
+
+                                                        var myChart = new Chart(ctx, {
+                                                            type: 'bar',
+                                                            data: chartData,
+                                                            options: {
+                                                                scales: {
+                                                                    y: {
+                                                                        beginAtZero: true
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    });
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card border">
+                                    <div class="col-lg-6 mt-2">
+                                        <div class="card" style="height: 300px;">
                                             <div class="card-body">
-                                                <h5 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ</h5>
-                                                <div class="d-flex justify-content-center mt-3">
+                                                <h5 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h5>
+                                                <div class="d-flex justify-content-center">
                                                     <div class="col-10">
-                                                        <canvas id="overviewChart1"></canvas>
+                                                        <canvas id="overviewChart2"></canvas>
                                                     </div>
                                                     <script>
                                                         document.addEventListener("DOMContentLoaded", function() {
-                                                            var ctx = document.getElementById('overviewChart1').getContext('2d');
+                                                            // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
+                                                            const reviewData = <?php echo json_encode($reviewData); ?>;
 
-                                                            var chartData = {
-                                                                labels: <?= json_encode($months) ?>, // x-axis (Months)
-                                                                datasets: [{
-                                                                        label: 'Total Deposit',
-                                                                        data: <?= json_encode($deposits) ?>,
-                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for Deposit
-                                                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                                                        borderWidth: 1
-                                                                    },
-                                                                    {
-                                                                        label: 'Total Payment',
-                                                                        data: <?= json_encode($payments) ?>,
-                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Green for Payment
+                                                            const labels = reviewData.map(item => `ระดับ ${item.review_level}`);
+                                                            const counts = reviewData.map(item => item.count);
+
+                                                            const ctx = document.getElementById('overviewChart2').getContext('2d');
+                                                            const myChart = new Chart(ctx, {
+                                                                type: 'bar',
+                                                                data: {
+                                                                    labels: labels,
+                                                                    datasets: [{
+                                                                        label: 'จำนวนรีวิว',
+                                                                        data: counts,
+                                                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                                                         borderColor: 'rgba(75, 192, 192, 1)',
                                                                         borderWidth: 1
-                                                                    }
-                                                                ]
-                                                            };
-
-                                                            var myChart = new Chart(ctx, {
-                                                                type: 'bar',
-                                                                data: chartData,
+                                                                    }]
+                                                                },
                                                                 options: {
                                                                     scales: {
                                                                         y: {
@@ -514,255 +566,209 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="row">
-                                        <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 300px;">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h5>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="col-10">
-                                                            <canvas id="overviewChart2"></canvas>
-                                                        </div>
-                                                        <script>
-                                                            document.addEventListener("DOMContentLoaded", function() {
-                                                                // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
-                                                                const reviewData = <?php echo json_encode($reviewData); ?>;
-
-                                                                const labels = reviewData.map(item => `ระดับ ${item.review_level}`);
-                                                                const counts = reviewData.map(item => item.count);
-
-                                                                const ctx = document.getElementById('overviewChart2').getContext('2d');
-                                                                const myChart = new Chart(ctx, {
-                                                                    type: 'bar',
-                                                                    data: {
-                                                                        labels: labels,
-                                                                        datasets: [{
-                                                                            label: 'จำนวนรีวิว',
-                                                                            data: counts,
-                                                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                                                            borderColor: 'rgba(75, 192, 192, 1)',
-                                                                            borderWidth: 1
-                                                                        }]
-                                                                    },
-                                                                    options: {
-                                                                        scales: {
-                                                                            y: {
-                                                                                beginAtZero: true
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                });
-                                                            });
-                                                        </script>
+                                    <div class="col-lg-6 mt-2">
+                                        <div class="card" style="height: 600px;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทของงานถ่ายภาพ</h5>
+                                                <p class="card-title">มีประเภทงาน <?php echo $total_count; ?> ประเภท</p>
+                                                <div class="d-flex justify-content-center">
+                                                    <div class="col-9">
+                                                        <canvas id="overviewChart3"></canvas>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 600px;">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทของงานถ่ายภาพ</h5>
-                                                    <p class="card-title">มีประเภทงาน <?php echo $total_count; ?> ประเภท</p>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="col-9">
-                                                            <canvas id="overviewChart3"></canvas>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <script>
-                                            const ctx = document.getElementById('overviewChart3').getContext('2d');
-                                            const data = {
-                                                labels: [
+                                    </div>
+                                    <script>
+                                        const ctx = document.getElementById('overviewChart3').getContext('2d');
+                                        const data = {
+                                            labels: [
+                                                <?php foreach ($data as $row) {
+                                                    echo "'" . $row['type_work'] . "',";
+                                                } ?>
+                                            ],
+                                            datasets: [{
+                                                label: 'จำนวนการจอง',
+                                                data: [
                                                     <?php foreach ($data as $row) {
-                                                        echo "'" . $row['type_work'] . "',";
+                                                        echo $row['num'] . ",";
                                                     } ?>
                                                 ],
-                                                datasets: [{
-                                                    label: 'จำนวนการจอง',
-                                                    data: [
-                                                        <?php foreach ($data as $row) {
-                                                            echo $row['num'] . ",";
-                                                        } ?>
-                                                    ],
-                                                    backgroundColor: [
-                                                        'rgba(255, 99, 132, 0.2)',
-                                                        'rgba(54, 162, 235, 0.2)',
-                                                        'rgba(255, 206, 86, 0.2)',
-                                                        'rgba(75, 192, 192, 0.2)',
-                                                        'rgba(153, 102, 255, 0.2)',
-                                                        'rgba(255, 159, 64, 0.2)',
-                                                    ],
-                                                    borderColor: [
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                    ],
-                                                    borderWidth: 1
-                                                }]
-                                            };
+                                                backgroundColor: [
+                                                    'rgba(255, 99, 132, 0.2)',
+                                                    'rgba(54, 162, 235, 0.2)',
+                                                    'rgba(255, 206, 86, 0.2)',
+                                                    'rgba(75, 192, 192, 0.2)',
+                                                    'rgba(153, 102, 255, 0.2)',
+                                                    'rgba(255, 159, 64, 0.2)',
+                                                ],
+                                                borderColor: [
+                                                    'rgba(255, 99, 132, 1)',
+                                                    'rgba(54, 162, 235, 1)',
+                                                    'rgba(255, 206, 86, 1)',
+                                                    'rgba(75, 192, 192, 1)',
+                                                    'rgba(153, 102, 255, 1)',
+                                                    'rgba(255, 159, 64, 1)',
+                                                ],
+                                                borderWidth: 1
+                                            }]
+                                        };
 
-                                            const overviewChart3 = new Chart(ctx, {
-                                                type: 'pie', // or 'doughnut' for a doughnut chart
-                                                data: data,
-                                                options: {
-                                                    responsive: true,
-                                                    plugins: {
-                                                        legend: {
-                                                            position: 'top',
-                                                        },
-                                                        title: {
-                                                            display: true,
-                                                            text: 'ข้อมูลประเภทของงานถ่ายภาพ'
-                                                        }
+                                        const overviewChart3 = new Chart(ctx, {
+                                            type: 'pie', // or 'doughnut' for a doughnut chart
+                                            data: data,
+                                            options: {
+                                                responsive: true,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                    },
+                                                    title: {
+                                                        display: true,
+                                                        text: 'ข้อมูลประเภทของงานถ่ายภาพ'
                                                     }
                                                 }
-                                            });
-                                        </script>
+                                            }
+                                        });
+                                    </script>
 
 
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </center>
+            </div>
+        </center>
 
-            <div class="card mt-4" style="height: 60px;">
-                <div class="d-flex justify-content-center">
-                    <div class="row mt-2 ms-3">
-                        <div class="col-6 mt-2">
-                            <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
-                        </div>
-                        <div class="col-6">
-                            <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
-                        </div>
+        <div class="card mt-4" style="height: 60px;">
+            <div class="d-flex justify-content-center">
+                <div class="row mt-2 ms-3">
+                    <div class="col-6 mt-2">
+                        <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
+                    </div>
+                    <div class="col-6">
+                        <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
                     </div>
                 </div>
             </div>
-            <script>
-                document.getElementById("generatePDF").addEventListener("click", function() {
-                    const content = document.getElementById("contentToConvert");
+        </div>
+        <script>
+            document.getElementById("generatePDF").addEventListener("click", function() {
+                const content = document.getElementById("contentToConvert");
 
-                    // Increase the scale of the canvas to improve resolution
-                    html2canvas(content, {
-                        scale: 5, // Increase scale for higher quality
-                        useCORS: true, // Allows cross-origin resources
-                    }).then(function(canvas) {
-                        const imgData = canvas.toDataURL('image/png');
-                        const {
-                            jsPDF
-                        } = window.jspdf;
-                        const doc = new jsPDF('p', 'mm', 'a4');
+                // Increase the scale of the canvas to improve resolution
+                html2canvas(content, {
+                    scale: 5, // Increase scale for higher quality
+                    useCORS: true, // Allows cross-origin resources
+                }).then(function(canvas) {
+                    const imgData = canvas.toDataURL('image/png');
+                    const {
+                        jsPDF
+                    } = window.jspdf;
+                    const doc = new jsPDF('p', 'mm', 'a4');
 
-                        // Add custom font (THSarabunNew)
-                        var fontBase64 = "<?php echo $fontBase64; ?>";
-                        if (fontBase64) {
-                            doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-                            doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-                            doc.setFont('customFont');
-                        }
+                    // Add custom font (THSarabunNew)
+                    var fontBase64 = "<?php echo $fontBase64; ?>";
+                    if (fontBase64) {
+                        doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                        doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                        doc.setFont('customFont');
+                    }
 
-                        // Process and invert the image (if provided)
-                        var imgBase64 = "<?php echo $image_base64; ?>";
-                        if (imgBase64) {
-                            const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
+                    // Process and invert the image (if provided)
+                    var imgBase64 = "<?php echo $image_base64; ?>";
+                    if (imgBase64) {
+                        const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
 
-                            // Create a new image element to load the base64 data
-                            var image = new Image();
-                            image.src = imgBase64;
+                        // Create a new image element to load the base64 data
+                        var image = new Image();
+                        image.src = imgBase64;
 
-                            image.onload = function() {
-                                // Create a canvas to manipulate the image
-                                var tempCanvas = document.createElement('canvas');
-                                var ctx = tempCanvas.getContext('2d');
-                                tempCanvas.width = image.width;
-                                tempCanvas.height = image.height;
+                        image.onload = function() {
+                            // Create a canvas to manipulate the image
+                            var tempCanvas = document.createElement('canvas');
+                            var ctx = tempCanvas.getContext('2d');
+                            tempCanvas.width = image.width;
+                            tempCanvas.height = image.height;
 
-                                // Draw the image onto the canvas
-                                ctx.drawImage(image, 0, 0);
+                            // Draw the image onto the canvas
+                            ctx.drawImage(image, 0, 0);
 
-                                // Get image data (pixels)
-                                var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                                var data = imageData.data;
+                            // Get image data (pixels)
+                            var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                            var data = imageData.data;
 
-                                // Loop through the pixels and invert colors
-                                for (var i = 0; i < data.length; i += 4) {
-                                    data[i] = 255 - data[i]; // Invert red
-                                    data[i + 1] = 255 - data[i + 1]; // Invert green
-                                    data[i + 2] = 255 - data[i + 2]; // Invert blue
-                                    // Alpha (data[i + 3]) remains unchanged
-                                }
-
-                                // Update the canvas with the inverted data
-                                ctx.putImageData(imageData, 0, 0);
-
-                                // Convert the updated canvas back to base64
-                                var invertedImgBase64 = tempCanvas.toDataURL('image/png');
-
-                                // Add the inverted image to the PDF
-                                doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
-
-                                // Add system name below the image
-                                var informationName = "<?php echo $information_name; ?>";
-                                doc.setFontSize(20);
-                                doc.text(informationName, 15, 30);
-
-                                // Add additional detail below the system name
-                                var informationCaption = "<?php echo $information_caption; ?>";
-                                doc.setFontSize(16);
-                                doc.text(informationCaption, 15, 37);
-
-                                // Now proceed with the rest of the content (canvas, etc.)
-                                generatePDFContent();
-                            };
-                        } else {
-                            // If no image, just proceed with the rest of the content
-                            generatePDFContent();
-                        }
-
-                        function generatePDFContent() {
-                            const imgWidth = 210; // A4 width in mm
-                            const pageHeight = 297; // A4 height in mm
-                            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                            let heightLeft = imgHeight;
-                            let position = 50; // Start at 50mm from the top
-
-                            // Add canvas image to the PDF
-                            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
-
-                            heightLeft -= (pageHeight - 10); // Adjust height left after the first page
-
-                            // Continue adding pages if content exceeds one page
-                            while (heightLeft > 0) {
-                                doc.addPage();
-                                position = heightLeft - imgHeight;
-                                doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
-                                heightLeft -= pageHeight;
+                            // Loop through the pixels and invert colors
+                            for (var i = 0; i < data.length; i += 4) {
+                                data[i] = 255 - data[i]; // Invert red
+                                data[i + 1] = 255 - data[i + 1]; // Invert green
+                                data[i + 2] = 255 - data[i + 2]; // Invert blue
+                                // Alpha (data[i + 3]) remains unchanged
                             }
 
-                            // Save the generated PDF
-                            doc.save('photo_match_report.pdf');
+                            // Update the canvas with the inverted data
+                            ctx.putImageData(imageData, 0, 0);
+
+                            // Convert the updated canvas back to base64
+                            var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                            // Add the inverted image to the PDF
+                            doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                            // Add system name below the image
+                            var informationName = "<?php echo $information_name; ?>";
+                            doc.setFontSize(20);
+                            doc.text(informationName, 15, 30);
+
+                            // Add additional detail below the system name
+                            var informationCaption = "<?php echo $information_caption; ?>";
+                            doc.setFontSize(16);
+                            doc.text(informationCaption, 15, 37);
+
+                            // Now proceed with the rest of the content (canvas, etc.)
+                            generatePDFContent();
+                        };
+                    } else {
+                        // If no image, just proceed with the rest of the content
+                        generatePDFContent();
+                    }
+
+                    function generatePDFContent() {
+                        const imgWidth = 210; // A4 width in mm
+                        const pageHeight = 297; // A4 height in mm
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        let heightLeft = imgHeight;
+                        let position = 50; // Start at 50mm from the top
+
+                        // Add canvas image to the PDF
+                        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
+
+                        heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+
+                        // Continue adding pages if content exceeds one page
+                        while (heightLeft > 0) {
+                            doc.addPage();
+                            position = heightLeft - imgHeight;
+                            doc.addImage(imgData, 'PNG', 0, 16, imgWidth, imgHeight, null, 'FAST'); // New page image
+                            heightLeft -= pageHeight;
                         }
-                    });
+
+                        // Save the generated PDF
+                        doc.save('photo_match_report.pdf');
+                    }
                 });
-            </script>
+            });
+        </script>
 
 
 
 
-            <!-- Back to Top -->
-            <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-dark btn-lg-square back-to-top" style="background-color:#1E2045"><i class="bi bi-arrow-up"></i></a>
 
-            <!-- Footer Start -->
-            <!-- <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
+        <!-- Footer Start -->
+        <!-- <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
                 <div class="copyright">
                     <div class="row">
                         <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
@@ -771,23 +777,23 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                     </div>
                 </div>
             </div> -->
-            <!-- Footer End -->
+        <!-- Footer End -->
 
 
-        </div>
-        <!-- JavaScript Libraries -->
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../lib/wow/wow.min.js"></script>
-        <script src="../lib/easing/easing.min.js"></script>
-        <script src="../lib/waypoints/waypoints.min.js"></script>
-        <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    </div>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/wow/wow.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-        <!-- Chart.js Library -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <!-- Template Javascript -->
-        <script src="../js/main.js"></script>
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
 </body>
 
 </html>

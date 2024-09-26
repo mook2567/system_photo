@@ -680,32 +680,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon text-primary"></span>
             </button>
-            <div class="collapse navbar-collapse m-4" id="navbarCollapse">
-                <div class="navbar-nav ms-auto">
-                    <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                    <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a>
-                            <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                            <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                            <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto f">
+                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                        <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
+                                <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
+                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
+                                <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
+                                <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+                            </div>
                         </div>
-                    </div>
-                    <!-- <a href="report.php" class="nav-item nav-link">รายงาน</a> -->
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
-                            <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                            <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                        <a href="report.php" class="nav-item nav-link">รายงาน</a>                        
+                        <a href="dashboard.php" class="nav-item nav-link">สถิติ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown active">โปรไฟล์</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
+                                <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
+                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </nav>
     </div>
     <!-- Navbar End -->

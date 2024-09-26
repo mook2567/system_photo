@@ -192,7 +192,8 @@ $resultUser = $stmtUser->get_result(); // Fetch result
 
         .table th:nth-child(5),
         .table th:nth-child(6),
-        .table td:nth-child(5), .table td:nth-child(6) {
+        .table td:nth-child(5),
+        .table td:nth-child(6) {
             width: 100px;
             text-align: center;
             height: 50px;
@@ -232,13 +233,14 @@ $resultUser = $stmtUser->get_result(); // Fetch result
                         <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                         <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                         <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                        <a href="bookingListConfirmDeposit.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                        <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
                         <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
-                        <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
+                        <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
                         <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                     </div>
                 </div>
                 <a href="report.php" class="nav-item nav-link active">รายงาน</a>
+                <a href="dashboard.php" class="nav-item nav-link">สถิติ</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
                     <div class="dropdown-menu rounded-0 m-0">
@@ -358,7 +360,7 @@ $resultUser = $stmtUser->get_result(); // Fetch result
             doc.autoTable({
                 startY: 40, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
                 head: [
-                    ['ลำดับที่', 'ประเภทงาน', 'ราคาครึ่งวันเริ่มต้น (บาท)','ราคาเต็มวันเริ่มต้น (บาท)','จำนวนลงผลงาน', 'จำนวนการจอง']
+                    ['ลำดับที่', 'ประเภทงาน', 'ราคาครึ่งวันเริ่มต้น (บาท)', 'ราคาเต็มวันเริ่มต้น (บาท)', 'จำนวนลงผลงาน', 'จำนวนการจอง']
                 ],
                 body: rows,
                 styles: {
