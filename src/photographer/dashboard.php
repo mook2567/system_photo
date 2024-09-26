@@ -7,6 +7,22 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
+
+$information_name = $rowInfo['information_name'];
+$information_caption = $rowInfo['information_caption'];
+$rowInfo['information_icon'];
+// สร้างพาธของไฟล์ภาพ
+$image_path = '../img/logo/' . $rowInfo['information_icon'];
+
+if (file_exists($image_path)) {
+    $image_data = base64_encode(file_get_contents($image_path));
+    $image_type = pathinfo($image_path, PATHINFO_EXTENSION);
+    $image_base64 = 'data:image/' . $image_type . ';base64,' . $image_data;
+} else {
+    $image_base64 = ''; // Handle case if the image doesn't exist
+}
+
+
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
     $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
@@ -19,6 +35,106 @@ $sql = "SELECT * FROM `portfolio`";
 $resultPort = $conn->query($sql);
 $rowPort = $resultPort->fetch_assoc();
 
+$query1 = "
+    SELECT 
+        DATE_FORMAT(p.pay_date, '%Y-%m') AS month, 
+        SUM(CASE 
+                WHEN p.pay_status = 0 THEN b.booking_price * 0.3 
+                ELSE 0 
+            END) AS total_deposit,
+        SUM(CASE 
+                WHEN p.pay_status = 1 THEN b.booking_price * 0.7 
+                ELSE 0 
+            END) AS total_payment
+    FROM 
+        pay p
+    JOIN 
+        booking b ON p.booking_id = b.booking_id
+    JOIN 
+        photographer ph ON b.photographer_id = ph.photographer_id
+    WHERE 
+        p.pay_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        AND ph.photographer_id = ?
+    GROUP BY 
+        DATE_FORMAT(p.pay_date, '%Y-%m')
+    ORDER BY 
+        month DESC
+";
+
+$stmt = $conn->prepare($query1);
+$stmt->bind_param('i', $id_photographer);
+$stmt->execute();
+$result1 = $stmt->get_result();
+
+// Prepare data for Chart.js
+$months = [];
+$deposits = [];
+$payments = [];
+
+while ($row2 = $result1->fetch_assoc()) {
+    $months[] = $row2['month'];
+    $deposits[] = $row2['total_deposit'];
+    $payments[] = $row2['total_payment'];
+}
+
+
+$query2 = "SELECT 
+            r.review_level, 
+            COUNT(*) AS count
+          FROM 
+            review r
+          JOIN 
+            booking b ON b.booking_id = r.booking_id
+          JOIN
+            photographer ph ON ph.photographer_id = b.photographer_id
+          WHERE 
+            r.review_level BETWEEN 1 AND 5
+          AND
+            ph.photographer_id = ?
+          GROUP BY 
+            r.review_level
+          ORDER BY 
+            r.review_level";
+
+$stmt = $conn->prepare($query2);
+$stmt->bind_param("i", $id_photographer);
+$stmt->execute();
+$result2 = $stmt->get_result();
+
+$reviewData = [];
+while ($row2 = $result2->fetch_assoc()) {
+    $reviewData[] = $row2;
+}
+
+
+$query3 = "
+    SELECT 
+        t.type_work, 
+        COUNT(b.booking_id) AS num 
+    FROM 
+        booking b 
+    JOIN 
+        type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+    JOIN 
+        type t ON t.type_id = tow.type_id
+    JOIN 
+        photographer ph ON ph.photographer_id = tow.photographer_id
+    WHERE
+        ph.photographer_id = $id_photographer
+    GROUP BY 
+        t.type_work 
+    ORDER BY 
+        num DESC
+";
+
+$result3 = mysqli_query($conn, $query3);
+$data = [];
+$total_count = 0;
+
+while ($row3 = mysqli_fetch_assoc($result3)) {
+    $data[] = $row3;
+    $total_count += $row3['num']; // Accumulate total counts for display
+}
 
 ?>
 
@@ -64,9 +180,17 @@ $rowPort = $resultPort->fetch_assoc();
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Load external libraries first -->
+        <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+
     <style>
         body {
             font-family: 'Athiti', sans-serif;
@@ -350,6 +474,42 @@ $rowPort = $resultPort->fetch_assoc();
                                                     <div class="col-10">
                                                         <canvas id="overviewChart1"></canvas>
                                                     </div>
+                                                    <script>
+                                                        document.addEventListener("DOMContentLoaded", function() {
+                                                            var ctx = document.getElementById('overviewChart1').getContext('2d');
+
+                                                            var chartData = {
+                                                                labels: <?= json_encode($months) ?>, // x-axis (Months)
+                                                                datasets: [{
+                                                                        label: 'Total Deposit',
+                                                                        data: <?= json_encode($deposits) ?>,
+                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for Deposit
+                                                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                                                        borderWidth: 1
+                                                                    },
+                                                                    {
+                                                                        label: 'Total Payment',
+                                                                        data: <?= json_encode($payments) ?>,
+                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Green for Payment
+                                                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                                                        borderWidth: 1
+                                                                    }
+                                                                ]
+                                                            };
+
+                                                            var myChart = new Chart(ctx, {
+                                                                type: 'bar',
+                                                                data: chartData,
+                                                                options: {
+                                                                    scales: {
+                                                                        y: {
+                                                                            beginAtZero: true
+                                                                        }
+                                                                    }
+                                                                }
+                                                            });
+                                                        });
+                                                    </script>
                                                 </div>
                                             </div>
                                         </div>
@@ -365,15 +525,46 @@ $rowPort = $resultPort->fetch_assoc();
                                                         <div class="col-10">
                                                             <canvas id="overviewChart2"></canvas>
                                                         </div>
+                                                        <script>
+                                                            document.addEventListener("DOMContentLoaded", function() {
+                                                                // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
+                                                                const reviewData = <?php echo json_encode($reviewData); ?>;
+
+                                                                const labels = reviewData.map(item => `ระดับ ${item.review_level}`);
+                                                                const counts = reviewData.map(item => item.count);
+
+                                                                const ctx = document.getElementById('overviewChart2').getContext('2d');
+                                                                const myChart = new Chart(ctx, {
+                                                                    type: 'bar',
+                                                                    data: {
+                                                                        labels: labels,
+                                                                        datasets: [{
+                                                                            label: 'จำนวนรีวิว',
+                                                                            data: counts,
+                                                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                                                            borderWidth: 1
+                                                                        }]
+                                                                    },
+                                                                    options: {
+                                                                        scales: {
+                                                                            y: {
+                                                                                beginAtZero: true
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
+                                                            });
+                                                        </script>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 300px;">
+                                            <div class="card" style="height: 600px;">
                                                 <div class="card-body">
                                                     <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทของงานถ่ายภาพ</h5>
-                                                    <p class="card-title">มีประเภทงาน <?php echo $row_count_data2[0]['total_count']; ?> ประเภท</p>
+                                                    <p class="card-title">มีประเภทงาน <?php echo $total_count; ?> ประเภท</p>
                                                     <div class="d-flex justify-content-center">
                                                         <div class="col-9">
                                                             <canvas id="overviewChart3"></canvas>
@@ -382,6 +573,60 @@ $rowPort = $resultPort->fetch_assoc();
                                                 </div>
                                             </div>
                                         </div>
+                                        <script>
+                                            const ctx = document.getElementById('overviewChart3').getContext('2d');
+                                            const data = {
+                                                labels: [
+                                                    <?php foreach ($data as $row) {
+                                                        echo "'" . $row['type_work'] . "',";
+                                                    } ?>
+                                                ],
+                                                datasets: [{
+                                                    label: 'จำนวนการจอง',
+                                                    data: [
+                                                        <?php foreach ($data as $row) {
+                                                            echo $row['num'] . ",";
+                                                        } ?>
+                                                    ],
+                                                    backgroundColor: [
+                                                        'rgba(255, 99, 132, 0.2)',
+                                                        'rgba(54, 162, 235, 0.2)',
+                                                        'rgba(255, 206, 86, 0.2)',
+                                                        'rgba(75, 192, 192, 0.2)',
+                                                        'rgba(153, 102, 255, 0.2)',
+                                                        'rgba(255, 159, 64, 0.2)',
+                                                    ],
+                                                    borderColor: [
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                    ],
+                                                    borderWidth: 1
+                                                }]
+                                            };
+
+                                            const overviewChart3 = new Chart(ctx, {
+                                                type: 'pie', // or 'doughnut' for a doughnut chart
+                                                data: data,
+                                                options: {
+                                                    responsive: true,
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top',
+                                                        },
+                                                        title: {
+                                                            display: true,
+                                                            text: 'ข้อมูลประเภทของงานถ่ายภาพ'
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        </script>
+
+
                                     </div>
                                 </div>
                             </div>
@@ -390,80 +635,125 @@ $rowPort = $resultPort->fetch_assoc();
                 </div>
             </center>
 
+            <div class="card mt-4" style="height: 60px;">
+                <div class="d-flex justify-content-center">
+                    <div class="row mt-2 ms-3">
+                        <div class="col-6 mt-2">
+                            <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
+                        </div>
+                        <div class="col-6">
+                            <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <script>
-                const ctx = document.getElementById('overviewChart1').getContext('2d');
-                let chart;
+                document.getElementById("generatePDF").addEventListener("click", function() {
+                    const content = document.getElementById("contentToConvert");
 
-                function fetchData(timeFrame) {
-                    return $.ajax({
-                        url: 'grap1.php', // Adjust the path if needed
-                        method: 'GET',
-                        data: {
-                            timeFrame: timeFrame
-                        },
-                        dataType: 'json',
-                        success: function(data) {
-                            return data;
-                        },
-                        error: function() {
-                            alert('Error fetching data.');
-                            return [];
-                        }
-                    });
-                }
+                    // Increase the scale of the canvas to improve resolution
+                    html2canvas(content, {
+                        scale: 5, // Increase scale for higher quality
+                        useCORS: true, // Allows cross-origin resources
+                    }).then(function(canvas) {
+                        const imgData = canvas.toDataURL('image/png');
+                        const {
+                            jsPDF
+                        } = window.jspdf;
+                        const doc = new jsPDF('p', 'mm', 'a4');
 
-
-                function updateChart() {
-                    const timeFrame = $('#timeFrame').val();
-
-                    fetchData(timeFrame).done(function(data) {
-                        if (chart) {
-                            chart.destroy();
+                        // Add custom font (THSarabunNew)
+                        var fontBase64 = "<?php echo $fontBase64; ?>";
+                        if (fontBase64) {
+                            doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                            doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                            doc.setFont('customFont');
                         }
 
-                        const labels = data.map(item => item.pay_date);
-                        const depositPrices = data.map(item => item.deposit_price);
-                        const paymentPrices = data.map(item => item.payment_price);
+                        // Process and invert the image (if provided)
+                        var imgBase64 = "<?php echo $image_base64; ?>";
+                        if (imgBase64) {
+                            const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
 
-                        chart = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                        label: 'ชำระค่ามัดจำ',
-                                        data: depositPrices,
-                                        borderColor: 'rgba(75, 192, 192, 1)',
-                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                        fill: false
-                                    },
-                                    {
-                                        label: 'ชำระเงิน',
-                                        data: paymentPrices,
-                                        borderColor: 'rgba(153, 102, 255, 1)',
-                                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                        fill: false
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        beginAtZero: true
-                                    },
-                                    y: {
-                                        beginAtZero: true
-                                    }
+                            // Create a new image element to load the base64 data
+                            var image = new Image();
+                            image.src = imgBase64;
+
+                            image.onload = function() {
+                                // Create a canvas to manipulate the image
+                                var tempCanvas = document.createElement('canvas');
+                                var ctx = tempCanvas.getContext('2d');
+                                tempCanvas.width = image.width;
+                                tempCanvas.height = image.height;
+
+                                // Draw the image onto the canvas
+                                ctx.drawImage(image, 0, 0);
+
+                                // Get image data (pixels)
+                                var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                                var data = imageData.data;
+
+                                // Loop through the pixels and invert colors
+                                for (var i = 0; i < data.length; i += 4) {
+                                    data[i] = 255 - data[i]; // Invert red
+                                    data[i + 1] = 255 - data[i + 1]; // Invert green
+                                    data[i + 2] = 255 - data[i + 2]; // Invert blue
+                                    // Alpha (data[i + 3]) remains unchanged
                                 }
+
+                                // Update the canvas with the inverted data
+                                ctx.putImageData(imageData, 0, 0);
+
+                                // Convert the updated canvas back to base64
+                                var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                                // Add the inverted image to the PDF
+                                doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                                // Add system name below the image
+                                var informationName = "<?php echo $information_name; ?>";
+                                doc.setFontSize(20);
+                                doc.text(informationName, 15, 30);
+
+                                // Add additional detail below the system name
+                                var informationCaption = "<?php echo $information_caption; ?>";
+                                doc.setFontSize(16);
+                                doc.text(informationCaption, 15, 37);
+
+                                // Now proceed with the rest of the content (canvas, etc.)
+                                generatePDFContent();
+                            };
+                        } else {
+                            // If no image, just proceed with the rest of the content
+                            generatePDFContent();
+                        }
+
+                        function generatePDFContent() {
+                            const imgWidth = 210; // A4 width in mm
+                            const pageHeight = 297; // A4 height in mm
+                            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                            let heightLeft = imgHeight;
+                            let position = 50; // Start at 50mm from the top
+
+                            // Add canvas image to the PDF
+                            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
+
+                            heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+
+                            // Continue adding pages if content exceeds one page
+                            while (heightLeft > 0) {
+                                doc.addPage();
+                                position = heightLeft - imgHeight;
+                                doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                                heightLeft -= pageHeight;
                             }
-                        });
+
+                            // Save the generated PDF
+                            doc.save('photo_match_report.pdf');
+                        }
                     });
-                }
-
-                // Initial chart load
-                updateChart();
+                });
             </script>
-
 
 
 
