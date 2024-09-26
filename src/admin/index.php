@@ -110,9 +110,12 @@ if ($result4) {
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
+    <!-- Load external libraries first -->
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.0.0-rc.5/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -341,105 +344,108 @@ if ($result4) {
         </div>
     </aside>
 
-    <div class="container mt-3">
-        <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-lg-10">
-                        <div class="card border">
-                            <div class="card-body">
-                                <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
-                                <div class="d-flex justify-content-center mt-3">
-                                    <div class="col-10">
-                                        <canvas id="overviewChart1"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="card text-dark mb-3 shadow " style="max-width: 18rem;">
-                            <div class="card-header"><b>จำนวนผู้ใช้งานทั้งหมด</b></div>
-                            <div class="card-body"><b>
-                                    <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data['total_count'] . ' คน'; ?>
-                                    </h3>
-                                </b>
-                            </div>
-                        </div>
-                        <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                            <div class="card-header"><b>จำนวนช่างภาพ</b></div>
-                            <div class="card-body">
-                                <b>
-                                    <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data1[2]['row_count'] . ' คน'; ?>
-                                    </h3>
-                                </b>
-                            </div>
-                        </div>
 
-                        <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                            <div class="card-header"><b>จำนวนลูกค้า</b></div>
-                            <div class="card-body">
-                                <b>
-                                    <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data1[1]['row_count'] . ' คน'; ?>
-                                    </h3>
-                                </b>
-                            </div>
-                        </div>
 
-                        <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                            <div class="card-header"><b>จำนวนผู้ดูแลระบบ</b></div>
-                            <div class="card-body">
-                                <b>
-                                    <h3 class="text-dark text-center">
-                                        <?php echo $row_count_data1[0]['row_count'] . ' คน'; ?>
-                                    </h3>
-                                </b>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div id="contentToConvert">
+        <div class="container mt-3">
+            <div class="row">
                 <div class="col-12">
                     <div class="row">
-                        <div class="col-lg-6 mt-2">
-                            <div class="card" style="height: 300px;">
+                        <div class="col-lg-10">
+                            <div class="card border">
                                 <div class="card-body">
-                                    <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลลูกค้า</h5>
-                                    <div class="d-flex justify-content-center">
+                                    <h5 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h5>
+                                    <div class="d-flex justify-content-center mt-3">
                                         <div class="col-10">
-                                            <canvas id="overviewChart2"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mt-4" style="height: 300px;">
-                                <div class="card-body">
-                                    <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="col-10">
-                                            <canvas id="overviewChart3"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mt-4" style="height: 60px;">
-                                <div class="d-flex justify-content-center">
-                                    <div class="row mt-2 ms-3">
-                                        <div class="col-6 mt-2">
-                                            <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
-                                        </div>
-                                        <div class="col-6">
-                                            <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
+                                            <canvas id="overviewChart1"></canvas>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 mt-2">
-                            <div class="row">
-                                <!-- <div class="col-4">
+                        <div class="col-2">
+                            <div class="card text-dark mb-3 shadow " style="max-width: 18rem;">
+                                <div class="card-header"><b>จำนวนผู้ใช้งานทั้งหมด</b></div>
+                                <div class="card-body"><b>
+                                        <h3 class="text-dark text-center">
+                                            <?php echo $row_count_data['total_count'] . ' คน'; ?>
+                                        </h3>
+                                    </b>
+                                </div>
+                            </div>
+                            <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                                <div class="card-header"><b>จำนวนช่างภาพ</b></div>
+                                <div class="card-body">
+                                    <b>
+                                        <h3 class="text-dark text-center">
+                                            <?php echo $row_count_data1[2]['row_count'] . ' คน'; ?>
+                                        </h3>
+                                    </b>
+                                </div>
+                            </div>
+
+                            <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                                <div class="card-header"><b>จำนวนลูกค้า</b></div>
+                                <div class="card-body">
+                                    <b>
+                                        <h3 class="text-dark text-center">
+                                            <?php echo $row_count_data1[1]['row_count'] . ' คน'; ?>
+                                        </h3>
+                                    </b>
+                                </div>
+                            </div>
+
+                            <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                                <div class="card-header"><b>จำนวนผู้ดูแลระบบ</b></div>
+                                <div class="card-body">
+                                    <b>
+                                        <h3 class="text-dark text-center">
+                                            <?php echo $row_count_data1[0]['row_count'] . ' คน'; ?>
+                                        </h3>
+                                    </b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-lg-6 mt-2">
+                                <div class="card" style="height: 300px;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลลูกค้า</h5>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="col-10">
+                                                <canvas id="overviewChart2"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card mt-4" style="height: 300px;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h5>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="col-10">
+                                                <canvas id="overviewChart3"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card mt-4" style="height: 60px;">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="row mt-2 ms-3">
+                                            <div class="col-6 mt-2">
+                                                <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
+                                            </div>
+                                            <div class="col-6">
+                                                <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mt-2">
+                                <div class="row">
+                                    <!-- <div class="col-4">
                                     <div class="card text-dark shadow" style="max-width: 18rem; height: 150px;">
                                         <div class="card-header"><b>จำนวนประเภทงาน</b></div>
                                         <div class="card-body">
@@ -451,52 +457,53 @@ if ($result4) {
                                         </div>
                                     </div>
                                 </div> -->
-                                <div class="col-6">
-                                    <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
-                                        <div class="card-header"><b>3 อันดับประเภทงานที่ช่างภาพนิยมรับ</b></div>
-                                        <div class="card-body">
-                                            <?php if (!empty($row_count_data3)): ?>
-                                                <ol>
-                                                    <?php foreach ($row_count_data3 as $index => $row): ?>
-                                                        <li>
-                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b>
-                                                            - จำนวน: <?php echo htmlspecialchars($row['total_count']); ?>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                </ol>
-                                            <?php else: ?>
-                                                <p>ไม่มีข้อมูลประเภทงาน</p>
-                                            <?php endif; ?>
+                                    <div class="col-6">
+                                        <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
+                                            <div class="card-header"><b>3 อันดับประเภทงานที่ช่างภาพนิยมรับ</b></div>
+                                            <div class="card-body">
+                                                <?php if (!empty($row_count_data3)): ?>
+                                                    <ol>
+                                                        <?php foreach ($row_count_data3 as $index => $row): ?>
+                                                            <li>
+                                                                <b><?php echo htmlspecialchars($row['type_work']); ?></b>
+                                                                - จำนวน: <?php echo htmlspecialchars($row['total_count']); ?>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ol>
+                                                <?php else: ?>
+                                                    <p>ไม่มีข้อมูลประเภทงาน</p>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
+                                            <div class="card-header"><b>3 อันดับประเภทงานที่ลูกค้านิยมจ้าง</b></div>
+                                            <div class="card-body">
+                                                <?php if (!empty($row_count_data4)): ?>
+                                                    <ol>
+                                                        <?php foreach ($row_count_data4 as $index => $row): ?>
+                                                            <li>
+                                                                <b><?php echo htmlspecialchars($row['type_work']); ?></b>
+                                                                - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ol>
+                                                <?php else: ?>
+                                                    <p>ไม่มีข้อมูลการจ้างงาน</p>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
-                                        <div class="card-header"><b>3 อันดับประเภทงานที่ลูกค้านิยมจ้าง</b></div>
-                                        <div class="card-body">
-                                            <?php if (!empty($row_count_data4)): ?>
-                                                <ol>
-                                                    <?php foreach ($row_count_data4 as $index => $row): ?>
-                                                        <li>
-                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b>
-                                                            - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                </ol>
-                                            <?php else: ?>
-                                                <p>ไม่มีข้อมูลการจ้างงาน</p>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mt-4">
-                                <div class="card-body">
-                                    <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
-                                    <p class="card-title">มีประเภทงาน <?php echo $row_count_data2[0]['total_count']; ?> ประเภท</p>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="col-9">
-                                            <canvas id="overviewChart4"></canvas>
+                                <div class="card mt-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h5>
+                                        <p class="card-title">มีประเภทงาน <?php echo $row_count_data2[0]['total_count']; ?> ประเภท</p>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="col-9">
+                                                <canvas id="overviewChart4"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -505,260 +512,279 @@ if ($result4) {
                     </div>
                 </div>
             </div>
-        </div>
 
-        <script>
-        // Handle button click event to generate PDF
-        document.getElementById("generatePDF").addEventListener("click", function () {
-            // Import jsPDF
-            const { jsPDF } = window.jspdf;
-            // Create a new jsPDF instance
-            const doc = new jsPDF();
+            <script>
+                document.getElementById("generatePDF").addEventListener("click", function() {
+                    const content = document.getElementById("contentToConvert");
 
-            // Select content to convert
-            const content = document.getElementById("contentToConvert").innerText;
+                    // Increase the scale of the canvas to improve resolution
+                    html2canvas(content, {
+                        scale: 5, // Scale up the canvas (2x for better quality)
+                        useCORS: true, // Ensures cross-origin resources (like images) can be loaded
+                    }).then(function(canvas) {
+                        const imgData = canvas.toDataURL('image/png');
+                        const {
+                            jsPDF
+                        } = window.jspdf;
+                        const doc = new jsPDF('p', 'mm', 'a4');
 
-            // Add content to PDF
-            doc.text(content, 10, 10);
+                        const imgWidth = 210; // A4 width: 210mm
+                        const pageHeight = 297; // A4 height: 297mm
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        let heightLeft = imgHeight;
+                        let position = 10; // Start 10mm from the top of the page
 
-            // Save the generated PDF
-            doc.save("exportedFile.pdf");
-        });
-    </script>
+                        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST'); // Add image to PDF with quality setting
+                        heightLeft -= (pageHeight - 10); // Account for the initial 10mm top margin
 
-        <script>
-            fetch('grap1.php')
-                .then(response => response.json())
-                .then(data => {
-                    // Make sure data is in the expected format
-                    const malePhotographersCount = data.malePhotographersCount || 0;
-                    const femalePhotographersCount = data.femalePhotographersCount || 0;
-                    const maleCustomersCount = data.maleCustomersCount || 0;
-                    const femaleCustomersCount = data.femaleCustomersCount || 0;
-                    const maleAdminCount = data.maleAdminCount || 0;
-                    const femaleAdminCount = data.femaleAdminCount || 0;
+                        while (heightLeft >= 0) {
+                            position = heightLeft - imgHeight;
+                            doc.addPage();
+                            doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // Start each new page at 10mm from the top
+                            heightLeft -= pageHeight;
+                        }
 
-                    // Create the bar chart
-                    const ctx = document.getElementById('overviewChart1').getContext('2d');
-                    const overviewChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: [''],
-                            datasets: [{
-                                    label: 'ช่างภาพ (ชาย)',
-                                    data: [malePhotographersCount],
-                                    backgroundColor: 'rgba(255, 159, 64, 0.2)', // Orange
-                                    borderColor: 'rgba(255, 159, 64, 1)', // Darker orange
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ช่างภาพ (หญิง)',
-                                    data: [femalePhotographersCount],
-                                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Pink
-                                    borderColor: 'rgba(255, 99, 132, 1)', // Darker pink
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ลูกค้า (ชาย)',
-                                    data: [maleCustomersCount],
-                                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Teal
-                                    borderColor: 'rgba(75, 192, 192, 1)', // Darker teal
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ลูกค้า (หญิง)',
-                                    data: [femaleCustomersCount],
-                                    backgroundColor: 'rgba(153, 102, 255, 0.2)', // Purple
-                                    borderColor: 'rgba(153, 102, 255, 1)', // Darker purple
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ผู้ดูแลระบบ (ชาย)',
-                                    data: [maleAdminCount],
-                                    backgroundColor: 'rgba(255, 205, 86, 0.2)', // Yellow
-                                    borderColor: 'rgba(255, 205, 86, 1)', // Darker yellow
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ผู้ดูแลระบบ (หญิง)',
-                                    data: [femaleAdminCount],
-                                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue
-                                    borderColor: 'rgba(54, 162, 235, 1)', // Darker blue
-                                    borderWidth: 1
-                                },
-                            ]
-                        },
-                        options: {
-                            plugins: {
-                                legend: {
-                                    position: 'right' // Move legend to the right
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(tooltipItem) {
-                                            const value = tooltipItem.raw;
-                                            return tooltipItem.label + ': ' + value;
-                                        }
-                                    }
-                                }
+                        doc.save('photo_match_report.pdf');
+                    });
+                });
+            </script>
+
+
+
+            <script>
+                fetch('grap1.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Make sure data is in the expected format
+                        const malePhotographersCount = data.malePhotographersCount || 0;
+                        const femalePhotographersCount = data.femalePhotographersCount || 0;
+                        const maleCustomersCount = data.maleCustomersCount || 0;
+                        const femaleCustomersCount = data.femaleCustomersCount || 0;
+                        const maleAdminCount = data.maleAdminCount || 0;
+                        const femaleAdminCount = data.femaleAdminCount || 0;
+
+                        // Create the bar chart
+                        const ctx = document.getElementById('overviewChart1').getContext('2d');
+                        const overviewChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: [''],
+                                datasets: [{
+                                        label: 'ช่างภาพ (ชาย)',
+                                        data: [malePhotographersCount],
+                                        backgroundColor: 'rgba(255, 159, 64, 0.2)', // Orange
+                                        borderColor: 'rgba(255, 159, 64, 1)', // Darker orange
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ช่างภาพ (หญิง)',
+                                        data: [femalePhotographersCount],
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Pink
+                                        borderColor: 'rgba(255, 99, 132, 1)', // Darker pink
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ลูกค้า (ชาย)',
+                                        data: [maleCustomersCount],
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Teal
+                                        borderColor: 'rgba(75, 192, 192, 1)', // Darker teal
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ลูกค้า (หญิง)',
+                                        data: [femaleCustomersCount],
+                                        backgroundColor: 'rgba(153, 102, 255, 0.2)', // Purple
+                                        borderColor: 'rgba(153, 102, 255, 1)', // Darker purple
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ผู้ดูแลระบบ (ชาย)',
+                                        data: [maleAdminCount],
+                                        backgroundColor: 'rgba(255, 205, 86, 0.2)', // Yellow
+                                        borderColor: 'rgba(255, 205, 86, 1)', // Darker yellow
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ผู้ดูแลระบบ (หญิง)',
+                                        data: [femaleAdminCount],
+                                        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue
+                                        borderColor: 'rgba(54, 162, 235, 1)', // Darker blue
+                                        borderWidth: 1
+                                    },
+                                ]
                             },
-                            scales: {
-                                y: {
-                                    beginAtZero: true
+                            options: {
+                                plugins: {
+                                    legend: {
+                                        position: 'right' // Move legend to the right
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const value = tooltipItem.raw;
+                                                return tooltipItem.label + ': ' + value;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
                                 }
                             }
-                        }
-                    });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        </script>
-        <script>
-            // Fetch data from the PHP script
-            fetch('grap2.php')
-                .then(response => response.json())
-                .then(data => {
-                    // Make sure data is in the expected format
-                    const maleCustomersCount = data.maleCustomersCount || 0;
-                    const femaleCustomersCount = data.femaleCustomersCount || 0;
+                        });
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            </script>
+            <script>
+                // Fetch data from the PHP script
+                fetch('grap2.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Make sure data is in the expected format
+                        const maleCustomersCount = data.maleCustomersCount || 0;
+                        const femaleCustomersCount = data.femaleCustomersCount || 0;
 
-                    // Create the bar chart
-                    const ctx = document.getElementById('overviewChart2').getContext('2d');
-                    const overviewChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: [''],
-                            datasets: [{
-                                    label: 'ลูกค้า (ชาย)',
-                                    data: [maleCustomersCount],
-                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                    borderColor: 'rgba(75, 192, 192, 1)',
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ลูกค้า (หญิง)',
-                                    data: [femaleCustomersCount],
-                                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                    borderColor: 'rgba(153, 102, 255, 1)',
-                                    borderWidth: 1
-                                }
-                            ]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        </script>
-        <script>
-            // Fetch data from the PHP script
-            fetch('grap3.php')
-                .then(response => response.json())
-                .then(data => {
-                    // Make sure data is in the expected format
-                    const malePhotographersCount = data.malePhotographersCount || 0;
-                    const femalePhotographersCount = data.femalePhotographersCount || 0;
-
-                    // Create the bar chart
-                    const ctx = document.getElementById('overviewChart3').getContext('2d');
-                    const overviewChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: [''],
-                            datasets: [{
-                                    label: 'ช่างภาพ (ชาย)',
-                                    data: [malePhotographersCount],
-                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                    borderColor: 'rgba(54, 162, 235, 1)',
-                                    borderWidth: 1
-                                },
-                                {
-                                    label: 'ช่างภาพ (หญิง)',
-                                    data: [femalePhotographersCount],
-                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                    borderColor: 'rgba(255, 99, 132, 1)',
-                                    borderWidth: 1
-                                }
-                            ]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
+                        // Create the bar chart
+                        const ctx = document.getElementById('overviewChart2').getContext('2d');
+                        const overviewChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: [''],
+                                datasets: [{
+                                        label: 'ลูกค้า (ชาย)',
+                                        data: [maleCustomersCount],
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ลูกค้า (หญิง)',
+                                        data: [femaleCustomersCount],
+                                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                        borderColor: 'rgba(153, 102, 255, 1)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
                                 }
                             }
-                        }
-                    });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        </script>
-        <script>
-            // Fetch data from the PHP script
-            fetch('grap4.php')
-                .then(response => response.json())
-                .then(data => {
-                    // Process the data from the JSON
-                    const labels = [];
-                    const counts = [];
+                        });
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            </script>
+            <script>
+                // Fetch data from the PHP script
+                fetch('grap3.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Make sure data is in the expected format
+                        const malePhotographersCount = data.malePhotographersCount || 0;
+                        const femalePhotographersCount = data.femalePhotographersCount || 0;
 
-                    data.forEach(item => {
-                        labels.push(item.type_work); // Add type_work to the labels
-                        counts.push(item.total_count); // Add total_count to the dataset
-                    });
+                        // Create the bar chart
+                        const ctx = document.getElementById('overviewChart3').getContext('2d');
+                        const overviewChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: [''],
+                                datasets: [{
+                                        label: 'ช่างภาพ (ชาย)',
+                                        data: [malePhotographersCount],
+                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'ช่างภาพ (หญิง)',
+                                        data: [femalePhotographersCount],
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            </script>
+            <script>
+                // Fetch data from the PHP script
+                fetch('grap4.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Process the data from the JSON
+                        const labels = [];
+                        const counts = [];
 
-                    // Create the pie chart
-                    const ctx = document.getElementById('overviewChart4').getContext('2d');
-                    const overviewChart = new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: labels, // Use dynamic labels from the PHP response
-                            datasets: [{
-                                data: counts, // Use dynamic counts from the PHP response
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)', // สีแดงอ่อน
-                                    'rgba(54, 162, 235, 0.2)', // สีฟ้าอ่อน
-                                    'rgba(255, 206, 86, 0.2)', // สีเหลืองอ่อน
-                                    'rgba(75, 192, 192, 0.2)', // สีเขียวอ่อน
-                                    'rgba(153, 102, 255, 0.2)', // สีม่วงอ่อน
-                                    'rgba(255, 159, 64, 0.2)', // สีส้มอ่อน
-                                    'rgba(201, 203, 207, 0.2)' // สีเทาอ่อน
-                                ],
-                                borderColor: [
-                                    'rgba(255, 99, 132, 1)', // สีแดง
-                                    'rgba(54, 162, 235, 1)', // สีฟ้า
-                                    'rgba(255, 206, 86, 1)', // สีเหลือง
-                                    'rgba(75, 192, 192, 1)', // สีเขียว
-                                    'rgba(153, 102, 255, 1)', // สีม่วง
-                                    'rgba(255, 159, 64, 1)', // สีส้ม
-                                    'rgba(201, 203, 207, 1)' // สีเทา
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'right', // Show legend at the top
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(tooltipItem) {
-                                            const value = tooltipItem.raw;
-                                            return tooltipItem.label + ': ' + value;
+                        data.forEach(item => {
+                            labels.push(item.type_work); // Add type_work to the labels
+                            counts.push(item.total_count); // Add total_count to the dataset
+                        });
+
+                        // Create the pie chart
+                        const ctx = document.getElementById('overviewChart4').getContext('2d');
+                        const overviewChart = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: labels, // Use dynamic labels from the PHP response
+                                datasets: [{
+                                    data: counts, // Use dynamic counts from the PHP response
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)', // สีแดงอ่อน
+                                        'rgba(54, 162, 235, 0.2)', // สีฟ้าอ่อน
+                                        'rgba(255, 206, 86, 0.2)', // สีเหลืองอ่อน
+                                        'rgba(75, 192, 192, 0.2)', // สีเขียวอ่อน
+                                        'rgba(153, 102, 255, 0.2)', // สีม่วงอ่อน
+                                        'rgba(255, 159, 64, 0.2)', // สีส้มอ่อน
+                                        'rgba(201, 203, 207, 0.2)' // สีเทาอ่อน
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)', // สีแดง
+                                        'rgba(54, 162, 235, 1)', // สีฟ้า
+                                        'rgba(255, 206, 86, 1)', // สีเหลือง
+                                        'rgba(75, 192, 192, 1)', // สีเขียว
+                                        'rgba(153, 102, 255, 1)', // สีม่วง
+                                        'rgba(255, 159, 64, 1)', // สีส้ม
+                                        'rgba(201, 203, 207, 1)' // สีเทา
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'right', // Show legend at the top
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const value = tooltipItem.raw;
+                                                return tooltipItem.label + ': ' + value;
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        </script>
+                        });
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            </script>
+        </div>
     </div>
     <!-- Chart Section End -->
 
