@@ -337,22 +337,53 @@ $rowPort = $resultPort->fetch_assoc();
                 <p style="color:aliceblue;"><?php echo $rowInfo['information_caption']; ?></p>
             </div><br>
             <center>
-                <div class="col-lg-8 justify-content-center">
-                    <div class="card border">
-                        <div class="card-body">
-                            <h5 class="card-title">กราฟแสดงรายรับ</h5>
-                            <div class="d-flex justify-content-center mt-3">
-                                <div class="col-10">
-                                    <canvas id="overviewChart1"></canvas>
+                <div id="contentToConvert">
+                    <div class="container mt-3">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="card border">
+                                            <div class="card-body">
+                                                <h5 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ</h5>
+                                                <div class="d-flex justify-content-center mt-3">
+                                                    <div class="col-10">
+                                                        <canvas id="overviewChart1"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- Add a select input for time frame -->
-                            <div class="d-flex justify-content-center mt-3">
-                                <select id="timeFrame" onchange="updateChart()">
-                                    <option value="3">3 เดือน</option>
-                                    <option value="6">6 เดือน</option>
-                                    <option value="12">1 ปี</option>
-                                </select>
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-lg-6 mt-2">
+                                            <div class="card" style="height: 300px;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h5>
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="col-10">
+                                                            <canvas id="overviewChart2"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 mt-2">
+                                            <div class="card" style="height: 300px;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทของงานถ่ายภาพ</h5>
+                                                    <p class="card-title">มีประเภทงาน <?php echo $row_count_data2[0]['total_count']; ?> ประเภท</p>
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="col-9">
+                                                            <canvas id="overviewChart3"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
