@@ -542,28 +542,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         <div class="col-md-4 text-center">
                                                                             <label for="booking-start-date" style="font-weight: bold; display: flex; align-items: center;">
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
-                                                                                <span style="color: red;">*</span>
+                                                                                <!-- <span style="color: red;">*</span> -->
                                                                             </label>
                                                                             <input type="date" id="start_date" name="start_date" class="form-control mt-1"
                                                                                 value="<?php echo $rowBooking['booking_start_date']; ?>"
-                                                                                required
-                                                                                min="<?php echo $rowBooking['booking_start_date']; ?>">
+                                                                                min="<?php echo $rowBooking['booking_start_date']; ?>" readonly>
                                                                         </div>
                                                                         <div class="col-md-4 text-center">
                                                                             <label for="end_date" style="font-weight: bold; display: flex; align-items: center;">
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่สิ้นสุดการจอง</span>
-                                                                                <span style="color: red;">*</span>
+                                                                                <!-- <span style="color: red;">*</span> -->
                                                                             </label>
                                                                             <input type="date" id="end_date" name="end_date" class="form-control mt-1"
                                                                                 value="<?php echo $rowBooking['booking_end_date']; ?>" min="<?php echo $rowBooking['booking_start_date']; ?>"
-                                                                                required>
+                                                                                 readonly>
                                                                         </div>
                                                                         <div class="col-md-2 text-center">
                                                                             <label for="start_time" style="font-weight: bold; display: flex; align-items: center;">
                                                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาเริ่มงาน</span>
-                                                                                <span style="color: red;">*</span>
+                                                                                <!-- <span style="color: red;">*</span> -->
                                                                             </label>
-                                                                            <input type="time" id="start_time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" required oninput="calculateEndTime()">
+                                                                            <input type="time" id="start_time" name="start_time" class="form-control mt-1" value="<?php echo $rowBooking['booking_start_time']; ?>" readonly  oninput="calculateEndTime()">
                                                                         </div>
                                                                         <div class="col-md-2 text-center">
                                                                             <label for="end_time" style="font-weight: bold; display: flex; align-items: center;">

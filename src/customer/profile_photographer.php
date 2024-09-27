@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($count > 0) {
                 // มีการจองซ้ำอยู่แล้ว
 ?>
-                <script>
+                <div><script>
                     setTimeout(function() {
                         Swal.fire({
                             title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             }
                         });
                     });
-                </script>
+                </script></div>
                 <?php
             } else {
                 // ไม่มีการจองซ้ำ ทำการบันทึกการจอง
@@ -422,28 +422,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
                 <div class="navbar-nav ms-auto f">
-                    <a href="index.php" class="nav-item nav-link ">หน้าหลัก</a>
-                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <!-- <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a> -->
-                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                            <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
-                            <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
-                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                        <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
+                                <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                                <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                            <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
-                            <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
-                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
+                                <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
+                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </nav>

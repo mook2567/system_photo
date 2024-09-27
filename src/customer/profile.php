@@ -335,11 +335,11 @@ if (isset($_SESSION['customer_login'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="justify-content-center py-4 text-center">
+                    <!-- <div class="justify-content-center py-4 text-center">
                         <button type="button" class="btn btn-dark btn-sm" style="width: 150px; height:45px;" onclick="window.location.href='editProfile.php?'">
                             <i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลส่วนตัว
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
