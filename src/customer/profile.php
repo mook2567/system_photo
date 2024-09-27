@@ -280,28 +280,28 @@ if (isset($_SESSION['customer_login'])) {
             </button>
             <div class="collapse navbar-collapse me-5" id="navbarCollapse">
                 <div class="navbar-nav ms-auto f">
-                    <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวทั้งหมด</a>
-                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                            <!-- <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a> -->
-                            <!-- <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a> -->
-                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                        <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
+                                <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                                <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">โปรไฟล์</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
-                            <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
-                            <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
-                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
+                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
+                                <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
+                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </nav>
@@ -336,49 +336,113 @@ if (isset($_SESSION['customer_login'])) {
                         </div>
                     </div>
                     <div class="justify-content-center py-4 text-center">
-                        <button type="button" class="btn btn-dark btn-sm" style="width: 150px; height:45px;" onclick="window.location.href='editProfile.php'">
+                        <button type="button" class="btn btn-dark btn-sm" style="width: 150px; height:45px;" onclick="window.location.href='editProfile.php?'">
                             <i class="fa-solid fa-pencil"></i> แก้ไขข้อมูลส่วนตัว
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="col-9 ">
-                <!-- Other Posts -->
-                <div class="mt-3">
-                    <p>การรีวิว</p>
-                </div>
-                <div class="col-12 bg-white container mt-2 mb-5" style="height: auto; border-radius: 10px;">
-                    <div class="py-1 px-5 mt-1 ms-2 mb-1 justify-content-center">
-                        <div class="d-flex align-items-center justify-content-start mt-3">
-                            <div style="display: flex; align-items: center;">
-                                <div class="circle me-3" style="width: 50px; height: 50px;">
-                                    <img src="../img/dev3.jpg" alt="Your Image">
-                                </div>
-                                <div style="flex-grow: 1;">
-                                    <p style="margin-bottom: 0;">ชื่อช่างภาพ</p>
-                                    <div>
-                                        <p style="margin-bottom: 0;">ประเภทงาน</p>
+            <!-- Review Section (Right) -->
+            <div class="col-9">
+                            <?php
+                            // SQL Query for Reviews
+                            $sql3 = "SELECT 
+                                            SUM(r.review_level) AS scor, 
+                                            r.review_caption,
+                                            c.cus_name,
+                                            c.cus_surname,
+                                            cus_photo,
+                                            p.photographer_id,
+                                            p.photographer_name,
+                                            p.photographer_surname
+                                        FROM 
+                                            review r
+                                        JOIN 
+                                            booking b ON r.booking_id = b.booking_id 
+                                        JOIN 
+                                            photographer p ON b.photographer_id = p.photographer_id
+                                        JOIN
+                                            customer c ON b.cus_id = c.cus_id
+                                        WHERE
+                                            c.cus_id = $id_cus
+                                        GROUP BY
+                                            r.review_caption, c.cus_name, c.cus_surname
+                                        ORDER BY
+                                            r.review_date DESC -- เรียงลำดับตามวันที่รีวิวล่าสุด
+                                        ";
+                            $resultReview = $conn->query($sql3);
+                            if ($resultReview->num_rows > 0) {
+
+                                echo '<div class="row"><div class="text-start mx-auto wow slideInLeft">
+                                        <div class="col-11 justify-content-center mt-4"><h4 class="f" data-wow-delay="0.1s">คำรีวิว</h4>
+                                    </div></div>';  // เริ่ม row สำหรับการ์ดทั้งหมด
+                                while ($rowReview = $resultReview->fetch_assoc()) {
+                            ?>
+                                    <div class="col-12 mt-1"> <!-- เปลี่ยนเป็น col-12 เพื่อให้การ์ดแต่ละใบเต็มแถว -->
+
+                                        <div class="card bg-white mb-5" style="border-radius: 10px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); height: auto; max-height: 650px;">
+                                            <div class="card-body">
+                                                <!-- Card Title -->
+                                                <div class="d-flex align-items-center mb-3 justify-content-start mt-3">
+                                                    <div class="circle me-3" style="width: 40px; height: 40px;">
+                                                        <img id="userImage" src="../img/profile/<?php echo $rowReview['cus_photo'] ? $rowReview['cus_photo'] : 'null.png'; ?>">
+                                                    </div>
+                                                    <div>
+                                                        <p><?php echo $rowReview['cus_name'] . ' ' . $rowReview['cus_surname'];?></p>
+                                                        <a href="profile_photographer.php?photographer_id=<?php echo $rowReview['photographer_id']; ?>"><p><?php echo ' รีวิวช่างภาพ '. $rowReview['photographer_name'] . ' ' . $rowReview['photographer_surname']; ?></p></a>
+                                                    </div>
+                                                </div>
+                                                <!-- Card Text -->
+                                                <p class="card-text">
+                                                    <?php echo $rowReview['review_caption']; ?>
+                                                </p>
+                                                <p>การรีวิว <?php echo $rowReview['scor']; ?></p>
+                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                    <?php
+                                                    $reviewLevel = $rowReview['scor'];
+                                                    for ($i = 1; $i <= 5; $i++) {
+                                                        if ($i <= $reviewLevel) {
+                                                            echo '<i class="fas fa-star" style="color: gold; margin-right: 2px;"></i>'; // ดาวเต็มสีทอง
+                                                        } else {
+                                                            echo '<i class="far fa-star" style="color: gold; margin-right: 2px;"></i>'; // ดาวว่างเปล่าสีทอง
+                                                        }
+                                                    }
+                                                    $satisfactionText = '';
+                                                    switch ($reviewLevel) {
+                                                        case 1:
+                                                            $satisfactionText = 'ไม่พอใจอย่างยิ่ง';
+                                                            break;
+                                                        case 2:
+                                                            $satisfactionText = 'ไม่พอใจ';
+                                                            break;
+                                                        case 3:
+                                                            $satisfactionText = 'ปานกลาง';
+                                                            break;
+                                                        case 4:
+                                                            $satisfactionText = 'พอใจ';
+                                                            break;
+                                                        case 5:
+                                                            $satisfactionText = 'พอใจอย่างยิ่ง';
+                                                            break;
+                                                        default:
+                                                            $satisfactionText = 'ไม่มีข้อมูลการรีวิว';
+                                                    }
+                                                    echo ' - ' . $satisfactionText;
+                                                    ?>
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                            <?php
+                                }
+                                echo '</div>';  // ปิด row
+                            } else {
+                                echo "ไม่มีข้อมูลรีวิว";
+                            }
+
+                            ?>
                         </div>
-                        <p class="mt-3 post-text center">รายละเอียดผลงาน</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <a href="../img/dev3.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                                    <img class="post-img mb-2" src="../img/dev3.jpg" width="160" alt="img-post" />
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="../img/dev2.jpg" class="mb-2 col-1 col-sm-1 img-fluid" data-fancybox="image-group">
-                                    <img class="post-img mb-2" src="../img/dev2.jpg" width="160" alt="img-post" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <!-- Profile End -->
