@@ -70,7 +70,7 @@ if (isset($_POST['email'])) {
                 <div style='font-family: Arial, sans-serif; color: #333;'>
                     <h2 style='color: #4CAF50;'>รหัสOTPคือ: $newPassword</h2><br>
                     <p>โปรดนำ OTP นี้ไปเติมในหน้าถัดไป:</p><br>
-                    <a href='https://photomatch.pcnone.com/otp.php' style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px;'>ไปที่ระบบ OTP</a><br><br>
+                    <a href='http://localhost/otp.php' style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px;'>ไปที่ระบบ OTP</a><br><br>
                 </div>
             ";
 
