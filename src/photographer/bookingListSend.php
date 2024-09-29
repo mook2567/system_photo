@@ -15,37 +15,46 @@ if (isset($_SESSION['photographer_login'])) {
     $id_photographer = $rowPhoto['photographer_id'];
 }
 
-$sql1 = "SELECT b.*, 
-            pay.*
-            FROM booking b
-            JOIN pay ON pay.booking_id = b.booking_id
-            WHERE b.photographer_id = $id_photographer
-            AND b.booking_confirm_status = '1'
-            AND b.booking_pay_status = '2'
-            AND pay.pay_status = '0'
-";
-$stmt = $conn->prepare($sql1);
-$resultPay = $conn->query($sql1);
+// $sql1 = "SELECT b.*, 
+//             pay.*
+//             FROM booking b
+//             JOIN pay ON pay.booking_id = b.booking_id
+//             WHERE b.photographer_id = $id_photographer
+//             AND b.booking_confirm_status = '1'
+//             AND b.booking_pay_status = '2'
+//             AND pay.pay_status = '0'
+// ";
+// $stmt = $conn->prepare($sql1);
+// $resultPay = $conn->query($sql1);
 
-$sql2 = "SELECT b.*, 
-                c.cus_prefix, 
-                c.cus_name, 
-                c.cus_surname, 
-                c.cus_tell, 
-                c.cus_email, 
-                t.type_work, 
-                (b.booking_price * 0.30) AS deposit_price
-         FROM booking b
-         JOIN customer c ON b.cus_id = c.cus_id
-         JOIN `type` t ON b.type_of_work_id = t.type_id
-         JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
-         WHERE b.photographer_id = $id_photographer
-         AND b.booking_confirm_status = '1'
-         AND b.booking_pay_status = '2'
+$sql2 = "SELECT 
+    b.*, 
+    c.cus_prefix, 
+    c.cus_name, 
+    c.cus_surname, 
+    c.cus_tell, 
+    c.cus_email, 
+    t.type_work, 
+    (b.booking_price * 0.30) AS deposit_price
+FROM 
+    booking b
+JOIN 
+    customer c ON b.cus_id = c.cus_id
+JOIN 
+    `type` t ON b.type_of_work_id = t.type_id
+JOIN 
+    type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+WHERE 
+    b.photographer_id = $id_photographer
+    AND b.booking_confirm_status = '1'
+    AND b.booking_pay_status = '2'
+    AND (b.booking_end_date <= CURDATE())  -- แสดงรายการวันนี้และเลยวันสิ้นสุดแล้ว
+ORDER BY 
+    b.booking_id DESC;
 ";
 $resultBooking = $conn->query($sql2);
 
-$sql3 = "SELECT * FROM submit 
+$sql3 = "SELECT * FROM submit
 ";
 $resultSubmit = $conn->query($sql3);
 
@@ -61,7 +70,8 @@ JOIN
     customer c ON b.cus_id = c.cus_id 
 WHERE 
     b.photographer_id = $id_photographer 
-    AND pay.pay_status = '0';
+    AND pay.pay_status = '0'AND b.booking_confirm_status = '1'
+         AND b.booking_pay_status = '2'ORDER BY `b`.`booking_id` DESC ;
 ";
 $resultPay0 = $conn->query($sql4);
 

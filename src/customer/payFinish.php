@@ -17,48 +17,49 @@ if (isset($_SESSION['customer_login'])) {
 
 // Prepare the SQL statement
 $sql1 = "SELECT 
-        b.booking_id, 
-        t.type_work, 
-        b.booking_start_date, 
-        b.booking_end_date, 
-        b.booking_details, 
-        b.booking_price, 
-        b.booking_start_time, 
-        b.booking_end_time, 
-        b.booking_location,  
-        b.booking_pay_status, 
-        (b.booking_price * 0.3) AS deposit_price, 
-        (b.booking_price - (b.booking_price * 0.3)) AS payment_price, 
-        p.photographer_prefix, 
-        p.photographer_name, 
-        p.photographer_surname, 
-        p.photographer_tell, 
-        p.photographer_email, 
-        c.cus_prefix, 
-        c.cus_name, 
-        c.cus_surname, 
-        c.cus_tell, 
-        c.cus_email, 
-        s.submit_date, 
-        s.submit_details, 
-        s.submit_time
-    FROM 
-        booking b
-    JOIN 
-        type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
-    JOIN 
-        type t ON t.type_id = tow.type_id
-    JOIN 
-        customer c ON c.cus_id = b.cus_id
-    JOIN 
-        photographer p ON p.photographer_id = b.photographer_id
-    JOIN 
-        submit s ON s.booking_id = b.booking_id
-    WHERE 
-        c.cus_id = ? AND (
-            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
-            OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
-        )
+    b.booking_id, 
+    t.type_work, 
+    b.booking_start_date, 
+    b.booking_end_date, 
+    b.booking_details, 
+    b.booking_price, 
+    b.booking_start_time, 
+    b.booking_end_time, 
+    b.booking_location,  
+    b.booking_pay_status, 
+    (b.booking_price * 0.3) AS deposit_price, 
+    (b.booking_price - (b.booking_price * 0.3)) AS payment_price, 
+    p.photographer_prefix, 
+    p.photographer_name, 
+    p.photographer_surname, 
+    p.photographer_tell, 
+    p.photographer_email, 
+    c.cus_prefix, 
+    c.cus_name, 
+    c.cus_surname, 
+    c.cus_tell, 
+    c.cus_email, 
+    s.submit_date, 
+    s.submit_details, 
+    s.submit_time
+FROM 
+    booking b
+JOIN 
+    type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+JOIN 
+    type t ON t.type_id = tow.type_id
+JOIN 
+    customer c ON c.cus_id = b.cus_id
+JOIN 
+    photographer p ON p.photographer_id = b.photographer_id
+JOIN 
+    submit s ON s.booking_id = b.booking_id
+WHERE 
+    c.cus_id = ? AND (
+        (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
+        OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
+    );
+
 ";
 
 // Prepare the statement
@@ -76,28 +77,28 @@ $resultBooking = $stmt->get_result();
 
 $sql2 = "SELECT pay.*, (b.booking_price * 0.30) AS deposit_price 
             FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'AND (
-            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
             OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
         )ORDER BY `b`.`booking_id` DESC ";
 $resultPay0 = $conn->query($sql2);
 
 $sql3 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price 
         FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'AND (
-            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
             OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
         )ORDER BY `b`.`booking_id` DESC ";
 $resultPay1 = $conn->query($sql3);
 
 $sql4 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price
         FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'AND (
-            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
             OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
         )ORDER BY `b`.`booking_id` DESC ";
 $resultPay2 = $conn->query($sql4);
 
 $sql5 = "SELECT pay.*, (b.booking_price * 0.30) AS deposit_price 
         FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'AND (
-            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
             OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
         )ORDER BY `b`.`booking_id` DESC ";
 $resultPay3 = $conn->query($sql5);

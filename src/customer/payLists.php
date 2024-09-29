@@ -429,11 +429,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="bg-white">
         <div class="container bg-white" style="min-height: 662px"><br>
             <h1 class="text-center f">รายการจองคิวที่ต้องชำระค่ามัดจำ</h1>
-            <div class="row justify-content-end">
+            <div class="row">
                 <div class="col-md-4">
                     <button type="button" onclick="window.location.href='payLists.php'" class="btn btn-outline-dark active">รอชำระค่ามัดจำ</button>
                     <button type="button" onclick="window.location.href='payment.php'" class="btn btn-outline-dark">รอชำระเงิน</button>
-                    <button type="button" onclick="window.location.href='payFinish.php'" class="btn btn-outline-dark">รายการชำระเสร็จสิ้นแล้ว</button>
+                    <!-- <button type="button" onclick="window.location.href='payFinish.php'" class="btn btn-outline-dark">รายการชำระเสร็จสิ้นแล้ว</button> -->
                 </div>
             </div>
             <div class="table-responsive mt-3">

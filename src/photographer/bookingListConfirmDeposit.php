@@ -33,6 +33,7 @@ $sql1 = "SELECT b.*,
          WHERE b.photographer_id = $id_photographer
          AND b.booking_confirm_status = '1'
          AND b.booking_pay_status = '1'
+         ORDER BY `b`.`booking_id` DESC 
 ";
 $resultBooking = $conn->query($sql1);
 
@@ -52,7 +53,7 @@ WHERE
     b.photographer_id = $id_photographer 
     AND pay.pay_status = '0'
          AND b.booking_confirm_status = '1'
-         AND b.booking_pay_status = '1'
+         AND b.booking_pay_status = '1'ORDER BY `b`.`booking_id` DESC 
 ;
 ";
 $resultPay1 = $conn->query($sql4);
@@ -347,7 +348,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Header End -->
     <div class="center container mt-5" style="height: 520px;">
         <h1 class="footer-title text-center f mt-3">รายการจองที่รอตรวจสอบการชำระค่ามัดจำ</h1>
-        <div class="row justify-content-end">
+        <div class="row">
             <div class="col-md-5 mt-2 mb-2">
                 <!-- <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button> -->
                 <button type="button" onclick="window.location.href='bookingListConfirmDeposit.php'" class="btn btn-outline-dark active">รอตรวจสอบค่ามัดจำ</button>

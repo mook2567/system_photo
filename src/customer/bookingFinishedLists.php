@@ -24,13 +24,12 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
     JOIN photographer p ON p.photographer_id = b.photographer_id
     JOIN submit sub ON sub.booking_id = b.booking_id
-	JOIN review r ON r.booking_id = r.booking_id
-    WHERE c.cus_id = 1
+    JOIN review r ON r.booking_id = b.booking_id  -- Correct join condition
+    WHERE c.cus_id = $id_cus
     AND b.booking_confirm_status = '3'
     AND b.booking_pay_status = '5'
     AND sub.submit_details IS NOT NULL
-	AND r.review_caption IS NOT NULL
-    AND r.review_level IS NOT NULL
+    AND r.review_level IS NOT NULL;
     ";
 
 $resultBooking = $conn->query($sql1);
@@ -508,7 +507,7 @@ $resultPay1 = $conn->query($sql3);
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer justify-content-center mt-3">
-                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                            <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -592,7 +591,7 @@ $resultPay1 = $conn->query($sql3);
                                                     <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
                                                     <div class="modal-footer mt-5 justify-content-center">
                                                         <div class="col-md-12 text-center">
-                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                            <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                         </div>
                                                     </div>
                                                 </div>

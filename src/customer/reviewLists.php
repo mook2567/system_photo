@@ -33,11 +33,15 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
 $resultBooking = $conn->query($sql1);
 
 $sql2 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-        (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'";
+        (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0' AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
+        )ORDER BY `b`.`booking_id` DESC ";
 $resultPay0 = $conn->query($sql2);
 
 $sql3 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-(b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'";
+(b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1' AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '1')
+        )ORDER BY `b`.`booking_id` DESC ";
 $resultPay1 = $conn->query($sql3);
 
 $sql4 = "SELECT * FROM review";
@@ -423,9 +427,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <th scope="col">ประเภทงาน</th>
                             <!-- <th scope="col">สถานที่</th> -->
                             <th scope="col">วันที่เริ่มงาน</th>
-                            <th scope="col">เวลาเริ่มงาน</th>
                             <th scope="col">ราคาจ่าย</th>
                             <th scope="col">ราคามัดจำ</th>
+                            <th scope="col">ราคาชำระเงิน</th>
                             <th scope="col">ลิงก์ส่งงาน</th>
                             <th scope="col">ดำเนินการ</th>
                         </tr>
@@ -440,9 +444,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <tr>
                                         <td><?php echo $rowBooking['type_work']; ?></td>
                                         <td><?php echo $rowBooking['booking_start_date']; ?></td>
-                                        <td><?php echo $rowBooking['booking_start_time']; ?></td>
                                         <td><?php echo $rowBooking['booking_price']; ?></td>
                                         <td><?php echo $rowBooking['deposit_price']; ?></td>
+                                        <td><?php echo $rowBooking['payment_price']; ?></td>
                                         <td><?php echo '<a href="' . $rowBooking['submit_details'] . '" target="_blank">ดูไดร์ฟส่งงาน</a>'; ?></td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
@@ -627,7 +631,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer justify-content-center mt-3">
-                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                            <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -746,79 +750,58 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                             <h6 class="f mt-2">ข้อมูลคำอธิบาย</h6>
                                                                         </div>
                                                                         <div class="col-8 mt-2">
-                                                                            <small id="details-counter" class="text-muted">0/20 ตัวอักษร</small> <!-- แสดงจำนวนตัวอักษร -->
-                                                                            <textarea id="details" name="details" class="form-control mt-1" placeholder="กรุณากรอกคำอธิบาย (อย่างน้อย 20 ตัวอักษร)" style="resize: none; height: 100px;" required></textarea>
-                                                                            <small id="details-error" class="text-danger" style="display:none;">กรุณากรอกคำอธิบายไม่ต่ำกว่า 20 ตัวอักษร</small>
+                                                                            <!-- <small id="details-counter" class="text-muted">0/20 ตัวอักษร</small> แสดงจำนวนตัวอักษร -->
+                                                                            <textarea id="details" name="details" class="form-control mt-1" placeholder="แสดงความเห็นเพิ่มเติม" style="resize: none; height: 100px;"></textarea>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <!-- รีวิวสิ้นสุด -->
-                                                                <script>
+                                                                <!-- <script>
                                                                     var detailsInput = document.getElementById('details');
-                                                                    var detailsError = document.getElementById('details-error');
                                                                     var detailsCounter = document.getElementById('details-counter');
 
                                                                     // ฟังก์ชันสำหรับอัปเดตจำนวนตัวอักษรที่กรอก
                                                                     detailsInput.addEventListener('input', function() {
                                                                         var detailsLength = detailsInput.value.length;
                                                                         detailsCounter.textContent = detailsLength + "/20 ตัวอักษร";
-
-                                                                        // ตรวจสอบความยาวของคำอธิบาย
-                                                                        if (detailsLength < 20) {
-                                                                            detailsError.style.display = 'block'; // แสดงข้อความเตือน
-                                                                        } else {
-                                                                            detailsError.style.display = 'none'; // ซ่อนข้อความเตือนเมื่อกรอกครบ
-                                                                        }
                                                                     });
+                                                                </script> -->
 
-                                                                    // ตรวจสอบคำอธิบายเมื่อส่งฟอร์ม
-                                                                    document.querySelector('form').addEventListener('submit', function(event) {
-                                                                        if (detailsInput.value.length < 20) {
-                                                                            event.preventDefault(); // ยกเลิกการส่งแบบฟอร์ม
-                                                                            detailsError.style.display = 'block'; // แสดงข้อความเตือน
-                                                                        }
-                                                                    });
+                                                                <input type="hidden" id="review_date" name="review_date" class="form-control mt-1" style="resize: none;" required>
+                                                                <input type="hidden" id="review_time" name="review_time" class="form-control mt-1" style="resize: none;" required>
+                                                                <script>
+                                                                    window.onload = function() {
+                                                                        // ตั้งค่าวันที่ปัจจุบัน
+                                                                        let today = new Date();
+                                                                        let year = today.getFullYear();
+                                                                        let month = ('0' + (today.getMonth() + 1)).slice(-2); // เพิ่มเลข 0 ถ้าเดือนเป็นตัวเลขหลักเดียว
+                                                                        let day = ('0' + today.getDate()).slice(-2); // เพิ่มเลข 0 ถ้าวันเป็นตัวเลขหลักเดียว
+                                                                        document.getElementById('review_date').value = year + '-' + month + '-' + day;
+
+                                                                        // ตั้งค่าเวลาปัจจุบัน
+                                                                        let hours = ('0' + today.getHours()).slice(-2); // เพิ่มเลข 0 ถ้าเป็นเลขหลักเดียว
+                                                                        let minutes = ('0' + today.getMinutes()).slice(-2);
+                                                                        document.getElementById('review_time').value = hours + ':' + minutes;
+                                                                    };
                                                                 </script>
-
-                                                        </div>
-                                                    </div>
-                                                    <input type="hidden" id="review_date" name="review_date" class="form-control mt-1" style="resize: none;" required>
-                                                    <input type="hidden" id="review_time" name="review_time" class="form-control mt-1" style="resize: none;" required>
-                                                    <script>
-                                                        window.onload = function() {
-                                                            // ตั้งค่าวันที่ปัจจุบัน
-                                                            let today = new Date();
-                                                            let year = today.getFullYear();
-                                                            let month = ('0' + (today.getMonth() + 1)).slice(-2); // เพิ่มเลข 0 ถ้าเดือนเป็นตัวเลขหลักเดียว
-                                                            let day = ('0' + today.getDate()).slice(-2); // เพิ่มเลข 0 ถ้าวันเป็นตัวเลขหลักเดียว
-                                                            document.getElementById('review_date').value = year + '-' + month + '-' + day;
-
-                                                            // ตั้งค่าเวลาปัจจุบัน
-                                                            let hours = ('0' + today.getHours()).slice(-2); // เพิ่มเลข 0 ถ้าเป็นเลขหลักเดียว
-                                                            let minutes = ('0' + today.getMinutes()).slice(-2);
-                                                            document.getElementById('review_time').value = hours + ':' + minutes;
-                                                        };
-                                                    </script>
-                                                    <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
-                                                    <div class="modal-footer mt-5 justify-content-center">
-                                                        <div class="col-md-12 text-center">
-                                                            <button id="saveButton" name="submit_review" class="btn btn-primary" style="width: 150px; height:45px;">ยืนยันการรีวิว</button>
+                                                                <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                                <div class="modal-footer mt-5 justify-content-center">
+                                                                    <div class="col-md-12 text-center">
+                                                                        <button id="saveButton" name="submit_review" class="btn btn-primary" style="width: 150px; height:45px;">ยืนยันการรีวิว</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                        <?php
+                                    <?php
                                 }
                             }
                         } else {
                             echo "<tr><td  colspan='7'>ไม่พบข้อมูลรายการที่ต้องรีวิว</td></tr>";
                         }
 
-                        ?>
+                                    ?>
                     </tbody>
                 </table>
             </div><!-- Footer Start --><br><br>
