@@ -257,6 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="Login-register mb-5">
                             <div>
                                 <p>ยังไม่มีบัญชีผู้ใช้? <a href="registerCustomer.php" class="register-link" >สมัครสมาชิก</a></p>
+                                <p><a href="forgotPassword.php" class="register-link" >ลืมรหัสผ่าน</a></p>
                                 <p><a href="index.php" class="register-link color-gray">เข้าเว็บไซต์ในโหมดผู้เยี่ยมชม</a></p>
                             </div>
                         </div>

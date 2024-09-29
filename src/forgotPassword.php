@@ -1,66 +1,132 @@
 <?php
 session_start();
 require_once 'config_db.php';
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // เช็คว่ามีค่าข้อมูลถูกส่งมาจากฟอร์มหรือไม่
-    if (isset($_POST["acID"]) && isset($_POST["password"])) {
-        // รับค่าอีเมลและรหัสผ่านจากฟอร์ม
-        $email = $_POST["acID"];
-        $password = $_POST["password"];
+require_once 'popup.php';
+// Including PHPMailer files and declaring the namespaces
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 
-        // ทำสิ่งที่ต้องการกับค่าที่ได้รับ เช่น ตรวจสอบข้อมูลในฐานข้อมูลหรือประมวลผลต่อไป
-        // ตัวอย่างเช่น
-        echo "อีเมล: " . $email . "<br>";
-        echo "รหัสผ่าน: " . $password . "<br>";
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-        // คำสั่ง SQL เพื่อค้นหาข้อมูล
-        $sql = "SELECT * FROM admin WHERE admin_email = '$email'";
-        $result = mysqli_query($conn, $sql);
+if (isset($_POST['email'])) {
+    $email = $_POST['email'];
 
-        // ตรวจสอบว่าพบข้อมูลหรือไม่
-        if (mysqli_num_rows($result) > 0) {
+    // SQL query to search for user across 3 tables
+    $query = "
+        SELECT email, password, license, type FROM (
+            SELECT admin_email AS email, admin_password AS password, admin_license AS license, 'admin' AS type FROM admin
+            UNION ALL
+            SELECT cus_email AS email, cus_password AS password, cus_license AS license, 'customer' AS type FROM customer
+            UNION ALL
+            SELECT photographer_email AS email, photographer_password AS password, photographer_license AS license, 'photographer' AS type FROM photographer
+        ) AS users
+        WHERE email = ?
+    ";
+
+    // Prepare and execute the query
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // Generate random OTP
+        function generateRandomPassword($length = 6)
+        {
+            $characters = '0123456789';
+            $password = '';
+            for ($i = 0; $i < $length; $i++) {
+                $index = rand(0, strlen($characters) - 1);
+                $password .= $characters[$index];
+            }
+            return $password;
+        }
+
+        $newPassword = generateRandomPassword();
+        $_SESSION['otp'] = $newPassword;
+        $_SESSION['email_forgot'] = $email;
 
 
-            if ($email == $row['email']) {
-                $_SESSION["firstname"] = $row["firstname"];
-                $_SESSION["lastname"] = $row["lastname"];
-                if (password_verify($password, $row['password'])) {
-                    if ($row['urole'] == 'admin') {
-                        $_SESSION['admin_login'] = $row['id'];
-                        header("location: admin/admin.php");
-                    } else if ($row['urole'] == 'teacher') {
-                        $_SESSION['user_login'] = $row['id'];
-                        header("location: user/user.php");
-                    } else if ($row['urole'] == 'janitor') {
-                        $_SESSION['janitor_login'] = $row['id'];
-                        header("location: user1/user.php");
-                    } else if ($row['urole'] == 'manager') {
-                        $_SESSION['manager_login'] = $row['id'];
-                        header("location: manager/manager.php");
-                    } else if ($row['urole'] == 'superadmin') {
-                        $_SESSION['superadmin_login'] = $row['id'];
-                        header("location: superadmin/admin.php");
-                    } else if ($row['urole'] == 'disable') {
-                        $_SESSION['disable_login'] = $row['id'];
-                        header("location: disable.php");
-                    } else if ($row['urole'] == 'unconfirmemail') {
-                        $_SESSION['unconfirmemail_login'] = $row['id'];
-                        header("location: unconfirm_email.php");
-                    }
-                } else {
-                    $_SESSION['error'] = 'รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง';
-                    header("location: index.php");
+        // Initialize PHPMailer and configure settings
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->CharSet = 'UTF-8';
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'botpcnone@gmail.com';
+            $mail->Password   = 'rvda fhah qwxq smab'; // Please replace with the correct SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            $mail->setFrom('bot@pcnone.com', 'ระบบ PhotoMatch');
+            $mail->addAddress($email);
+            $mail->isHTML(true);
+            $mail->Subject = 'รีเซ็ตรหัสผ่าน';
+            $mail->Body    = "
+                <div style='font-family: Arial, sans-serif; color: #333;'>
+                    <h2 style='color: #4CAF50;'>รหัสOTPคือ: $newPassword</h2><br>
+                    <p>โปรดนำ OTP นี้ไปเติมในหน้าถัดไป:</p><br>
+                    <a href='https://photomatch.pcnone.com/otp.php' style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px;'>ไปที่ระบบ OTP</a><br><br>
+                </div>
+            ";
+
+            $mail->send();
+?>
+            <div>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: 'ระบบได้ทำการส่งรหัสOTPไปยัง Gmail ของคุณแล้ว',
+                            text: "นำรหัส OTP มากรอกในฟอร์มหน้าถัดไป",
+                            icon: 'success',
+                            confirmButtonText: 'ถัดไป',
+                            allowOutsideClick: false, // ไม่อนุญาตให้คลิกนอก popup ปิด
+                            allowEscapeKey: false, // ไม่อนุญาตให้กดปุ่ม ESC เพื่อปิด
+                            allowEnterKey: false // ไม่อนุญาตให้กดปุ่ม Enter เพื่อปิด
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "OTP.php";
+                            }
+                        });
+                    });
+                </script>
+            </div><?php
+                } catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
                 }
             } else {
-                $_SESSION['error'] = 'อีเมลไม่ถูกต้อง';
-                header("location: index.php");
+
+                    ?>
+        <div>
+            <script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: 'ไม่พบบัญชีผู้ใช้',
+                        text: " กรุณาตรวจสอบอีเมลของท่านอีกครั้ง",
+                        icon: 'error',
+                        confirmButtonText: 'ย้อนกลับ',
+                        allowOutsideClick: false, // ไม่อนุญาตให้คลิกนอก popup ปิด
+                        allowEscapeKey: false, // ไม่อนุญาตให้กดปุ่ม ESC เพื่อปิด
+                        allowEnterKey: false // ไม่อนุญาตให้กดปุ่ม Enter เพื่อปิด
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "forgotPassword.php";
+                        }
+                    });
+                });
+            </script>
+        </div>
+<?php
+
             }
-        } else {
-            $_SESSION['error'] = "ไม่มีข้อมูลในระบบ";
-            header("location: index.php");
+
+            $stmt->close();
         }
-    }
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -195,7 +261,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <form action="sendOTP.php" method="post" method="post">
+    <form action="" method="post">
         <div class="container-fluid">
             <div class="row main-content text-center">
                 <div class="col-md-4 text-center company__info" style="background-color:#1E2045">
@@ -210,23 +276,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="col-md-8 col-xs-12 col-sm-12 login_form "><br>
                     <div class="container-fluid">
                         <br><br><br>
-                        <div class="row"  style="color:#FF5733">
+                        <div class="row" style="color:#FF5733">
                             <h2><b>ลืมรหัสผ่าน</b></h2>
                         </div>
                         <div class="row">
                             <div class="form-group row" style="position: relative;">
                                 <div class="col-1"><i class="fa-solid fa-envelope" style="font-size : 20px; position: absolute; top: 50%; transform: translateY(-50%);"></i></div>
-                                <div class="col-11"><input type="email" name="acID" class="form__input" placeholder="อีเมล"></div>
+                                <div class="col-11"><input type="email" name="email" class="form__input" placeholder="อีเมล"></div>
                             </div>
                         </div>
-                        <div>
-                            <a href="login.php">กลับไปยังหน้าเข้าสู่ระบบ</a>
-                        </div>
+
                         <div class="row">
                             <div> <!-- removed redundant form tag -->
                                 <button type="submit" value="ลืมรหัสผ่าน" class="btn">ลืมรหัสผ่าน</button>
                             </div>
                             <br>
+                        </div>
+                        <div>
+                            <a href="login.php">กลับไปยังหน้าเข้าสู่ระบบ</a>
                         </div>
                         <div class="Login-register">
                             <div>
