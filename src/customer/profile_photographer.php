@@ -19,11 +19,31 @@ if (isset($_SESSION['customer_login'])) {
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
-
-$sql = "SELECT *
+$sql1 = "SELECT *
         FROM `booking` 
         WHERE photographer_id = $id_photographer";
-$resultBooking = $conn->query($sql);
+$resultBooking = $conn->query($sql1);
+
+$sql = "SELECT 
+            (SUM(r.review_level)/COUNT(r.review_level)) AS scor, 
+            p.photographer_id, 
+            p.photographer_prefix, 
+            p.photographer_name, 
+            p.photographer_surname
+        FROM 
+            review r
+        JOIN 
+            booking b ON r.booking_id = b.booking_id 
+        JOIN 
+            photographer p ON b.photographer_id = p.photographer_id
+        WHERE 
+            p.photographer_id = $id_photographer";
+
+$resultScor = $conn->query($sql);
+$rowScor = $resultScor->fetch_assoc();
+
+$reviewLevel = isset($rowScor['scor']) ? $rowScor['scor'] : 0;  // ค่าเฉลี่ยจริง ไม่ต้องปัดเศษ
+$reviewPercentage = ($reviewLevel / 5) * 100;  // คิดเป็นเปอร์เซ็นต์
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_book'])) {
@@ -33,30 +53,178 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $end_date = $_POST['end_date'];
         $start_time = $_POST["start_time"];
         $end_time = $_POST["end_time"];
-        $cus_id = $_POST['cus_id'];
+        $cus_id = $_POST['cus_id']; // ID ของลูกค้าที่จอง
         $date = $_POST["date"];
         $type = $_POST["type"];
-        $id_photographer = $_POST["photographer_id"]; // Assumes photographer_id is passed in the form
+        $id_photographer = $_POST["photographer_id"];
+        $booking_type = $_POST["userIcon"]; // "half" หรือ "full"
 
-        // ตรวจสอบการจองที่ซ้ำกันสำหรับ photographer_id เดียวกัน
-        $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` WHERE (`booking_start_date` BETWEEN ? AND ? OR `booking_end_date` BETWEEN ? AND ?) AND `photographer_id` = ? AND `booking_confirm_status` = 0");
-        if ($check_stmt) {
-            $check_stmt->bind_param("ssssi", $start_date, $end_date, $start_date, $end_date, $id_photographer);
-            $check_stmt->execute();
-            $check_stmt->bind_result($count);
-            $check_stmt->fetch();
-            $check_stmt->close();
+        // ตรวจสอบว่าลูกค้าคนนี้ได้ทำการจองวันนี้อยู่แล้วหรือไม่
+        $check_cus_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` 
+            WHERE `booking_start_date` = ? 
+            AND `cus_id` = ? 
+            AND `booking_confirm_status` = 0");
+        if ($check_cus_stmt) {
+            $check_cus_stmt->bind_param("si", $start_date, $cus_id);
+            $check_cus_stmt->execute();
+            $check_cus_stmt->bind_result($cus_count);
+            $check_cus_stmt->fetch();
+            $check_cus_stmt->close();
 
-            if ($count > 0) {
-                // มีการจองซ้ำอยู่แล้ว
+            if ($cus_count > 0) {
+                // ลูกค้าคนนี้ได้จองวันนี้อยู่แล้ว
 ?>
-                <div><script>
+                <div>
+                    <script>
+                        setTimeout(function() {
+                            Swal.fire({
+                                title: '<div class="t1">คุณได้ทำการจองวันนี้แล้ว</div>',
+                                text: 'โปรดตรวจสอบรายการจองคิวของคุณ',
+                                icon: 'warning',
+                                confirmButtonText: 'ตกลง',
+                                allowOutsideClick: true,
+                                allowEscapeKey: true,
+                                allowEnterKey: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = "";
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+                <?php
+            } else {
+                // ตรวจสอบการจองสำหรับครึ่งวันว่าทับกันหรือไม่
+                if ($booking_type === 'half') {
+                    $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` 
+                        WHERE `booking_start_date` = ? 
+                        AND `photographer_id` = ? 
+                        AND `booking_confirm_status` = 0 
+                        AND ((`booking_start_time` < ? AND `booking_end_time` > ?) 
+                            OR (`booking_start_time` < ? AND `booking_end_time` > ?)
+                            OR (? < `booking_start_time` AND ? > `booking_end_time`))");
+
+                    if ($check_stmt) {
+                        $check_stmt->bind_param("sissssss", $start_date, $id_photographer, $end_time, $start_time, $start_time, $end_time, $start_time, $end_time);
+                        $check_stmt->execute();
+                        $check_stmt->bind_result($count);
+                        $check_stmt->fetch();
+                        $check_stmt->close();
+
+                        if ($count > 0) {
+                            // มีการจองเวลาทับกันอยู่แล้ว
+                ?>
+                            <div>
+                                <script>
+                                    setTimeout(function() {
+                                        Swal.fire({
+                                            title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
+                                            text: 'มีการจองครึ่งวันที่ทับเวลาการเริ่มต้นและสิ้นสุดอยู่แล้ว โปรดเลือกเวลาอื่น',
+                                            icon: 'error',
+                                            confirmButtonText: 'ตกลง',
+                                            allowOutsideClick: true,
+                                            allowEscapeKey: true,
+                                            allowEnterKey: false
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.location.href = "";
+                                            }
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        <?php
+                        } else {
+                            // ไม่มีการจองทับกัน ทำการบันทึกการจอง
+                            proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
+                        }
+                    } else {
+                        echo "Error preparing check statement: " . $conn->error;
+                    }
+                } else {
+                    // การจองเต็มวัน ตรวจสอบวันที่ทับกันเท่านั้น
+                    $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` WHERE (`booking_start_date` BETWEEN ? AND ? OR `booking_end_date` BETWEEN ? AND ?) AND `photographer_id` = ? AND `booking_confirm_status` = 0");
+                    if ($check_stmt) {
+                        $check_stmt->bind_param("ssssi", $start_date, $end_date, $start_date, $end_date, $id_photographer);
+                        $check_stmt->execute();
+                        $check_stmt->bind_result($count);
+                        $check_stmt->fetch();
+                        $check_stmt->close();
+
+                        if ($count > 0) {
+                        ?>
+                            <div>
+                                <script>
+                                    setTimeout(function() {
+                                        Swal.fire({
+                                            title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
+                                            text: 'เนื่องจากมีรายการจองของลูกค้าท่านอื่นที่รออนุมัติอยู่สำหรับช่างภาพท่านนี้',
+                                            icon: 'error',
+                                            confirmButtonText: 'ตกลง',
+                                            allowOutsideClick: true,
+                                            allowEscapeKey: true,
+                                            allowEnterKey: false
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.location.href = "";
+                                            }
+                                        });
+                                    });
+                                </script>
+                            </div>
+            <?php
+                        } else {
+                            // ไม่มีการจองซ้ำ ทำการบันทึกการจอง
+                            proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
+                        }
+                    } else {
+                        echo "Error preparing check statement: " . $conn->error;
+                    }
+                }
+            }
+        } else {
+            echo "Error preparing customer check statement: " . $conn->error;
+        }
+    }
+}
+
+// Function to proceed with booking
+function proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type)
+{
+    $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`, `type_of_work_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    if ($stmt) {
+        $stmt->bind_param("sssssssiii", $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
+        if ($stmt->execute()) {
+            ?>
+            <div>
+                <script>
                     setTimeout(function() {
                         Swal.fire({
-                            title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
-                            text: 'เนื่องจากมีรายการจองของลูกค้าท่านอื่นที่รออนุมัติอยู่สำหรับช่างภาพท่านนี้',
+                            title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
+                            icon: 'success',
+                            confirmButtonText: 'ไปยังหน้ารายการจอง',
+                            allowOutsideClick: true,
+                            allowEscapeKey: true,
+                            allowEnterKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "bookingLists.php";
+                            }
+                        });
+                    }, 0);
+                </script>
+            </div>
+        <?php
+        } else {
+        ?>
+            <div>
+                <script>
+                    setTimeout(function() {
+                        Swal.fire({
+                            title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
                             icon: 'error',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'ออก',
                             allowOutsideClick: true,
                             allowEscapeKey: true,
                             allowEnterKey: false
@@ -66,63 +234,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             }
                         });
                     });
-                </script></div>
-                <?php
-            } else {
-                // ไม่มีการจองซ้ำ ทำการบันทึกการจอง
-                $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`, `type_of_work_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                if ($stmt) {
-                    $stmt->bind_param("sssssssiii", $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
-                    if ($stmt->execute()) {
-                ?>
-                        <div><script>
-                            console.log('Swal script should be executed');
-                            setTimeout(function() {
-                                Swal.fire({
-                                    title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
-                                    icon: 'success',
-                                    confirmButtonText: 'ไปยังหน้ารายการจอง',
-                                    allowOutsideClick: true,
-                                    allowEscapeKey: true,
-                                    allowEnterKey: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = "bookingLists.php";
-                                    }
-                                });
-                            }, 0);
-                        </script></div>
-                    <?php
-                    } else {
-                    ?>
-                        <div><script>
-                            setTimeout(function() {
-                                Swal.fire({
-                                    title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
-                                    icon: 'error',
-                                    confirmButtonText: 'ออก',
-                                    allowOutsideClick: true,
-                                    allowEscapeKey: true,
-                                    allowEnterKey: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = "";
-                                    }
-                                });
-                            });
-                        </script></div>
+                </script>
+            </div>
 <?php
-                    }
-                    $stmt->close();
-                } else {
-                    echo "Error preparing statement: " . $conn->error;
-                }
-            }
-        } else {
-            echo "Error preparing check statement: " . $conn->error;
         }
+        $stmt->close();
+    } else {
+        echo "Error preparing statement: " . $conn->error;
     }
 }
+
 
 ?>
 
@@ -422,28 +543,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="height: 70px;">
                 <div class="navbar-nav ms-auto f">
-                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                        <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
-                        <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
-                                <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
-                                <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
-                                <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
-                                <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
-                            </div>
+                    <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                    <a href="search.php" class="nav-item nav-link">ค้นหาช่างภาพ</a>
+                    <a href="workings.php" class="nav-item nav-link">ผลงานช่างภาพ</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจองคิวช่างภาพ</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="bookingLists.php" class="dropdown-item">รายการจองคิวที่รออนุมัต</a>
+                            <a href="payLists.php" class="dropdown-item ">รายการจองคิวที่ต้องชำระเงิน/ค่ามัดจำ</a>
+                            <a href="reviewLists.php" class="dropdown-item">รายการจองคิวที่ต้องรีวิว</a>
+                            <a href="bookingFinishedLists.php" class="dropdown-item">รายการจองคิวที่เสร็จสิ้นแล้ว</a>
+                            <a href="bookingRejectedLists.php" class="dropdown-item">รายการจองคิวที่ถูกปฏิเสธ</a>
                         </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
-                                <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
-                                <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
-                            </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                            <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a> -->
+                            <!-- <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
+                            <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -461,7 +582,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                             </div>
                         </div>
-                        <div class="col-12 text-center md-3 py-3 px-4 mt-3">
+                        <div class="col-12 d-flex flex-column align-items-center justify-content-center md-3 py-3 px-4 mt-3">
+                            <div class="col-8 mt-1 text-center mb-2">
+                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                    <?php
+                                    // แสดงดาวตามคะแนนที่ได้ (เต็ม 5 ดาว)
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        if ($i <= floor($reviewLevel)) {
+                                            // ดาวเต็มสีทอง
+                                            echo '<i class="fas fa-star" style="color: gold; margin-right: 2px;"></i>';
+                                        } elseif ($i - $reviewLevel < 1) {
+                                            // ดาวครึ่งดวงถ้าค่ามีทศนิยม
+                                            echo '<i class="fas fa-star-half-alt" style="color: gold; margin-right: 2px;"></i>';
+                                        } else {
+                                            // ดาวว่างเปล่าสีทอง
+                                            echo '<i class="far fa-star" style="color: gold; margin-right: 2px;"></i>';
+                                        }
+                                    }
+                                    ?>
+                                </span>
+                            </div>
                             <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
                         </div>
                         <div class="col-12 text-start mt-1">
@@ -725,113 +865,113 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- ตารางงาน -->
             <?php
-$bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
+            $bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
 
-if ($resultBooking->num_rows > 0) {
-    $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
-}
-
-// คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
-$today = date('Y-m-d');
-$dayOfWeek = date('w', strtotime($today));
-$startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
-$endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
-
-// ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
-$bookedDates = [];
-$unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
-$completedDates = []; // เก็บวันที่ที่จองเสร็จสิ้น
-
-if ($resultBooking->num_rows > 0) {
-    while ($rowBooking = $resultBooking->fetch_assoc()) {
-        $startDate = $rowBooking['booking_start_date'];
-        $endDate = $rowBooking['booking_end_date'];
-        $confirmStatus = $rowBooking['booking_confirm_status'];
-
-        // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
-        for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
-            if ($confirmStatus == 1) {
-                $bookedDates[] = $date;
-            } elseif ($confirmStatus == 0) {
-                $unconfirmedDates[] = $date;
-            } elseif ($confirmStatus == 3) {
-                $completedDates[] = $date;
-            }
-        }
-    }
-}
-
-// สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
-$allDates = [];
-$currentDate = $startOfWeek;
-for ($i = 0; $i < 7; $i++) {
-    $allDates[] = $currentDate;
-    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-}
-
-// ลบวันจองที่ซ้ำออก
-$bookedDates = array_unique($bookedDates);
-$unconfirmedDates = array_unique($unconfirmedDates);
-$completedDates = array_unique($completedDates);
-?>
-
-<div class="col-3 flex-fill" style="margin-left: auto;">
-    <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-        <div class="d-flex justify-content-center align-items-center mt-3">
-            <h4>ตารางงาน</h4>
-        </div>
-        <div class="ms-2 mb-2">
-            ตารางงานสัปดาห์นี้
-        </div>
-        <?php
-        // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
-        $currentDate = $startOfWeek;
-        for ($i = 0; $i < 7; $i++) {
-            $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
-
-            if (in_array($currentDate, $bookedDates)) {
-                $backgroundColor = 'lightcoral'; // มีการจองแล้ว
-            } elseif (in_array($currentDate, $unconfirmedDates)) {
-                $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
-            } elseif (in_array($currentDate, $completedDates)) {
-                $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
-            }
-            
-            echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
-            echo "<p class='mb-0'>";
-            echo "วันที่: " . htmlspecialchars($currentDate);
-
-            if (in_array($currentDate, $bookedDates)) {
-                echo " - จองแล้ว";
-            } elseif (in_array($currentDate, $unconfirmedDates)) {
-                echo " - จองแต่ยังไม่อนุมัติ";
-            } elseif (in_array($currentDate, $completedDates)) {
-                echo " - เสร็จสิ้นแล้ว";
-            } else {
-                echo " - ว่าง";
+            if ($resultBooking->num_rows > 0) {
+                $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
             }
 
-            echo "</p>";
-            echo "</div>";
-            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-        }
-        ?>
-        <div class="justify-content-center py-4 text-center">
-            <div class="row justify-content-center">
-                <div class="col-5">
-                    <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
-                        <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
-                    </button>
-                </div>
-                <div class="col-5">
-                    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
-                        <i class="fa-solid fa-bookmark"></i> จองคิว
-                    </button>
+            // คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
+            $today = date('Y-m-d');
+            $dayOfWeek = date('w', strtotime($today));
+            $startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
+            $endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+
+            // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
+            $bookedDates = [];
+            $unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
+            $completedDates = []; // เก็บวันที่ที่จองเสร็จสิ้น
+
+            if ($resultBooking->num_rows > 0) {
+                while ($rowBooking = $resultBooking->fetch_assoc()) {
+                    $startDate = $rowBooking['booking_start_date'];
+                    $endDate = $rowBooking['booking_end_date'];
+                    $confirmStatus = $rowBooking['booking_confirm_status'];
+
+                    // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+                    for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
+                        if ($confirmStatus == 1) {
+                            $bookedDates[] = $date;
+                        } elseif ($confirmStatus == 0) {
+                            $unconfirmedDates[] = $date;
+                        } elseif ($confirmStatus == 3) {
+                            $completedDates[] = $date;
+                        }
+                    }
+                }
+            }
+
+            // สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+            $allDates = [];
+            $currentDate = $startOfWeek;
+            for ($i = 0; $i < 7; $i++) {
+                $allDates[] = $currentDate;
+                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            }
+
+            // ลบวันจองที่ซ้ำออก
+            $bookedDates = array_unique($bookedDates);
+            $unconfirmedDates = array_unique($unconfirmedDates);
+            $completedDates = array_unique($completedDates);
+            ?>
+
+            <div class="col-3 flex-fill" style="margin-left: auto;">
+                <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <h4>ตารางงาน</h4>
+                    </div>
+                    <div class="ms-2 mb-2">
+                        ตารางงานสัปดาห์นี้
+                    </div>
+                    <?php
+                    // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+                    $currentDate = $startOfWeek;
+                    for ($i = 0; $i < 7; $i++) {
+                        $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
+
+                        if (in_array($currentDate, $bookedDates)) {
+                            $backgroundColor = 'lightcoral'; // มีการจองแล้ว
+                        } elseif (in_array($currentDate, $unconfirmedDates)) {
+                            $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
+                        } elseif (in_array($currentDate, $completedDates)) {
+                            $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
+                        }
+
+                        echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+                        echo "<p class='mb-0'>";
+                        echo "วันที่: " . htmlspecialchars($currentDate);
+
+                        if (in_array($currentDate, $bookedDates)) {
+                            echo " - จองแล้ว";
+                        } elseif (in_array($currentDate, $unconfirmedDates)) {
+                            echo " - จองแต่ยังไม่อนุมัติ";
+                        } elseif (in_array($currentDate, $completedDates)) {
+                            echo " - เสร็จสิ้นแล้ว";
+                        } else {
+                            echo " - ว่าง";
+                        }
+
+                        echo "</p>";
+                        echo "</div>";
+                        $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+                    }
+                    ?>
+                    <div class="justify-content-center py-4 text-center">
+                        <div class="row justify-content-center">
+                            <div class="col-5">
+                                <button type="button" class="btn btn-dark btn-sm" style="width: 100px; height:30px;" onclick="window.location.href='table.php?id_photographer=<?php echo $rowPhoto['photographer_id']; ?>'">
+                                    <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" style="width: 100px; height:30px;" data-bs-target="#details">
+                                    <i class="fa-solid fa-bookmark"></i> จองคิว
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
         </div>
     </div>
@@ -876,7 +1016,7 @@ $completedDates = array_unique($completedDates);
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">เวลาที่ใช้บริการ</span>
                                             </label>
                                             <div class="form-group col-12">
-                                                <input class="form-check-input me-1" type="radio" id="half" name="userIcon" value="half" checked>ครึ่งวัน (4 ชั่วโมงต่อวัน)
+                                                <input class="form-check-input me-1" type="radio" id="half" name="userIcon" value="half" checked>ครึ่งวัน (4 ชั่วโมงต่อวัน) สามารถจองได้เพียง 1 วันเท่านั้น
                                                 <input class="form-check-input me-1 ms-5" type="radio" id="full" name="userIcon" value="full">เต็มวัน (8 ชั่วโมงต่อวัน)
                                             </div>
                                         </div>
@@ -1075,111 +1215,126 @@ $completedDates = array_unique($completedDates);
         // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
         window.onload = setDefaultDate;
     </script>
-    
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const startDateInput = document.getElementById('start_date');
-        const endDateInput = document.getElementById('end_date');
 
-        // Disable past dates
-        const today = new Date().toISOString().split('T')[0];
-        startDateInput.setAttribute('min', today);
-        endDateInput.setAttribute('min', today);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
 
-        // Fetch unavailable dates from the server
-        function fetchUnavailableDates() {
-            return fetch('path_to_your_php_file.php')
-                .then(response => response.json())
-                .then(data => data)
-                .catch(error => {
-                    console.error('Error fetching unavailable dates:', error);
-                    return [];
-                });
-        }
+            // Disable past dates
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.setAttribute('min', today);
+            endDateInput.setAttribute('min', today);
 
-        // Update date pickers with unavailable dates
-        function updateDatePickers(unavailableDates) {
-            const minDate = new Date(startDateInput.getAttribute('min'));
-            const maxDate = new Date();
+            // Fetch unavailable dates from the server
+            function fetchUnavailableDates() {
+                return fetch('path_to_your_php_file.php')
+                    .then(response => response.json())
+                    .then(data => data)
+                    .catch(error => {
+                        console.error('Error fetching unavailable dates:', error);
+                        return [];
+                    });
+            }
 
-            // Update end date minimum based on start date
+            // Update end date minimum based on selected duration
             function updateEndDateMin() {
                 const startDate = new Date(startDateInput.value);
                 if (startDateInput.value) {
-                    endDateInput.setAttribute('min', startDate.toISOString().split('T')[0]);
+                    // If half-day is selected, end date must match start date
+                    if (document.getElementById('half').checked) {
+                        endDateInput.value = startDateInput.value;
+                        endDateInput.setAttribute('readonly', true);
+                    } else {
+                        endDateInput.removeAttribute('readonly');
+                        endDateInput.setAttribute('min', startDate.toISOString().split('T')[0]);
+                    }
                 } else {
                     endDateInput.setAttribute('min', today);
                 }
             }
 
-            // Disable unavailable dates in start date input
+            // Add event listener for start date input
             startDateInput.addEventListener('input', function() {
-                const selectedDate = new Date(startDateInput.value);
-                if (unavailableDates.includes(selectedDate.toISOString().split('T')[0])) {
-                    alert('Selected start date is unavailable.');
-                    startDateInput.value = '';
-                }
-                updateEndDateMin(); // Update min date for end date
+                updateEndDateMin();
             });
 
-            // Disable unavailable dates in end date input
-            endDateInput.addEventListener('input', function() {
-                const selectedDate = new Date(endDateInput.value);
-                if (unavailableDates.includes(selectedDate.toISOString().split('T')[0])) {
-                    alert('Selected end date is unavailable.');
-                    endDateInput.value = '';
-                }
+            // Add event listener for duration radio buttons
+            durationRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateEndDateMin(); // Update end date rules when switching between half-day and full-day
+                });
             });
+
+            // Disable unavailable dates in start date and end date inputs
+            function updateDatePickers(unavailableDates) {
+                startDateInput.addEventListener('input', function() {
+                    const selectedDate = new Date(startDateInput.value);
+                    if (unavailableDates.includes(selectedDate.toISOString().split('T')[0])) {
+                        alert('Selected start date is unavailable.');
+                        startDateInput.value = '';
+                    }
+                    updateEndDateMin();
+                });
+
+                endDateInput.addEventListener('input', function() {
+                    const selectedDate = new Date(endDateInput.value);
+                    if (unavailableDates.includes(selectedDate.toISOString().split('T')[0])) {
+                        alert('Selected end date is unavailable.');
+                        endDateInput.value = '';
+                    }
+                });
+            }
+
+            // Initialize
+            fetchUnavailableDates().then(unavailableDates => {
+                updateDatePickers(unavailableDates);
+            });
+        });
+    </script>
+    <script>
+        function calculateEndTime() {
+            // Get the start time input value
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
+
+            if (startTimeInput.value) {
+                // Get selected duration
+                let hoursToAdd = 4; // Default to half-day
+
+                durationRadios.forEach(radio => {
+                    if (radio.checked) {
+                        hoursToAdd = radio.value === 'full' ? 8 : 4;
+                    }
+                });
+
+                // Create Date objects for the start time and the end time
+                const startTime = new Date(`1970-01-01T${startTimeInput.value}:00`);
+                const endTime = new Date(startTime.getTime() + hoursToAdd * 60 * 60 * 1000); // Add hours
+
+                // Format the end time as HH:MM
+                const hours = String(endTime.getHours()).padStart(2, '0');
+                const minutes = String(endTime.getMinutes()).padStart(2, '0');
+                const formattedEndTime = `${hours}:${minutes}`;
+
+                // Set the value of the end time input
+                endTimeInput.value = formattedEndTime;
+            }
         }
 
-        // Initialize
-        fetchUnavailableDates().then(unavailableDates => {
-            updateDatePickers(unavailableDates);
-        });
-    });
-</script>
-    <script>
-    function calculateEndTime() {
-        // Get the start time input value
-        const startTimeInput = document.getElementById('start_time');
-        const endTimeInput = document.getElementById('end_time');
-        const durationRadios = document.querySelectorAll('input[name="userIcon"]');
-
-        if (startTimeInput.value) {
-            // Get selected duration
-            let hoursToAdd = 4; // Default to half-day
+        // Add event listeners for duration radio buttons and start time input
+        document.addEventListener('DOMContentLoaded', function() {
+            const durationRadios = document.querySelectorAll('input[name="userIcon"]');
+            const startTimeInput = document.getElementById('start_time');
 
             durationRadios.forEach(radio => {
-                if (radio.checked) {
-                    hoursToAdd = radio.value === 'full' ? 8 : 4;
-                }
+                radio.addEventListener('change', calculateEndTime);
             });
 
-            // Create Date objects for the start time and the end time
-            const startTime = new Date(`1970-01-01T${startTimeInput.value}:00`);
-            const endTime = new Date(startTime.getTime() + hoursToAdd * 60 * 60 * 1000); // Add hours
-
-            // Format the end time as HH:MM
-            const hours = String(endTime.getHours()).padStart(2, '0');
-            const minutes = String(endTime.getMinutes()).padStart(2, '0');
-            const formattedEndTime = `${hours}:${minutes}`;
-
-            // Set the value of the end time input
-            endTimeInput.value = formattedEndTime;
-        }
-    }
-
-    // Add event listeners for duration radio buttons and start time input
-    document.addEventListener('DOMContentLoaded', function() {
-        const durationRadios = document.querySelectorAll('input[name="userIcon"]');
-        const startTimeInput = document.getElementById('start_time');
-
-        durationRadios.forEach(radio => {
-            radio.addEventListener('change', calculateEndTime);
+            startTimeInput.addEventListener('input', calculateEndTime);
         });
-
-        startTimeInput.addEventListener('input', calculateEndTime);
-    });
-</script>
+    </script>
 
 </html>

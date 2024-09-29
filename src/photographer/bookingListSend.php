@@ -272,7 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .table th:nth-child(7),
         .table td:nth-child(7) {
-            width: 500px;
+            width: 200px;
             height: 50px;
             text-align: center;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -345,13 +345,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                                 <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                <a href="bookingListConfirmDeposit.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
                                 <a href="bookingListSend.php" class="dropdown-item active">รายการจองที่ต้องส่งงาน</a>
                                 <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                             </div>
                         </div>
-                        <a href="report.php" class="nav-item nav-link">รายงาน</a>                        
+                        <a href="report.php" class="nav-item nav-link">รายงาน</a>
                         <a href="dashboard.php" class="nav-item nav-link">สถิติ</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">โปรไฟล์</a>
@@ -415,7 +415,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         if ($rowBooking['booking_pay_status'] == '2') {
 
                                         ?>
-                                            <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
                                             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#checkDeposit<?php echo $rowBooking['booking_id']; ?>">ส่งงาน</button>
                                         <?php } ?>
                                     </td>
@@ -424,15 +423,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </td>
                                 </tr>
                                 <!-- details -->
-                                <div class="modal fade" id="details<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="detailsLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
+                                <div class="modal fade" id="checkDeposit<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="checkDepositLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-xl">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="detailsLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิว</b></h5>
+                                                <h5 class="modal-title" id="checkDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิว</b></h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body" style="height: auto;">
-                                                <div class="container-md mb-5">
+                                                <div class="container-md">
                                                     <div class="row">
                                                         <div class="col-md-6 container-fluid">
                                                             <div class="card">
@@ -483,182 +482,113 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6 container-fluid" style="height: 50%;">
-                                                            <div class="card">
-                                                                <div class="mt-3 mb-3 ms-3 me-3">
-                                                                    <div class="col-md-12 ms-3  mb-3">
-                                                                        <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ</h6>
-                                                                        <?php
-                                                                        if ($rowPay0 = $resultPay0->fetch_assoc()) :
-                                                                        ?>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    ค่ามัดจำที่จ่าย : <?php echo $rowPay0['deposit_price'] . ' บาท'; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    หลักฐานการชำระเงิน :
-                                                                                    <?php
-                                                                                    if (empty($rowPay0['pay_slip'])) {
-                                                                                        echo 'ลูกค้าชำระเป็นเงินสด';
-                                                                                    } else {
-                                                                                        echo '<a href="../img/slip/' . $rowPay0['pay_slip'] . '" target="_blank">ดูหลักฐานการชำระเงิน</a>';
-                                                                                    }
-                                                                                    ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    วันที่ชำระ : <?php echo $rowPay0['pay_date']; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    เวลาที่ชำระ : <?php echo $rowPay0['pay_time'] . ' น.'; ?>
-                                                                                </span>
-                                                                            </div>
-                                                                        <?php endif; ?>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer justify-content-center">
-                                                <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- checkDeposit -->
-                                <div class="modal fade" id="checkDeposit<?php echo $rowBooking['booking_id']; ?>" tabindex="-1" aria-labelledby="checkDepositLabel<?php echo $rowBooking['booking_id']; ?>" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-xl">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="checkDepositLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;การจองคิวที่ต้องการส่งงาน</b></h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body" style="height: auto;">
-                                                <div class="container-md mb-5">
-                                                    <div class="row">
-                                                        <div class="col-md-6 container-fluid">
-                                                            <div class="card">
-                                                                <div class="col-10 mt-3 mb-3 ms-3 me-3">
-                                                                    <h6 class="f mb-3 mt-3">ข้อมูลการจองของลูกค้า</h6>
-                                                                    <div class="col-12">
-                                                                        <div class="col-12">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 18px;">ชื่อ-นามสกุล : <?php echo  $rowBooking['cus_prefix'] . '' . $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></span>
-                                                                        </div>
-                                                                        <div class="col-12 mt-2">
-                                                                            <?php if ($rowBooking['booking_start_date'] == $rowBooking['booking_end_date']): ?>
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    วันที่จอง : <?php echo $rowBooking['booking_start_date']; ?>
-                                                                                </span>
-                                                                            <?php else: ?>
-                                                                                <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    วันที่จอง : <?php echo $rowBooking['booking_start_date'] . '  ถึง  ' . $rowBooking['booking_end_date']; ?>
-                                                                                </span>
+                                                            <div class="col-md-12">
+                                                                <div class="card">
+                                                                    <div class="mt-3 mb-3 ms-3 me-3">
+                                                                        <div class="col-md-12 ms-3  mb-3">
+                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการชำระค่ามัดจำ</h6>
+                                                                            <?php
+                                                                            if ($rowPay0 = $resultPay0->fetch_assoc()) :
+                                                                            ?>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        ค่ามัดจำที่จ่าย : <?php echo $rowPay0['deposit_price'] . ' บาท'; ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        หลักฐานการชำระเงิน :
+                                                                                        <?php
+                                                                                        if (empty($rowPay0['pay_slip'])) {
+                                                                                            echo 'ลูกค้าชำระเป็นเงินสด';
+                                                                                        } else {
+                                                                                            echo '<a href="../img/slip/' . $rowPay0['pay_slip'] . '" target="_blank">ดูหลักฐานการชำระเงิน</a>';
+                                                                                        }
+                                                                                        ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        วันที่ชำระ : <?php echo $rowPay0['pay_date']; ?>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-12 mt-2">
+                                                                                    <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                                                                        เวลาที่ชำระ : <?php echo $rowPay0['pay_time'] . ' น.'; ?>
+                                                                                    </span>
+                                                                                </div>
                                                                             <?php endif; ?>
                                                                         </div>
-                                                                        <div class="col-12 mt-2">
-                                                                            <?php
-                                                                            $startTime = new DateTime($rowBooking['booking_start_time']);
-                                                                            $endTime = new DateTime($rowBooking['booking_end_time']);
-
-                                                                            $formattedStartTime = $startTime->format('H:i');
-                                                                            $formattedEndTime = $endTime->format('H:i');
-                                                                            ?>
-
-                                                                            <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                เวลา : <?php echo $formattedStartTime . ' น.' . '  -  ' . $formattedEndTime . ' น.'; ?>
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานที่ : <?php echo  $rowBooking['booking_location']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ประเภทงาน : <?php echo  $rowBooking['type_work']; ?></span> </div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px; font-size: 18px; overflow-wrap: break-word;">คำอธิบาย : <?php echo $rowBooking['booking_details']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
-                                                                        <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '0') ? 'ยังไม่ชำระ' : (($rowBooking['booking_pay_status'] == '2') ? 'ชำระค่ามัดจำแล้วรอส่งงาน' : 'รอชำระเงิน'); ?></span></div>
                                                                     </div>
-
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="col-6 mt-3">
-                                                            <form action=" " method="POST">
-                                                                <!-- ส่งงานเริ่มต้น -->
-                                                                <h6 class="f mb-3 mt-3">ข้อมูลการส่งมอบงาน</h6>
-                                                                <div class="col-md-12 mt-3 text-center">
+                                                            <div class="col-md-12">
+                                                                <form action=" " method="POST">
+                                                                    <!-- ส่งงานเริ่มต้น -->
+                                                                    <h6 class="f mb-3 mt-3">ข้อมูลการส่งมอบงาน</h6>
+                                                                    <div class="col-md-12 mt-3 text-center">
+                                                                        <label for="folderLink" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ลิงก์ไปยังโฟลเดอร์ที่คุณเก็บผลงาน</span>
+                                                                            <span style="color: red;">*</span>
+                                                                        </label>
+                                                                        <input type="url" name="folderLink" placeholder="วางลิงก์ที่นี่" required class="form-control">
+                                                                    </div>
                                                                     <!-- Google Drive Link Input -->
-                                                                    <label for="folderLink" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
-                                                                        <span style="color: black; margin-right: 5px;font-size: 13px;">ลิงก์ไปยังโฟลเดอร์ Google Drive</span>
-                                                                        <span style="color: red;">*</span>
-                                                                    </label>
-                                                                    <input type="url" id="folderLink" name="folderLink" placeholder="วางลิงก์ที่นี่" required class="form-control" onblur="validateDriveLink()">
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-md-6 mt-3">
-                                                                        <!-- Date Input -->
-                                                                        <label for="submitDate<?php echo $rowBooking['booking_id']; ?>" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่</span>
+                                                                    <!-- <div class="col-md-12 mt-3 text-center">
+                                                                        <label for="folderLink" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
+                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">ลิงก์ไปยังโฟลเดอร์ Google Drive</span>
+                                                                            <span style="color: red;">*</span>
                                                                         </label>
-                                                                        <input type="text" id="submitDate<?php echo $rowBooking['booking_id']; ?>" name="submitDate" readonly class="form-control">
+                                                                        <input type="url" id="folderLink" name="folderLink" placeholder="วางลิงก์ที่นี่" required class="form-control" onblur="validateDriveLink()">
+                                                                    </div> -->
+                                                                    <div class="row">
+                                                                        <input type="hidden" id="submitDate<?php echo $rowBooking['booking_id']; ?>" name="submitDate" readonly class="form-control">
+                                                                        <input type="hidden" id="submitTime<?php echo $rowBooking['booking_id']; ?>" name="submitTime" readonly class="form-control">
                                                                     </div>
-                                                                    <div class="col-md-6 mt-3">
-                                                                        <!-- Time Input -->
-                                                                        <label for="submitTime<?php echo $rowBooking['booking_id']; ?>" style="font-weight: bold; display: flex; align-items: center; margin-right: 5px;">
-                                                                            <span style="color: black; margin-right: 5px;font-size: 13px;">เวลา</span>
-                                                                        </label>
-                                                                        <input type="text" id="submitTime<?php echo $rowBooking['booking_id']; ?>" name="submitTime" readonly class="form-control">
-                                                                    </div>
-                                                                </div>
-                                                                <!-- ส่งงานสิ้นสุด -->
-                                                                <script>
-                                                                    function setCurrentDateTime(bookingId) {
-                                                                        const now = new Date();
-                                                                        // Format date as YYYY-MM-DD
-                                                                        const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                                                                        // Format time as HH:MM
-                                                                        const formattedTime = now.toLocaleTimeString('th-TH', {
-                                                                            hour: '2-digit',
-                                                                            minute: '2-digit'
+                                                                    <!-- ส่งงานสิ้นสุด -->
+                                                                    <script>
+                                                                        function setCurrentDateTime(bookingId) {
+                                                                            const now = new Date();
+                                                                            // Format date as YYYY-MM-DD
+                                                                            const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                                                                            // Format time as HH:MM
+                                                                            const formattedTime = now.toLocaleTimeString('th-TH', {
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit'
+                                                                            });
+
+                                                                            // Set values in the input fields with bookingId
+                                                                            document.getElementById('submitDate' + bookingId).value = formattedDate;
+                                                                            document.getElementById('submitTime' + bookingId).value = formattedTime;
+                                                                        }
+
+                                                                        // Set current date and time on page load for this specific booking
+                                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                                            const bookingId = <?php echo $rowBooking['booking_id']; ?>;
+                                                                            setCurrentDateTime(bookingId);
                                                                         });
 
-                                                                        // Set values in the input fields with bookingId
-                                                                        document.getElementById('submitDate' + bookingId).value = formattedDate;
-                                                                        document.getElementById('submitTime' + bookingId).value = formattedTime;
-                                                                    }
-
-                                                                    // Set current date and time on page load for this specific booking
-                                                                    document.addEventListener('DOMContentLoaded', function() {
-                                                                        const bookingId = <?php echo $rowBooking['booking_id']; ?>;
-                                                                        setCurrentDateTime(bookingId);
-                                                                    });
-
-                                                                    // Function to validate Google Drive link
-                                                                    function validateDriveLink() {
-                                                                        const link = document.getElementById('folderLink').value;
-                                                                        const regex = /^https:\/\/drive\.google\.com\/.*$/; // Basic regex to check for Google Drive links
-                                                                        if (!regex.test(link)) {
-                                                                            alert('กรุณากรอกลิงก์ที่มาจาก Google Drive เท่านั้น');
-                                                                            document.getElementById('folderLink').value = ''; // Clear the input field
+                                                                        // Function to validate Google Drive link
+                                                                        function validateDriveLink() {
+                                                                            const link = document.getElementById('folderLink').value;
+                                                                            const regex = /^https:\/\/drive\.google\.com\/.*$/; // Basic regex to check for Google Drive links
+                                                                            if (!regex.test(link)) {
+                                                                                alert('กรุณากรอกลิงก์ที่มาจาก Google Drive เท่านั้น');
+                                                                                document.getElementById('folderLink').value = ''; // Clear the input field
+                                                                            }
                                                                         }
-                                                                    }
-                                                                </script>
+                                                                    </script>
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                </div><input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
+                                                <div class="modal-footer justify-content-center mt-3">
+                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                    <button id="saveButton" name="submit_booking_confirm_status" class="btn btn-primary" style="width: 170px; height:45px;">บันทึกการส่งงาน</button>
                                                 </div>
+                                                </form>
                                             </div>
-                                            <input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
-                                            <div class="modal-footer justify-content-center">
-                                                <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
-                                                <button id="saveButton" name="submit_booking_confirm_status" class="btn btn-primary" style="width: 170px; height:45px;">บันทึกการส่งงาน</button>
-                                            </div>
-                                            </form>
+
                                         </div>
                                     </div>
                                 </div>

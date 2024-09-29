@@ -22,7 +22,8 @@ $sql2 = "SELECT b.*,
                 c.cus_tell, 
                 c.cus_email, 
                 t.type_work, 
-                (b.booking_price * 0.30) AS deposit_price
+                (b.booking_price * 0.30) AS deposit_price,
+                b.booking_pay_status
          FROM booking b
          JOIN customer c ON b.cus_id = c.cus_id
          JOIN `type` t ON b.type_of_work_id = t.type_id
@@ -159,7 +160,7 @@ $resultBooking = $conn->query($sql2);
 
         .table th:nth-child(8),
         .table td:nth-child(8) {
-            width: 500px;
+            width: 200px;
             height: 50px;
             text-align: center;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -233,7 +234,7 @@ $resultBooking = $conn->query($sql2);
                                 <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
                                 <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
                                 <a href="bookingListApproved.php" class="dropdown-item active">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                <a href="bookingListConfirmDeposit.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
                                 <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
                                 <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
                                 <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
@@ -311,7 +312,7 @@ $resultBooking = $conn->query($sql2);
                                         if ($rowBooking['booking_pay_status'] == '0') {
                                             echo '<p class="mt-3">ยังไม่ชำระ</p>';
                                         } else if ($rowBooking['booking_pay_status'] == '1') {
-                                            echo '<p>ชำระค่ามัดจำแล้ว</p>';
+                                            echo '<a href="bookingListConfirmDeposit.php">ชำระค่ามัดจำแล้ว</a>';
                                         } else if ($rowBooking['booking_pay_status'] == '3') {
                                             echo '<p>ชำระเงินแล้ว</p>';
                                         } else {
@@ -331,7 +332,6 @@ $resultBooking = $conn->query($sql2);
                                                 <h5 class="modal-title" id="detailsLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fas fa-clipboard-list"></i>&nbsp;&nbsp;รายละเอียดการจองคิวที่อนุมัติแล้ว</b></h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action=" " method="POST">
                                                 <div class="modal-body" style="height: auto;">
                                                     <div class="container-md mb-5">
                                                         <div class="row">
@@ -378,9 +378,8 @@ $resultBooking = $conn->query($sql2);
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer justify-content-center">
-                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                    <button type="button" class="btn" style="background-color:gray; color:#ffff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                 </div>
-                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -396,7 +395,7 @@ $resultBooking = $conn->query($sql2);
         </div>
         <div class="row justify-content-center mt-2 container-center text-center">
             <div class="col-md-12">
-                <button onclick="window.history.back();" class="btn btn-danger mb-5 " style="width: 150px; height: 45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn mb-5 " style="background-color:gray; color:#ffff; width: 150px; height: 45px;">ย้อนกลับ</button>
             </div>
         </div>
     </div>

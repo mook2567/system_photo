@@ -15,39 +15,91 @@ if (isset($_SESSION['customer_login'])) {
     $id_cus = $rowCus['cus_id'];
 }
 
+// Prepare the SQL statement
+$sql1 = "SELECT 
+        b.booking_id, 
+        t.type_work, 
+        b.booking_start_date, 
+        b.booking_end_date, 
+        b.booking_details, 
+        b.booking_price, 
+        b.booking_start_time, 
+        b.booking_end_time, 
+        b.booking_location,  
+        b.booking_pay_status, 
+        (b.booking_price * 0.3) AS deposit_price, 
+        (b.booking_price - (b.booking_price * 0.3)) AS payment_price, 
+        p.photographer_prefix, 
+        p.photographer_name, 
+        p.photographer_surname, 
+        p.photographer_tell, 
+        p.photographer_email, 
+        c.cus_prefix, 
+        c.cus_name, 
+        c.cus_surname, 
+        c.cus_tell, 
+        c.cus_email, 
+        s.submit_date, 
+        s.submit_details, 
+        s.submit_time
+    FROM 
+        booking b
+    JOIN 
+        type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+    JOIN 
+        type t ON t.type_id = tow.type_id
+    JOIN 
+        customer c ON c.cus_id = b.cus_id
+    JOIN 
+        photographer p ON p.photographer_id = b.photographer_id
+    JOIN 
+        submit s ON s.booking_id = b.booking_id
+    WHERE 
+        c.cus_id = ? AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
+        )
+";
 
-$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work, p.*, sub.*,
-        (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-        (b.booking_price * 0.30) AS deposit_price
-    FROM booking b
-    JOIN customer c ON b.cus_id = c.cus_id
-    JOIN `type` t ON b.type_of_work_id = t.type_id
-    JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
-    JOIN photographer p ON p.photographer_id = b.photographer_id
-    JOIN submit sub ON sub.booking_id = b.booking_id
-    WHERE c.cus_id = $id_cus
-    AND b.booking_confirm_status = '1'
-    AND b.booking_pay_status = '4' OR b.booking_pay_status = '5'
-    AND sub.submit_details IS NOT NULL
-     ORDER BY b.booking_pay_status DESC
-    ";
+// Prepare the statement
+$stmt = $conn->prepare($sql1);
 
-$resultBooking = $conn->query($sql1);
+// Bind the parameter
+$stmt->bind_param("i", $id_cus);
 
-$sql2 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-        (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'";
+// Execute the statement
+$stmt->execute();
+
+// Get the result
+$resultBooking = $stmt->get_result();
+
+
+$sql2 = "SELECT pay.*, (b.booking_price * 0.30) AS deposit_price 
+            FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
+        )ORDER BY `b`.`booking_id` DESC ";
 $resultPay0 = $conn->query($sql2);
 
-$sql3 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-(b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'";
+$sql3 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price 
+        FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
+        )ORDER BY `b`.`booking_id` DESC ";
 $resultPay1 = $conn->query($sql3);
 
-$sql4 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-        (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'";
+$sql4 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price
+        FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
+        )ORDER BY `b`.`booking_id` DESC ";
 $resultPay2 = $conn->query($sql4);
 
-$sql5 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-(b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'";
+$sql5 = "SELECT pay.*, (b.booking_price * 0.30) AS deposit_price 
+        FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '1'AND (
+            (b.booking_pay_status = '5' AND b.booking_confirm_status = '3')
+            OR (b.booking_pay_status = '4' AND b.booking_confirm_status = '1')
+        )ORDER BY `b`.`booking_id` DESC ";
 $resultPay3 = $conn->query($sql5);
 
 ?>
@@ -220,7 +272,7 @@ $resultPay3 = $conn->query($sql5);
         }
 
         .table th:nth-child(6),
-        .table td:nth-child(6){
+        .table td:nth-child(6) {
             width: 300px;
             height: 50px;
             text-align: center;
@@ -349,7 +401,6 @@ $resultPay3 = $conn->query($sql5);
                                                 echo '<div class="card" style="height: 30px; background-color:FFCFB3; bold:none"><p>รอตรวจสอบการชำระเงิน</p><div>';
                                             } else if ($rowBooking['booking_pay_status'] == '5') {
                                                 echo '<div class="card" style="height: 30px; background-color:B7E0FF; bold:none"><p>ตรวจสอบการชำระเงินแล้ว</p><div>';
-
                                             } else {
                                                 echo '<p class="mt-3">สถานะไม่ถูกต้อง</p>';
                                             }
@@ -431,7 +482,7 @@ $resultPay3 = $conn->query($sql5);
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
-                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                                                    <!-- <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div> -->
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '2') ? 'รอชำระเงิน' : (($rowBooking['booking_pay_status'] == '4') ? 'ชำระเงินแล้วรอตรวจสอบ' : 'ตรวจสอบแล้ว'); ?></span></div>
                                                                                 </div>
                                                                             </div>
@@ -520,10 +571,10 @@ $resultPay3 = $conn->query($sql5);
                                                                 <div class="card mt-3" style="height: auto;">
                                                                     <div class="mt-3 mb-3 ms-3 me-3">
                                                                         <div class="col-md-12 ms-3">
-                                                                            <h6 class="f mt-3 mb-3">ข้อมูลการส่งมอบงาน</h6>
+                                                                            <h6 class="f mt-2 mb-3">ข้อมูลการส่งมอบงาน</h6>
                                                                             <div class="col-12 mt-2">
                                                                                 <span style="color: black; margin-right: 5px; font-size: 18px;">
-                                                                                    ไดรฟ์ส่งงาน : <a href="#" onclick="alert('รอยืนยันการรับชำระเงินจากช่างภาะ'); return false;">ดูไดรฟ์ส่งงาน</a>
+                                                                                    ไดรฟ์ส่งงาน : <a href="#" onclick="alert('รอยืนยันการรับชำระเงินจากช่างภาพ'); return false;">ดูไดรฟ์ส่งงาน</a>
                                                                                 </span>
                                                                             </div>
                                                                             <div class="col-12 mt-2">
@@ -548,7 +599,7 @@ $resultPay3 = $conn->query($sql5);
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer justify-content-center mt-3">
-                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                            <button type="button" class="btn" style="background-color:gray; color:#ffff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -622,7 +673,7 @@ $resultPay3 = $conn->query($sql5);
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">ราคาจ่าย : <?php echo  $rowBooking['booking_price'] . ' บาท'; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">เบอร์โทรศัพท์มือถือ : <?php echo  $rowBooking['cus_tell']; ?></span></div>
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">อีเมล : <?php echo  $rowBooking['cus_email']; ?></span></div>
-                                                                                    <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div>
+                                                                                    <!-- <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">วันที่บันทึก : <?php echo  $rowBooking['booking_date']; ?></span> </div> -->
                                                                                     <div class="col-12 mt-2"><span style="color: black; margin-right: 5px;font-size: 18px;">สถานะการชำระ : <?php echo ($rowBooking['booking_pay_status'] == '2') ? 'รอชำระเงิน' : (($rowBooking['booking_pay_status'] == '4') ? 'ชำระเงินแล้วรอตรวจสอบ' : 'ตรวจสอบแล้ว'); ?></span></div>
                                                                                 </div>
                                                                             </div>
@@ -733,7 +784,7 @@ $resultPay3 = $conn->query($sql5);
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer justify-content-center mt-3">
-                                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                            <button type="button" class="btn" style="background-color:gray; color:#ffff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                             <!-- <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ไปยังหน้ารีวิว</button> -->
                                                         </div>
                                                     </div>

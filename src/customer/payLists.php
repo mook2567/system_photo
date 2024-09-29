@@ -321,7 +321,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .table th:nth-child(7),
         .table td:nth-child(7) {
-            width: 500px;
+            width: 200px;
             height: 50px;
             text-align: center;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -478,7 +478,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             ?>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button>
+                                            <!-- <button type="button" class="btn btn-primary btn-sm me-3" data-bs-toggle="modal" data-bs-target="#details<?php echo $rowBooking['booking_id']; ?>">ดูเพิ่มเติม</button> -->
                                             <button type="button" class="btn btn-warning btn-sm me-3" data-bs-toggle="modal" data-bs-target="#payDeposit<?php echo $rowBooking['booking_id']; ?>">ชำระค่ามัดจำ</button>
                                         </td>
                                     </tr>
@@ -716,7 +716,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                                         <span style="color: black; margin-right: 5px; font-size: 13px;">วันที่ชำระ</span>
                                                                                         <span style="color: red;">*</span>
                                                                                     </label>
-                                                                                    <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required min="<?php echo $minDate; ?>">
+                                                                                    <input type="date" id="pay_date" name="pay_date" class="form-control mt-1" style="resize: none;" required >
                                                                                 </div>
                                                                                 <div class="col-6">
                                                                                     <label for="pay_time" style="font-weight: bold; display: flex; align-items: center;">
