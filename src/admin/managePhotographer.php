@@ -3,7 +3,7 @@ session_start();
 include '../config_db.php';
 require_once '../popup.php';
 
-$sql = "SELECT * FROM `photographer` WHERE photographer_license = '1'";
+$sql = "SELECT * FROM `photographer` WHERE photographer_license = '1' OR photographer_license = '2'";
 $result = $conn->query($sql);
 
 // Fetching data from 'information' table
@@ -153,8 +153,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
 
-        .table th:nth-child(5),
-        .table td:nth-child(5) {
+        .table th:nth-child(6),
+        .table td:nth-child(6) {
             width: 500px;
             height: 50px;
             text-align: center;
@@ -165,10 +165,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .table th:nth-child(2),
         .table th:nth-child(3),
         .table th:nth-child(4),
+        .table th:nth-child(5),
         .table td:nth-child(1),
         .table td:nth-child(2),
         .table td:nth-child(3),
-        .table td:nth-child(4) {
+        .table td:nth-child(4),
+        .table td:nth-child(5) {
             width: 200px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
@@ -229,8 +231,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Navbar End -->
     <div style="height: 100%;">
         <div class="footer-box text-center mt-5" style="font-size: 18px;"><b><i class="fa fa-camera"></i>&nbsp;&nbsp;รายการข้อมูลช่างภาพ</b></div>
+        <div class="container-sm d-flex justify-content-end col-7 mt-4">
+            <div>
+                <input type="text" id="searchInput" class="form-control col-3" placeholder="ค้นหาข้อมูลช่างภาพ" onkeyup="searchTable()" style="margin-bottom: 15px;">
+            </div>
+        </div>
         <div class="container-sm mt-2 table-responsive col-7">
-            <table class="table bg-white table-hover table-bordered-3">
+            <table class="table bg-white table-hover table-bordered-3" id="photographerTable">
                 <thead>
                     <tr>
                         <!-- <th scope="col">รหัส</th> -->
@@ -238,6 +245,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <th scope="col">นามสกุล</th>
                         <th scope="col">เบอร์โทรศัพท์</th>
                         <th scope="col">อีเมล</th>
+                        <th scope="col">สถานะ</th>
                         <th scope="col">ดำเนินการ</th>
                     </tr>
                 </thead>
@@ -251,13 +259,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <td><?php echo $row['photographer_surname']; ?></td>
                             <td><?php echo $row['photographer_tell']; ?></td>
                             <td><?php echo $row['photographer_email']; ?></td>
+                            <td><?php if ($row['photographer_license'] == '1') {
+                                    echo 'มีสิทธิ์การใช้งาน';
+                                } elseif ($row['photographer_license'] == '2') {
+                                    echo 'ไม่มีสิทธิ์การใช้งาน';
+                                } else {
+                                    echo 'ไม่ทราบสิทธิ์การใช้งาน';
+                                } ?></td>
                             <td>
                                 <!-- <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='managePhotographerDetails.php? id=<?php echo $row['photographer_id']; ?>'">ดูเพิ่มเติม</button> -->
                                 <!-- <button type="button" class="btn btn-warning btn-sm" onclick="window.location.href='managePhotographerEdite.php? id=<?php echo $row['photographer_id']; ?>'">แก้ไข</button> -->
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['photographer_id']; ?>">ดูเพิ่มเติม</button>
+                                <!-- <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['photographer_id']; ?>">ดูเพิ่มเติม</button> -->
                                 <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['photographer_id']; ?>">กำหนดสิทธิ์</button>
                             </td>
                         </tr>
+                        <script>
+                            function searchTable() {
+                                // ประกาศตัวแปร
+                                var input, filter, table, tr, td, i, txtValue;
+                                input = document.getElementById("searchInput");
+                                filter = input.value.toLowerCase(); // เปลี่ยนค่าเป็นพิมพ์เล็ก
+                                table = document.getElementById("photographerTable");
+                                tr = table.getElementsByTagName("tr");
+
+                                // วนลูปผ่านแถวทั้งหมดของตาราง
+                                for (i = 1; i < tr.length; i++) { // เริ่มจาก 1 เพราะแถวแรกเป็นหัวตาราง
+                                    tr[i].style.display = "none"; // ซ่อนแถวทั้งหมดก่อน
+
+                                    // วนลูปผ่านแต่ละคอลัมน์ของแถว
+                                    td = tr[i].getElementsByTagName("td");
+                                    for (var j = 0; j < td.length; j++) {
+                                        if (td[j]) {
+                                            txtValue = td[j].textContent || td[j].innerText;
+                                            if (txtValue.toLowerCase().indexOf(filter) > -1) { // เปลี่ยนค่าของ txtValue เป็นพิมพ์เล็ก
+                                                tr[i].style.display = ""; // แสดงแถวที่ตรงกับคำค้นหา
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        </script>
                         <!-- Detaile Modal -->
                         <div class="modal fade" id="detaileModal<?php echo $row['photographer_id']; ?>" tabindex="-1" aria-labelledby="detaileModalLabel<?php echo $row['photographer_id']; ?>" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -424,7 +466,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         </div>
                                     </div>
                                     <div class="modal-footer mt-2 justify-content-center">
-                                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                        <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                     </div>
                                 </div>
                             </div>
@@ -613,7 +655,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </div>
                                     <input type="hidden" name="photographer_id" value="<?php echo $row['photographer_id']; ?>">
                                     <div class="modal-footer mt-2 justify-content-center">
-                                        <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                        <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                         <button type="submit" name="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                                     </div>
                                     </form>
@@ -627,19 +669,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </tbody>
             </table>
         </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12">
+        <div class="row justify-content-center mt-4 text-center">
+            <div class="col-md-12 mt-4 ">
                 <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn me-4" style="color:#fff; background-color: gray; width: 150px; height:45px;">ย้อนกลับ</button>
             </div>
         </div>
     </div>
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
+    <div class="container-fluid text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
             <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+                <div class="col-md-6 text-dark text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
             </div>
         </div>

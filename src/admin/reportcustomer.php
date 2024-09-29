@@ -25,9 +25,44 @@ if (file_exists($image_path)) {
     $image_base64 = ''; // Handle case if the image doesn't exist
 }
 
-$sqlUser = "SELECT cus.cus_id AS id, cus.cus_prefix AS prefix, cus.cus_name AS firstname, cus.cus_surname AS surname, cus.cus_tell AS phone, cus.cus_district AS district, cus.cus_province AS province, cus.cus_email AS email, cus.cus_license AS license, 'ลูกค้า' AS types, COUNT(b.cus_id) AS num FROM customer cus LEFT JOIN booking b ON b.cus_id = cus.cus_id WHERE cus.cus_license = '1' GROUP BY cus.cus_id, cus.cus_prefix, cus.cus_name, cus.cus_surname, cus.cus_tell, cus.cus_district, cus.cus_province, cus.cus_email, cus.cus_license;
-            ";
+$sqlUser = "
+SELECT 
+    cus.cus_id AS id, 
+    cus.cus_prefix AS prefix, 
+    cus.cus_name AS firstname, 
+    cus.cus_surname AS surname, 
+    cus.cus_tell AS phone, 
+    cus.cus_district AS district, 
+    cus.cus_province AS province, 
+    cus.cus_email AS email, 
+    cus.cus_license AS license, 
+    'ลูกค้า' AS types, 
+    COUNT(b.cus_id) AS num,
+    SUM(CASE WHEN b.booking_pay_status = 5 THEN 1 ELSE 0 END) AS completed_bookings,
+    SUM(CASE WHEN b.booking_pay_status = 0 AND b.booking_confirm_status = 1 THEN 1 ELSE 0 END) AS unpaid_bookings,
+    SUM(CASE WHEN b.booking_pay_status = 0 AND b.booking_confirm_status = 2 THEN 1 ELSE 0 END) AS not_bookings,
+    COUNT(r.booking_id) AS review_count
+FROM 
+    customer cus 
+LEFT JOIN 
+    booking b ON b.cus_id = cus.cus_id 
+LEFT JOIN 
+    review r ON r.booking_id = b.booking_id 
+WHERE 
+    cus.cus_license = '1' 
+GROUP BY 
+    cus.cus_id, 
+    cus.cus_prefix, 
+    cus.cus_name, 
+    cus.cus_surname, 
+    cus.cus_tell, 
+    cus.cus_district, 
+    cus.cus_province, 
+    cus.cus_email, 
+    cus.cus_license;
+";
 $resultUser = $conn->query($sqlUser);
+
 ?>
 
 
@@ -130,7 +165,8 @@ $resultUser = $conn->query($sqlUser);
 
         .table th:nth-child(1),
         .table td:nth-child(1) {
-            width: 100px;
+            width: 50px;
+            /* ลำดับที่ */
             height: 50px;
             overflow: hidden;
             text-align: center;
@@ -138,23 +174,46 @@ $resultUser = $conn->query($sqlUser);
         }
 
         .table th:nth-child(2),
+        .table td:nth-child(2) {
+            width: 200px;
+            /* ชื่อ-นามสกุล */
+            height: 50px;
+        }
+
         .table th:nth-child(3),
+        .table td:nth-child(3) {
+            width: 80px;
+            /* เบอร์โทรศัพท์ */
+            height: 50px;
+        }
+
         .table th:nth-child(4),
+        .table td:nth-child(4) {
+            width: 100px;
+            /* อีเมล */
+            height: 50px;
+        }
+
         .table th:nth-child(5),
         .table th:nth-child(6),
         .table th:nth-child(7),
         .table th:nth-child(8),
-        .table th:nth-child(9),
-        .table td:nth-child(2),
-        .table td:nth-child(3),
-        .table td:nth-child(4),
+        .table th:nth-child(9) {
+            width: 40px;
+            /* จำนวนการจอง, จำนวนการจองที่ถูกปฏิเสธ, จำนวนการจองที่ยังไม่ชำระ, จำนวนการจองที่ชำระเสร็จสิ้น, จำนวนการจองที่รีวิว */
+            height: 50px;
+            text-align: center;
+        }
+
         .table td:nth-child(5),
         .table td:nth-child(6),
         .table td:nth-child(7),
         .table td:nth-child(8),
         .table td:nth-child(9) {
-            width: 200px;
+            width: 40px;
+            /* จำนวนการจอง, จำนวนการจองที่ถูกปฏิเสธ, จำนวนการจองที่ยังไม่ชำระ, จำนวนการจองที่ชำระเสร็จสิ้น, จำนวนการจองที่รีวิว */
             height: 50px;
+            text-align: center;
         }
 
         .table .btn {
@@ -210,20 +269,21 @@ $resultUser = $conn->query($sqlUser);
         </div>
     </nav>
     <!-- Navbar End -->
-    <div style="height: 100%;">
+    <div style="height: 100%; ">
         <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลลูกค้า</b></div>
-        <div class="container-sm mt-2 table-responsive col-10">
-            <table id="example" class="table bg-white table-hover table-bordered-3">
+        <div class="container-lg mt-2 table-responsive">
+            <table id="example" class="mt-5 table bg-white table-hover table-bordered-3">
                 <thead>
                     <tr>
                         <th scope="col">ลำดับที่</th>
-                        <th scope="col">ชื่อจริง</th>
-                        <th scope="col">นามสกุล</th>
+                        <th scope="col">ชื่อ-นามสกุล</th>
                         <th scope="col">เบอร์โทรศัพท์</th>
-                        <th scope="col">อำเภอ</th>
-                        <th scope="col">จังหวัด</th>
                         <th scope="col">อีเมล</th>
                         <th scope="col">จำนวนการจอง</th>
+                        <th scope="col">จำนวนการจองที่ถูกปฏิเสธ</th>
+                        <th scope="col">จำนวนการจองที่ยังไม่ชำระ</th>
+                        <th scope="col">จำนวนการจองที่ชำระเสร็จสิ้น</th>
+                        <th scope="col">จำนวนการจองที่รีวิว</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -234,18 +294,19 @@ $resultUser = $conn->query($sqlUser);
                     ?>
                             <tr>
                                 <td><?php echo $counter++; ?></td>
-                                <td><?php echo $rowUser['prefix'] . ' ' . $rowUser['firstname']; ?></td>
-                                <td><?php echo $rowUser['surname']; ?></td>
+                                <td><?php echo $rowUser['prefix'] . $rowUser['firstname'] . ' ' . $rowUser['surname']; ?></td>
                                 <td><?php echo $rowUser['phone']; ?></td>
-                                <td><?php echo $rowUser['district']; ?></td>
-                                <td><?php echo $rowUser['province']; ?></td>
                                 <td><?php echo $rowUser['email']; ?></td>
                                 <td><?php echo $rowUser['num']; ?></td>
+                                <td><?php echo $rowUser['not_bookings']; ?></td>
+                                <td><?php echo $rowUser['unpaid_bookings']; ?></td>
+                                <td><?php echo $rowUser['completed_bookings']; ?></td>
+                                <td><?php echo $rowUser['review_count']; ?></td>
                             </tr>
                     <?php
                         }
                     } else {
-                        echo "<tr><td colspan='8'>ไม่พบข้อมูล</td></tr>";
+                        echo "<tr><td colspan='9'>ไม่พบข้อมูล</td></tr>"; // แก้ไขให้ colspan = 9
                     }
                     ?>
                 </tbody>
@@ -253,12 +314,12 @@ $resultUser = $conn->query($sqlUser);
         </div>
         <div class="row justify-content-center mt-3 container-center text-center">
             <div class="col-md-12">
-                <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
                 <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
             </div>
         </div>
     </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
@@ -277,10 +338,10 @@ $resultUser = $conn->query($sqlUser);
             const {
                 jsPDF
             } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF('landscape'); // Set orientation to landscape
 
             // Add custom font (THSarabunNew)
-            var fontBase64 = "<?php echo $fontBase64; ?>";
+            const fontBase64 = "<?php echo $fontBase64; ?>";
             if (fontBase64) {
                 doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
                 doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
@@ -288,20 +349,20 @@ $resultUser = $conn->query($sqlUser);
             }
 
             // Add image
-            var imgBase64 = "<?php echo $image_base64; ?>";
+            const imgBase64 = "<?php echo $image_base64; ?>";
             if (imgBase64) {
                 const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-                doc.addImage(imgBase64, imageType, 10, 10, 45, 12); // ปรับขนาดของภาพ
+                doc.addImage(imgBase64, imageType, 10, 10, 45, 12); // Adjust image size
 
                 // Add system name under the image
-                var informationName = "<?php echo $information_name; ?>";
-                doc.setFontSize(20); // ขนาดตัวอักษร
-                doc.text(informationName, 15, 30); // ปรับตำแหน่งตัวอักษรใต้ภาพ
+                const informationName = "<?php echo $information_name; ?>";
+                doc.setFontSize(20); // Set font size
+                doc.text(informationName, 15, 30); // Position text below image
 
                 // Add detail text on a new line
-                var informationCaption = "<?php echo $information_caption; ?>";
-                doc.setFontSize(16); // ขนาดตัวอักษร
-                doc.text(informationCaption, 15, 37); // ปรับตำแหน่งข้อความเพิ่มเติม
+                const informationCaption = "<?php echo $information_caption; ?>";
+                doc.setFontSize(16); // Set font size
+                doc.text(informationCaption, 15, 37); // Position additional text
             }
 
             // Define table content
@@ -311,25 +372,52 @@ $resultUser = $conn->query($sqlUser);
                 return [...cells].map(td => td.innerText);
             });
 
-            // Add table with adjusted position
+            // Set column widths
+            const columnWidths = [
+                20, // ลำดับที่
+                50, // ชื่อ-นามสกุล
+                30, // เบอร์โทรศัพท์
+                40, // อีเมล
+                15, // จำนวนการจอง (narrowed)
+                15, // จำนวนการจองที่ถูกปฏิเสธ (narrowed)
+                15, // จำนวนการจองที่ยังไม่ชำระ (narrowed)
+                15, // จำนวนการจองที่ชำระเสร็จสิ้น (narrowed)
+                15 // จำนวนการจองที่รีวิว (narrowed)
+            ];
+
+            // Add table with adjusted position and column widths
             doc.autoTable({
-                startY: 40, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
+                startY: 50, // Adjusted position for the table to fit better below the text
                 head: [
-                    ['ลำดับที่', 'ชื่อจริง', 'นามสกุล', 'เบอร์โทรศัพท์', 'อำเภอ', 'จังหวัด', 'อีเมล', 'จำนวนการจอง']
+                    [
+                        'ลำดับที่',
+                        'ชื่อ-นามสกุล',
+                        'เบอร์โทรศัพท์',
+                        'อีเมล',
+                        'จำนวนการจอง',
+                        'จำนวนการจองที่ถูกปฏิเสธ',
+                        'จำนวนการจองที่ยังไม่ชำระ',
+                        'จำนวนการจองที่ชำระเสร็จสิ้น',
+                        'จำนวนการจองที่รีวิว'
+                    ]
                 ],
                 body: rows,
                 styles: {
-                    fontSize: 16, // ขนาดตัวอักษร
+                    fontSize: 16, // Font size
                     font: 'customFont',
-                }
+                    cellPadding: 3, // Padding for cells
+                    halign: 'center', // Center align text in cells
+                    valign: 'middle' // Vertically align text in cells
+                },
+                columnWidths: columnWidths // Apply custom column widths
             });
 
             // Save the PDF
             doc.save("user_list.pdf");
-
-
         });
     </script>
+
+
     <script>
         $(document).ready(function() {
             $('#example').DataTable({

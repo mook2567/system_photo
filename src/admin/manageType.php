@@ -240,7 +240,7 @@ if (isset($_POST['submit_delete'])) {
             $stmt->bind_param("i", $type_id);
 
             if ($stmt->execute()) {
-                ?>
+            ?>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
@@ -257,9 +257,9 @@ if (isset($_POST['submit_delete'])) {
                         });
                     });
                 </script>
-                <?php
+            <?php
             } else {
-                ?>
+            ?>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
@@ -276,7 +276,7 @@ if (isset($_POST['submit_delete'])) {
                         });
                     });
                 </script>
-                <?php
+<?php
             }
         }
     } else {
@@ -328,7 +328,7 @@ $result = $conn->query($sql);
 
     <link href="https://fonts.googleapis.com/css2?family=Athiti&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
-    
+
     <style>
         body {
             font-family: 'Athiti', sans-serif;
@@ -465,10 +465,15 @@ $result = $conn->query($sql);
     <!-- Navbar End -->
     <div class="mt-5 " style="height: 100%;">
         <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-briefcase"></i>&nbsp;&nbsp;ข้อมูลประเภทงาน</b></div>
-        <div class="mt-3  col-7 container-fluid ">
+        <div class="container-sm d-flex justify-content-end col-7 mt-4">
+            <div>
+                <input type="text" id="searchInput" class="form-control col-3" placeholder="ค้นหาข้อมูลประเภทงาน" onkeyup="searchTable()" style="margin-bottom: 15px;">
+            </div>
+        </div>
+        <div class="mt-2 col-7 container-fluid">
             <div class="row ">
                 <div class="container-sm mt-2 table-responsive">
-                    <table class="table bg-white table-hover table-bordered-3">
+                    <table class="table bg-white table-hover table-bordered-3" id="typeTable">
                         <thead>
                             <tr>
                                 <!-- <th scope="col" class="text-center">รหัส</th> -->
@@ -486,11 +491,39 @@ $result = $conn->query($sql);
                                         <td><?php echo $row['type_work']; ?></td>
                                         <td><?php echo $row['type_icon']; ?></td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['type_id']; ?>">ดูเพิ่มเติม</button>
+                                            <!-- <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['type_id']; ?>">ดูเพิ่มเติม</button> -->
                                             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['type_id']; ?>">แก้ไข</button>
                                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $row['type_id']; ?>">ลบ</button>
                                         </td>
                                     </tr>
+                                    <script>
+                                        function searchTable() {
+                                            // ประกาศตัวแปร
+                                            var input, filter, table, tr, td, i, txtValue;
+                                            input = document.getElementById("searchInput");
+                                            filter = input.value.toLowerCase(); // เปลี่ยนค่าเป็นพิมพ์เล็ก
+                                            table = document.getElementById("typeTable");
+                                            tr = table.getElementsByTagName("tr");
+
+                                            // วนลูปผ่านแถวทั้งหมดของตาราง
+                                            for (i = 1; i < tr.length; i++) { // เริ่มจาก 1 เพราะแถวแรกเป็นหัวตาราง
+                                                tr[i].style.display = "none"; // ซ่อนแถวทั้งหมดก่อน
+
+                                                // วนลูปผ่านแต่ละคอลัมน์ของแถว
+                                                td = tr[i].getElementsByTagName("td");
+                                                for (var j = 0; j < td.length; j++) {
+                                                    if (td[j]) {
+                                                        txtValue = td[j].textContent || td[j].innerText;
+                                                        if (txtValue.toLowerCase().indexOf(filter) > -1) { // เปลี่ยนค่าของ txtValue เป็นพิมพ์เล็ก
+                                                            tr[i].style.display = ""; // แสดงแถวที่ตรงกับคำค้นหา
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </script>
+
                                     <!-- Detail Modal -->
                                     <div class="modal fade" id="detaileModal<?php echo $row['type_id']; ?>" tabindex="-1" aria-labelledby="detaileModalLabel<?php echo $row['type_id']; ?>" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered ">
@@ -565,7 +598,7 @@ $result = $conn->query($sql);
                                                                                     <input type="text" required name="type_work" class="form-control" value="<?php echo $row['type_work']; ?>">
                                                                                 </div>
                                                                                 <div class="modal-footer mt-5 justify-content-center">
-                                                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                                                    <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                                                     <button type="submit" name="submit_edit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                                                                                 </div>
                                                                             </div>
@@ -610,8 +643,8 @@ $result = $conn->query($sql);
                                                                                     <input type="text" required name="type_work" class="form-control" value="<?php echo $row['type_work']; ?>" readonly>
                                                                                 </div>
                                                                                 <div class="modal-footer mt-5 justify-content-center">
-                                                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ยกเลิก</button>
-                                                                                    <button type="submit" name="submit_delete" class="btn btn-warning" style="width: 150px; height:45px;">ลบ</button>
+                                                                                    <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                                                    <button type="submit" name="submit_delete" class="btn btn-danger" style="width: 150px; height:45px;">ลบ</button>
                                                                                 </div>
                                                                             </div>
                                                                             <input type="hidden" name="type_id" value="<?php echo $row['type_id']; ?>">
@@ -636,9 +669,9 @@ $result = $conn->query($sql);
                 </div>
             </div>
         </div>
-        <div class="row justify-content-center mt-5 mb-1">
-            <div class="col-md-12 text-center">
-                <button type="button" onclick="window.location.href='manage.php'" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+        <div class="row justify-content-center mt-4 text-center">
+            <div class="col-md-12 mt-4 ">
+                <button type="button" onclick="window.location.href='manage.php'" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal" style="width: 150px; height:45px;">เพิ่มประเภทงาน</button>
             </div>
         </div>
@@ -686,11 +719,11 @@ $result = $conn->query($sql);
         </div>
     </div>
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark footer wow fadeIn ">
+    <div class="container-fluid text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
             <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+                <div class="col-md-6 text-dark text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
             </div>
         </div>

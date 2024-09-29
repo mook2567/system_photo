@@ -2,25 +2,22 @@
 include '../config_db.php'; // Include your database configuration
 
 // Query to get photographer counts
-$photographer_query = "
-    SELECT 
+$photographer_query = " SELECT 
         SUM(CASE WHEN photographer_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_photographers,
         SUM(CASE WHEN photographer_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_photographers
-    FROM photographer
+    FROM photographer WHERE photographer_license = 1
 ";
 
 // Query to get customer counts
-$customer_query = "
-    SELECT 
+$customer_query = " SELECT 
         SUM(CASE WHEN cus_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_customers,
         SUM(CASE WHEN cus_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_customers
-    FROM customer
+    FROM customer WHERE cus_license = 1
 ";
-$admin_query = "
-    SELECT 
+$admin_query = " SELECT 
         SUM(CASE WHEN admin_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_admin,
         SUM(CASE WHEN admin_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_admin
-    FROM admin
+    FROM admin WHERE admin_license = 1
 ";
 // Execute queries
 $photographer_result = $conn->query($photographer_query);
@@ -57,4 +54,3 @@ echo json_encode($data);
 
 // Close connection
 $conn->close();
-?>

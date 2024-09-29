@@ -226,7 +226,7 @@ $row = $result->fetch_assoc();
         </div>
     </nav>
     <!-- Navbar End -->
-    <div class="mt-5 container-md">
+    <div class="mt-5 container-md ">
         <div class="text-center" style="font-size: 18px;"><b><i class="fa fa-cogs"></i>&nbsp;&nbsp;จัดการข้อมูลระบบ</b></div>
         <form method="post" action="manageWeb.php?id=<?php echo $row['information_id']; ?>" enctype="multipart/form-data">
             <div class="mt-3 col-md-8 container-fluid">
@@ -275,18 +275,18 @@ $row = $result->fetch_assoc();
             <div class="row justify-content-center container-center text-center">
                 <div class="col-md-12 mt-5">
                     <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                    <button type="button" onclick="window.location.href='manage.php'" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                    <button onclick="window.history.back();" class="btn me-4 " style="background-color: gray; color:white; width: 150px; height:45px;">ย้อนกลับ</button>
                     <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
                     <button id="saveButton" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                 </div>
             </div>
         </form>
         <!-- Footer Start -->
-        <div class="container-fluid bg-dark text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
+        <div class="container-fluid text-white-50 footer wow fadeIn fixed-bottom" data-wow-delay="0.1s">
             <div class="copyright">
                 <div class="row">
-                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                        &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+                    <div class="col-md-6 text-dark text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
                     </div>
                 </div>
             </div>

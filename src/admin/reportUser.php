@@ -26,20 +26,44 @@ if (file_exists($image_path)) {
 }
 
 $sqlUser = "SELECT id, prefix, firstname, surname, phone, district, province, email, license, types
-        FROM (
-            SELECT photographer_id AS id, photographer_prefix AS prefix, photographer_name AS firstname, photographer_surname AS surname, photographer_tell AS phone, photographer_district AS district, photographer_province AS province, photographer_email AS email, photographer_license AS license, 'ช่างภาพ' AS types
-            FROM photographer 
-            WHERE photographer_license = '1'
-            UNION ALL
-            SELECT cus_id AS id, cus_prefix AS prefix, cus_name AS firstname, cus_surname AS surname, cus_tell AS phone, cus_district AS district, cus_province AS province, cus_email AS email, cus_license AS license, 'ลูกค้า' AS types
-            FROM customer  
-            WHERE cus_license = '1'
-            UNION ALL
-            SELECT admin_id AS id, admin_prefix AS prefix, admin_name AS firstname, admin_surname AS surname, admin_tell AS phone, admin_district AS district, admin_province AS province, admin_email AS email, admin_license AS license, 'ผู้ดูแลระบบ' AS types
-            FROM admin  
-            WHERE admin_license = '1'
-        ) AS users;";
+            FROM (
+                SELECT photographer_id AS id, photographer_prefix AS prefix, photographer_name AS firstname, photographer_surname AS surname, photographer_tell AS phone, photographer_district AS district, photographer_province AS province, photographer_email AS email, photographer_license AS license, 'ช่างภาพ' AS types
+                FROM photographer 
+                WHERE photographer_license = '1'
+                UNION ALL
+                SELECT cus_id AS id, cus_prefix AS prefix, cus_name AS firstname, cus_surname AS surname, cus_tell AS phone, cus_district AS district, cus_province AS province, cus_email AS email, cus_license AS license, 'ลูกค้า' AS types
+                FROM customer  
+                WHERE cus_license = '1'
+                UNION ALL
+                SELECT admin_id AS id, admin_prefix AS prefix, admin_name AS firstname, admin_surname AS surname, admin_tell AS phone, admin_district AS district, admin_province AS province, admin_email AS email, admin_license AS license, 'ผู้ดูแลระบบ' AS types
+                FROM admin  
+                WHERE admin_license = '1'
+            ) AS users;";
 $resultUser = $conn->query($sqlUser);
+
+// Initialize counters
+$customerCount = 0;
+$photographerCount = 0;
+$adminCount = 0;
+
+// Count types while fetching user data
+if ($resultUser->num_rows > 0) {
+    $counter = 1; // เริ่มตัวนับที่ 1
+    while ($rowUser = $resultUser->fetch_assoc()) {
+        // Increment counters based on user type
+        switch ($rowUser['types']) {
+            case 'ช่างภาพ':
+                $photographerCount++;
+                break;
+            case 'ลูกค้า':
+                $customerCount++;
+                break;
+            case 'ผู้ดูแลระบบ':
+                $adminCount++;
+                break;
+        }
+    }
+}
 ?>
 
 
@@ -224,6 +248,48 @@ $resultUser = $conn->query($sqlUser);
     <!-- Navbar End -->
     <div style="height: 100%;">
         <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลผู้ใช้งานระบบ</b></div>
+
+        <!-- Section to display user counts -->
+
+        <div class="row d-flex justify-content-center">
+            <div class="col-2 mt-3">
+                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                    <div class="card-header"><b>จำนวนช่างภาพ</b></div>
+                    <div class="card-body">
+                        <b>
+                            <h3 class="text-dark text-center">
+                                <?php echo $photographerCount . ' คน'; ?>
+                            </h3>
+                        </b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2 mt-3">
+                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                    <div class="card-header"><b>จำนวนลูกค้า</b></div>
+                    <div class="card-body">
+                        <b>
+                            <h3 class="text-dark text-center">
+                                <?php echo $customerCount . ' คน'; ?>
+                            </h3>
+                        </b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2 mt-3">
+                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
+                    <div class="card-header"><b>จำนวนผู้ดูแลระบบ</b></div>
+                    <div class="card-body">
+                        <b>
+                            <h3 class="text-dark text-center">
+                                <?php echo $adminCount . ' คน'; ?>
+                            </h3>
+                        </b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="container-sm mt-2 table-responsive col-10">
             <table id="example" class="table bg-white table-hover table-bordered-3">
                 <thead>
@@ -240,6 +306,8 @@ $resultUser = $conn->query($sqlUser);
                 </thead>
                 <tbody>
                     <?php
+                    // Reset the result pointer for another loop if needed
+                    $resultUser->data_seek(0); // Reset to the beginning of the result set
                     if ($resultUser->num_rows > 0) {
                         $counter = 1; // เริ่มตัวนับที่ 1
                         while ($rowUser = $resultUser->fetch_assoc()) {
@@ -265,12 +333,12 @@ $resultUser = $conn->query($sqlUser);
         </div>
         <div class="row justify-content-center mt-3 container-center text-center">
             <div class="col-md-12">
-                <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
                 <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
             </div>
         </div>
     </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">

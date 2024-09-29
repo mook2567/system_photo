@@ -29,8 +29,12 @@ $sqlUser = "SELECT
                 t.type_work, 
                 COUNT(tow.type_id) AS total_count, 
                 COUNT(b.booking_id) AS total_count_b,
+                SUM(CASE WHEN b.booking_confirm_status = 1 THEN 1 ELSE 0 END) AS total_count_a,
+                SUM(CASE WHEN b.booking_confirm_status = 3 THEN 1 ELSE 0 END) AS total_count_s,
+                SUM(CASE WHEN b.booking_confirm_status = 2 THEN 1 ELSE 0 END) AS total_count_d,
                 MIN(CASE WHEN tow.type_of_work_rate_half_start != 0 THEN tow.type_of_work_rate_half_start END) AS min_half_rate,
-    MIN(CASE WHEN tow.type_of_work_rate_full_start != 0 THEN tow.type_of_work_rate_full_start END) AS min_full_rate
+                MIN(CASE WHEN tow.type_of_work_rate_full_start != 0 THEN tow.type_of_work_rate_full_start END) AS min_full_rate,
+                SUM(b.booking_price) AS income
             FROM 
                 type_of_work tow
             JOIN 
@@ -41,6 +45,7 @@ $sqlUser = "SELECT
                 t.type_work
 ";
 $resultUser = $conn->query($sqlUser);
+
 
 ?>
 
@@ -164,9 +169,15 @@ $resultUser = $conn->query($sqlUser);
 
         .table th:nth-child(5),
         .table th:nth-child(6),
+        .table th:nth-child(7),
+        .table th:nth-child(8),
+        .table th:nth-child(9),
         .table td:nth-child(5),
-        .table td:nth-child(6) {
-            width: 200px;
+        .table td:nth-child(6),
+        .table td:nth-child(7),
+        .table td:nth-child(8),
+        .table td:nth-child(8) {
+            width: 100px;
             text-align: center;
             height: 50px;
         }
@@ -236,6 +247,10 @@ $resultUser = $conn->query($sqlUser);
                         <th scope="col">ราคาเต็มวันเริ่มต้น (บาท)</th>
                         <th scope="col">จำนวนลงประเภทงาน</th>
                         <th scope="col">จำนวนการจอง</th>
+                        <th scope="col">จำนวนการจองที่ยังไม่สำเร็จ</th>
+                        <th scope="col">จำนวนการจองสำเร็จ</th>
+                        <th scope="col">จำนวนการจองที่ไม่สำเร็จ</th>
+                        <th scope="col">รายได้</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -251,6 +266,10 @@ $resultUser = $conn->query($sqlUser);
                                 <td><?php echo $rowUser['min_full_rate']; ?></td>
                                 <td><?php echo $rowUser['total_count']; ?></td>
                                 <td><?php echo $rowUser['total_count_b']; ?></td>
+                                <td><?php echo $rowUser['total_count_a']; ?></td>
+                                <td><?php echo $rowUser['total_count_d']; ?></td>
+                                <td><?php echo $rowUser['total_count_s']; ?></td>
+                                <td><?php echo $rowUser['income']; ?></td>
                             </tr>
                     <?php
                         }
@@ -264,7 +283,7 @@ $resultUser = $conn->query($sqlUser);
         <div class="row justify-content-center mt-3 container-center text-center">
             <div class="col-md-12">
                 <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
                 <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
             </div>
         </div>

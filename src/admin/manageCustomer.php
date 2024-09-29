@@ -3,7 +3,7 @@ session_start();
 include '../config_db.php';
 require_once '../popup.php';
 
-$sql = "SELECT * FROM `customer` WHERE cus_license = '1'";
+$sql = "SELECT * FROM `customer` WHERE cus_license = '1' OR cus_license = '2'";
 $result = $conn->query($sql);
 
 // Fetching data from 'information' table
@@ -154,8 +154,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
 
-        .table th:nth-child(5),
-        .table td:nth-child(5) {
+        .table th:nth-child(6),
+        .table td:nth-child(6) {
             width: 600px;
             height: 50px;
             text-align: center;
@@ -164,8 +164,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .table td:nth-child(1),
         .table td:nth-child(2),
-        .table td:nth-child(3) {
-            width: 200px;
+        .table td:nth-child(3),
+        .table td:nth-child(4),
+        .table td:nth-child(5),
+        .table tr:nth-child(1),
+        .table tr:nth-child(2),
+        .table tr:nth-child(3),
+        .table tr:nth-child(4),
+        .table tr:nth-child(5) {
+            width: 300px;
             height: 50px;
             /* กำหนดความกว้างของคอลัมน์การจัดการให้เหมาะสม */
         }
@@ -225,8 +232,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Navbar End -->
     <div style="height: 100%;">
         <div class="footer-box text-center mt-5" style="font-size: 18px;"><b><i class="fa fa-user"></i>&nbsp;&nbsp;รายการข้อมูลลูกค้า</b></div>
+        <!-- ช่องค้นหา -->
+        <div class="container-sm d-flex justify-content-end col-7 mt-4">
+            <div>
+                <input type="text" id="searchInput" class="form-control col-3" placeholder="ค้นหาข้อมูลลูกค้า" onkeyup="searchTable()" style="margin-bottom: 15px;">
+            </div>
+        </div>
         <div class="container-sm mt-2 table-responsive col-7">
-            <table class="table bg-white table-hover table-bordered-3">
+            <table class="table bg-white table-hover table-bordered-3" id="customerTable">
                 <thead>
                     <tr>
                         <!-- <th scope="col" class="text-center">รหัส</th> -->
@@ -234,6 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <th scope="col">นามสกุล</th>
                         <th scope="col">เบอร์โทรศัพท์</th>
                         <th scope="col">อีเมล</th>
+                        <th scope="col">สถานะ</th>
                         <th scope="col" class="text-center">ดำเนินการ</th>
                     </tr>
                 </thead>
@@ -248,12 +262,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <td><?php echo $row['cus_surname']; ?></td>
                                 <td><?php echo $row['cus_tell']; ?></td>
                                 <td><?php echo $row['cus_email']; ?></td>
+                                <td><?php if ($row['cus_license'] == '1') {
+                                        echo 'มีสิทธิ์การใช้งาน';
+                                    } elseif ($row['cus_license'] == '2') {
+                                        echo 'ไม่มีสิทธิ์การใช้งาน';
+                                    } else {
+                                        echo 'ไม่ทราบสิทธิ์การใช้งาน';
+                                    } ?></td>
                                 <td>
                                     <!-- <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='manageCustomerDetails.php? id=<?php echo $row['cus_id']; ?>'">ดูเพิ่มเติม</button> -->
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['cus_id']; ?>">ดูเพิ่มเติม</button>
+                                    <!-- <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#detaileModal<?php echo $row['cus_id']; ?>">ดูเพิ่มเติม</button> -->
                                     <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['cus_id']; ?>">กำหนดสิทธิ์</button>
                                 </td>
                             </tr>
+                            <!-- JavaScript สำหรับการค้นหาในตาราง -->
+                            <script>
+                                function searchTable() {
+                                    // ประกาศตัวแปร
+                                    var input, filter, table, tr, td, i, txtValue;
+                                    input = document.getElementById("searchInput");
+                                    filter = input.value.toLowerCase(); // เปลี่ยนค่าเป็นพิมพ์เล็ก
+                                    table = document.getElementById("customerTable");
+                                    tr = table.getElementsByTagName("tr");
+
+                                    // วนลูปผ่านแถวทั้งหมดของตาราง
+                                    for (i = 1; i < tr.length; i++) { // เริ่มจาก 1 เพราะแถวแรกเป็นหัวตาราง
+                                        tr[i].style.display = "none"; // ซ่อนแถวทั้งหมดก่อน
+
+                                        // วนลูปผ่านแต่ละคอลัมน์ของแถว
+                                        td = tr[i].getElementsByTagName("td");
+                                        for (var j = 0; j < td.length; j++) {
+                                            if (td[j]) {
+                                                txtValue = td[j].textContent || td[j].innerText;
+                                                if (txtValue.toLowerCase().indexOf(filter) > -1) { // เปลี่ยนค่าของ txtValue เป็นพิมพ์เล็ก
+                                                    tr[i].style.display = ""; // แสดงแถวที่ตรงกับคำค้นหา
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            </script>
                             <!-- Detail Modal -->
                             <div class="modal fade" id="detaileModal<?php echo $row['cus_id']; ?>" tabindex="-1" aria-labelledby="detaileModalLabel<?php echo $row['cus_id']; ?>" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -365,7 +414,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                         </div>
                                         <div class="modal-footer justify-content-center">
-                                            <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                            <button type="button" class="btn" style="background-color:gray; color:#fff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                         </div>
                                     </div>
                                 </div>
@@ -473,17 +522,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                     </label>
                                                                     <select class="form-select border-1 mt-1" name="license">
                                                                         <?php
-                                                                        if ($row['cus_license'] == '0') {
+                                                                        if ($row['cus_license'] == '1') {
                                                                         ?>
                                                                             <!-- <option value="0">รออนุมัติสิทธิ์การใช้งาน</option> -->
-                                                                            <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option selected value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         } else {
                                                                         ?>
                                                                             <option value="1">มีสิทธิ์การเข้าใช้งาน</option>
                                                                             <!-- <option value="0">รออนุมัติสิทธิ์การใช้งาน</option> -->
-                                                                            <option value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
+                                                                            <option selected value="2">ไม่มีสิทธิ์การเข้าใช้งาน</option>
                                                                         <?php
                                                                         }
                                                                         ?>
@@ -496,7 +545,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             </div>
                                         </div>
                                         <div class="modal-footer justify-content-center">
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="width: 150px; height:45px;">ปิด</button>
+                                            <button type="button" class="btn" data-bs-dismiss="modal" style="background-color:gray; color:white; width: 150px; height:45px;">ปิด</button>
                                             <!-- ตำแหน่งสำหรับปุ่ม "บันทึกการแก้ไข" -->
                                             <button type="submit" name="submit" class="btn btn-primary" style="width: 150px; height:45px;">บันทึกการแก้ไข</button>
                                         </div>
@@ -513,19 +562,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </tbody>
             </table>
         </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12">
+        <div class="row justify-content-center mt-4 text-center">
+            <div class="col-md-12 mt-4 ">
                 <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn me-4" style="color:#fff; background-color: gray; width: 150px; height:45px;">ย้อนกลับ</button>
             </div>
         </div>
     </div>
     <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
+    <div class="container-fluid text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
             <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
+                <div class="col-md-6 text-dark text-center text-md-start mb-3 mb-md-0">
+                    &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
                 </div>
             </div>
         </div>

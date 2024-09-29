@@ -25,68 +25,91 @@ if (file_exists($image_path)) {
 
 $sql1 = "SELECT SUM(row_count) AS total_count
         FROM (
-            SELECT COUNT(*) AS row_count FROM admin
+            SELECT COUNT(*) AS row_count FROM admin WHERE admin_license = 1
             UNION ALL
-            SELECT COUNT(*) AS row_count FROM customer
+            SELECT COUNT(*) AS row_count FROM customer WHERE cus_license = 1
             UNION ALL
-            SELECT COUNT(*) AS row_count FROM photographer
+            SELECT COUNT(*) AS row_count FROM photographer WHERE photographer_license = 1
         ) AS all_counts";
 $result1 = $conn->query($sql1);
 
 if ($result1) {
-    $row_count_data = $result1->fetch_assoc();
-    htmlspecialchars($row_count_data['total_count']);
+    $row_count_data1 = $result1->fetch_assoc();
+    htmlspecialchars($row_count_data1['total_count']);
 } else {
     "Error: " . $conn->error;
 }
 
-$sql1 = "SELECT 'admin' AS table_name, COUNT(*) AS row_count FROM admin
+$sql2 = "SELECT 'admin' AS table_name, COUNT(*) AS row_count FROM admin WHERE admin_license = 1
         UNION ALL
-        SELECT 'customer' AS table_name, COUNT(*) AS row_count FROM customer
+        SELECT 'customer' AS table_name, COUNT(*) AS row_count FROM customer WHERE cus_license = 1
         UNION ALL
-        SELECT 'photographer' AS table_name, COUNT(*) AS row_count FROM photographer";
-$result1 = $conn->query($sql1);
-if ($result1) {
-    $row_count_data1 = $result1->fetch_all(MYSQLI_ASSOC);
-} else {
-    echo "Error executing query: " . $conn->error;
-}
-
-$sql2 = "SELECT COUNT(type_id) AS total_count FROM type";
+        SELECT 'photographer' AS table_name, COUNT(*) AS row_count FROM photographer WHERE photographer_license = 1";
 $result2 = $conn->query($sql2);
 if ($result2) {
     $row_count_data2 = $result2->fetch_all(MYSQLI_ASSOC);
 } else {
-    echo "Error executing query: " . $conn->error;
+    "Error executing query: " . $conn->error;
 }
 
-
-$sql3 = "SELECT t.type_work, COUNT(tow.type_id) AS total_count
-         FROM type_of_work tow
-         JOIN type t ON t.type_id = tow.type_id
-         GROUP BY t.type_work
-         ORDER BY total_count DESC
-         LIMIT 3";
+$sql3 = "SELECT COUNT(type_id) AS total_count FROM type";
 $result3 = $conn->query($sql3);
 if ($result3) {
     $row_count_data3 = $result3->fetch_all(MYSQLI_ASSOC);
 } else {
-    echo "Error executing query: " . $conn->error;
+    "Error executing query: " . $conn->error;
 }
 
-$sql4 = "SELECT t.type_work, COUNT(tow.type_of_work_id) AS total_count
-FROM type_of_work tow
-JOIN type t ON t.type_id = tow.type_id
-JOIN booking b ON b.type_of_work_id = tow.type_of_work_id
-GROUP BY t.type_work
-ORDER BY total_count DESC
-LIMIT 3;
-";
+
+$currentYear = date("Y"); // Get the current year
+
+$sql4 = "SELECT MONTH(booking_date) AS booking_month, COUNT(*) AS total_count
+         FROM booking
+         WHERE YEAR(booking_date) = $currentYear
+         GROUP BY MONTH(booking_date)
+         ORDER BY booking_month";
+
 $result4 = $conn->query($sql4);
+
 if ($result4) {
     $row_count_data4 = $result4->fetch_all(MYSQLI_ASSOC);
+
+    // To calculate the total count of bookings
+    $totalBookings = array_sum(array_column($row_count_data4, 'total_count'));
+
+    // Display total bookings
+    "Total bookings this year: " . $totalBookings . " times";
 } else {
-    echo "Error executing query: " . $conn->error;
+    "Error executing query: " . $conn->error;
+}
+
+
+$sql5 = "SELECT t.type_work, COUNT(tow.type_id) AS total_count
+         FROM type_of_work tow
+         JOIN type t ON t.type_id = tow.type_id
+         GROUP BY t.type_work
+         ORDER BY total_count DESC
+         LIMIT 3
+         ";
+$result5 = $conn->query($sql5);
+if ($result5) {
+    $row_count_data5 = $result5->fetch_all(MYSQLI_ASSOC);
+} else {
+    "Error executing query: " . $conn->error;
+}
+$sql6 = "SELECT t.type_work, COUNT(tow.type_of_work_id) AS total_count
+        FROM type_of_work tow
+        JOIN type t ON t.type_id = tow.type_id
+        JOIN booking b ON b.type_of_work_id = tow.type_of_work_id
+        GROUP BY t.type_work
+        ORDER BY total_count DESC
+        LIMIT 3
+        ";
+$result6 = $conn->query($sql6);
+if ($result6) {
+    $row_count_data6 = $result6->fetch_all(MYSQLI_ASSOC);
+} else {
+    "Error executing query: " . $conn->error;
 }
 ?>
 <!DOCTYPE html>
@@ -365,143 +388,536 @@ if ($result4) {
     <center>
         <div id="contentToConvert">
             <div class="col-11 mt-3">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-lg-10">
-                                <div class="card border">
-                                    <div class="card-body">
-                                        <h3 class="card-title">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h3>
-                                        <div class="d-flex justify-content-center mt-3">
-                                            <div class="col-10">
-                                                <canvas id="overviewChart1"></canvas>
-                                            </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <h3 class="card-title text-center mt-4 mb-4">แผนภูมิแท่งแสดงจำนวนสมาชิกผู้ใช้งาน</h3>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="col-10">
+                                            <canvas id="overviewChart1" width="400" height="400" style="max-height: 455px; height: auto;"></canvas>
+                                            <script>
+                                                fetch('grap1.php')
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        const malePhotographersCount = data.malePhotographersCount || 0;
+                                                        const femalePhotographersCount = data.femalePhotographersCount || 0;
+                                                        const maleCustomersCount = data.maleCustomersCount || 0;
+                                                        const femaleCustomersCount = data.femaleCustomersCount || 0;
+                                                        const maleAdminCount = data.maleAdminCount || 0;
+                                                        const femaleAdminCount = data.femaleAdminCount || 0;
+
+                                                        const ctx = document.getElementById('overviewChart1').getContext('2d');
+                                                        const overviewChart = new Chart(ctx, {
+                                                            type: 'bar',
+                                                            data: {
+                                                                labels: ['ช่างภาพ', 'ลูกค้า', 'ผู้ดูแลระบบ'], // Label for user types
+                                                                datasets: [{
+                                                                        label: 'ชาย',
+                                                                        data: [malePhotographersCount, maleCustomersCount, maleAdminCount],
+                                                                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                                                                        borderColor: 'rgba(255, 159, 64, 1)',
+                                                                        borderWidth: 1
+                                                                    },
+                                                                    {
+                                                                        label: 'หญิง',
+                                                                        data: [femalePhotographersCount, femaleCustomersCount, femaleAdminCount],
+                                                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                                                        borderWidth: 1
+                                                                    }
+                                                                ]
+                                                            },
+                                                            options: {
+                                                                plugins: {
+                                                                    legend: {
+                                                                        position: 'right',
+                                                                        labels: {
+                                                                            font: {
+                                                                                size: 20 // Set font size for legend
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    tooltip: {
+                                                                        callbacks: {
+                                                                            label: function(tooltipItem) {
+                                                                                const value = tooltipItem.raw;
+                                                                                return tooltipItem.label + ': ' + value;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                scales: {
+                                                                    y: {
+                                                                        beginAtZero: true,
+                                                                        title: { // Add title for the Y-axis
+                                                                            display: true,
+                                                                            text: 'จำนวนสมาชิค (คน)', // Y-axis label
+                                                                            font: {
+                                                                                size: 20 // Font size for the Y-axis label
+                                                                            }
+                                                                        },
+                                                                        ticks: {
+                                                                            stepSize: 1,
+                                                                            font: {
+                                                                                size: 20 // Set font size for Y axis ticks
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    x: {
+                                                                        ticks: {
+                                                                            font: {
+                                                                                size: 20 // Set font size for X axis ticks
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                            }
+                                                        });
+                                                    })
+                                                    .catch(error => console.error('Error fetching data:', error));
+                                            </script>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                                    <div class="card-header"><b>จำนวนผู้ใช้งานทั้งหมด</b></div>
-                                    <div class="card-body"><b>
-                                            <h3 class="text-dark text-center">
-                                                <?php echo $row_count_data['total_count'] . ' คน'; ?>
-                                            </h3>
-                                        </b>
-                                    </div>
-                                </div>
-                                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                                    <div class="card-header"><b>จำนวนช่างภาพ</b></div>
-                                    <div class="card-body">
-                                        <b>
-                                            <h3 class="text-dark text-center">
-                                                <?php echo $row_count_data1[2]['row_count'] . ' คน'; ?>
-                                            </h3>
-                                        </b>
-                                    </div>
-                                </div>
-
-                                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                                    <div class="card-header"><b>จำนวนลูกค้า</b></div>
-                                    <div class="card-body">
-                                        <b>
-                                            <h3 class="text-dark text-center">
-                                                <?php echo $row_count_data1[1]['row_count'] . ' คน'; ?>
-                                            </h3>
-                                        </b>
-                                    </div>
-                                </div>
-
-                                <div class="card text-dark mb-3 shadow" style="max-width: 18rem;">
-                                    <div class="card-header"><b>จำนวนผู้ดูแลระบบ</b></div>
-                                    <div class="card-body">
-                                        <b>
-                                            <h3 class="text-dark text-center">
-                                                <?php echo $row_count_data1[0]['row_count'] . ' คน'; ?>
-                                            </h3>
-                                        </b>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+
+                        <div class="col-2">
+                            <div class="card text-dark mb-4 shadow">
+                                <div class="card-header text-center"><b>จำนวนผู้ใช้งานทั้งหมด</b></div>
+                                <div class="card-body">
+                                    <h3 class="mt-2 text-dark text-center">
+                                        <?php echo $row_count_data1['total_count'] . ' คน'; ?>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="card text-dark mb-4 shadow">
+                                <div class="card-header text-center"><b>จำนวนช่างภาพ</b></div>
+                                <div class="card-body">
+                                    <h3 class="mt-2 text-dark text-center">
+                                        <?php echo $row_count_data2[2]['row_count'] . ' คน'; ?>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="card text-dark mb-4 shadow">
+                                <div class="card-header text-center"><b>จำนวนลูกค้า</b></div>
+                                <div class="card-body">
+                                    <h3 class="mt-2 text-dark text-center">
+                                        <?php echo $row_count_data2[1]['row_count'] . ' คน'; ?>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="card text-dark shadow">
+                                <div class="card-header text-center"><b>จำนวนผู้ดูแลระบบ</b></div>
+                                <div class="card-body">
+                                    <h3 class="mt-2 text-dark text-center">
+                                        <?php echo $row_count_data2[0]['row_count'] . ' คน'; ?>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-4">
+                    <div class="row">
+                        <!-- Left Column with Chart -->
+                        <div class="col-9">
+                            <div class="card shadow" style="height: 580px;"> <!-- Set fixed height for the card -->
+                                <div class="card-body">
+                                    <h3 class="card-title mt-4 mb-4">กราฟแสดงข้อมูลสถานะการจองต่อเดือน (ใปี <?php echo date('Y'); ?>)</h3>
+                                    <canvas id="overviewChart2" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
+                                    <script>
+                                        fetch('grap2.php')
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                // Create month labels
+                                                const labels = data.map(item => {
+                                                    const monthNames = [
+                                                        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+                                                        'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+                                                        'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                                                    ];
+                                                    return monthNames[item.booking_month - 1]; // Convert month number to name
+                                                });
+
+                                                // Extract totals for each status
+                                                const totalCompleted = data.map(item => item.total_completed);
+                                                const totalPending = data.map(item => item.total_pending);
+                                                const totalCanceled = data.map(item => item.total_canceled);
+                                                const totalReserved = data.map(item => item.total_reserved);
+
+                                                const ctx = document.getElementById('overviewChart2').getContext('2d');
+                                                const overviewChart = new Chart(ctx, {
+                                                    type: 'line', // Set chart type to 'line'
+                                                    data: {
+                                                        labels: labels, // Use month names as labels
+                                                        datasets: [{
+                                                                label: 'การจองที่รอดำเนินการ', // Reserved bookings
+                                                                data: totalReserved,
+                                                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                                                borderColor: 'rgba(54, 162, 235, 1)',
+                                                                borderWidth: 2,
+                                                                fill: false,
+                                                                tension: 0.4
+                                                            },
+                                                            {
+                                                                label: 'การจองที่ยังไม่สำเร็จ', // Pending bookings
+                                                                data: totalPending,
+                                                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                                                                borderColor: 'rgba(255, 206, 86, 1)',
+                                                                borderWidth: 2,
+                                                                fill: false,
+                                                                tension: 0.4
+                                                            },
+                                                            {
+                                                                label: 'การจองที่ถูกยกเลิก', // Canceled bookings
+                                                                data: totalCanceled,
+                                                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                                                borderColor: 'rgba(255, 99, 132, 1)',
+                                                                borderWidth: 2,
+                                                                fill: false,
+                                                                tension: 0.4
+                                                            },
+                                                            {
+                                                                label: 'การจองที่เสร็จสิ้น', // Completed bookings
+                                                                data: totalCompleted,
+                                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                                borderColor: 'rgba(75, 192, 192, 1)',
+                                                                borderWidth: 2,
+                                                                fill: false,
+                                                                tension: 0.4
+                                                            }
+                                                        ]
+                                                    },
+                                                    options: {
+                                                        plugins: {
+                                                            legend: {
+                                                                labels: {
+                                                                    font: {
+                                                                        size: 20 // Set font size for legend
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        scales: {
+                                                            y: {
+                                                                beginAtZero: true,
+                                                                title: {
+                                                                    display: true,
+                                                                    text: 'จำนวนการจอง (ครั้ง)', // Y-axis label
+                                                                    font: {
+                                                                        size: 20 // Font size for the Y-axis label
+                                                                    }
+                                                                },
+                                                                ticks: {
+                                                                    font: {
+                                                                        size: 20 // Set font size for Y axis ticks
+                                                                    }
+                                                                }
+                                                            },
+                                                            x: {
+                                                                ticks: {
+                                                                    font: {
+                                                                        size: 20 // Set font size for X axis ticks
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            })
+                                            .catch(error => console.error('Error fetching data:', error));
+                                    </script>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Right Column with Cards -->
+                        <div class="col-3">
+                            <div class="card text-dark shadow" height=650px; style=" max-height: 650px; height: auto;">
+                                <div class="card-header">
+                                    <h4 class="mt-2">รวมจำนวนการจองต่อเดือน (ปี <?php echo date('Y'); ?>)</h4>
+                                </div>
+                                <div class="card-body" style="text-align:left;">
+                                    <?php
+                                    // Initialize an array with month names and total counts set to 0
+                                    $months = [
+                                        1 => 'เดือนมกราคม',
+                                        2 => 'เดือนกุมภาพันธ์',
+                                        3 => 'เดือนมีนาคม',
+                                        4 => 'เดือนเมษายน',
+                                        5 => 'เดือนพฤษภาคม',
+                                        6 => 'เดือนมิถุนายน',
+                                        7 => 'เดือนกรกฎาคม',
+                                        8 => 'เดือนสิงหาคม',
+                                        9 => 'เดือนกันยายน',
+                                        10 => 'เดือนตุลาคม',
+                                        11 => 'เดือนพฤศจิกายน',
+                                        12 => 'เดือนธันวาคม'
+                                    ];
+
+                                    // Create an array to hold the total counts for each month
+                                    $monthlyCounts = array_fill(1, 12, 0);
+
+                                    // Populate the monthly counts from the query result
+                                    if (!empty($row_count_data4)) {
+                                        foreach ($row_count_data4 as $row) {
+                                            $monthlyCounts[$row['booking_month']] = $row['total_count'];
+                                        }
+                                    }
+
+                                    // Display the results
+                                    ?>
+                                    <ol>
+                                        <?php foreach ($months as $monthNum => $monthName): ?>
+                                            <li style="font-size: 20px; margin-bottom: 10px;"> <!-- Set the desired font size -->
+                                                <b><?php echo htmlspecialchars($monthName); ?></b> - จำนวน: <?php echo htmlspecialchars($monthlyCounts[$monthNum]) . ' ครั้ง'; ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-4">
+                    <div class="row">
+                        <div class="col-6">
                             <div class="row">
-                                <div class="col-lg-6 mt-2">
-                                    <div class="card" style="height: 500px;">
-                                        <div class="card-body">
-                                            <h3 class="card-title">แผนภูมิแท่งแสดงข้อมูลลูกค้า</h3>
-                                            <div class="d-flex justify-content-center">
-                                                <div class="col-10">
-                                                    <canvas id="overviewChart2"></canvas>
-                                                </div>
-                                            </div>
+                                <!-- Customer Popular Work Types -->
+                                <div class="col-6">
+                                    <div class="card text-dark shadow" style="height: 210px;">
+                                        <div class="card-header">
+                                            <h4 class="mt-2">อันดับประเภทงานที่ลูกค้านิยมจ้าง</h4>
+                                        </div>
+                                        <div class="card-body" style="text-align:left; padding: 15px;">
+                                            <?php if (!empty($row_count_data6)): ?>
+                                                <ol>
+                                                    <?php foreach ($row_count_data6 as $index => $row): ?>
+                                                        <li style="font-size: 20px; margin-bottom: 10px;">
+                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ol>
+                                            <?php else: ?>
+                                                <p style="font-size: 16px; color: #888;">ไม่มีข้อมูลการจ้างงาน</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                    <div class="card mt-4" style="height: 500px;">
-                                        <div class="card-body">
-                                            <h3 class="card-title">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h3>
-                                            <div class="d-flex justify-content-center">
-                                                <div class="col-10">
-                                                    <canvas id="overviewChart3"></canvas>
-                                                </div>
+                                </div>
+
+                                <!-- Photographer Popular Work Types -->
+                                <div class="col-6">
+                                    <div class="card text-dark shadow" style="height: 210px;">
+                                        <div class="card-header">
+                                            <h4 class="mt-2">อันดับประเภทงานที่ช่างภาพนิยมรับ</h4>
+                                        </div>
+                                        <div class="card-body" style="text-align:left;">
+                                            <?php if (!empty($row_count_data5)): ?>
+                                                <ol>
+                                                    <?php foreach ($row_count_data5 as $index => $row): ?>
+                                                        <li style="font-size: 20px; margin-bottom: 10px;">
+                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' คน'; ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ol>
+                                            <?php else: ?>
+                                                <p>ไม่มีข้อมูลประเภทงาน</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card shadow mt-4" style="height: 560px;">
+                                    <div>
+                                        <h3 class="card-title mt-4 mb-4">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h3>
+                                        <!-- <h4 class="card-title mb-4">มีประเภทงาน <?php echo htmlspecialchars($row_count_data3[0]['total_count']); ?> ประเภท</h4> -->
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="col-9">
+                                                <canvas id="overviewChart4" width="400" height="300" style="max-height: 400px; height: auto;"></canvas>
+                                                <script>
+                                                    fetch('grap4.php') // เรียกไฟล์ PHP ที่สร้าง JSON
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            const labels = [];
+                                                            const photographerWorkCounts = [];
+                                                            const customerHiredCounts = [];
+
+                                                            // เตรียมข้อมูลจาก JSON ที่ได้
+                                                            data.forEach(item => {
+                                                                labels.push(item.type_work);
+                                                                photographerWorkCounts.push(item.photographer_count); // จำนวนงานที่ช่างภาพรับ
+                                                                customerHiredCounts.push(item.customer_count); // จำนวนงานที่ลูกค้าจ้าง
+                                                            });
+
+                                                            const ctx = document.getElementById('overviewChart4').getContext('2d');
+                                                            const overviewChart = new Chart(ctx, {
+                                                                type: 'doughnut',
+                                                                data: {
+                                                                    labels: labels,
+                                                                    datasets: [{
+                                                                            label: 'ประเภทงานที่ช่างภาพรับ',
+                                                                            data: photographerWorkCounts,
+                                                                            backgroundColor: [
+                                                                                'rgba(255, 99, 132, 0.2)', // สีสำหรับประเภทงานที่ช่างภาพรับ
+                                                                                'rgba(54, 162, 235, 0.2)',
+                                                                                'rgba(255, 206, 86, 0.2)',
+                                                                                'rgba(75, 192, 192, 0.2)',
+                                                                                'rgba(153, 102, 255, 0.2)',
+                                                                                'rgba(255, 159, 64, 0.2)',
+                                                                                'rgba(201, 203, 207, 0.2)'
+                                                                            ],
+                                                                            borderColor: [
+                                                                                'rgba(255, 99, 132, 1)',
+                                                                                'rgba(54, 162, 235, 1)',
+                                                                                'rgba(255, 206, 86, 1)',
+                                                                                'rgba(75, 192, 192, 1)',
+                                                                                'rgba(153, 102, 255, 1)',
+                                                                                'rgba(255, 159, 64, 1)',
+                                                                                'rgba(201, 203, 207, 1)'
+                                                                            ],
+                                                                            borderWidth: 1
+                                                                        },
+                                                                        {
+                                                                            label: 'ประเภทงานที่ลูกค้าจ้าง',
+                                                                            data: customerHiredCounts,
+                                                                            backgroundColor: [
+                                                                                'rgba(255, 99, 132, 0.2)', // สีสำหรับประเภทงานที่ช่างภาพรับ
+                                                                                'rgba(54, 162, 235, 0.2)',
+                                                                                'rgba(255, 206, 86, 0.2)',
+                                                                                'rgba(75, 192, 192, 0.2)',
+                                                                                'rgba(153, 102, 255, 0.2)',
+                                                                                'rgba(255, 159, 64, 0.2)',
+                                                                                'rgba(201, 203, 207, 0.2)'
+                                                                            ],
+                                                                            borderColor: [
+                                                                                'rgba(255, 99, 132, 1)',
+                                                                                'rgba(54, 162, 235, 1)',
+                                                                                'rgba(255, 206, 86, 1)',
+                                                                                'rgba(75, 192, 192, 1)',
+                                                                                'rgba(153, 102, 255, 1)',
+                                                                                'rgba(255, 159, 64, 1)',
+                                                                                'rgba(201, 203, 207, 1)'
+                                                                            ],
+                                                                            borderWidth: 1
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                options: {
+                                                                    plugins: {
+                                                                        legend: {
+                                                                            position: 'right',
+                                                                            labels: {
+                                                                                font: {
+                                                                                    size: 20 // ขนาดตัวอักษรใน legend
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            });
+                                                        })
+                                                        .catch(error => console.error('Error fetching data:', error));
+                                                </script>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-6 mt-2">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
-                                                <div class="card-header">
-                                                    <h4>3 อันดับประเภทงานที่ช่างภาพนิยมรับ</h4>
-                                                </div>
-                                                <div class="card-body">
-                                                    <?php if (!empty($row_count_data3)): ?>
-                                                        <ol>
-                                                            <?php foreach ($row_count_data3 as $index => $row): ?>
-                                                                <li>
-                                                                    <b><?php echo htmlspecialchars($row['type_work']); ?></b>
-                                                                    - จำนวน: <?php echo htmlspecialchars($row['total_count']); ?>
-                                                                </li>
-                                                            <?php endforeach; ?>
-                                                        </ol>
-                                                    <?php else: ?>
-                                                        <p>ไม่มีข้อมูลประเภทงาน</p>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="card text-dark shadow" style="max-width: 30rem; height: 150px;">
-                                                <div class="card-header">
-                                                    <h4>3 อันดับประเภทงานที่ลูกค้านิยมจ้าง</h4>
-                                                </div>
-                                                <div class="card-body">
-                                                    <?php if (!empty($row_count_data4)): ?>
-                                                        <ol>
-                                                            <?php foreach ($row_count_data4 as $index => $row): ?>
-                                                                <li>
-                                                                    <b><?php echo htmlspecialchars($row['type_work']); ?></b>
-                                                                    - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
-                                                                </li>
-                                                            <?php endforeach; ?>
-                                                        </ol>
-                                                    <?php else: ?>
-                                                        <p>ไม่มีข้อมูลการจ้างงาน</p>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card mt-4">
-                                        <div class="card-body">
-                                            <h3 class="card-title">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h3>
-                                            <p class="card-title">มีประเภทงาน <?php echo $row_count_data2[0]['total_count']; ?> ประเภท</p>
-                                            <div class="d-flex justify-content-center">
-                                                <div class="col-9">
-                                                    <canvas id="overviewChart4"></canvas>
-                                                </div>
-                                            </div>
+                            </div>
+                        </div>
+                        <!-- Chart Section -->
+                        <div class="col-6">
+                            <div class="card shadow" style="height: auto;">
+                                <div class="card-body">
+                                    <h3 class="card-title mt-4 mb-4">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h3>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="col-10">
+                                            <canvas class="mb-4" id="workCountsChart" width="400" height="400" style="max-height: 650px; height: 100%;"></canvas>
+                                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                                            <script>
+                                                // Fetch the data from your PHP script
+                                                fetch('grap3.php')
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        const ctx = document.getElementById('workCountsChart').getContext('2d');
+                                                        const chart = new Chart(ctx, {
+                                                            type: 'bar',
+                                                            data: {
+                                                                labels: ['กรุงเทพฯ', 'ภาคกลาง', 'ภาคใต้', 'ภาคเหนือ', 'ภาคตะวันออกเฉียงเหนือ', 'ภาคตะวันตก'],
+                                                                datasets: [{
+                                                                    label: 'จำนวนช่างภาพ',
+                                                                    data: [
+                                                                        data.bangkok,
+                                                                        data.central,
+                                                                        data.south,
+                                                                        data.north,
+                                                                        data.northeast,
+                                                                        data.west
+                                                                    ],
+                                                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                                                    borderWidth: 1
+                                                                }]
+                                                            },
+                                                            options: {
+                                                                responsive: true,
+                                                                scales: {
+                                                                    y: {
+                                                                        beginAtZero: true,
+                                                                        title: {
+                                                                            display: true,
+                                                                            text: 'จำนวนช่างภาพ', // Y-axis label
+                                                                            font: {
+                                                                                size: 20 // Font size for the Y-axis label
+                                                                            }
+                                                                        },
+                                                                        ticks: {
+                                                                            stepSize: 1, // Set tick step size to 1
+                                                                            callback: function(value) {
+                                                                                return Number.isInteger(value) ? value : ''; // Show only integer values
+                                                                            },
+                                                                            font: {
+                                                                                size: 20 // Font size for Y axis ticks
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    x: {
+                                                                        title: {
+                                                                            display: true,
+                                                                            text: 'ภูมิภาค', // X-axis label
+                                                                            font: {
+                                                                                size: 20 // Font size for the X-axis label
+                                                                            }
+                                                                        },
+                                                                        ticks: {
+                                                                            font: {
+                                                                                size: 20 // Font size for X axis ticks
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                plugins: {
+                                                                    legend: {
+                                                                        display: true,
+                                                                        position: 'top',
+                                                                        labels: {
+                                                                            font: {
+                                                                                size: 20 // Font size for legend labels
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    })
+                                                    .catch(error => console.error('Error fetching data:', error));
+                                            </script>
                                         </div>
                                     </div>
                                 </div>
@@ -522,404 +938,116 @@ if ($result4) {
                 <div class="col-6">
                     <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
                 </div>
+                <script>
+                    document.getElementById("generatePDF").addEventListener("click", function() {
+                        const content = document.getElementById("contentToConvert");
+
+                        // Increase the scale of the canvas to improve resolution
+                        html2canvas(content, {
+                            scale: 5, // Increase scale for higher quality
+                            useCORS: true, // Allows cross-origin resources
+                        }).then(function(canvas) {
+                            const imgData = canvas.toDataURL('image/png');
+                            const {
+                                jsPDF
+                            } = window.jspdf;
+                            const doc = new jsPDF('p', 'mm', 'a4');
+
+                            // Add custom font (THSarabunNew)
+                            var fontBase64 = "<?php echo $fontBase64; ?>";
+                            if (fontBase64) {
+                                doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                                doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                                doc.setFont('customFont');
+                            }
+
+                            // Process and invert the image (if provided)
+                            var imgBase64 = "<?php echo $image_base64; ?>";
+                            if (imgBase64) {
+                                const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
+
+                                // Create a new image element to load the base64 data
+                                var image = new Image();
+                                image.src = imgBase64;
+
+                                image.onload = function() {
+                                    // Create a canvas to manipulate the image
+                                    var tempCanvas = document.createElement('canvas');
+                                    var ctx = tempCanvas.getContext('2d');
+                                    tempCanvas.width = image.width;
+                                    tempCanvas.height = image.height;
+
+                                    // Draw the image onto the canvas
+                                    ctx.drawImage(image, 0, 0);
+
+                                    // Get image data (pixels)
+                                    var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                                    var data = imageData.data;
+
+                                    // Loop through the pixels and invert colors
+                                    for (var i = 0; i < data.length; i += 4) {
+                                        data[i] = 255 - data[i]; // Invert red
+                                        data[i + 1] = 255 - data[i + 1]; // Invert green
+                                        data[i + 2] = 255 - data[i + 2]; // Invert blue
+                                        // Alpha (data[i + 3]) remains unchanged
+                                    }
+
+                                    // Update the canvas with the inverted data
+                                    ctx.putImageData(imageData, 0, 0);
+
+                                    // Convert the updated canvas back to base64
+                                    var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                                    // Add the inverted image to the PDF
+                                    doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                                    // Add system name below the image
+                                    var informationName = "<?php echo $information_name; ?>";
+                                    doc.setFontSize(20);
+                                    doc.text(informationName, 15, 30);
+
+                                    // Add additional detail below the system name
+                                    var informationCaption = "<?php echo $information_caption; ?>";
+                                    doc.setFontSize(16);
+                                    doc.text(informationCaption, 15, 37);
+
+                                    // Now proceed with the rest of the content (canvas, etc.)
+                                    generatePDFContent();
+                                };
+                            } else {
+                                // If no image, just proceed with the rest of the content
+                                generatePDFContent();
+                            }
+
+                            function generatePDFContent() {
+                                const imgWidth = 210; // A4 width in mm
+                                const pageHeight = 297; // A4 height in mm
+                                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                                let heightLeft = imgHeight;
+                                let position = 50; // Start at 50mm from the top
+
+                                // Add canvas image to the PDF
+                                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
+
+                                heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+
+                                // Continue adding pages if content exceeds one page
+                                while (heightLeft > 0) {
+                                    doc.addPage();
+                                    position = heightLeft - imgHeight;
+                                    doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                                    heightLeft -= pageHeight;
+                                }
+
+                                // Save the generated PDF
+                                doc.save('photo_match_report.pdf');
+                            }
+                        });
+                    });
+                </script>
             </div>
         </div>
     </div>
-    <script>
-        document.getElementById("generatePDF").addEventListener("click", function() {
-            const content = document.getElementById("contentToConvert");
-
-            // Increase the scale of the canvas to improve resolution
-            html2canvas(content, {
-                scale: 5, // Increase scale for higher quality
-                useCORS: true, // Allows cross-origin resources
-            }).then(function(canvas) {
-                const imgData = canvas.toDataURL('image/png');
-                const {
-                    jsPDF
-                } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4');
-
-                // Add custom font (THSarabunNew)
-                var fontBase64 = "<?php echo $fontBase64; ?>";
-                if (fontBase64) {
-                    doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-                    doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-                    doc.setFont('customFont');
-                }
-
-                // Process and invert the image (if provided)
-                var imgBase64 = "<?php echo $image_base64; ?>";
-                if (imgBase64) {
-                    const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-
-                    // Create a new image element to load the base64 data
-                    var image = new Image();
-                    image.src = imgBase64;
-
-                    image.onload = function() {
-                        // Create a canvas to manipulate the image
-                        var tempCanvas = document.createElement('canvas');
-                        var ctx = tempCanvas.getContext('2d');
-                        tempCanvas.width = image.width;
-                        tempCanvas.height = image.height;
-
-                        // Draw the image onto the canvas
-                        ctx.drawImage(image, 0, 0);
-
-                        // Get image data (pixels)
-                        var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                        var data = imageData.data;
-
-                        // Loop through the pixels and invert colors
-                        for (var i = 0; i < data.length; i += 4) {
-                            data[i] = 255 - data[i]; // Invert red
-                            data[i + 1] = 255 - data[i + 1]; // Invert green
-                            data[i + 2] = 255 - data[i + 2]; // Invert blue
-                            // Alpha (data[i + 3]) remains unchanged
-                        }
-
-                        // Update the canvas with the inverted data
-                        ctx.putImageData(imageData, 0, 0);
-
-                        // Convert the updated canvas back to base64
-                        var invertedImgBase64 = tempCanvas.toDataURL('image/png');
-
-                        // Add the inverted image to the PDF
-                        doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
-
-                        // Add system name below the image
-                        var informationName = "<?php echo $information_name; ?>";
-                        doc.setFontSize(20);
-                        doc.text(informationName, 15, 30);
-
-                        // Add additional detail below the system name
-                        var informationCaption = "<?php echo $information_caption; ?>";
-                        doc.setFontSize(16);
-                        doc.text(informationCaption, 15, 37);
-
-                        // Now proceed with the rest of the content (canvas, etc.)
-                        generatePDFContent();
-                    };
-                } else {
-                    // If no image, just proceed with the rest of the content
-                    generatePDFContent();
-                }
-
-                function generatePDFContent() {
-                    const imgWidth = 210; // A4 width in mm
-                    const pageHeight = 297; // A4 height in mm
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    let heightLeft = imgHeight;
-                    let position = 50; // Start at 50mm from the top
-
-                    // Add canvas image to the PDF
-                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
-
-                    heightLeft -= (pageHeight - 10); // Adjust height left after the first page
-
-                    // Continue adding pages if content exceeds one page
-                    while (heightLeft > 0) {
-                        doc.addPage();
-                        position = heightLeft - imgHeight;
-                        doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
-                        heightLeft -= pageHeight;
-                    }
-
-                    // Save the generated PDF
-                    doc.save('photo_match_report.pdf');
-                }
-            });
-        });
-    </script>
-
-
-
-
-
-    <script>
-        fetch('grap1.php')
-            .then(response => response.json())
-            .then(data => {
-                const malePhotographersCount = data.malePhotographersCount || 0;
-                const femalePhotographersCount = data.femalePhotographersCount || 0;
-                const maleCustomersCount = data.maleCustomersCount || 0;
-                const femaleCustomersCount = data.femaleCustomersCount || 0;
-                const maleAdminCount = data.maleAdminCount || 0;
-                const femaleAdminCount = data.femaleAdminCount || 0;
-
-                const ctx = document.getElementById('overviewChart1').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ช่างภาพ (ชาย)',
-                                data: [malePhotographersCount],
-                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                                borderColor: 'rgba(255, 159, 64, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ช่างภาพ (หญิง)',
-                                data: [femalePhotographersCount],
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (ชาย)',
-                                data: [maleCustomersCount],
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (หญิง)',
-                                data: [femaleCustomersCount],
-                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ผู้ดูแลระบบ (ชาย)',
-                                data: [maleAdminCount],
-                                backgroundColor: 'rgba(255, 205, 86, 0.2)',
-                                borderColor: 'rgba(255, 205, 86, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ผู้ดูแลระบบ (หญิง)',
-                                data: [femaleAdminCount],
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                        ]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    font: {
-                                        size: 20 // Set font size for legend
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(tooltipItem) {
-                                        const value = tooltipItem.raw;
-                                        return tooltipItem.label + ': ' + value;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        size: 20 // Set font size for Y axis
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        size: 20 // Set font size for X axis
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-    <script>
-        fetch('grap2.php')
-            .then(response => response.json())
-            .then(data => {
-                const maleCustomersCount = data.maleCustomersCount || 0;
-                const femaleCustomersCount = data.femaleCustomersCount || 0;
-
-                const ctx = document.getElementById('overviewChart2').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ลูกค้า (ชาย)',
-                                data: [maleCustomersCount],
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ลูกค้า (หญิง)',
-                                data: [femaleCustomersCount],
-                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    font: {
-                                        size: 20 // Set font size for legend
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        size: 20 // Set font size for Y axis
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        size: 20 // Set font size for X axis
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-    <script>
-        fetch('grap3.php')
-            .then(response => response.json())
-            .then(data => {
-                const malePhotographersCount = data.malePhotographersCount || 0;
-                const femalePhotographersCount = data.femalePhotographersCount || 0;
-
-                const ctx = document.getElementById('overviewChart3').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [''],
-                        datasets: [{
-                                label: 'ช่างภาพ (ชาย)',
-                                data: [malePhotographersCount],
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'ช่างภาพ (หญิง)',
-                                data: [femalePhotographersCount],
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    font: {
-                                        size: 20 // Set font size for legend
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        size: 20 // Set font size for Y axis
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        size: 20 // Set font size for X axis
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-    <script>
-        fetch('grap4.php')
-            .then(response => response.json())
-            .then(data => {
-                const labels = [];
-                const counts = [];
-
-                data.forEach(item => {
-                    labels.push(item.type_work);
-                    counts.push(item.total_count);
-                });
-
-                const ctx = document.getElementById('overviewChart4').getContext('2d');
-                const overviewChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: counts,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                                'rgba(255, 159, 64, 0.2)',
-                                'rgba(201, 203, 207, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)',
-                                'rgba(201, 203, 207, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    font: {
-                                        size: 20 // Set font size for legend
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-
-
-
     <!-- Chart Section End -->
 
     <!-- Footer Start -->

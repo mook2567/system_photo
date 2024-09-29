@@ -1,40 +1,49 @@
 <?php
 include '../config_db.php'; // Include your database configuration
 
-// Query to get photographer counts
-$type_query = "
-    SELECT t.type_work, COUNT(tow.type_id) AS total_count
+// Query to get photographer work counts
+$photographer_query = "
+    SELECT t.type_work, COUNT(tow.type_id) AS photographer_count
     FROM type_of_work tow
     JOIN type t ON t.type_id = tow.type_id
-    GROUP BY t.type_work;
+    GROUP BY t.type_work
+    ORDER BY photographer_count DESC;
 ";
 
-// Execute the query
-$type_result = $conn->query($type_query);
+// Query to get customer popular work counts
+$customer_query = "
+    SELECT t.type_work, COUNT(b.type_of_work_id) AS customer_count 
+    FROM booking b
+    JOIN type_of_work tow ON b.type_of_work_id = tow.type_of_work_id
+    JOIN type t ON t.type_id = tow.type_id
+    GROUP BY t.type_work
+    ORDER BY customer_count DESC;
+";
 
-// Check for errors in query execution
-if (!$type_result) {
-    $error = [
-        'error' => 'Query failed: ' . $conn->error
-    ];
-    echo json_encode($error);
-    $conn->close();
-    exit;
-}
+// Execute the queries
+$photographer_result = $conn->query($photographer_query);
+$customer_result = $conn->query($customer_query);
 
-// Fetch all rows of data
-$type_data = $type_result->fetch_all(MYSQLI_ASSOC);
+// Fetch photographer data
+$photographer_data = $photographer_result->fetch_all(MYSQLI_ASSOC);
 
-// Prepare data for JSON output
+// Fetch customer data
+$customer_data = $customer_result->fetch_all(MYSQLI_ASSOC);
+
+// Combine data
 $data = [];
-foreach ($type_data as $row) {
+foreach ($photographer_data as $index => $row) {
+    // Get customer count safely with fallback to 0
+    $customer_count = isset($customer_data[$index]) ? (int)$customer_data[$index]['customer_count'] : 0;
     $data[] = [
         'type_work' => $row['type_work'],
-        'total_count' => (int)$row['total_count']
+        'photographer_count' => (int)$row['photographer_count'], // เปลี่ยนชื่อให้ตรงกับ JavaScript
+        'customer_count' => $customer_count // เปลี่ยนชื่อให้ตรงกับ JavaScript
     ];
 }
 
 // Output data as JSON
+header('Content-Type: application/json'); // กำหนด Content-Type ให้เป็น JSON
 echo json_encode($data);
 
 // Close connection
