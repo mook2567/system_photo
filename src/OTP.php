@@ -160,11 +160,13 @@ if (isset($_GET['status']) == "true") {
                     preConfirm: () => {
                         const newPassword = document.getElementById('new_password').value;
                         const confirmPassword = document.getElementById('confirm_password').value;
-
+    
                         if (!newPassword || !confirmPassword) {
                             Swal.showValidationMessage('กรุณากรอกรหัสผ่านให้ครบถ้วน');
                         } else if (newPassword !== confirmPassword) {
                             Swal.showValidationMessage('รหัสผ่านไม่ตรงกัน');
+                        } else if (newPassword.length < 5) {
+                            Swal.showValidationMessage('รหัสผ่านต้องไม่ต่ำกว่า 5 ตัวอักษร');
                         } else {
                             return {
                                 newPassword: newPassword
@@ -175,15 +177,16 @@ if (isset($_GET['status']) == "true") {
                     if (result.isConfirmed) {
                         const newPassword = encodeURIComponent(result.value.newPassword);
                         const email = encodeURIComponent('<?= $email; ?>');
-
+    
                         // ส่งข้อมูลรหัสผ่านใหม่ผ่าน URL ไปยัง OTP.php เพื่อบันทึกลงฐานข้อมูล
                         window.location.href = `OTP.php?new_password=${newPassword}&email=${email}`;
                     }
                 });
             </script>
         </div>
-    <?php
-    } else {
+        <?php
+    }
+     else {
         // หาก OTP ไม่ถูกต้อง แสดง popup แจ้งเตือน
     ?>
         <div>
