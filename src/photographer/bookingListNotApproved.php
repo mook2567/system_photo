@@ -263,7 +263,7 @@ $resultBooking = $conn->query($sql1);
 
     <div class="center mt-5 container" style="height: 520px;">
         <h1 class="footer-title text-center f mt-3">ตารางรายการที่ไม่อนุมัติ</h1>
-        <div class="row justify-content-end">
+        <div class="row">
             <div class="col-md-4">
                 <!-- <button type="button" onclick="window.location.href='bookingListAll.php'" class="btn btn-outline-dark">ทั้งหมด</button> -->
                 <button type="button" onclick="window.location.href='bookingListWaittingForApproval.php'" class="btn btn-outline-dark">รออนุมัติ</button>

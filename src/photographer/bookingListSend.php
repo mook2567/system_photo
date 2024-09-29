@@ -593,7 +593,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                     </div>
                                                 </div><input type="hidden" name="booking_id" value="<?php echo $rowBooking['booking_id']; ?>">
                                                 <div class="modal-footer justify-content-center mt-3">
-                                                    <button type="button" class="btn btn-danger" style="width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
+                                                    <button type="button" class="btn" style="background-color:gray; color:#ffff; width: 150px; height:45px;" data-bs-dismiss="modal">ปิด</button>
                                                     <button id="saveButton" name="submit_booking_confirm_status" class="btn btn-primary" style="width: 170px; height:45px;">บันทึกการส่งงาน</button>
                                                 </div>
                                                 </form>
@@ -614,7 +614,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
         <div class="row justify-content-center mt-2 container-center text-center">
             <div class="col-md-12">
-                <button onclick="window.history.back();" class="btn btn-danger mb-5 " style="width: 150px; height: 45px;">ย้อนกลับ</button>
+                <button onclick="window.history.back();" class="btn mb-5 " style="background-color:gray; color:#ffff; width: 150px; height: 45px;">ย้อนกลับ</button>
             </div>
         </div>
     </div>

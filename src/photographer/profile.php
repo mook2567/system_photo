@@ -663,6 +663,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
+    <!-- <div class="container-xxl bg-white p-0"> -->
     <!-- Spinner Start -->
     <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
@@ -672,46 +673,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
-    <div class="bg-dark">
-        <nav class="navbar me-5 ms-5 navbar-expand-lg navbar-dark bg-dark">
-            <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
-                <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
-            </a>
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon text-primary"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto f">
-                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                        <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
-                                <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
-                                <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
-                                <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
-                                <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
-                            </div>
-                        </div>
-                        <a href="report.php" class="nav-item nav-link">รายงาน</a>                        
-                        <a href="dashboard.php" class="nav-item nav-link">สถิติ</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown active">โปรไฟล์</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
-                                <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
-                            </div>
-                        </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-4" style="height: 70px;">
+        <a href="index.php" class="navbar-brand d-flex align-items-center text-center">
+            <img class="img-fluid" src="../img/logo/<?php echo isset($rowInfo['information_icon']) ? $rowInfo['information_icon'] : ''; ?>" style="height: 30px;">
+        </a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon text-primary"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto f">
+                <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle bg-dark" data-bs-toggle="dropdown">รายการจอง</a>
+                    <div class="dropdown-menu rounded-0 m-0">
+                        <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
+                        <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
+                        <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                        <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                        <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
+                        <a href="bookingListFinish.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
+                        <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
                     </div>
                 </div>
-        </nav>
-    </div>
+                <a href="report.php" class="nav-item nav-link">รายงาน</a>
+                <a href="dashboard.php" class="nav-item nav-link">สถิติ</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle bg-dark active" data-bs-toggle="dropdown">โปรไฟล์</a>
+                    <div class="dropdown-menu rounded-0 m-0">
+                        <a href="profile.php" class="dropdown-item active">โปรไฟล์</a>
+                        <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
+                        <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                        <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                        <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
     <!-- Navbar End -->
 
     <div class="row mt-3">
@@ -1580,100 +1579,100 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
 
-        
-            <!-- ตารางงาน -->
-            <?php
-$bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
+        <!-- ตารางงาน -->
+        <?php
+        $bookingAvailable = false; // ตั้งค่าเริ่มต้นเป็น false
 
-if ($resultBooking->num_rows > 0) {
-    $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
-}
+        if ($resultBooking->num_rows > 0) {
+            $bookingAvailable = true; // ตั้งค่าเป็น true หากมีการจอง
+        }
 
-// คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
-$today = date('Y-m-d');
-$dayOfWeek = date('w', strtotime($today));
-$startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
-$endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
+        // คำนวณวันเริ่มต้นและวันสิ้นสุดของสัปดาห์ปัจจุบัน (อาทิตย์ถึงเสาร์)
+        $today = date('Y-m-d');
+        $dayOfWeek = date('w', strtotime($today));
+        $startOfWeek = date('Y-m-d', strtotime($today . ' -' . $dayOfWeek . ' days'));
+        $endOfWeek = date('Y-m-d', strtotime($startOfWeek . ' +6 days'));
 
-// ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
-$bookedDates = [];
-$unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
-$completedDates = []; // เก็บวันที่ที่จองเสร็จสิ้น
+        // ดึงข้อมูลวันที่จองทั้งหมดมาเก็บในอาร์เรย์สำหรับการตรวจสอบ
+        $bookedDates = [];
+        $unconfirmedDates = []; // เก็บวันที่ที่ยังไม่อนุมัติ
+        $completedDates = []; // เก็บวันที่ที่จองเสร็จสิ้น
 
-if ($resultBooking->num_rows > 0) {
-    while ($rowBooking = $resultBooking->fetch_assoc()) {
-        $startDate = $rowBooking['booking_start_date'];
-        $endDate = $rowBooking['booking_end_date'];
-        $confirmStatus = $rowBooking['booking_confirm_status'];
+        if ($resultBooking->num_rows > 0) {
+            while ($rowBooking = $resultBooking->fetch_assoc()) {
+                $startDate = $rowBooking['booking_start_date'];
+                $endDate = $rowBooking['booking_end_date'];
+                $confirmStatus = $rowBooking['booking_confirm_status'];
 
-        // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
-        for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
-            if ($confirmStatus == 1) {
-                $bookedDates[] = $date;
-            } elseif ($confirmStatus == 0) {
-                $unconfirmedDates[] = $date;
-            } elseif ($confirmStatus == 3) {
-                $completedDates[] = $date;
+                // เพิ่มช่วงเวลาการจองลงในอาร์เรย์
+                for ($date = $startDate; $date <= $endDate; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
+                    if ($confirmStatus == 1) {
+                        $bookedDates[] = $date;
+                    } elseif ($confirmStatus == 0) {
+                        $unconfirmedDates[] = $date;
+                    } elseif ($confirmStatus == 3) {
+                        $completedDates[] = $date;
+                    }
+                }
             }
         }
-    }
-}
 
-// สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
-$allDates = [];
-$currentDate = $startOfWeek;
-for ($i = 0; $i < 7; $i++) {
-    $allDates[] = $currentDate;
-    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-}
-
-// ลบวันจองที่ซ้ำออก
-$bookedDates = array_unique($bookedDates);
-$unconfirmedDates = array_unique($unconfirmedDates);
-$completedDates = array_unique($completedDates);
-?>
-
-<div class="col-3 flex-fill" style="margin-left: auto;">
-    <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
-        <div class="d-flex justify-content-center align-items-center mt-3">
-            <h4>ตารางงาน</h4>
-        </div>
-        <div class="ms-2 mb-2">
-            ตารางงานสัปดาห์นี้
-        </div>
-        <?php
-        // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+        // สร้างอาร์เรย์วันทั้งหมดในสัปดาห์ปัจจุบัน
+        $allDates = [];
         $currentDate = $startOfWeek;
         for ($i = 0; $i < 7; $i++) {
-            $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
-
-            if (in_array($currentDate, $bookedDates)) {
-                $backgroundColor = 'lightcoral'; // มีการจองแล้ว
-            } elseif (in_array($currentDate, $unconfirmedDates)) {
-                $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
-            } elseif (in_array($currentDate, $completedDates)) {
-                $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
-            }
-            
-            echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
-            echo "<p class='mb-0'>";
-            echo "วันที่: " . htmlspecialchars($currentDate);
-
-            if (in_array($currentDate, $bookedDates)) {
-                echo " - จองแล้ว";
-            } elseif (in_array($currentDate, $unconfirmedDates)) {
-                echo " - จองแต่ยังไม่อนุมัติ";
-            } elseif (in_array($currentDate, $completedDates)) {
-                echo " - จองเสร็จสิ้นแล้ว";
-            } else {
-                echo " - ว่าง";
-            }
-
-            echo "</p>";
-            echo "</div>";
+            $allDates[] = $currentDate;
             $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
         }
+
+        // ลบวันจองที่ซ้ำออก
+        $bookedDates = array_unique($bookedDates);
+        $unconfirmedDates = array_unique($unconfirmedDates);
+        $completedDates = array_unique($completedDates);
         ?>
+
+        <div class="col-3 flex-fill" style="margin-left: auto;">
+            <div class="col-8 start-0 card-header bg-white" style="border-radius: 10px; height: 700px; margin-left: auto;">
+                <div class="d-flex justify-content-center align-items-center mt-3">
+                    <h4>ตารางงาน</h4>
+                </div>
+                <div class="ms-2 mt-3 mb-2">
+                    <h5>ตารางงานสัปดาห์นี้</h5>
+                </div>
+                <?php
+                // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
+                $currentDate = $startOfWeek;
+                for ($i = 0; $i < 7; $i++) {
+                    $backgroundColor = 'rgba(144, 238, 144, 0.5)'; // สีพื้นหลังจาง (lightgreen)
+
+                    if (in_array($currentDate, $bookedDates)) {
+                        $backgroundColor = 'rgba(255, 99, 71, 0.5)'; // จางลงจาก lightcoral
+                    } elseif (in_array($currentDate, $unconfirmedDates)) {
+                        $backgroundColor = 'rgba(255, 160, 122, 0.5)'; // จางลงจาก lightsalmon
+                    } elseif (in_array($currentDate, $completedDates)) {
+                        $backgroundColor = 'rgba(173, 216, 230, 0.5)'; // จางลงจาก lightblue
+                    }
+
+                    echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
+                    echo "<p class='mb-0' style='color: #000000; font-weight: bold; font-size: 16px;'>"; // ปรับสีฟอนต์และความหนา
+                    echo "วันที่: " . htmlspecialchars($currentDate);
+
+                    if (in_array($currentDate, $bookedDates)) {
+                        echo " - จองแล้ว";
+                    } elseif (in_array($currentDate, $unconfirmedDates)) {
+                        echo " - จองแต่ยังไม่อนุมัติ";
+                    } elseif (in_array($currentDate, $completedDates)) {
+                        echo " - จองเสร็จสิ้นแล้ว";
+                    } else {
+                        echo " - ว่าง";
+                    }
+
+                    echo "</p>";
+                    echo "</div>";
+                    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+                }
+                ?>
+
 
                 <div class="justify-content-center py-4 text-center">
                     <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
