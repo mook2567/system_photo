@@ -177,7 +177,7 @@ $resultBooking = $conn->query($sql1);
 
         .table th:nth-child(1),
         .table td:nth-child(1) {
-            width: 200px;
+            width: 300px;
             height: 50px;
             text-align: center;
         }
@@ -195,10 +195,18 @@ $resultBooking = $conn->query($sql1);
         }
 
         .table th:nth-child(2),
+        .table td:nth-child(2){
+            width: 400px;
+            height: 50px;
+            text-align: center;
+            overflow: hidden;
+            /* Hide overflow content */
+            text-overflow: ellipsis;
+            /* Show "..." for overflow text */
+        }
         .table th:nth-child(3),
         .table th:nth-child(4),
         .table th:nth-child(5),
-        .table td:nth-child(2),
         .table td:nth-child(3),
         .table td:nth-child(4),
         .table td:nth-child(5) {
@@ -206,11 +214,6 @@ $resultBooking = $conn->query($sql1);
             height: 50px;
             text-align: center;
             overflow: hidden;
-            /* Hide overflow content */
-            text-overflow: ellipsis;
-            /* Show "..." for overflow text */
-            white-space: nowrap;
-            /* Prevent text from wrapping to the next line */
         }
     </style>
 </head>
@@ -255,8 +258,8 @@ $resultBooking = $conn->query($sql1);
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
                                 <div class="dropdown-menu rounded-0 m-0">
                                     <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                    <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                    <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                    <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                    <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                                     <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                                 </div>
                             </div>

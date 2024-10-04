@@ -122,8 +122,8 @@ if (isset($_SESSION['cus_login'])) {
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
                         <div class="dropdown-menu rounded-0 m-0">
                             <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                            <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                            <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                            <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                            <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                             <a href="../index.php" class="dropdown-item">ออกจากระบบ</a>
                         </div>
                     </div>

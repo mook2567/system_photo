@@ -188,7 +188,6 @@ $rowInfo = $resultInfo->fetch_assoc();
         </div>
         <!-- Header End -->
 
-
         <?php
         // Assuming form data is submitted via POST
         $type = isset($_POST['type']) ? $_POST['type'] : '';

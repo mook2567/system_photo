@@ -27,15 +27,6 @@ if ($id_photographer !== null) {
     }
 }
 
-
-// ตรวจสอบข้อมูล
-// echo '<pre>';
-// print_r($booking);
-// echo '</pre>';
-
-// Return bookings data as JSON
-// echo json_encode($booking);
-
 $fullcalendar_path = "fullcalendar-4.4.2/packages/";
 ?>
 <!DOCTYPE html>

@@ -920,25 +920,25 @@ function proceedWithBooking($conn, $location, $details, $start_date, $end_date, 
                     <div class="d-flex justify-content-center align-items-center mt-3">
                         <h4>ตารางงาน</h4>
                     </div>
-                    <div class="ms-2 mb-2">
-                        ตารางงานสัปดาห์นี้
+                    <div class="ms-2 mt-3 mb-2">
+                        <h5>ตารางงานสัปดาห์นี้</h5>
                     </div>
                     <?php
                     // ลูปผ่านแต่ละวันในสัปดาห์ปัจจุบัน
                     $currentDate = $startOfWeek;
                     for ($i = 0; $i < 7; $i++) {
-                        $backgroundColor = 'lightgreen'; // สีพื้นหลังเริ่มต้น
+                        $backgroundColor = 'rgba(144, 238, 144, 0.5)'; // สีพื้นหลังจาง (lightgreen)
 
                         if (in_array($currentDate, $bookedDates)) {
-                            $backgroundColor = 'lightcoral'; // มีการจองแล้ว
+                            $backgroundColor = 'rgba(255, 99, 71, 0.5)'; // จางลงจาก lightcoral
                         } elseif (in_array($currentDate, $unconfirmedDates)) {
-                            $backgroundColor = 'lightsalmon'; // มีการจองแต่ยังไม่อนุมัติ
+                            $backgroundColor = 'rgba(255, 160, 122, 0.5)'; // จางลงจาก lightsalmon
                         } elseif (in_array($currentDate, $completedDates)) {
-                            $backgroundColor = 'lightblue'; // จองเสร็จสิ้นแล้ว
+                            $backgroundColor = 'rgba(173, 216, 230, 0.5)'; // จางลงจาก lightblue
                         }
 
                         echo "<div id='bookingStatus_$i' class='col-12 text-center mb-3' style='border-radius: 10px; padding-top: 10px; padding-bottom: 10px; background-color: {$backgroundColor};'>";
-                        echo "<p class='mb-0'>";
+                        echo "<p class='mb-0' style='color: #000000; font-weight: bold; font-size: 16px;'>"; // ปรับสีฟอนต์และความหนา
                         echo "วันที่: " . htmlspecialchars($currentDate);
 
                         if (in_array($currentDate, $bookedDates)) {
@@ -946,7 +946,7 @@ function proceedWithBooking($conn, $location, $details, $start_date, $end_date, 
                         } elseif (in_array($currentDate, $unconfirmedDates)) {
                             echo " - จองแต่ยังไม่อนุมัติ";
                         } elseif (in_array($currentDate, $completedDates)) {
-                            echo " - เสร็จสิ้นแล้ว";
+                            echo " - จองเสร็จสิ้นแล้ว";
                         } else {
                             echo " - ว่าง";
                         }

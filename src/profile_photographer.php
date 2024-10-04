@@ -17,6 +17,26 @@ $sql = "SELECT *
         WHERE photographer_id = $id_photographer
         ";
 $resultBooking = $conn->query($sql);
+$sql = "SELECT 
+            (SUM(r.review_level)/COUNT(r.review_level)) AS scor, 
+            p.photographer_id, 
+            p.photographer_prefix, 
+            p.photographer_name, 
+            p.photographer_surname
+        FROM 
+            review r
+        JOIN 
+            booking b ON r.booking_id = b.booking_id 
+        JOIN 
+            photographer p ON b.photographer_id = p.photographer_id
+        WHERE 
+            p.photographer_id = $id_photographer";
+
+$resultScor = $conn->query($sql);
+$rowScor = $resultScor->fetch_assoc();
+$reviewLevel = isset($rowScor['scor']) ? $rowScor['scor'] : 0;  // ค่าเฉลี่ยจริง ไม่ต้องปัดเศษ
+$reviewPercentage = ($reviewLevel / 5) * 100;  // คิดเป็นเปอร์เซ็นต์
+
 ?>
 
 <!DOCTYPE html>
@@ -335,7 +355,26 @@ $resultBooking = $conn->query($sql);
                                 <img src="../img/profile/<?php echo $rowPhoto['photographer_photo'] ? $rowPhoto['photographer_photo'] : 'null.png'; ?>">
                             </div>
                         </div>
-                        <div class="col-12 text-center md-3 py-3 px-4 mt-3">
+                        <div class="col-12 d-flex flex-column align-items-center justify-content-center md-3 py-3 px-4 mt-3">
+                            <div class="col-8 mt-1 text-center mb-2">
+                                <span style="color: black; margin-right: 5px; font-size: 18px;">
+                                    <?php
+                                    // แสดงดาวตามคะแนนที่ได้ (เต็ม 5 ดาว)
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        if ($i <= floor($reviewLevel)) {
+                                            // ดาวเต็มสีทอง
+                                            echo '<i class="fas fa-star" style="color: gold; margin-right: 2px;"></i>';
+                                        } elseif ($i - $reviewLevel < 1) {
+                                            // ดาวครึ่งดวงถ้าค่ามีทศนิยม
+                                            echo '<i class="fas fa-star-half-alt" style="color: gold; margin-right: 2px;"></i>';
+                                        } else {
+                                            // ดาวว่างเปล่าสีทอง
+                                            echo '<i class="far fa-star" style="color: gold; margin-right: 2px;"></i>';
+                                        }
+                                    }
+                                    ?>
+                                </span>
+                            </div>
                             <h3><?php echo $rowPhoto['photographer_name'] . ' ' . $rowPhoto['photographer_surname']; ?></h3>
                         </div>
                         <div class="col-12 text-start mt-1">
@@ -715,14 +754,6 @@ $resultBooking = $conn->query($sql);
             </div>
         </div>
     </div>
-
-    <!-- Profile End -->
-
-    <!-- Footer Start -->
-    <!-- <footer class="footer">
-        &copy; <a class="border-bottom text-dark" href="#">2024 Photo Match</a>, All Right Reserved.
-    </footer> -->
-    <!-- Footer End -->
 
     <script>
         lightbox.option({

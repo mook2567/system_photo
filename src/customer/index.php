@@ -17,7 +17,6 @@ if (isset($_SESSION['customer_login'])) {
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -99,11 +98,11 @@ if (isset($_SESSION['customer_login'])) {
 
 <body>
     <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-    </div>
+    </div> -->
     <!-- Spinner End -->
 
     <!-- Navbar Start -->
@@ -252,28 +251,31 @@ if (isset($_SESSION['customer_login'])) {
                 <div id="tab-1" class="tab-pane fade show p-0 active">
                     <div class="row g-4">
                         <?php
-                        $sql = "SELECT 
-                            p.photographer_prefix,
-                            p.photographer_name,
-                            p.photographer_surname,
-                            p.photographer_tell,
-                            p.photographer_email,
-                            p.photographer_scope,
-                            p.photographer_photo,
-                            p.photographer_address,
-                            t.type_work,
-                            p.photographer_id
-                        FROM 
-                            photographer p
-                        JOIN 
-                            type_of_work tow ON p.photographer_id = tow.photographer_id
-                        JOIN 
-                            `type` t ON t.type_id = tow.type_id
-                        GROUP BY
-                            p.photographer_id
-                        LIMIT 4;
-
-                        ";
+                       $sql = "SELECT 
+                       (SUM(r.review_level) / COUNT(r.review_level)) AS scor, 
+                       p.photographer_prefix,
+                       p.photographer_name,
+                       p.photographer_surname,
+                       p.photographer_tell,
+                       p.photographer_email,
+                       p.photographer_scope,
+                       p.photographer_photo,
+                       p.photographer_address,
+                       t.type_work,
+                       p.photographer_id
+                   FROM 
+                       photographer p
+                   JOIN 
+                       type_of_work tow ON p.photographer_id = tow.photographer_id
+                   JOIN 
+                       booking b ON b.type_of_work_id = tow.type_of_work_id
+                   JOIN 
+                       `type` t ON t.type_id = tow.type_id
+                   LEFT JOIN 
+                       review r ON r.booking_id = b.booking_id
+                   GROUP BY
+                       p.photographer_id
+                   LIMIT 4;";
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
@@ -366,7 +368,9 @@ if (isset($_SESSION['customer_login'])) {
                     LEFT JOIN 
                         type t ON t.type_id = tow.type_id
                     ORDER BY 
-                        po.portfolio_id DESC;";
+                        po.portfolio_id DESC
+                    LIMIT
+                        6";
                     $resultPost = $conn->query($sql);
                     if ($resultPost->num_rows > 0) {
                         while ($rowPost = $resultPost->fetch_assoc()) {

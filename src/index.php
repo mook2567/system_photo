@@ -182,25 +182,25 @@ $resultType = $conn->query($sql);
                                     }
                                 } ?>
                             </select>
-                            </div>
+                    </div>
                     <div class="col-md-2">
                         <input class="border-0 py-3" type="number" name="budget" placeholder="งบประมาณ (บาท)" style="border: none; outline: none; width: 100%; border-radius: 5px;" value="<?php echo htmlspecialchars($budget); ?>">
                     </div>
                     <div class="col-md-2">
                         <select class="form-select border-0 py-3" name="time">
-                            <option value="0" >ช่วงเวลา</option>
-                            <option value="1" >เต็มวัน</option>
-                            <option value="2" >ครึ่งวัน</option>
+                            <option value="0">ช่วงเวลา</option>
+                            <option value="1">เต็มวัน</option>
+                            <option value="2">ครึ่งวัน</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <select name="scope" class="form-select border-0 py-3">
-                            <option value="" >สถานที่</option>
-                            <option value="กรุงเทพฯ" >กรุงเทพฯ</option>
-                            <option value="ภาคกลาง" >ภาคกลาง</option>
-                            <option value="ภาคใต้" >ภาคใต้</option>
-                            <option value="ภาคเหนือ" >ภาคเหนือ</option>
-                            <option value="ภาคตะวันออกเฉียงเหนือ" >ภาคตะวันออกเฉียงเหนือ</option>
+                            <option value="">สถานที่</option>
+                            <option value="กรุงเทพฯ">กรุงเทพฯ</option>
+                            <option value="ภาคกลาง">ภาคกลาง</option>
+                            <option value="ภาคใต้">ภาคใต้</option>
+                            <option value="ภาคเหนือ">ภาคเหนือ</option>
+                            <option value="ภาคตะวันออกเฉียงเหนือ">ภาคตะวันออกเฉียงเหนือ</option>
                             <option value="ภาคตะวันตก">ภาคตะวันตก</option>
                         </select>
                     </div>
@@ -214,28 +214,7 @@ $resultType = $conn->query($sql);
     </div>
     <!-- Search End -->
 
-    <!-- About Start -->
-    <div class="container-xxl py-5">
-        <div class="container">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="about-img position-relative overflow-hidden p-5 pe-0">
-                        <img class="img-fluid w-100" src="img/Photomatch.gif">
-                    </div>
-                </div>
-                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                    <h1 class="mb-4 f">#1 แหล่งรวมช่างภาพที่มากประสบการณ์</h1>
-                    <p class="mb-4">และท่านสามารถเลือกใช้บริการช่างภาพได้ตามความต้องการตามปัจจัยต่าง ๆ ได้แก่ ประเภทงาน ช่วงราคา ช่วงเวลา และสถานที่</p>
-                    <p class="mb-4">แน่นอนว่าช่างภาพของเรานั้นมีคุณสมบัติที่ดี</p>
-                    <p><i class="fa fa-check text-dark me-3"></i>มากประสบการณ์</p>
-                    <p><i class="fa fa-check text-dark me-3"></i>มีเทคนิคการถ่าย</p>
-                    <p><i class="fa fa-check text-dark me-3"></i>ผลงานดีมีคุณภาพ</p>
-                    <a class="btn btn-dark py-3 px-5 mt-3" href="">เรียนรู้เพิ่มเติม</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- About End -->
+
     <!-- Examples of work Start -->
     <div class="container-xxl py-5">
         <div class="container">
@@ -252,6 +231,7 @@ $resultType = $conn->query($sql);
                     <div class="row g-4">
                         <?php
                         $sql = "SELECT 
+                        (SUM(r.review_level) / COUNT(r.review_level)) AS scor, 
                         p.photographer_prefix,
                         p.photographer_name,
                         p.photographer_surname,
@@ -260,19 +240,22 @@ $resultType = $conn->query($sql);
                         p.photographer_scope,
                         p.photographer_photo,
                         p.photographer_address,
-                        tow.type_of_work_rate_half_start, 
-                        tow.type_of_work_rate_half_end,
-                        tow.type_of_work_rate_full_start,
-                        tow.type_of_work_rate_full_end,
                         t.type_work,
                         p.photographer_id
                     FROM 
                         photographer p
-                    INNER JOIN 
+                    JOIN 
                         type_of_work tow ON p.photographer_id = tow.photographer_id
-                    INNER JOIN 
-                        type t ON t.type_id = tow.type_id LIMIT 6";
-                        $result = $conn->query($sql);
+                    JOIN 
+                        booking b ON b.type_of_work_id = tow.type_of_work_id
+                    JOIN 
+                        `type` t ON t.type_id = tow.type_id
+                    LEFT JOIN 
+                        review r ON r.booking_id = b.booking_id
+                    GROUP BY
+                        p.photographer_id
+                    LIMIT 4;";
+                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
                             $photographers = [];
@@ -288,11 +271,7 @@ $resultType = $conn->query($sql);
                                 $photographers[$row['photographer_id']]['photographer_photo'] = $row['photographer_photo'];
                                 $photographers[$row['photographer_id']]['photographer_address'] = $row['photographer_address'];
                                 $photographers[$row['photographer_id']]['type_of_work'][] = [
-                                    'type_work' => $row['type_work'],
-                                    'rate_half_start' => (int)$row['type_of_work_rate_half_start'],
-                                    'rate_half_end' => (int)$row['type_of_work_rate_half_end'],
-                                    'rate_full_start' => (int)$row['type_of_work_rate_full_start'],
-                                    'rate_full_end' => (int)$row['type_of_work_rate_full_end']
+                                    'type_work' => $row['type_work']
                                 ];
                             }
 
@@ -310,14 +289,6 @@ $resultType = $conn->query($sql);
                                                 </div>
                                             </div>
                                             <div class="col-6 p-4 pb-0">
-                                                <!-- <p class="text-dark mb-3"><?php echo isset($photographer['photographer_address']) ? $photographer['photographer_address'] : 'Address not available'; ?></p> -->
-                                                <!-- <?php foreach ($photographer['type_of_work'] as $work) { ?>
-                                                    <p class="text-dark mb-3">
-                                                        <?php echo $work['type_work']; ?>
-                                                        <?php echo isset($work['rate_half']) ? $work['rate_half'] : 'Rate half not available'; ?>
-                                                        <?php echo isset($work['rate_full']) ? $work['rate_full'] : 'Rate full not available'; ?>
-                                                    </p>
-                                                <?php } ?> -->
                                                 <a class="d-block mb-3" href="mailto:<?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : '#'; ?>">
                                                     <?php echo isset($photographer['photographer_email']) ? $photographer['photographer_email'] : 'Email not available'; ?>
                                                 </a>
@@ -341,9 +312,8 @@ $resultType = $conn->query($sql);
             </div>
         </div>
     </div>
-    <!-- Examples of work End -->
     <!-- Examples of work Start -->
-    <div class="container-xxl py-3">
+    <div class="container-xxl py-2">
         <div class="container">
             <div class="row g-0 gx-5 align-items-end">
                 <div class="col-lg-6">
@@ -352,23 +322,9 @@ $resultType = $conn->query($sql);
                         <p>คุณลองดูผลงานช่างภาพของเราสิ!!!</p>
                     </div>
                 </div>
-                <!-- <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
-                <ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
-                    <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary active" data-bs-toggle="pill" href="#tab-1">Featured</a>
-                    </li>
-                    <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-2">For Sell</a>
-                    </li>
-                    <li class="nav-item me-0">
-                        <a class="btn btn-outline-primary" data-bs-toggle="pill" href="#tab-3">For Rent</a>
-                    </li>
-                </ul>
-            </div> -->
-            </div>
-            <div class="row g-4">
-                <?php
-                $sql = "SELECT 
+                <div class="row g-4">
+                    <?php
+                    $sql = "SELECT 
                         po.portfolio_id, 
                         po.portfolio_photo, 
                         po.portfolio_caption, 
@@ -392,59 +348,34 @@ $resultType = $conn->query($sql);
                         type t ON t.type_id = tow.type_id
                     ORDER BY 
                         po.portfolio_id DESC;";
-                $resultPost = $conn->query($sql);
-                if ($resultPost->num_rows > 0) {
-                    while ($rowPost = $resultPost->fetch_assoc()) {
-                ?>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <div class="property-item rounded overflow-hidden bg-white">
-                                <div class="position-relative overflow-hidden">
-                                    <a><img class="img-fluid property-img" src="img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
-                                    <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
-                                </div>
-                                <div class="p-4 pb-0">
-                                    <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
-                                    <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
-                                    <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
+                    $resultPost = $conn->query($sql);
+                    if ($resultPost->num_rows > 0) {
+                        while ($rowPost = $resultPost->fetch_assoc()) {
+                    ?>
+                            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                <div class="property-item rounded overflow-hidden bg-white">
+                                    <div class="position-relative overflow-hidden">
+                                        <a><img class="img-fluid property-img" src="../img/post/<?php echo explode(',', $rowPost['portfolio_photo'])[0]; ?>" alt=""></a>
+                                        <div class="bg-white rounded-top text-dark position-absolute start-0 bottom-0 mx-4 pt-1 px-3"><?php echo $rowPost['type_work']; ?></div>
+                                    </div>
+                                    <div class="p-4 pb-0">
+                                        <p class="caption"><?php echo $rowPost['portfolio_caption']; ?></p>
+                                        <a class="d-block h5 mb-2" href="profile_photographer.php?photographer_id=<?php echo $rowPost['photographer_id']; ?>"><?php echo $rowPost['photographer_name'] . ' ' . $rowPost['photographer_surname']; ?></a>
+                                        <p><i class="fa fa-map-marker-alt text-dark me-2"></i><?php echo $rowPost['photographer_scope']; ?></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                <?php
+                    <?php
+                        }
                     }
-                }
-                ?>
-            </div>
-            <div class="col-12 text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
-                <a class="btn btn-dark py-3 px-5" href="workings.php">ดูเพิ่มเติม</a>
+                    ?>
+                </div>
+                <div class="col-12 text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
+                    <a class="btn btn-dark py-3 px-5" href="workings.php">ดูเพิ่มเติม</a>
+                </div>
             </div>
         </div>
     </div>
-    <!-- Examples of work End -->
-
-    <!-- Call to Action Start -->
-    <!-- <div class="container-xxl py-5">
-                    <div class="container">
-                        <div class="bg-light rounded p-3">
-                            <div class="bg-white rounded p-4" style="border: 1px dashed rgba(0, 185, 142, .3)">
-                                <div class="row g-5 align-items-center">
-                                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-                                        <img class="img-fluid rounded w-100" src="img/call-to-action.jpg" alt="">
-                                    </div>
-                                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                                        <div class="mb-4">
-                                            <h1 class="mb-3">Contact With Our Certified Agent</h1>
-                                            <p>Eirmod sed ipsum dolor sit rebum magna erat. Tempor lorem kasd vero ipsum sit sit diam justo sed vero dolor duo.</p>
-                                        </div>
-                                        <a href="" class="btn btn-dark py-3 px-4 me-2"><i class="fa fa-phone-alt me-2"></i>Make A Call</a>
-                                        <a href="" class="btn btn-dark py-3 px-4"><i class="fa fa-calendar-alt me-2"></i>Get Appoinment</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-    <!-- Call to Action End -->
-
 
     <!-- Dev Start -->
     <div class="container-xxl py-5">
@@ -458,11 +389,6 @@ $resultType = $conn->query($sql);
                     <div class="team-item rounded overflow-hidden bg-white">
                         <div class="position-relative">
                             <img class="img-fluid" src="img/dev2.jpg" alt="">
-                            <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-instagram"></i></a>
-                            </div> -->
                         </div>
                         <div class="text-center p-4 mt-3">
                             <h5 class="fw-bold mb-0 f">นางสาวนันทิยา นารินรักษ์</h5>
@@ -474,11 +400,6 @@ $resultType = $conn->query($sql);
                     <div class="team-item rounded overflow-hidden bg-white">
                         <div class="position-relative">
                             <img class="img-fluid" src="img/dev3.jpg" alt="">
-                            <!-- <div class="position-absolute start-50 top-100 translate-middle d-flex align-items-center">
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-square mx-1" href=""><i class="fab fa-instagram"></i></a>
-                            </div> -->
                         </div>
                         <div class="text-center p-4 mt-3">
                             <h5 class="fw-bold mb-0 f">นางสาวพีรดา แสนเสร็จ</h5>
@@ -491,104 +412,6 @@ $resultType = $conn->query($sql);
     </div>
     <!-- Dev End -->
 
-
-    <!-- Review Start -->
-    <!-- <div class="container-xxl py-5">
-        <div class="container">
-            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
-                <h1 class="mb-3">รีวิวจากผู้ใช้งาน</h1>
-                <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod sit. Ipsum diam justo sed rebum vero dolor duo.</p>
-            </div>
-            <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
-                <div class="testimonial-item bg-light rounded p-3">
-                    <div class="bg-white border rounded p-4">
-                        <p>Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd kasd erat eos</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded" src="img/testimonial-1.jpg" style="width: 45px; height: 45px;">
-                            <div class="ps-3">
-                                <h6 class="fw-bold mb-1">Client Name</h6>
-                                <small>Profession</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-item bg-light rounded p-3">
-                    <div class="bg-white border rounded p-4">
-                        <p>Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd kasd erat eos</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded" src="img/testimonial-2.jpg" style="width: 45px; height: 45px;">
-                            <div class="ps-3">
-                                <h6 class="fw-bold mb-1">Client Name</h6>
-                                <small>Profession</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-item bg-light rounded p-3">
-                    <div class="bg-white border rounded p-4">
-                        <p>Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd kasd erat eos</p>
-                        <div class="d-flex align-items-center">
-                            <img class="img-fluid flex-shrink-0 rounded" src="img/testimonial-3.jpg" style="width: 45px; height: 45px;">
-                            <div class="ps-3">
-                                <h6 class="fw-bold mb-1">Client Name</h6>
-                                <small>Profession</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <!-- Review End -->
-
-
-    <!-- Footer Start -->
-    <!--<div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-        <div class="container py-5">
-            <div class="row g-5">
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 f">ติดต่อ</h5>
-                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>172/20 ม.6 ถ.ศรีจันทร์ ต.ในเมือน อ.เมือง จ.ขอนแก่น 40000</p>
-                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>096-825-4382</p>
-                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>photomatch@gmail.com</p>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 f">ลิงก์ด่วน</h5>
-                    <a class="btn btn-link text-white-50" href="">เกี่ยวกับพวกเรา</a>
-                    <a class="btn btn-link text-white-50" href="">ติดต่อเรา</a>
-                </div>-->
-    <!-- <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4">Photo Gallery</h5>
-                    <div class="row g-2 pt-2">
-                        <div class="col-4">
-                            <img class="img-fluid rounded bg-light p-1" src="img/property-1.jpg" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid rounded bg-light p-1" src="img/property-2.jpg" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid rounded bg-light p-1" src="img/property-3.jpg" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid rounded bg-light p-1" src="img/property-4.jpg" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid rounded bg-light p-1" src="img/property-5.jpg" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid rounded bg-light p-1" src="img/property-6.jpg" alt="">
-                        </div>
-                    </div>
-                </div> -->
-    <!-- <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4">Newsletter</h5>
-                    <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
-                    <div class="position-relative mx-auto" style="max-width: 400px;">
-                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
-                        <button type="button" class="btn btn-dark py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
-                    </div>
-                </div> -->
-    <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer wow fadeIn">
         <div class="copyright">
             <div class="row">
