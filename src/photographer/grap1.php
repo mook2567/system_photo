@@ -1,60 +1,72 @@
 <?php
 include '../config_db.php'; // Include your database configuration
 
-// Query to get photographer counts
-$photographer_query = "
+// Check if photographer is logged in and retrieve their ID
+if (isset($_SESSION['photographer_login'])) {
+    $email = $_SESSION['photographer_login'];
+    $stmt = $conn->prepare("SELECT photographer_id FROM photographer WHERE photographer_email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $resultPhoto = $stmt->get_result();
+    $rowPhoto = $resultPhoto->fetch_assoc();
+    $id_photographer = $rowPhoto['photographer_id'];
+    $stmt->close();
+} else {
+    echo json_encode(['error' => 'Photographer not logged in']);
+    exit;
+}
+
+// Query to get income data for the last 3 months
+$income_query = "
     SELECT 
-        SUM(CASE WHEN photographer_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_photographers,
-        SUM(CASE WHEN photographer_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_photographers
-    FROM photographer
+        DATE_FORMAT(p.pay_date, '%Y-%m') AS month, 
+        SUM(CASE 
+                WHEN p.pay_status = 0 THEN b.booking_price * 0.3 
+                ELSE 0 
+            END) AS total_deposit,
+        SUM(CASE 
+                WHEN p.pay_status = 1 THEN b.booking_price * 0.7 
+                ELSE 0 
+            END) AS total_payment
+    FROM 
+        pay p
+    JOIN 
+        booking b ON p.booking_id = b.booking_id
+    WHERE 
+        p.pay_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        AND b.photographer_id =  $id_photographer
+    GROUP BY 
+        DATE_FORMAT(p.pay_date, '%Y-%m')
+    ORDER BY 
+        month DESC
 ";
 
-// Query to get customer counts
-$customer_query = "
-    SELECT 
-        SUM(CASE WHEN cus_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_customers,
-        SUM(CASE WHEN cus_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_customers
-    FROM customer
-";
-$admin_query = "
-    SELECT 
-        SUM(CASE WHEN admin_prefix = 'นาย' THEN 1 ELSE 0 END) AS male_admin,
-        SUM(CASE WHEN admin_prefix IN ('นาง', 'นางสาว') THEN 1 ELSE 0 END) AS female_admin
-    FROM admin
-";
-// Execute queries
-$photographer_result = $conn->query($photographer_query);
-$customer_result = $conn->query($customer_query);
-$admin_result = $conn->query($admin_query);
+// Prepare the statement
+$stmt = $conn->prepare($income_query);
+$stmt->bind_param('i', $id_photographer);
 
-// Check for errors in query execution
-if (!$photographer_result || !$customer_result || !$admin_result) {
-    $error = [
-        'error' => 'Query failed: ' . $conn->error
-    ];
-    echo json_encode($error);
+// Execute the query
+$stmt->execute();
+$income_result = $stmt->get_result();
+
+// Check if the query was successful
+if (!$income_result) {
+    echo json_encode(['error' => 'Income query failed: ' . $conn->error]);
+    $stmt->close();
     $conn->close();
     exit;
 }
 
-// Fetch data
-$photographer_data = $photographer_result->fetch_assoc();
-$customer_data = $customer_result->fetch_assoc();
-$admin_data = $admin_result->fetch_assoc();
+// Fetch income data
+$income_data = [];
+while ($row = $income_result->fetch_assoc()) {
+    $income_data[] = $row;
+}
 
-// Prepare data for JSON output
-$data = [
-    'malePhotographersCount' => (int)$photographer_data['male_photographers'],
-    'femalePhotographersCount' => (int)$photographer_data['female_photographers'],
-    'maleCustomersCount' => (int)$customer_data['male_customers'],
-    'femaleCustomersCount' => (int)$customer_data['female_customers'],
-    'maleAdminCount' => (int)$admin_data['male_admin'],
-    'femaleAdminCount' => (int)$admin_data['female_admin']
-];
-
-// Output data as JSON
-echo json_encode($data);
+// Output income data as JSON
+echo json_encode($income_data);
 
 // Close connection
+$stmt->close();
 $conn->close();
 ?>

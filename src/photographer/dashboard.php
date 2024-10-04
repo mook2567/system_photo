@@ -7,7 +7,6 @@ $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
 $rowInfo = $resultInfo->fetch_assoc();
 
-
 $information_name = $rowInfo['information_name'];
 $information_caption = $rowInfo['information_caption'];
 $rowInfo['information_icon'];
@@ -426,32 +425,32 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                     </button>
                     <div class="collapse navbar-collapse m-4" id="navbarCollapse">
                         <div class="navbar-nav ms-auto">
-                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                        <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจอง</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
-                                <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
-                                <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
-                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
-                                <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+                            <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                            <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจอง</a>
+                                <div class="dropdown-menu rounded-0 m-0">
+                                    <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
+                                    <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
+                                    <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                                    <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                    <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
+                                    <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
+                                    <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+                                </div>
                             </div>
-                        </div>
-                        <a href="report.php" class="nav-item nav-link">รายงาน</a>
-                        <a href="dashboard.php" class="nav-item nav-link active">สถิติ</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                            <a href="report.php" class="nav-item nav-link">รายงาน</a>
+                            <a href="dashboard.php" class="nav-item nav-link active">สถิติ</a>
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                                <div class="dropdown-menu rounded-0 m-0">
+                                    <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                                    <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
+                                    <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
+                                    <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </nav>
@@ -467,243 +466,624 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
             <center>
                 <div id="contentToConvert">
                     <div class="col-11 mt-3">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card border">
-                                            <div class="card-body">
-                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ</h3>
-                                                <div class="d-flex justify-content-center mt-3">
-                                                    <div class="col-10">
-                                                        <canvas id="overviewChart1"></canvas>
-                                                    </div>
-                                                    <script>
-                                                        document.addEventListener("DOMContentLoaded", function() {
-                                                            var ctx = document.getElementById('overviewChart1').getContext('2d');
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card shadow" style="height: 580px;"> <!-- Set fixed height for the card -->
+                                        <div class="card-body">
+                                            <h3 class="card-title mt-4 mb-4">กราฟแสดงข้อมูลรายได้ต่อเดือน (ในปี <?php echo date('Y'); ?>)</h3>
+                                            <canvas id="incomeChart" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
+                                            <script>
+                                                fetch('grap1.php') // Modify this path to point to your PHP script that returns income data
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        // Create month labels
+                                                        const labels = data.map(item => {
+                                                            const monthNames = [
+                                                                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+                                                                'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+                                                                'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                                                            ];
+                                                            const month = parseInt(item.month.split('-')[1]); // Extract month number
+                                                            return monthNames[month - 1]; // Convert month number to name
+                                                        });
 
-                                                            var chartData = {
-                                                                labels: <?= json_encode($months) ?>, // x-axis (Months)
+                                                        // Extract total deposit and payment data
+                                                        const totalDeposit = data.map(item => item.total_deposit);
+                                                        const totalPayment = data.map(item => item.total_payment);
+
+                                                        const ctx = document.getElementById('incomeChart').getContext('2d');
+                                                        const incomeChart = new Chart(ctx, {
+                                                            type: 'bar', // Set chart type to 'bar'
+                                                            data: {
+                                                                labels: labels, // Use month names as labels
                                                                 datasets: [{
-                                                                        label: 'Total Deposit',
-                                                                        data: <?= json_encode($deposits) ?>,
-                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for Deposit
+                                                                        label: 'ยอดเงินมัดจำ', // Deposit
+                                                                        data: totalDeposit,
+                                                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                                                         borderColor: 'rgba(54, 162, 235, 1)',
-                                                                        borderWidth: 1
+                                                                        borderWidth: 2
                                                                     },
                                                                     {
-                                                                        label: 'Total Payment',
-                                                                        data: <?= json_encode($payments) ?>,
-                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Green for Payment
+                                                                        label: 'ยอดเงินเต็มจำนวน', // Full payment
+                                                                        data: totalPayment,
+                                                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                                                         borderColor: 'rgba(75, 192, 192, 1)',
-                                                                        borderWidth: 1
+                                                                        borderWidth: 2
                                                                     }
                                                                 ]
-                                                            };
-
-                                                            var myChart = new Chart(ctx, {
-                                                                type: 'bar',
-                                                                data: chartData,
-                                                                options: {
-                                                                    scales: {
-                                                                        y: {
-                                                                            beginAtZero: true,
-                                                                            ticks: {
-                                                                                font: {
-                                                                                    size: 20
-                                                                                }
+                                                            },
+                                                            options: {
+                                                                plugins: {
+                                                                    legend: {
+                                                                        labels: {
+                                                                            font: {
+                                                                                size: 20 // Set font size for legend
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                scales: {
+                                                                    y: {
+                                                                        beginAtZero: true,
+                                                                        title: {
+                                                                            display: true,
+                                                                            text: 'ยอดเงิน (บาท)', // Y-axis label
+                                                                            font: {
+                                                                                size: 20 // Font size for the Y-axis label
                                                                             }
                                                                         },
-                                                                        x: {
-                                                                            ticks: {
-                                                                                font: {
-                                                                                    size: 20
-                                                                                }
+                                                                        ticks: {
+                                                                            font: {
+                                                                                size: 20 // Set font size for Y axis ticks
                                                                             }
                                                                         }
                                                                     },
-                                                                    plugins: {
-                                                                        legend: {
-                                                                            labels: {
-                                                                                font: {
-                                                                                    size: 20
-                                                                                }
-                                                                            }
-                                                                        },
-                                                                        title: {
-                                                                            display: true,
-                                                                            text: 'ข้อมูลการฝากและจ่ายรายเดือน',
+                                                                    x: {
+                                                                        ticks: {
                                                                             font: {
-                                                                                size: 20
+                                                                                size: 20 // Set font size for X axis ticks
                                                                             }
                                                                         }
                                                                     }
                                                                 }
-                                                            });
+                                                            }
                                                         });
-                                                    </script>
-                                                </div>
-                                            </div>
+                                                    })
+                                                    .catch(error => console.error('Error fetching data:', error));
+                                            </script>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-12 mt-4">
                                     <div class="row">
-                                        <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 600px;">
+                                        <!-- Left Column with Chart -->
+                                        <div class="col-9">
+                                            <div class="card shadow" style="height: 580px;"> <!-- Set fixed height for the card -->
                                                 <div class="card-body">
-                                                    <h3 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h3>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="col-10">
-                                                            <canvas id="overviewChart2"></canvas>
-                                                        </div>
-                                                        <script>
-                                                            document.addEventListener("DOMContentLoaded", function() {
-                                                                // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
-                                                                const reviewData = <?php echo json_encode($reviewData); ?>;
+                                                    <h3 class="card-title mt-4 mb-4">กราฟแสดงข้อมูลสถานะการจองต่อเดือน (ใปี <?php echo date('Y'); ?>)</h3>
+                                                    <canvas id="overviewChart2" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
+                                                    <script>
+                                                        fetch('grap2.php')
+                                                            .then(response => response.json())
+                                                            .then(data => {
+                                                                // Create month labels
+                                                                const labels = data.map(item => {
+                                                                    const monthNames = [
+                                                                        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+                                                                        'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+                                                                        'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                                                                    ];
+                                                                    return monthNames[item.booking_month - 1]; // Convert month number to name
+                                                                });
 
-                                                                const labels = reviewData.map(item => `ระดับ ${item.review_level}`);
-                                                                const counts = reviewData.map(item => item.count);
+                                                                // Extract totals for each status
+                                                                const totalCompleted = data.map(item => item.total_completed);
+                                                                const totalPending = data.map(item => item.total_pending);
+                                                                const totalCanceled = data.map(item => item.total_canceled);
+                                                                const totalReserved = data.map(item => item.total_reserved);
 
                                                                 const ctx = document.getElementById('overviewChart2').getContext('2d');
-                                                                const myChart = new Chart(ctx, {
-                                                                    type: 'bar',
+                                                                const overviewChart = new Chart(ctx, {
+                                                                    type: 'line', // Set chart type to 'line'
                                                                     data: {
-                                                                        labels: labels,
+                                                                        labels: labels, // Use month names as labels
                                                                         datasets: [{
-                                                                            label: 'จำนวนรีวิว',
-                                                                            data: counts,
-                                                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                                                            borderColor: 'rgba(75, 192, 192, 1)',
-                                                                            borderWidth: 1
-                                                                        }]
+                                                                                label: 'การจองที่รอดำเนินการ', // Reserved bookings
+                                                                                data: totalReserved,
+                                                                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                                                                borderColor: 'rgba(54, 162, 235, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            },
+                                                                            {
+                                                                                label: 'การจองที่ยังไม่สำเร็จ', // Pending bookings
+                                                                                data: totalPending,
+                                                                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                                                                                borderColor: 'rgba(255, 206, 86, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            },
+                                                                            {
+                                                                                label: 'การจองที่ถูกยกเลิก', // Canceled bookings
+                                                                                data: totalCanceled,
+                                                                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                                                                borderColor: 'rgba(255, 99, 132, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            },
+                                                                            {
+                                                                                label: 'การจองที่เสร็จสิ้น', // Completed bookings
+                                                                                data: totalCompleted,
+                                                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                                                borderColor: 'rgba(75, 192, 192, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            }
+                                                                        ]
                                                                     },
                                                                     options: {
+                                                                        plugins: {
+                                                                            legend: {
+                                                                                labels: {
+                                                                                    font: {
+                                                                                        size: 20 // Set font size for legend
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
                                                                         scales: {
                                                                             y: {
                                                                                 beginAtZero: true,
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: 'จำนวนการจอง (ครั้ง)', // Y-axis label
+                                                                                    font: {
+                                                                                        size: 20 // Font size for the Y-axis label
+                                                                                    }
+                                                                                },
                                                                                 ticks: {
                                                                                     font: {
-                                                                                        size: 20
+                                                                                        size: 20 // Set font size for Y axis ticks
                                                                                     }
                                                                                 }
                                                                             },
                                                                             x: {
                                                                                 ticks: {
                                                                                     font: {
-                                                                                        size: 20
+                                                                                        size: 20 // Set font size for X axis ticks
                                                                                     }
-                                                                                }
-                                                                            }
-                                                                        },
-                                                                        plugins: {
-                                                                            legend: {
-                                                                                labels: {
-                                                                                    font: {
-                                                                                        size: 20
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            title: {
-                                                                                display: true,
-                                                                                text: 'คะแนนรีวิว',
-                                                                                font: {
-                                                                                    size: 20
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
                                                                 });
-                                                            });
-                                                        </script>
-                                                    </div>
+                                                            })
+                                                            .catch(error => console.error('Error fetching data:', error));
+                                                    </script>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <!-- Right Column with Cards -->
+                                        <div class="col-3">
+                                            <div class="card text-dark shadow" height=650px; style=" max-height: 650px; height: auto;">
+                                                <div class="card-header">
+                                                    <h4 class="mt-2">รวมจำนวนการจองต่อเดือน (ปี <?php echo date('Y'); ?>)</h4>
+                                                </div>
+                                                <div class="card-body" style="text-align:left;">
+                                                    <?php
+                                                    // Initialize an array with month names and total counts set to 0
+                                                    $months = [
+                                                        1 => 'เดือนมกราคม',
+                                                        2 => 'เดือนกุมภาพันธ์',
+                                                        3 => 'เดือนมีนาคม',
+                                                        4 => 'เดือนเมษายน',
+                                                        5 => 'เดือนพฤษภาคม',
+                                                        6 => 'เดือนมิถุนายน',
+                                                        7 => 'เดือนกรกฎาคม',
+                                                        8 => 'เดือนสิงหาคม',
+                                                        9 => 'เดือนกันยายน',
+                                                        10 => 'เดือนตุลาคม',
+                                                        11 => 'เดือนพฤศจิกายน',
+                                                        12 => 'เดือนธันวาคม'
+                                                    ];
+
+                                                    // Create an array to hold the total counts for each month
+                                                    $monthlyCounts = array_fill(1, 12, 0);
+
+                                                    // Populate the monthly counts from the query result
+                                                    if (!empty($row_count_data4)) {
+                                                        foreach ($row_count_data4 as $row) {
+                                                            $monthlyCounts[$row['booking_month']] = $row['total_count'];
+                                                        }
+                                                    }
+
+                                                    // Display the results
+                                                    ?>
+                                                    <ol>
+                                                        <?php foreach ($months as $monthNum => $monthName): ?>
+                                                            <li style="font-size: 20px; margin-bottom: 10px;"> <!-- Set the desired font size -->
+                                                                <b><?php echo htmlspecialchars($monthName); ?></b> - จำนวน: <?php echo htmlspecialchars($monthlyCounts[$monthNum]) . ' ครั้ง'; ?>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ol>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <!-- Customer Popular Work Types -->
+                                                <div class="col-6">
+                                                    <div class="card text-dark shadow" style="height: 210px;">
+                                                        <div class="card-header">
+                                                            <h4 class="mt-2">อันดับประเภทงานที่ลูกค้านิยมจ้าง</h4>
+                                                        </div>
+                                                        <div class="card-body" style="text-align:left; padding: 15px;">
+                                                            <?php if (!empty($row_count_data6)): ?>
+                                                                <ol>
+                                                                    <?php foreach ($row_count_data6 as $index => $row): ?>
+                                                                        <li style="font-size: 20px; margin-bottom: 10px;">
+                                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
+                                                                        </li>
+                                                                    <?php endforeach; ?>
+                                                                </ol>
+                                                            <?php else: ?>
+                                                                <p style="font-size: 16px; color: #888;">ไม่มีข้อมูลการจ้างงาน</p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 800px;">
-                                                <div class="card-body">
-                                                    <h3 class="card-title">แผนภูมิวงกลมแสดงข้อมูลจำนวนการจองตามประเภทของงานถ่ายภาพ</h3>
-                                                    <p class="card-title">มีการจอง <?php echo $total_count; ?> ครั้ง</p>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="col-9">
-                                                            <canvas id="overviewChart3"></canvas>
+                                                <!-- Photographer Popular Work Types -->
+                                                <div class="col-6">
+                                                    <div class="card text-dark shadow" style="height: 210px;">
+                                                        <div class="card-header">
+                                                            <h4 class="mt-2">อันดับประเภทงานที่ช่างภาพนิยมรับ</h4>
+                                                        </div>
+                                                        <div class="card-body" style="text-align:left;">
+                                                            <?php if (!empty($row_count_data5)): ?>
+                                                                <ol>
+                                                                    <?php foreach ($row_count_data5 as $index => $row): ?>
+                                                                        <li style="font-size: 20px; margin-bottom: 10px;">
+                                                                            <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' คน'; ?>
+                                                                        </li>
+                                                                    <?php endforeach; ?>
+                                                                </ol>
+                                                            <?php else: ?>
+                                                                <p>ไม่มีข้อมูลประเภทงาน</p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="card shadow mt-4" style="height: 560px;">
+                                                    <div>
+                                                        <h3 class="card-title mt-4 mb-4">แผนภูมิวงกลมแสดงข้อมูลประเภทงาน</h3>
+                                                        <!-- <h4 class="card-title mb-4">มีประเภทงาน <?php echo htmlspecialchars($row_count_data3[0]['total_count']); ?> ประเภท</h4> -->
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-center">
+                                                            <div class="col-9">
+                                                                <canvas id="overviewChart4" width="400" height="300" style="max-height: 400px; height: auto;"></canvas>
+                                                                <script>
+                                                                    fetch('grap4.php') // เรียกไฟล์ PHP ที่สร้าง JSON
+                                                                        .then(response => response.json())
+                                                                        .then(data => {
+                                                                            const labels = [];
+                                                                            const photographerWorkCounts = [];
+                                                                            const customerHiredCounts = [];
+
+                                                                            // เตรียมข้อมูลจาก JSON ที่ได้
+                                                                            data.forEach(item => {
+                                                                                labels.push(item.type_work);
+                                                                                photographerWorkCounts.push(item.photographer_count); // จำนวนงานที่ช่างภาพรับ
+                                                                                customerHiredCounts.push(item.customer_count); // จำนวนงานที่ลูกค้าจ้าง
+                                                                            });
+
+                                                                            const ctx = document.getElementById('overviewChart4').getContext('2d');
+                                                                            const overviewChart = new Chart(ctx, {
+                                                                                type: 'doughnut',
+                                                                                data: {
+                                                                                    labels: labels,
+                                                                                    datasets: [{
+                                                                                            label: 'ประเภทงานที่ช่างภาพรับ',
+                                                                                            data: photographerWorkCounts,
+                                                                                            backgroundColor: [
+                                                                                                'rgba(255, 99, 132, 0.2)', // สีสำหรับประเภทงานที่ช่างภาพรับ
+                                                                                                'rgba(54, 162, 235, 0.2)',
+                                                                                                'rgba(255, 206, 86, 0.2)',
+                                                                                                'rgba(75, 192, 192, 0.2)',
+                                                                                                'rgba(153, 102, 255, 0.2)',
+                                                                                                'rgba(255, 159, 64, 0.2)',
+                                                                                                'rgba(201, 203, 207, 0.2)'
+                                                                                            ],
+                                                                                            borderColor: [
+                                                                                                'rgba(255, 99, 132, 1)',
+                                                                                                'rgba(54, 162, 235, 1)',
+                                                                                                'rgba(255, 206, 86, 1)',
+                                                                                                'rgba(75, 192, 192, 1)',
+                                                                                                'rgba(153, 102, 255, 1)',
+                                                                                                'rgba(255, 159, 64, 1)',
+                                                                                                'rgba(201, 203, 207, 1)'
+                                                                                            ],
+                                                                                            borderWidth: 1
+                                                                                        },
+                                                                                        {
+                                                                                            label: 'ประเภทงานที่ลูกค้าจ้าง',
+                                                                                            data: customerHiredCounts,
+                                                                                            backgroundColor: [
+                                                                                                'rgba(255, 99, 132, 0.2)', // สีสำหรับประเภทงานที่ช่างภาพรับ
+                                                                                                'rgba(54, 162, 235, 0.2)',
+                                                                                                'rgba(255, 206, 86, 0.2)',
+                                                                                                'rgba(75, 192, 192, 0.2)',
+                                                                                                'rgba(153, 102, 255, 0.2)',
+                                                                                                'rgba(255, 159, 64, 0.2)',
+                                                                                                'rgba(201, 203, 207, 0.2)'
+                                                                                            ],
+                                                                                            borderColor: [
+                                                                                                'rgba(255, 99, 132, 1)',
+                                                                                                'rgba(54, 162, 235, 1)',
+                                                                                                'rgba(255, 206, 86, 1)',
+                                                                                                'rgba(75, 192, 192, 1)',
+                                                                                                'rgba(153, 102, 255, 1)',
+                                                                                                'rgba(255, 159, 64, 1)',
+                                                                                                'rgba(201, 203, 207, 1)'
+                                                                                            ],
+                                                                                            borderWidth: 1
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                options: {
+                                                                                    plugins: {
+                                                                                        legend: {
+                                                                                            position: 'right',
+                                                                                            labels: {
+                                                                                                font: {
+                                                                                                    size: 20 // ขนาดตัวอักษรใน legend
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                        })
+                                                                        .catch(error => console.error('Error fetching data:', error));
+                                                                </script>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <script>
-                                            const ctx = document.getElementById('overviewChart3').getContext('2d');
-                                            const data = {
-                                                labels: [
-                                                    <?php foreach ($data as $row) {
-                                                        echo "'" . $row['type_work'] . "',";
-                                                    } ?>
-                                                ],
-                                                datasets: [{
-                                                    label: 'จำนวนการจอง',
-                                                    data: [
-                                                        <?php foreach ($data as $row) {
-                                                            echo $row['num'] . ",";
-                                                        } ?>
-                                                    ],
-                                                    backgroundColor: [
-                                                        'rgba(255, 99, 132, 0.2)',
-                                                        'rgba(54, 162, 235, 0.2)',
-                                                        'rgba(255, 206, 86, 0.2)',
-                                                        'rgba(75, 192, 192, 0.2)',
-                                                        'rgba(153, 102, 255, 0.2)',
-                                                        'rgba(255, 159, 64, 0.2)',
-                                                    ],
-                                                    borderColor: [
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                    ],
-                                                    borderWidth: 1
-                                                }]
-                                            };
-
-                                            const overviewChart3 = new Chart(ctx, {
-                                                type: 'pie', // or 'doughnut' for a doughnut chart
-                                                data: data,
-                                                options: {
-                                                    responsive: true,
-                                                    plugins: {
-                                                        legend: {
-                                                            position: 'top',
-                                                            labels: {
-                                                                font: {
-                                                                    size: 20
-                                                                }
-                                                            }
-                                                        },
-                                                        title: {
-                                                            display: true,
-                                                            text: 'ข้อมูลประเภทของงานถ่ายภาพ',
-                                                            font: {
-                                                                size: 20
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        </script>
-
+                                        <!-- Chart Section -->
+                                        <div class="col-6">
+                                            <div class="card shadow" style="height: auto;">
+                                                <div class="card-body">
+                                                    <h3 class="card-title mt-4 mb-4">แผนภูมิแท่งแสดงข้อมูลช่างภาพ</h3>
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="col-10">
+                                                            <canvas class="mb-4" id="workCountsChart" width="400" height="400" style="max-height: 650px; height: 100%;"></canvas>
+                                                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                                                            <script>
+                                                                // Fetch the data from your PHP script
+                                                                fetch('grap3.php')
+                                                                    .then(response => response.json())
+                                                                    .then(data => {
+                                                                        const ctx = document.getElementById('workCountsChart').getContext('2d');
+                                                                        const chart = new Chart(ctx, {
+                                                                            type: 'bar',
+                                                                            data: {
+                                                                                labels: ['กรุงเทพฯ', 'ภาคกลาง', 'ภาคใต้', 'ภาคเหนือ', 'ภาคตะวันออกเฉียงเหนือ', 'ภาคตะวันตก'],
+                                                                                datasets: [{
+                                                                                    label: 'จำนวนช่างภาพ',
+                                                                                    data: [
+                                                                                        data.bangkok,
+                                                                                        data.central,
+                                                                                        data.south,
+                                                                                        data.north,
+                                                                                        data.northeast,
+                                                                                        data.west
+                                                                                    ],
+                                                                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                                                                    borderWidth: 1
+                                                                                }]
+                                                                            },
+                                                                            options: {
+                                                                                responsive: true,
+                                                                                scales: {
+                                                                                    y: {
+                                                                                        beginAtZero: true,
+                                                                                        title: {
+                                                                                            display: true,
+                                                                                            text: 'จำนวนช่างภาพ', // Y-axis label
+                                                                                            font: {
+                                                                                                size: 20 // Font size for the Y-axis label
+                                                                                            }
+                                                                                        },
+                                                                                        ticks: {
+                                                                                            stepSize: 1, // Set tick step size to 1
+                                                                                            callback: function(value) {
+                                                                                                return Number.isInteger(value) ? value : ''; // Show only integer values
+                                                                                            },
+                                                                                            font: {
+                                                                                                size: 20 // Font size for Y axis ticks
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    x: {
+                                                                                        title: {
+                                                                                            display: true,
+                                                                                            text: 'ภูมิภาค', // X-axis label
+                                                                                            font: {
+                                                                                                size: 20 // Font size for the X-axis label
+                                                                                            }
+                                                                                        },
+                                                                                        ticks: {
+                                                                                            font: {
+                                                                                                size: 20 // Font size for X axis ticks
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                plugins: {
+                                                                                    legend: {
+                                                                                        display: true,
+                                                                                        position: 'top',
+                                                                                        labels: {
+                                                                                            font: {
+                                                                                                size: 20 // Font size for legend labels
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    })
+                                                                    .catch(error => console.error('Error fetching data:', error));
+                                                            </script>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+            </center>
+
+            <div class="card mt-4" style="height: 60px;">
+                <div class="d-flex justify-content-center">
+                    <div class="row mt-2 ms-3">
+                        <div class="col-6 mt-2">
+                            <h5 class="card-title">พิมพ์รายงานสรุปผล</h5>
+                        </div>
+                        <div class="col-6">
+                            <button id="generatePDF" class="btn btn-primary mb-2" style="width: 150px; height:40px;">ออก PDF</button>
+                        </div>
+                        <script>
+                            document.getElementById("generatePDF").addEventListener("click", function() {
+                                const content = document.getElementById("contentToConvert");
+
+                                // Increase the scale of the canvas to improve resolution
+                                html2canvas(content, {
+                                    scale: 5, // Increase scale for higher quality
+                                    useCORS: true, // Allows cross-origin resources
+                                }).then(function(canvas) {
+                                    const imgData = canvas.toDataURL('image/png');
+                                    const {
+                                        jsPDF
+                                    } = window.jspdf;
+                                    const doc = new jsPDF('p', 'mm', 'a4');
+
+                                    // Add custom font (THSarabunNew)
+                                    var fontBase64 = "<?php echo $fontBase64; ?>";
+                                    if (fontBase64) {
+                                        doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                                        doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                                        doc.setFont('customFont');
+                                    }
+
+                                    // Process and invert the image (if provided)
+                                    var imgBase64 = "<?php echo $image_base64; ?>";
+                                    if (imgBase64) {
+                                        const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
+
+                                        // Create a new image element to load the base64 data
+                                        var image = new Image();
+                                        image.src = imgBase64;
+
+                                        image.onload = function() {
+                                            // Create a canvas to manipulate the image
+                                            var tempCanvas = document.createElement('canvas');
+                                            var ctx = tempCanvas.getContext('2d');
+                                            tempCanvas.width = image.width;
+                                            tempCanvas.height = image.height;
+
+                                            // Draw the image onto the canvas
+                                            ctx.drawImage(image, 0, 0);
+
+                                            // Get image data (pixels)
+                                            var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                                            var data = imageData.data;
+
+                                            // Loop through the pixels and invert colors
+                                            for (var i = 0; i < data.length; i += 4) {
+                                                data[i] = 255 - data[i]; // Invert red
+                                                data[i + 1] = 255 - data[i + 1]; // Invert green
+                                                data[i + 2] = 255 - data[i + 2]; // Invert blue
+                                                // Alpha (data[i + 3]) remains unchanged
+                                            }
+
+                                            // Update the canvas with the inverted data
+                                            ctx.putImageData(imageData, 0, 0);
+
+                                            // Convert the updated canvas back to base64
+                                            var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                                            // Add the inverted image to the PDF
+                                            doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                                            // Add system name below the image
+                                            var informationName = "<?php echo $information_name; ?>";
+                                            doc.setFontSize(20);
+                                            doc.text(informationName, 15, 30);
+
+                                            // Add additional detail below the system name
+                                            var informationCaption = "<?php echo $information_caption; ?>";
+                                            doc.setFontSize(16);
+                                            doc.text(informationCaption, 15, 37);
+
+                                            // Now proceed with the rest of the content (canvas, etc.)
+                                            generatePDFContent();
+                                        };
+                                    } else {
+                                        // If no image, just proceed with the rest of the content
+                                        generatePDFContent();
+                                    }
+
+                                    function generatePDFContent() {
+                                        const imgWidth = 210; // A4 width in mm
+                                        const pageHeight = 297; // A4 height in mm
+                                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                                        let heightLeft = imgHeight;
+                                        let position = 50; // Start at 50mm from the top
+
+                                        // Add canvas image to the PDF
+                                        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
+
+                                        heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+
+                                        // Continue adding pages if content exceeds one page
+                                        while (heightLeft > 0) {
+                                            doc.addPage();
+                                            position = heightLeft - imgHeight;
+                                            doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                                            heightLeft -= pageHeight;
+                                        }
+
+                                        // Save the generated PDF
+                                        doc.save('photo_match_report.pdf');
+                                    }
+                                });
+                            });
+                        </script>
                     </div>
                 </div>
-
-            </center>
+            </div>
+            <!-- Chart Section End -->
 
             <div class="card mt-4" style="height: 60px;">
                 <div class="d-flex justify-content-center">
