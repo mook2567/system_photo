@@ -38,14 +38,13 @@ $rowPort = $resultPort->fetch_assoc();
 $query1 = "
     SELECT 
         DATE_FORMAT(p.pay_date, '%Y-%m') AS month, 
+        SUM(CASE WHEN p.pay_status = 0 THEN b.booking_price * 0.3 ELSE 0 END) AS deposit,
+        SUM(CASE WHEN p.pay_status = 1 THEN b.booking_price * 0.7 ELSE 0 END) AS remaining,
         SUM(CASE 
                 WHEN p.pay_status = 0 THEN b.booking_price * 0.3 
+                WHEN p.pay_status = 1 THEN b.booking_price * 0.7
                 ELSE 0 
-            END) AS total_deposit,
-        SUM(CASE 
-                WHEN p.pay_status = 1 THEN b.booking_price * 0.7 
-                ELSE 0 
-            END) AS total_payment
+            END) AS total_income
     FROM 
         pay p
     JOIN 
@@ -53,7 +52,7 @@ $query1 = "
     JOIN 
         photographer ph ON b.photographer_id = ph.photographer_id
     WHERE 
-        p.pay_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        YEAR(p.pay_date) = YEAR(CURDATE())  -- Restrict to current year
         AND ph.photographer_id = ?
     GROUP BY 
         DATE_FORMAT(p.pay_date, '%Y-%m')
@@ -61,23 +60,42 @@ $query1 = "
         month DESC
 ";
 
+// Fetch results from the query
 $stmt = $conn->prepare($query1);
 $stmt->bind_param('i', $id_photographer);
 $stmt->execute();
 $result1 = $stmt->get_result();
 
-// Prepare data for Chart.js
 $months = [];
 $deposits = [];
-$payments = [];
+$remainings = [];
+$incomes = [];
 
-while ($row2 = $result1->fetch_assoc()) {
-    $months[] = $row2['month'];
-    $deposits[] = $row2['total_deposit'];
-    $payments[] = $row2['total_payment'];
+// Get months from January to the current month of this year
+$start = strtotime('first day of January this year');
+$end = strtotime('first day of next month'); // Until the current month
+
+while ($start < $end) {
+    $month = date('Y-m', $start);
+    $months[] = $month;
+    $deposits[$month] = 0;
+    $remainings[$month] = 0;
+    $incomes[$month] = 0;
+    $start = strtotime('+1 month', $start);
 }
 
+// Populate total incomes based on query results
+while ($row = $result1->fetch_assoc()) {
+    $deposits[$row['month']] = $row['deposit'];
+    $remainings[$row['month']] = $row['remaining'];
+    $incomes[$row['month']] = $row['total_income'];
+}
 
+// Convert to simple arrays for chart rendering
+$deposits = array_values($deposits);
+$remainings = array_values($remainings);
+$incomes = array_values($incomes);
+$months = array_values($months);
 $query2 = "SELECT 
             r.review_level, 
             COUNT(*) AS count
@@ -426,32 +444,32 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                     </button>
                     <div class="collapse navbar-collapse m-4" id="navbarCollapse">
                         <div class="navbar-nav ms-auto">
-                        <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
-                        <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจอง</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
-                                <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
-                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
-                                <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
-                                <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
-                                <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
-                                <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+                            <a href="index.php" class="nav-item nav-link">หน้าหลัก</a>
+                            <a href="table.php" class="nav-item nav-link">ตารางงาน</a>
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">รายการจอง</a>
+                                <div class="dropdown-menu rounded-0 m-0">
+                                    <!-- <a href="bookingListAll.php" class="dropdown-item">รายการจองทั้งหมด</a> -->
+                                    <a href="bookingListWaittingForApproval.php" class="dropdown-item">รายการจองที่รออนุมัติ</a>
+                                    <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่อนุมัติแล้ว</a>
+                                    <a href="bookingListConfirmPayment.php" class="dropdown-item">รายการจองที่รอตรวจสอบการชำระ</a>
+                                    <a href="bookingListSend.php" class="dropdown-item">รายการจองที่ต้องส่งงาน</a>
+                                    <a href="bookingListApproved.php" class="dropdown-item">รายการจองที่เสร็จสิ้นแล้ว</a>
+                                    <a href="bookingListNotApproved.php" class="dropdown-item">รายการจองที่ไม่อนุมัติ</a>
+                                </div>
                             </div>
-                        </div>
-                        <a href="report.php" class="nav-item nav-link">รายงาน</a>
-                        <a href="dashboard.php" class="nav-item nav-link active">สถิติ</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
-                                <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
-                                <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                            <a href="report.php" class="nav-item nav-link">รายงาน</a>
+                            <a href="dashboard.php" class="nav-item nav-link active">สถิติ</a>
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">โปรไฟล์</a>
+                                <div class="dropdown-menu rounded-0 m-0">
+                                    <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
+                                    <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
+                                    <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                    <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                    <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </nav>
@@ -473,34 +491,51 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                     <div class="col-lg-12">
                                         <div class="card border">
                                             <div class="card-body">
-                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ</h3>
+                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ (ในปี <?php echo date('Y'); ?>)</h3>
                                                 <div class="d-flex justify-content-center mt-3">
                                                     <div class="col-10">
-                                                        <canvas id="overviewChart1"></canvas>
+                                                        <canvas id="overviewChart1" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
                                                     </div>
                                                     <script>
                                                         document.addEventListener("DOMContentLoaded", function() {
                                                             var ctx = document.getElementById('overviewChart1').getContext('2d');
 
+                                                            const monthNames = [
+                                                                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม',
+                                                                'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม',
+                                                                'พฤศจิกายน', 'ธันวาคม'
+                                                            ];
+
+                                                            const labels = <?= json_encode($months) ?>.map(month => {
+                                                                const monthNumber = month.split('-')[1]; 
+                                                                return monthNames[parseInt(monthNumber) ]; 
+                                                            });
+
                                                             var chartData = {
-                                                                labels: <?= json_encode($months) ?>, // x-axis (Months)
+                                                                labels: labels, 
                                                                 datasets: [{
-                                                                        label: 'Total Deposit',
-                                                                        data: <?= json_encode($deposits) ?>,
-                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Blue for Deposit
+                                                                        label: 'รายได้รวมต่อเดือน',
+                                                                        data: <?= json_encode($incomes) ?>,
+                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)', 
                                                                         borderColor: 'rgba(54, 162, 235, 1)',
                                                                         borderWidth: 1
                                                                     },
                                                                     {
-                                                                        label: 'Total Payment',
-                                                                        data: <?= json_encode($payments) ?>,
-                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Green for Payment
+                                                                        label: 'ค่ามัดจำ',
+                                                                        data: <?= json_encode($deposits) ?>,
+                                                                        backgroundColor: 'rgba(255, 206, 86, 0.6)', 
+                                                                        borderColor: 'rgba(255, 206, 86, 1)',
+                                                                        borderWidth: 1
+                                                                    },
+                                                                    {
+                                                                        label: 'ยอดคงเหลือ',
+                                                                        data: <?= json_encode($remainings) ?>,
+                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)', 
                                                                         borderColor: 'rgba(75, 192, 192, 1)',
                                                                         borderWidth: 1
                                                                     }
                                                                 ]
                                                             };
-
                                                             var myChart = new Chart(ctx, {
                                                                 type: 'bar',
                                                                 data: chartData,
@@ -528,13 +563,6 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                                                                 font: {
                                                                                     size: 20
                                                                                 }
-                                                                            }
-                                                                        },
-                                                                        title: {
-                                                                            display: true,
-                                                                            text: 'ข้อมูลการฝากและจ่ายรายเดือน',
-                                                                            font: {
-                                                                                size: 20
                                                                             }
                                                                         }
                                                                     }

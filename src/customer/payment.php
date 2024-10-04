@@ -29,12 +29,14 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     AND b.booking_confirm_status = '1'
     AND b.booking_pay_status = '3'
     AND sub.submit_details IS NOT NULL
+    ORDER BY b.booking_id ASC
 ";
 
 $resultBooking = $conn->query($sql1);
 
-$sql2 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-        (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'";
+$sql2 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, b.booking_id,
+        (b.booking_price * 0.30) AS deposit_price FROM pay JOIN booking b JOIN customer c ON b.cus_id = c.cus_id WHERE b.booking_id = pay.booking_id AND c.cus_id = $id_cus AND pay.pay_status = '0'AND b.booking_confirm_status = '1'
+    AND b.booking_pay_status = '3' ORDER BY b.booking_id ASC";
 $resultPay0 = $conn->query($sql2);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
