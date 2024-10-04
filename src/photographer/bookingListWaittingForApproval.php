@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 setTimeout(function() {
                     Swal.fire({
                         title: '<div class="t1"><?php echo $approval_status === 'approved' ? 'อนุมัติการจองสำเร็จ' : 'ไม่อนุมัติการจองสำเร็จ'; ?></div>',
-                        icon: '<?php echo $approval_status === 'approved' ? 'success' : 'error'; ?>',
+                        icon: '<?php echo $approval_status === 'approved' ? 'success' : 'success'; ?>',
                         confirmButtonText: 'ตกลง',
                         allowOutsideClick: true,
                         allowEscapeKey: true,

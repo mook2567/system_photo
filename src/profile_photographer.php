@@ -729,7 +729,7 @@ $reviewPercentage = ($reviewLevel / 5) * 100;  // คิดเป็นเปอ
 
 
                     <div class="justify-content-center py-4 text-center">
-                        <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='table.php'">
+                        <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#details">
                             <i class="fa-solid fa-magnifying-glass"></i> ดูเพิ่มเติม
                         </button>
                     </div>
