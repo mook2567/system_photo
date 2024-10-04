@@ -1027,7 +1027,8 @@ function proceedWithBooking($conn, $location, $details, $start_date, $end_date, 
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
                                                 <span style="color: red;">*</span>
                                             </label>
-                                            <input type="date" id="start_date" name="start_date" class="form-control mt-1" style="resize: none;" required>
+                                            <input type="date" name="start_date" class="form-control mt-1" style="resize: none;" required>
+                                            <!-- <input type="date" id="start_date" name="start_date" class="form-control mt-1" style="resize: none;" required> -->
                                         </div>
                                         <div class="col-4 text-center">
                                             <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">
