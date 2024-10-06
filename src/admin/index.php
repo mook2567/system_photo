@@ -20,9 +20,6 @@ if (file_exists($image_path)) {
     $image_base64 = ''; // Handle case if the image doesn't exist
 }
 
-
-
-
 $sql1 = "SELECT SUM(row_count) AS total_count
         FROM (
             SELECT COUNT(*) AS row_count FROM admin WHERE admin_license = 1

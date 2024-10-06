@@ -461,8 +461,8 @@ if (isset($_POST['submit_type_of_work'])) {
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                                 <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                                 <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                             </div>
                         </div>
@@ -828,11 +828,12 @@ if (isset($_POST['submit_type_of_work'])) {
                             <?php
                             // SQL Query for Reviews
                             $sql3 = "SELECT 
-                                            SUM(r.review_level) AS scor, 
+                                            r.review_level AS scor, 
                                             r.review_caption,
                                             c.cus_name,
                                             c.cus_surname,
-                                            cus_photo
+                                            cus_photo,
+                                            b.booking_id
                                         FROM 
                                             review r
                                         JOIN 
@@ -867,7 +868,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                                         <img id="userImage" src="../img/profile/<?php echo $rowReview['cus_photo'] ? $rowReview['cus_photo'] : 'null.png'; ?>">
                                                     </div>
                                                     <div>
-                                                        <p><?php echo $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?></p>
+                                                        <p><?php echo $rowReview['booking_id'] . ' ' . $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?></p>
                                                     </div>
                                                 </div>
                                                 <!-- Card Text -->

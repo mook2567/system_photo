@@ -751,7 +751,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                                         </div>
                                                                         <div class="col-8 mt-2">
                                                                             <!-- <small id="details-counter" class="text-muted">0/20 ตัวอักษร</small> แสดงจำนวนตัวอักษร -->
-                                                                            <textarea id="details" name="details" class="form-control mt-1" placeholder="แสดงความเห็นเพิ่มเติม" style="resize: none; height: 100px;"></textarea>
+                                                                            <textarea name="details" class="form-control mt-1" placeholder="แสดงความเห็นเพิ่มเติม" style="resize: none; height: 100px;"></textarea>
+                                                                            <!-- <textarea id="details" name="details" class="form-control mt-1" placeholder="แสดงความเห็นเพิ่มเติม" style="resize: none; height: 100px;"></textarea> -->
                                                                         </div>
                                                                     </div>
                                                                 </div>

@@ -20,9 +20,19 @@ if (isset($_SESSION['photographer_login'])) {
 }
 
 // Query to retrieve bookings
-$sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_email, t.type_work, p.*, sub.*, r.*,
-        (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-        (b.booking_price * 0.30) AS deposit_price
+$sql1 = "
+    SELECT b.*, 
+           c.cus_prefix, 
+           c.cus_name, 
+           c.cus_surname, 
+           c.cus_tell, 
+           c.cus_email, 
+           t.type_work, 
+           p.*, 
+           sub.*, 
+           r.*, 
+           (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
+           (b.booking_price * 0.30) AS deposit_price
     FROM booking b
     JOIN customer c ON b.cus_id = c.cus_id
     JOIN `type` t ON b.type_of_work_id = t.type_id
@@ -31,10 +41,11 @@ $sql1 = "SELECT b.*, c.cus_prefix, c.cus_name, c.cus_surname, c.cus_tell, c.cus_
     JOIN submit sub ON sub.booking_id = b.booking_id
     JOIN review r ON r.booking_id = b.booking_id
     WHERE b.photographer_id = ?
-    AND b.booking_confirm_status = '3'
-    AND b.booking_pay_status = '5'
-    AND sub.submit_details IS NOT NULL
-    AND r.review_level IS NOT NULL";
+      AND b.booking_confirm_status = '3'
+      AND b.booking_pay_status = '5'
+      AND sub.submit_details IS NOT NULL
+      AND r.review_level IS NOT NULL 
+    ORDER BY b.booking_id ASC";
 
 $stmt1 = $conn->prepare($sql1);
 $stmt1->bind_param("i", $id_photographer);
@@ -42,30 +53,43 @@ $stmt1->execute();
 $resultBooking = $stmt1->get_result();
 
 // Query to retrieve deposit payments
-$sql2 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-         (b.booking_price * 0.30) AS deposit_price 
-         FROM pay 
-         JOIN booking b ON pay.booking_id = b.booking_id 
-         JOIN customer c ON b.cus_id = c.cus_id 
-         WHERE b.photographer_id = ? 
-         AND pay.pay_status = '0'";
+$sql2 = "
+    SELECT pay.*, 
+           (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
+           (b.booking_price * 0.30) AS deposit_price 
+    FROM pay 
+    JOIN booking b ON pay.booking_id = b.booking_id 
+    JOIN customer c ON b.cus_id = c.cus_id 
+    WHERE b.photographer_id = ? 
+      AND b.booking_confirm_status = '3'
+      AND b.booking_pay_status = '5'
+      AND pay.pay_status = '0' 
+    ORDER BY b.booking_id ASC";
+
 $stmt2 = $conn->prepare($sql2);
 $stmt2->bind_param("i", $id_photographer);
 $stmt2->execute();
 $resultPay0 = $stmt2->get_result();
 
 // Query to retrieve full payments
-$sql3 = "SELECT pay.*, (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-         (b.booking_price * 0.30) AS deposit_price 
-         FROM pay 
-         JOIN booking b ON pay.booking_id = b.booking_id 
-         JOIN customer c ON b.cus_id = c.cus_id 
-         WHERE b.photographer_id = ? 
-         AND pay.pay_status = '1'";
+$sql3 = "
+    SELECT pay.*, 
+           (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
+           (b.booking_price * 0.30) AS deposit_price 
+    FROM pay 
+    JOIN booking b ON pay.booking_id = b.booking_id 
+    JOIN customer c ON b.cus_id = c.cus_id 
+    WHERE b.photographer_id = ? 
+      AND b.booking_confirm_status = '3'
+      AND b.booking_pay_status = '5'
+      AND pay.pay_status = '1' 
+    ORDER BY b.booking_id ASC";
+
 $stmt3 = $conn->prepare($sql3);
 $stmt3->bind_param("i", $id_photographer);
 $stmt3->execute();
 $resultPay1 = $stmt3->get_result();
+
 ?>
 
 
@@ -278,8 +302,8 @@ $resultPay1 = $stmt3->get_result();
                             <div class="dropdown-menu rounded-0 m-0">
                                 <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                                 <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                                <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                                <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                                <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                                <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                                 <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                             </div>
                         </div>

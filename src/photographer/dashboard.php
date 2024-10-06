@@ -96,6 +96,8 @@ $deposits = array_values($deposits);
 $remainings = array_values($remainings);
 $incomes = array_values($incomes);
 $months = array_values($months);
+
+// Prepare the SQL query
 $query2 = "SELECT 
             r.review_level, 
             COUNT(*) AS count
@@ -114,44 +116,73 @@ $query2 = "SELECT
           ORDER BY 
             r.review_level";
 
+// Prepare and execute the statement
 $stmt = $conn->prepare($query2);
 $stmt->bind_param("i", $id_photographer);
-$stmt->execute();
-$result2 = $stmt->get_result();
-
-$reviewData = [];
-while ($row2 = $result2->fetch_assoc()) {
-    $reviewData[] = $row2;
+if (!$stmt->execute()) {
+    // Handle error
+    echo "Error executing query: " . $stmt->error;
+    exit;
 }
 
+$result2 = $stmt->get_result();
+$reviewData = [];
+
+// Fetch results
+while ($row2 = $result2->fetch_assoc()) {
+    $reviewData[$row2['review_level']] = $row2['count'];
+}
+
+// Define the range of review levels
+$minReviewLevel = 1;
+$maxReviewLevel = 5;
+
+// Fill in missing review levels with 0
+for ($i = $minReviewLevel; $i <= $maxReviewLevel; $i++) {
+    if (!isset($reviewData[$i])) {
+        $reviewData[$i] = 0;
+    }
+}
+
+// Sort the array to ensure proper order
+ksort($reviewData);
+
+// Optionally, encode the data to JSON for JavaScript usage
+$jsonReviewData = json_encode($reviewData);
 
 $query3 = "
     SELECT 
-        t.type_work, 
-        COUNT(b.booking_id) AS num 
+        MONTH(booking_date) AS booking_month,
+        SUM(booking_confirm_status = 0) AS total_reserved,
+        SUM(booking_confirm_status = 1) AS total_pending,
+        SUM(booking_confirm_status = 2) AS total_canceled,
+        SUM(booking_confirm_status = 3) AS total_completed
     FROM 
-        booking b 
-    JOIN 
-        type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
-    JOIN 
-        type t ON t.type_id = tow.type_id
-    JOIN 
-        photographer ph ON ph.photographer_id = tow.photographer_id
-    WHERE
-        ph.photographer_id = $id_photographer
+        booking b
+    JOIN
+        photographer p ON b.photographer_id = p.photographer_id
+    WHERE 
+        YEAR(booking_date) = YEAR(CURDATE())
+        AND p.photographer_id = ?
     GROUP BY 
-        t.type_work 
+        booking_month
     ORDER BY 
-        num DESC
+        booking_month;
 ";
 
-$result3 = mysqli_query($conn, $query3);
+// Prepare statement to prevent SQL injection
+$stmt = $conn->prepare($query3);
+$stmt->bind_param("i", $id_photographer); // Assuming $id_photographer is an integer
+$stmt->execute();
+$result3 = $stmt->get_result();
+
 $data = [];
 $total_count = 0;
 
 while ($row3 = mysqli_fetch_assoc($result3)) {
     $data[] = $row3;
-    $total_count += $row3['num']; // Accumulate total counts for display
+    // Accumulate total counts from each status
+    $total_count += $row3['total_reserved'] + $row3['total_pending'] + $row3['total_canceled'] + $row3['total_completed'];
 }
 
 ?>
@@ -491,7 +522,7 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                     <div class="col-lg-12">
                                         <div class="card border">
                                             <div class="card-body">
-                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายในแต่ละเดือนของช่างภาพ (ในปี <?php echo date('Y'); ?>)</h3>
+                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายได้ในแต่ละเดือน (ในปี <?php echo date('Y'); ?>)</h3>
                                                 <div class="d-flex justify-content-center mt-3">
                                                     <div class="col-10">
                                                         <canvas id="overviewChart1" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
@@ -506,36 +537,44 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                                                 'พฤศจิกายน', 'ธันวาคม'
                                                             ];
 
-                                                            const labels = <?= json_encode($months) ?>.map(month => {
-                                                                const monthNumber = month.split('-')[1]; 
-                                                                return monthNames[parseInt(monthNumber) ]; 
+                                                            // Initialize an array for all 12 months with 0 values
+                                                            const monthlyData = new Array(12).fill(0);
+
+                                                            // Assuming $months contains month data in "YYYY-MM" format
+                                                            const existingMonths = <?= json_encode($months) ?>;
+
+                                                            // Populate the monthlyData based on existing months and income, deposits, and remaining data
+                                                            existingMonths.forEach((month, index) => {
+                                                                const monthNumber = parseInt(month.split('-')[1]) - 1; // Extract month number (0-11)
+                                                                monthlyData[monthNumber] = <?= json_encode($incomes) ?>[index]; // Set income data for the corresponding month
                                                             });
 
                                                             var chartData = {
-                                                                labels: labels, 
+                                                                labels: monthNames, // Use all month names
                                                                 datasets: [{
                                                                         label: 'รายได้รวมต่อเดือน',
-                                                                        data: <?= json_encode($incomes) ?>,
-                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)', 
+                                                                        data: monthlyData, // Use the monthlyData array
+                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
                                                                         borderColor: 'rgba(54, 162, 235, 1)',
                                                                         borderWidth: 1
                                                                     },
                                                                     {
                                                                         label: 'ค่ามัดจำ',
-                                                                        data: <?= json_encode($deposits) ?>,
-                                                                        backgroundColor: 'rgba(255, 206, 86, 0.6)', 
+                                                                        data: <?= json_encode($deposits) ?>, // Ensure this has data for all 12 months
+                                                                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
                                                                         borderColor: 'rgba(255, 206, 86, 1)',
                                                                         borderWidth: 1
                                                                     },
                                                                     {
                                                                         label: 'ยอดคงเหลือ',
-                                                                        data: <?= json_encode($remainings) ?>,
-                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)', 
+                                                                        data: <?= json_encode($remainings) ?>, // Ensure this has data for all 12 months
+                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
                                                                         borderColor: 'rgba(75, 192, 192, 1)',
                                                                         borderWidth: 1
                                                                     }
                                                                 ]
                                                             };
+
                                                             var myChart = new Chart(ctx, {
                                                                 type: 'bar',
                                                                 data: chartData,
@@ -576,160 +615,188 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                     </div>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-12 mt-4">
                                     <div class="row">
-                                        <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 600px;">
-                                                <div class="card-body">
-                                                    <h3 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h3>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="col-10">
-                                                            <canvas id="overviewChart2"></canvas>
-                                                        </div>
-                                                        <script>
-                                                            document.addEventListener("DOMContentLoaded", function() {
-                                                                // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
-                                                                const reviewData = <?php echo json_encode($reviewData); ?>;
+                                        <div class="col-lg-7">
+                                            <div class="card text-dark shadow" height=650px; style=" max-height: 650px; height: auto;">
+                                            <div class="card-body">
+                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายได้ในแต่ละเดือน (ในปี <?php echo date('Y'); ?>)</h3>
+                                                <div class="d-flex justify-content-center mt-3">
+                                                    <div class="col-10">
+                                                        <canvas id="overviewChart1" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
+                                                    </div>
+                                                    <script>
+                                                        document.addEventListener("DOMContentLoaded", function() {
+                                                            var ctx = document.getElementById('overviewChart1').getContext('2d');
 
-                                                                const labels = reviewData.map(item => `ระดับ ${item.review_level}`);
-                                                                const counts = reviewData.map(item => item.count);
+                                                            const monthNames = [
+                                                                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม',
+                                                                'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม',
+                                                                'พฤศจิกายน', 'ธันวาคม'
+                                                            ];
 
-                                                                const ctx = document.getElementById('overviewChart2').getContext('2d');
-                                                                const myChart = new Chart(ctx, {
-                                                                    type: 'bar',
-                                                                    data: {
-                                                                        labels: labels,
-                                                                        datasets: [{
-                                                                            label: 'จำนวนรีวิว',
-                                                                            data: counts,
-                                                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                                                            borderColor: 'rgba(75, 192, 192, 1)',
-                                                                            borderWidth: 1
-                                                                        }]
+                                                            // Initialize an array for all 12 months with 0 values
+                                                            const monthlyData = new Array(12).fill(0);
+
+                                                            // Assuming $months contains month data in "YYYY-MM" format
+                                                            const existingMonths = <?= json_encode($months) ?>;
+
+                                                            // Populate the monthlyData based on existing months and income, deposits, and remaining data
+                                                            existingMonths.forEach((month, index) => {
+                                                                const monthNumber = parseInt(month.split('-')[1]) - 1; // Extract month number (0-11)
+                                                                monthlyData[monthNumber] = <?= json_encode($incomes) ?>[index]; // Set income data for the corresponding month
+                                                            });
+
+                                                            var chartData = {
+                                                                labels: monthNames, // Use all month names
+                                                                datasets: [{
+                                                                        label: 'รายได้รวมต่อเดือน',
+                                                                        data: monthlyData, // Use the monthlyData array
+                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                                                        borderWidth: 1
                                                                     },
-                                                                    options: {
-                                                                        scales: {
-                                                                            y: {
-                                                                                beginAtZero: true,
-                                                                                ticks: {
-                                                                                    font: {
-                                                                                        size: 20
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            x: {
-                                                                                ticks: {
-                                                                                    font: {
-                                                                                        size: 20
-                                                                                    }
+                                                                    {
+                                                                        label: 'ค่ามัดจำ',
+                                                                        data: <?= json_encode($deposits) ?>, // Ensure this has data for all 12 months
+                                                                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                                                                        borderColor: 'rgba(255, 206, 86, 1)',
+                                                                        borderWidth: 1
+                                                                    },
+                                                                    {
+                                                                        label: 'ยอดคงเหลือ',
+                                                                        data: <?= json_encode($remainings) ?>, // Ensure this has data for all 12 months
+                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                                                        borderWidth: 1
+                                                                    }
+                                                                ]
+                                                            };
+
+                                                            var myChart = new Chart(ctx, {
+                                                                type: 'bar',
+                                                                data: chartData,
+                                                                options: {
+                                                                    scales: {
+                                                                        y: {
+                                                                            beginAtZero: true,
+                                                                            ticks: {
+                                                                                font: {
+                                                                                    size: 20
                                                                                 }
                                                                             }
                                                                         },
-                                                                        plugins: {
-                                                                            legend: {
-                                                                                labels: {
-                                                                                    font: {
-                                                                                        size: 20
-                                                                                    }
+                                                                        x: {
+                                                                            ticks: {
+                                                                                font: {
+                                                                                    size: 20
                                                                                 }
-                                                                            },
-                                                                            title: {
-                                                                                display: true,
-                                                                                text: 'คะแนนรีวิว',
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    plugins: {
+                                                                        legend: {
+                                                                            labels: {
                                                                                 font: {
                                                                                     size: 20
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
-                                                                });
+                                                                }
                                                             });
-                                                        </script>
-                                                    </div>
+                                                        });
+                                                    </script>
+
                                                 </div>
                                             </div>
-                                        </div>
+                                            </div></div>
+                                            <div class="col-5">
+                                                <div class="card" style="height: 510px;">
+                                                    <div class="card-body">
+                                                        <h3 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h3>
+                                                        <div class="d-flex justify-content-center">
+                                                            <div class="col-10 mt-2">
+                                                                <canvas id="overviewChart2" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
+                                                            </div>
+                                                            <script>
+                                                                document.addEventListener("DOMContentLoaded", function() {
+                                                                    // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
+                                                                    const reviewData = <?php echo $jsonReviewData; ?>;
 
-                                        <div class="col-lg-6 mt-2">
-                                            <div class="card" style="height: 800px;">
-                                                <div class="card-body">
-                                                    <h3 class="card-title">แผนภูมิวงกลมแสดงข้อมูลจำนวนการจองตามประเภทของงานถ่ายภาพ</h3>
-                                                    <p class="card-title">มีการจอง <?php echo $total_count; ?> ครั้ง</p>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="col-9">
-                                                            <canvas id="overviewChart3"></canvas>
+                                                                    // Prepare labels and counts
+                                                                    const labels = Object.keys(reviewData).map(item => `${item} คะแนน`);
+                                                                    const counts = Object.values(reviewData);
+
+                                                                    const ctx = document.getElementById('overviewChart2').getContext('2d');
+                                                                    const myChart = new Chart(ctx, {
+                                                                        type: 'bar',
+                                                                        data: {
+                                                                            labels: labels,
+                                                                            datasets: [{
+                                                                                label: 'จำนวนครั้ง',
+                                                                                data: counts,
+                                                                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                                                                borderColor: 'rgba(75, 192, 192, 1)',
+                                                                                borderWidth: 1
+                                                                            }]
+                                                                        },
+                                                                        options: {
+                                                                            scales: {
+                                                                                y: {
+                                                                                    beginAtZero: true,
+                                                                                    title: {
+                                                                                        display: true,
+                                                                                        text: 'จำนวน (ครั้ง)',
+                                                                                        font: {
+                                                                                            size: 20
+                                                                                        }
+                                                                                    },
+                                                                                    ticks: {
+                                                                                        font: {
+                                                                                            size: 20
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                x: {
+                                                                                    title: {
+                                                                                        display: true,
+                                                                                        text: 'คะแนน',
+                                                                                        font: {
+                                                                                            size: 20
+                                                                                        }
+                                                                                    },
+                                                                                    ticks: {
+                                                                                        font: {
+                                                                                            size: 20
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            plugins: {
+                                                                                legend: {
+                                                                                    labels: {
+                                                                                        font: {
+                                                                                            size: 20
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                });
+                                                            </script>
+
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <script>
-                                            const ctx = document.getElementById('overviewChart3').getContext('2d');
-                                            const data = {
-                                                labels: [
-                                                    <?php foreach ($data as $row) {
-                                                        echo "'" . $row['type_work'] . "',";
-                                                    } ?>
-                                                ],
-                                                datasets: [{
-                                                    label: 'จำนวนการจอง',
-                                                    data: [
-                                                        <?php foreach ($data as $row) {
-                                                            echo $row['num'] . ",";
-                                                        } ?>
-                                                    ],
-                                                    backgroundColor: [
-                                                        'rgba(255, 99, 132, 0.2)',
-                                                        'rgba(54, 162, 235, 0.2)',
-                                                        'rgba(255, 206, 86, 0.2)',
-                                                        'rgba(75, 192, 192, 0.2)',
-                                                        'rgba(153, 102, 255, 0.2)',
-                                                        'rgba(255, 159, 64, 0.2)',
-                                                    ],
-                                                    borderColor: [
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                    ],
-                                                    borderWidth: 1
-                                                }]
-                                            };
-
-                                            const overviewChart3 = new Chart(ctx, {
-                                                type: 'pie', // or 'doughnut' for a doughnut chart
-                                                data: data,
-                                                options: {
-                                                    responsive: true,
-                                                    plugins: {
-                                                        legend: {
-                                                            position: 'top',
-                                                            labels: {
-                                                                font: {
-                                                                    size: 20
-                                                                }
-                                                            }
-                                                        },
-                                                        title: {
-                                                            display: true,
-                                                            text: 'ข้อมูลประเภทของงานถ่ายภาพ',
-                                                            font: {
-                                                                size: 20
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        </script>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
             </center>
 

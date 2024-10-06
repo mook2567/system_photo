@@ -14,49 +14,57 @@ if (isset($_SESSION['photographer_login'])) {
     $rowPhoto = $resultPhoto->fetch_assoc();
     $id_photographer = $rowPhoto['photographer_id'];
 }
-
-$sql1 = "SELECT b.*, 
-                c.cus_prefix, 
-                c.cus_name, 
-                c.cus_surname, 
-                c.cus_tell, 
-                c.cus_email, 
-                t.type_work, 
-                pay.*, 
-                (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-                (b.booking_price * 0.30) AS deposit_price
-         FROM booking b
-         JOIN pay ON pay.booking_id = b.booking_id
-         JOIN customer c ON b.cus_id = c.cus_id
-         JOIN `type` t ON b.type_of_work_id = t.type_id
-         JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
-         WHERE b.photographer_id = $id_photographer
-         AND b.booking_confirm_status = '1'
-         AND b.booking_pay_status = '1'
-         ORDER BY `b`.`booking_id` DESC 
+// Prepare and execute the query to retrieve bookings
+$sql1 = "
+    SELECT b.*, 
+           c.cus_prefix, 
+           c.cus_name, 
+           c.cus_surname, 
+           c.cus_tell, 
+           c.cus_email, 
+           t.type_work, 
+           pay.*, 
+           (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
+           (b.booking_price * 0.30) AS deposit_price
+    FROM booking b
+    JOIN pay ON pay.booking_id = b.booking_id
+    JOIN customer c ON b.cus_id = c.cus_id
+    JOIN `type` t ON b.type_of_work_id = t.type_id
+    JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+    WHERE b.photographer_id = ?
+      AND b.booking_confirm_status = '1'
+      AND b.booking_pay_status = '1'
+    ORDER BY b.booking_id DESC
 ";
-$resultBooking = $conn->query($sql1);
 
+// Prepare the statement
+$stmt1 = $conn->prepare($sql1);
+$stmt1->bind_param("i", $id_photographer);
+$stmt1->execute();
+$resultBooking = $stmt1->get_result();
 
-$sql4 = "SELECT 
-    pay.*, 
-    (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
-    (b.booking_price * 0.30) AS deposit_price,
-    b.booking_id
-FROM 
-    pay 
-JOIN 
-    booking b ON b.booking_id = pay.booking_id 
-JOIN 
-    customer c ON b.cus_id = c.cus_id 
-WHERE 
-    b.photographer_id = $id_photographer 
-    AND pay.pay_status = '0'
-         AND b.booking_confirm_status = '1'
-         AND b.booking_pay_status = '1'ORDER BY `b`.`booking_id` DESC 
-;
+// Prepare and execute the query to retrieve deposit payments
+$sql4 = "
+    SELECT pay.*, 
+           (b.booking_price - (b.booking_price * 0.30)) AS payment_price, 
+           (b.booking_price * 0.30) AS deposit_price,
+           b.booking_id
+    FROM pay 
+    JOIN booking b ON b.booking_id = pay.booking_id 
+    JOIN customer c ON b.cus_id = c.cus_id 
+    WHERE b.photographer_id = ? 
+      AND pay.pay_status = '0'
+      AND b.booking_confirm_status = '1'
+      AND b.booking_pay_status = '1'
+    ORDER BY b.booking_id DESC
 ";
-$resultPay1 = $conn->query($sql4);
+
+// Prepare the statement
+$stmt4 = $conn->prepare($sql4);
+$stmt4->bind_param("i", $id_photographer);
+$stmt4->execute();
+$resultPay1 = $stmt4->get_result();
+
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['submit_booking_confirm_status'])) {
