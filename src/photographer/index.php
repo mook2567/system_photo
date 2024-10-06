@@ -868,7 +868,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                                         <img id="userImage" src="../img/profile/<?php echo $rowReview['cus_photo'] ? $rowReview['cus_photo'] : 'null.png'; ?>">
                                                     </div>
                                                     <div>
-                                                        <p><?php echo $rowReview['booking_id'] . ' ' . $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?></p>
+                                                        <p><?php echo $rowReview['cus_name'] . ' ' . $rowReview['cus_surname']; ?></p>
                                                     </div>
                                                 </div>
                                                 <!-- Card Text -->

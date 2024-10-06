@@ -552,7 +552,7 @@ $resultPay1 = $stmt3->get_result();
                                         <div class="modal-dialog modal-dialog-centered modal-lg">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="reviewLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fa-solid fa-star"></i>&nbsp;&nbsp;รีวิวช่างภาพ คุณ<?php echo $rowBooking['photographer_name'] . ' ' . $rowBooking['photographer_surname']; ?></b></h5>
+                                                    <h5 class="modal-title" id="reviewLabel<?php echo $rowBooking['booking_id']; ?>"><b><i class="fa-solid fa-star"></i>&nbsp;&nbsp;รีวิวโดย คุณ<?php echo $rowBooking['cus_name'] . ' ' . $rowBooking['cus_surname']; ?></b></h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body" style="height: auto;">

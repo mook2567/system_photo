@@ -3,38 +3,58 @@ session_start();
 include '../config_db.php';
 require_once '../popup.php';
 
+// Fetch information from `information` table
 $sql = "SELECT * FROM `information`";
 $resultInfo = $conn->query($sql);
-$rowInfo = $resultInfo->fetch_assoc();
 
+if ($resultInfo && $resultInfo->num_rows > 0) {
+    $rowInfo = $resultInfo->fetch_assoc();
+    $information_name = $rowInfo['information_name'];
+    $information_caption = $rowInfo['information_caption'];
+    // สร้างพาธของไฟล์ภาพ
+    $image_path = '../img/logo/' . $rowInfo['information_icon'];
 
-$information_name = $rowInfo['information_name'];
-$information_caption = $rowInfo['information_caption'];
-$rowInfo['information_icon'];
-// สร้างพาธของไฟล์ภาพ
-$image_path = '../img/logo/' . $rowInfo['information_icon'];
-
-if (file_exists($image_path)) {
-    $image_data = base64_encode(file_get_contents($image_path));
-    $image_type = pathinfo($image_path, PATHINFO_EXTENSION);
-    $image_base64 = 'data:image/' . $image_type . ';base64,' . $image_data;
+    if (file_exists($image_path)) {
+        $image_data = base64_encode(file_get_contents($image_path));
+        $image_type = pathinfo($image_path, PATHINFO_EXTENSION);
+        $image_base64 = 'data:image/' . $image_type . ';base64,' . $image_data;
+    } else {
+        $image_base64 = ''; // Handle case if the image doesn't exist
+    }
 } else {
-    $image_base64 = ''; // Handle case if the image doesn't exist
+    // Handle case where no information is found
+    $information_name = '';
+    $information_caption = '';
+    $image_base64 = '';
 }
 
-
+// Check if photographer is logged in
 if (isset($_SESSION['photographer_login'])) {
     $email = $_SESSION['photographer_login'];
-    $sql = "SELECT * FROM photographer WHERE photographer_email LIKE '$email'";
-    $resultPhoto = $conn->query($sql);
-    $rowPhoto = $resultPhoto->fetch_assoc();
-    $id_photographer = $rowPhoto['photographer_id'];
+    // Use prepared statements to prevent SQL injection
+    $sql = "SELECT * FROM photographer WHERE photographer_email = ?";
+    $stmtPhoto = $conn->prepare($sql);
+    if ($stmtPhoto) {
+        $stmtPhoto->bind_param('s', $email);
+        $stmtPhoto->execute();
+        $resultPhoto = $stmtPhoto->get_result();
+        if ($resultPhoto && $resultPhoto->num_rows > 0) {
+            $rowPhoto = $resultPhoto->fetch_assoc();
+            $id_photographer = $rowPhoto['photographer_id'];
+        } else {
+            // Handle case where photographer is not found
+            die("Photographer not found.");
+        }
+        $stmtPhoto->close();
+    } else {
+        die("Prepare failed for photographer query: " . $conn->error);
+    }
+} else {
+    // Handle case where photographer is not logged in
+    die("Photographer not logged in.");
 }
 
-$sql = "SELECT * FROM `portfolio`";
-$resultPort = $conn->query($sql);
-$rowPort = $resultPort->fetch_assoc();
-
+// === Query 1: Fetch Deposits, Remainings, and Total Income ===
 $query1 = "
     SELECT 
         DATE_FORMAT(p.pay_date, '%Y-%m') AS month, 
@@ -57,99 +77,98 @@ $query1 = "
     GROUP BY 
         DATE_FORMAT(p.pay_date, '%Y-%m')
     ORDER BY 
-        month DESC
+        month ASC
 ";
 
-// Fetch results from the query
-$stmt = $conn->prepare($query1);
-$stmt->bind_param('i', $id_photographer);
-$stmt->execute();
-$result1 = $stmt->get_result();
+// Prepare and execute Query 1
+$stmt1 = $conn->prepare($query1);
+if (!$stmt1) {
+    die("Prepare failed for Query 1: " . $conn->error);
+}
+$stmt1->bind_param('i', $id_photographer);
+if (!$stmt1->execute()) {
+    die("Execute failed for Query 1: " . $stmt1->error);
+}
+$result1 = $stmt1->get_result();
 
+// Initialize arrays for months, deposits, remainings, and incomes
 $months = [];
 $deposits = [];
 $remainings = [];
 $incomes = [];
 
-// Get months from January to the current month of this year
-$start = strtotime('first day of January this year');
-$end = strtotime('first day of next month'); // Until the current month
+// Get the current year
+$currentYear = date('Y');
 
-while ($start < $end) {
-    $month = date('Y-m', $start);
-    $months[] = $month;
-    $deposits[$month] = 0;
-    $remainings[$month] = 0;
-    $incomes[$month] = 0;
-    $start = strtotime('+1 month', $start);
+// Initialize all months of the current year with default values
+for ($m = 1; $m <= 12; $m++) {
+    $monthKey = sprintf("%04d-%02d", $currentYear, $m);
+    $months[] = $monthKey;
+    $deposits[] = 0;
+    $remainings[] = 0;
+    $incomes[] = 0;
 }
 
-// Populate total incomes based on query results
+// Populate arrays based on Query 1 results
 while ($row = $result1->fetch_assoc()) {
-    $deposits[$row['month']] = $row['deposit'];
-    $remainings[$row['month']] = $row['remaining'];
-    $incomes[$row['month']] = $row['total_income'];
-}
-
-// Convert to simple arrays for chart rendering
-$deposits = array_values($deposits);
-$remainings = array_values($remainings);
-$incomes = array_values($incomes);
-$months = array_values($months);
-
-// Prepare the SQL query
-$query2 = "SELECT 
-            r.review_level, 
-            COUNT(*) AS count
-          FROM 
-            review r
-          JOIN 
-            booking b ON b.booking_id = r.booking_id
-          JOIN
-            photographer ph ON ph.photographer_id = b.photographer_id
-          WHERE 
-            r.review_level BETWEEN 1 AND 5
-          AND
-            ph.photographer_id = ?
-          GROUP BY 
-            r.review_level
-          ORDER BY 
-            r.review_level";
-
-// Prepare and execute the statement
-$stmt = $conn->prepare($query2);
-$stmt->bind_param("i", $id_photographer);
-if (!$stmt->execute()) {
-    // Handle error
-    echo "Error executing query: " . $stmt->error;
-    exit;
-}
-
-$result2 = $stmt->get_result();
-$reviewData = [];
-
-// Fetch results
-while ($row2 = $result2->fetch_assoc()) {
-    $reviewData[$row2['review_level']] = $row2['count'];
-}
-
-// Define the range of review levels
-$minReviewLevel = 1;
-$maxReviewLevel = 5;
-
-// Fill in missing review levels with 0
-for ($i = $minReviewLevel; $i <= $maxReviewLevel; $i++) {
-    if (!isset($reviewData[$i])) {
-        $reviewData[$i] = 0;
+    $monthIndex = array_search($row['month'], $months);
+    if ($monthIndex !== false) {
+        $deposits[$monthIndex] = (float)$row['deposit'];
+        $remainings[$monthIndex] = (float)$row['remaining'];
+        $incomes[$monthIndex] = (float)$row['total_income'];
     }
 }
 
-// Sort the array to ensure proper order
-ksort($reviewData);
+// Free result and close statement for Query 1
+$result1->free();
+$stmt1->close();
 
-// Optionally, encode the data to JSON for JavaScript usage
-$jsonReviewData = json_encode($reviewData);
+// === Query 2: Fetch Review Data ===
+$query2 = "
+    SELECT 
+        r.review_level, 
+        COUNT(*) AS count
+    FROM 
+        review r
+    JOIN 
+        booking b ON b.booking_id = r.booking_id
+    JOIN
+        photographer ph ON ph.photographer_id = b.photographer_id
+    WHERE 
+        r.review_level BETWEEN 1 AND 5
+        AND ph.photographer_id = ?
+    GROUP BY 
+        r.review_level
+    ORDER BY 
+        r.review_level ASC
+";
 
+// Prepare and execute Query 2
+$stmt2 = $conn->prepare($query2);
+if (!$stmt2) {
+    die("Prepare failed for Query 2: " . $conn->error);
+}
+$stmt2->bind_param("i", $id_photographer);
+if (!$stmt2->execute()) {
+    die("Execute failed for Query 2: " . $stmt2->error);
+}
+$result2 = $stmt2->get_result();
+
+// Initialize review data for levels 1 through 5
+$reviewData = array_fill(1, 5, 0);
+
+// Populate review data based on Query 2 results
+while ($row2 = $result2->fetch_assoc()) {
+    $level = (int)$row2['review_level'];
+    $count = (int)$row2['count'];
+    $reviewData[$level] = $count;
+}
+
+// Free result and close statement for Query 2
+$result2->free();
+$stmt2->close();
+
+// === Query 3: Fetch Booking Status Data ===
 $query3 = "
     SELECT 
         MONTH(booking_date) AS booking_month,
@@ -167,25 +186,68 @@ $query3 = "
     GROUP BY 
         booking_month
     ORDER BY 
-        booking_month;
+        booking_month ASC
 ";
 
-// Prepare statement to prevent SQL injection
-$stmt = $conn->prepare($query3);
-$stmt->bind_param("i", $id_photographer); // Assuming $id_photographer is an integer
-$stmt->execute();
-$result3 = $stmt->get_result();
+// Prepare and execute Query 3
+$stmt3 = $conn->prepare($query3);
+if (!$stmt3) {
+    die("Prepare failed for Query 3: " . $conn->error);
+}
+$stmt3->bind_param("i", $id_photographer);
+if (!$stmt3->execute()) {
+    die("Execute failed for Query 3: " . $stmt3->error);
+}
+$result3 = $stmt3->get_result();
 
-$data = [];
-$total_count = 0;
+// Initialize arrays for each booking status with 12 months set to 0
+$totalReserved = array_fill(1, 12, 0);
+$totalPending = array_fill(1, 12, 0);
+$totalCanceled = array_fill(1, 12, 0);
+$totalCompleted = array_fill(1, 12, 0);
 
-while ($row3 = mysqli_fetch_assoc($result3)) {
-    $data[] = $row3;
-    // Accumulate total counts from each status
-    $total_count += $row3['total_reserved'] + $row3['total_pending'] + $row3['total_canceled'] + $row3['total_completed'];
+// Populate arrays based on Query 3 results
+while ($row3 = $result3->fetch_assoc()) {
+    $month = (int)$row3['booking_month']; // 1-12
+    $totalReserved[$month] = (int)$row3['total_reserved'];
+    $totalPending[$month] = (int)$row3['total_pending'];
+    $totalCanceled[$month] = (int)$row3['total_canceled'];
+    $totalCompleted[$month] = (int)$row3['total_completed'];
 }
 
+// Reindex arrays to have 0-based indices for JavaScript
+$totalReserved = array_values($totalReserved);
+$totalPending = array_values($totalPending);
+$totalCanceled = array_values($totalCanceled);
+$totalCompleted = array_values($totalCompleted);
+
+// Close statement and free result for Query 3
+$result3->free();
+$stmt3->close();
+
+// Prepare the data for JSON output for bookings (if needed elsewhere)
+$type_data = [];
+for ($m = 1; $m <= 12; $m++) {
+    $type_data[] = [
+        'booking_month' => $m,
+        'total_reserved' => $totalReserved[$m - 1],
+        'total_pending' => $totalPending[$m - 1],
+        'total_canceled' => $totalCanceled[$m - 1],
+        'total_completed' => $totalCompleted[$m - 1]
+    ];
+}
+
+// Optionally, encode the review data for JavaScript usage
+$jsonReviewData = json_encode($reviewData, JSON_NUMERIC_CHECK);
+
+// Encode other data for JavaScript
+$jsonMonths = json_encode($months);
+$jsonDeposits = json_encode($deposits, JSON_NUMERIC_CHECK);
+$jsonRemainings = json_encode($remainings, JSON_NUMERIC_CHECK);
+$jsonIncomes = json_encode($incomes, JSON_NUMERIC_CHECK);
+$jsonTypeData = json_encode($type_data, JSON_NUMERIC_CHECK);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -517,11 +579,76 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                 <div id="contentToConvert">
                     <div class="col-11 mt-3">
                         <div class="row">
+                            <!-- Customer Popular Work Types -->
+                            <div class="col-4">
+                                <div class="card text-dark shadow" style="height: 210px;">
+                                    <div class="card-header">
+                                        <h4 class="mt-2">ประเภทงานที่ลูกค้านิยมจ้าง</h4>
+                                    </div>
+                                    <div class="card-body" style="text-align:left; padding: 15px;">
+                                        <?php if (!empty($row_count_data6)): ?>
+                                            <ol>
+                                                <?php foreach ($row_count_data6 as $index => $row): ?>
+                                                    <li style="font-size: 20px; margin-bottom: 10px;">
+                                                        <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ol>
+                                        <?php else: ?>
+                                            <p style="font-size: 16px; color: #888;">ไม่มีข้อมูลการจ้างงาน</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Photographer Popular Work Types -->
+                            <div class="col-4">
+                                <div class="card text-dark shadow" style="height: 210px;">
+                                    <div class="card-header">
+                                        <h4 class="mt-2">รายได้ในปี <?php echo date('Y'); ?></h4>
+                                    </div>
+                                    <div class="card-body" style="text-align:left;">
+                                        <?php if (!empty($row_count_data5)): ?>
+                                            <ol>
+                                                <?php foreach ($row_count_data5 as $index => $row): ?>
+                                                    <li style="font-size: 20px; margin-bottom: 10px;">
+                                                        <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' คน'; ?>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ol>
+                                        <?php else: ?>
+                                            <p>ไม่มีข้อมูลประเภทงาน</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card text-dark shadow" style="height: 210px;">
+                                    <div class="card-header">
+                                        <h4 class="mt-2">คะแนน</h4>
+                                    </div>
+                                    <div class="card-body" style="text-align:left;">
+                                        <?php if (!empty($row_count_data5)): ?>
+                                            <ol>
+                                                <?php foreach ($row_count_data5 as $index => $row): ?>
+                                                    <li style="font-size: 20px; margin-bottom: 10px;">
+                                                        <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' คน'; ?>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ol>
+                                        <?php else: ?>
+                                            <p>ไม่มีข้อมูลประเภทงาน</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="card border">
-                                            <div class="card-body">
+                                            <div class="card-body shadow">
                                                 <h3 class="card-title">แผนภูมิแท่งแสดงรายได้ในแต่ละเดือน (ในปี <?php echo date('Y'); ?>)</h3>
                                                 <div class="d-flex justify-content-center mt-3">
                                                     <div class="col-10">
@@ -618,176 +745,189 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                                 <div class="col-12 mt-4">
                                     <div class="row">
                                         <div class="col-lg-7">
-                                            <div class="card text-dark shadow" height=650px; style=" max-height: 650px; height: auto;">
-                                            <div class="card-body">
-                                                <h3 class="card-title">แผนภูมิแท่งแสดงรายได้ในแต่ละเดือน (ในปี <?php echo date('Y'); ?>)</h3>
-                                                <div class="d-flex justify-content-center mt-3">
-                                                    <div class="col-10">
-                                                        <canvas id="overviewChart1" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
-                                                    </div>
-                                                    <script>
-                                                        document.addEventListener("DOMContentLoaded", function() {
-                                                            var ctx = document.getElementById('overviewChart1').getContext('2d');
+                                            <div class="card text-dark shadow" height=650px; style=" max-height: 650px; height: 450;">
+                                                <div class="card-body">
+                                                    <h3 class="card-title mt-2">กราฟแสดงข้อมูลสถานะการจองต่อเดือน (ในปี <?php echo date('Y'); ?>)</h3>
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="col-10 mt-4">
+                                                            <canvas id="overviewChart3" width="400" height="300" style="max-height: 300px; height: auto;"></canvas>
+                                                        </div>
+                                                        <script>
+                                                            document.addEventListener("DOMContentLoaded", function() {
+                                                                var ctx = document.getElementById('overviewChart3').getContext('2d');
 
-                                                            const monthNames = [
-                                                                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม',
-                                                                'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม',
-                                                                'พฤศจิกายน', 'ธันวาคม'
-                                                            ];
+                                                                const monthNames = [
+                                                                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม',
+                                                                    'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม',
+                                                                    'พฤศจิกายน', 'ธันวาคม'
+                                                                ];
 
-                                                            // Initialize an array for all 12 months with 0 values
-                                                            const monthlyData = new Array(12).fill(0);
+                                                                // Convert PHP arrays to JavaScript
+                                                                const totalReserved = <?= json_encode($totalReserved) ?>;
+                                                                const totalPending = <?= json_encode($totalPending) ?>;
+                                                                const totalCanceled = <?= json_encode($totalCanceled) ?>;
+                                                                const totalCompleted = <?= json_encode($totalCompleted) ?>;
 
-                                                            // Assuming $months contains month data in "YYYY-MM" format
-                                                            const existingMonths = <?= json_encode($months) ?>;
-
-                                                            // Populate the monthlyData based on existing months and income, deposits, and remaining data
-                                                            existingMonths.forEach((month, index) => {
-                                                                const monthNumber = parseInt(month.split('-')[1]) - 1; // Extract month number (0-11)
-                                                                monthlyData[monthNumber] = <?= json_encode($incomes) ?>[index]; // Set income data for the corresponding month
-                                                            });
-
-                                                            var chartData = {
-                                                                labels: monthNames, // Use all month names
-                                                                datasets: [{
-                                                                        label: 'รายได้รวมต่อเดือน',
-                                                                        data: monthlyData, // Use the monthlyData array
-                                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                                                        borderWidth: 1
-                                                                    },
-                                                                    {
-                                                                        label: 'ค่ามัดจำ',
-                                                                        data: <?= json_encode($deposits) ?>, // Ensure this has data for all 12 months
-                                                                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
-                                                                        borderColor: 'rgba(255, 206, 86, 1)',
-                                                                        borderWidth: 1
-                                                                    },
-                                                                    {
-                                                                        label: 'ยอดคงเหลือ',
-                                                                        data: <?= json_encode($remainings) ?>, // Ensure this has data for all 12 months
-                                                                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                                                                        borderColor: 'rgba(75, 192, 192, 1)',
-                                                                        borderWidth: 1
-                                                                    }
-                                                                ]
-                                                            };
-
-                                                            var myChart = new Chart(ctx, {
-                                                                type: 'bar',
-                                                                data: chartData,
-                                                                options: {
-                                                                    scales: {
-                                                                        y: {
-                                                                            beginAtZero: true,
-                                                                            ticks: {
-                                                                                font: {
-                                                                                    size: 20
-                                                                                }
-                                                                            }
-                                                                        },
-                                                                        x: {
-                                                                            ticks: {
-                                                                                font: {
-                                                                                    size: 20
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    plugins: {
-                                                                        legend: {
-                                                                            labels: {
-                                                                                font: {
-                                                                                    size: 20
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            });
-                                                        });
-                                                    </script>
-
-                                                </div>
-                                            </div>
-                                            </div></div>
-                                            <div class="col-5">
-                                                <div class="card" style="height: 510px;">
-                                                    <div class="card-body">
-                                                        <h3 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h3>
-                                                        <div class="d-flex justify-content-center">
-                                                            <div class="col-10 mt-2">
-                                                                <canvas id="overviewChart2" width="400" height="400" style="max-height: 400px; height: auto;"></canvas>
-                                                            </div>
-                                                            <script>
-                                                                document.addEventListener("DOMContentLoaded", function() {
-                                                                    // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
-                                                                    const reviewData = <?php echo $jsonReviewData; ?>;
-
-                                                                    // Prepare labels and counts
-                                                                    const labels = Object.keys(reviewData).map(item => `${item} คะแนน`);
-                                                                    const counts = Object.values(reviewData);
-
-                                                                    const ctx = document.getElementById('overviewChart2').getContext('2d');
-                                                                    const myChart = new Chart(ctx, {
-                                                                        type: 'bar',
-                                                                        data: {
-                                                                            labels: labels,
-                                                                            datasets: [{
-                                                                                label: 'จำนวนครั้ง',
-                                                                                data: counts,
-                                                                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                                                var myChart = new Chart(ctx, {
+                                                                    type: 'line',
+                                                                    data: {
+                                                                        labels: monthNames, // Month names for the X axis
+                                                                        datasets: [{
+                                                                                label: 'การจองที่รอดำเนินการ', // Reserved bookings
+                                                                                data: totalReserved, // Use the reserved data
+                                                                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                                                                borderColor: 'rgba(54, 162, 235, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            },
+                                                                            {
+                                                                                label: 'การจองที่ยังไม่สำเร็จ', // Pending bookings
+                                                                                data: totalPending, // Use the pending data
+                                                                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                                                                                borderColor: 'rgba(255, 206, 86, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            },
+                                                                            {
+                                                                                label: 'การจองที่ถูกยกเลิก', // Canceled bookings
+                                                                                data: totalCanceled, // Use the canceled data
+                                                                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                                                                borderColor: 'rgba(255, 99, 132, 1)',
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            },
+                                                                            {
+                                                                                label: 'การจองที่เสร็จสิ้น', // Completed bookings
+                                                                                data: totalCompleted, // Use the completed data
+                                                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                                                                 borderColor: 'rgba(75, 192, 192, 1)',
-                                                                                borderWidth: 1
-                                                                            }]
+                                                                                borderWidth: 2,
+                                                                                fill: false,
+                                                                                tension: 0.4
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    options: {
+                                                                        plugins: {
+                                                                            legend: {
+                                                                                labels: {
+                                                                                    font: {
+                                                                                        size: 20 // Set font size for legend
+                                                                                    }
+                                                                                }
+                                                                            }
                                                                         },
-                                                                        options: {
-                                                                            scales: {
-                                                                                y: {
-                                                                                    beginAtZero: true,
-                                                                                    title: {
-                                                                                        display: true,
-                                                                                        text: 'จำนวน (ครั้ง)',
-                                                                                        font: {
-                                                                                            size: 20
-                                                                                        }
-                                                                                    },
-                                                                                    ticks: {
-                                                                                        font: {
-                                                                                            size: 20
-                                                                                        }
+                                                                        scales: {
+                                                                            y: {
+                                                                                beginAtZero: true,
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: 'จำนวนการจอง (ครั้ง)', // Y-axis label
+                                                                                    font: {
+                                                                                        size: 20 // Font size for the Y-axis label
                                                                                     }
                                                                                 },
-                                                                                x: {
-                                                                                    title: {
-                                                                                        display: true,
-                                                                                        text: 'คะแนน',
-                                                                                        font: {
-                                                                                            size: 20
-                                                                                        }
-                                                                                    },
-                                                                                    ticks: {
-                                                                                        font: {
-                                                                                            size: 20
-                                                                                        }
+                                                                                ticks: {
+                                                                                    font: {
+                                                                                        size: 20 // Set font size for Y axis ticks
                                                                                     }
                                                                                 }
                                                                             },
-                                                                            plugins: {
-                                                                                legend: {
-                                                                                    labels: {
-                                                                                        font: {
-                                                                                            size: 20
-                                                                                        }
+                                                                            x: {
+                                                                                ticks: {
+                                                                                    font: {
+                                                                                        size: 20 // Set font size for X axis ticks
                                                                                     }
                                                                                 }
                                                                             }
                                                                         }
-                                                                    });
+                                                                    }
                                                                 });
-                                                            </script>
-
+                                                            });
+                                                        </script>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <div class="card" style="height: 450px;">
+                                                <div class="card-body shadow">
+                                                    <h3 class="card-title">แผนภูมิแท่งแสดงคะแนนรีวิว</h3>
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="col-10 mt-2">
+                                                            <canvas id="overviewChart2" width="400" height="400" style="max-height: 340px; height: auto;"></canvas>
                                                         </div>
+                                                        <script>
+                                                            document.addEventListener("DOMContentLoaded", function() {
+                                                                // ข้อมูลรีวิวที่ดึงมาจาก PHP และส่งไปยัง JavaScript
+                                                                const reviewData = <?php echo $jsonReviewData; ?>;
+
+                                                                // Prepare labels and counts
+                                                                const labels = Object.keys(reviewData).map(item => `${item} คะแนน`);
+                                                                const counts = Object.values(reviewData);
+
+                                                                const ctx = document.getElementById('overviewChart2').getContext('2d');
+                                                                const myChart = new Chart(ctx, {
+                                                                    type: 'bar',
+                                                                    data: {
+                                                                        labels: labels,
+                                                                        datasets: [{
+                                                                            label: 'จำนวนครั้ง',
+                                                                            data: counts,
+                                                                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                                                            borderWidth: 1
+                                                                        }]
+                                                                    },
+                                                                    options: {
+                                                                        scales: {
+                                                                            y: {
+                                                                                beginAtZero: true,
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: 'จำนวน (ครั้ง)',
+                                                                                    font: {
+                                                                                        size: 20
+                                                                                    }
+                                                                                },
+                                                                                ticks: {
+                                                                                    font: {
+                                                                                        size: 20
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            x: {
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: 'คะแนน',
+                                                                                    font: {
+                                                                                        size: 20
+                                                                                    }
+                                                                                },
+                                                                                ticks: {
+                                                                                    font: {
+                                                                                        size: 20
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        plugins: {
+                                                                            legend: {
+                                                                                labels: {
+                                                                                    font: {
+                                                                                        size: 20
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
+                                                            });
+                                                        </script>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -797,6 +937,7 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
                             </div>
                         </div>
                     </div>
+                </div>
 
             </center>
 
