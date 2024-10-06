@@ -273,8 +273,27 @@ if (!$stmt6->execute()) {
 
 $result6 = $stmt6->get_result(); // Get the result
 $row_count_data6 = $result6->fetch_all(MYSQLI_ASSOC); // Fetch all results as an associative array
+// SQL Query 6: Most Popular Type of Work
+$sql9 = "SELECT COUNT(b.booking_id) AS num
+FROM booking b
+JOIN photographer p ON p.photographer_id = b.photographer_id
+WHERE p.photographer_id = ?
+AND b.booking_confirm_status = 3
+AND b.booking_pay_status = 5";
 
-// SQL Query 7: Total Income
+$stmt9 = $conn->prepare($sql9); // Prepare the SQL statement
+if (!$stmt9) {
+    die("Prepare failed for Query 9: " . $conn->error); // Handle preparation error
+}
+
+$stmt9->bind_param('i', $id_photographer); // Bind the photographer ID parameter
+if (!$stmt9->execute()) {
+    die("Execute failed for Query 9: " . $stmt9->error); // Handle execution error
+}
+
+$result9 = $stmt9->get_result();
+$row_count_data9 = $result9->fetch_all(MYSQLI_ASSOC); // Fetch all results
+
 $sql7 = "SELECT 
     DATE_FORMAT(p.pay_date, '%Y') AS years, 
     SUM(CASE 
@@ -668,7 +687,7 @@ $row_count_data8 = $result8->fetch_all(MYSQLI_ASSOC); // Fetch all results
                     <div class="col-11 mt-3">
                         <div class="row">
                             <!-- Customer Popular Work Types -->
-                            <div class="col-4">
+                            <div class="col-3">
                                 <div class="card text-dark shadow" style="height: 190px;">
                                     <div class="card-header">
                                         <h4 class="mt-2">ประเภทงานที่ลูกค้านิยมจ้าง</h4>
@@ -688,11 +707,29 @@ $row_count_data8 = $result8->fetch_all(MYSQLI_ASSOC); // Fetch all results
                                     </div>
                                 </div>
                             </div>
-                            <!-- Photographer Popular Work Types -->
-                            <div class="col-4">
+                            <div class="col-3">
                                 <div class="card text-dark shadow" style="height: 190px;">
                                     <div class="card-header">
-                                        <h4 class="mt-2">ประเภทงานที่ลูกค้านิยมจ้าง</h4>
+                                        <h4 class="mt-2">จำนวนการจองที่สำเร็จ</h4>
+                                    </div>
+                                    <div class="card-body" style="text-align:left; padding: 15px;">
+                                        <?php if (!empty($row_count_data9)): ?>
+                                            <ul style="list-style-type: none; padding-left: 0; text-align: center;">
+                                                <?php foreach ($row_count_data9 as $row): ?>
+                                                    <li class="center mt-4" style="font-size: 20px; margin-bottom: 10px;">
+                                                        <h2 style="margin: 0;"><?php echo htmlspecialchars($row['num']) . ' ครั้ง'; ?></h2>
+                                                    </li> <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <p style="font-size: 16px; color: #888; text-align: center;">ไม่มีข้อมูล</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card text-dark shadow" style="height: 190px;">
+                                    <div class="card-header">
+                                        <h4 class="mt-2">รายได้ในปี <?php echo date('Y'); ?></h4>
                                     </div>
                                     <div class="card-body" style="text-align:left; padding: 15px;">
                                         <?php if (!empty($row_count_data7)): ?>
@@ -709,7 +746,8 @@ $row_count_data8 = $result8->fetch_all(MYSQLI_ASSOC); // Fetch all results
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-4">
+
+                            <div class="col-3">
                                 <div class="card text-dark shadow" style="height: 190px;">
                                     <div class="card-header">
                                         <h4 class="mt-2">คะแนน</h4>
