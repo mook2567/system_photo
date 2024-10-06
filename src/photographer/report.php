@@ -111,9 +111,11 @@ $resultUser = $stmtUser->get_result(); // Fetch result
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.0.0-rc.5/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -262,57 +264,60 @@ $resultUser = $stmtUser->get_result(); // Fetch result
         </div>
     </nav>
     <!-- Navbar End -->
-    <div style="height: 100%;">
-        <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลประเภทงาน</b></div>
-        <div class="container-sm mt-2 table-responsive col-10">
-        <table id="example" class="table bg-white table-hover table-bordered-3">
-                <thead>
-                    <tr>
-                        <th scope="col">ลำดับที่</th>
-                        <th scope="col">ประเภทงาน</th>
-                        <th scope="col">ราคาครึ่งวันเริ่มต้น (บาท)</th>
-                        <th scope="col">ราคาเต็มวันเริ่มต้น (บาท)</th>
-                        <th scope="col">จำนวนการจอง</th>
-                        <th scope="col">จำนวนการจองที่ยังไม่สำเร็จ</th>
-                        <th scope="col">จำนวนการจองสำเร็จ</th>
-                        <th scope="col">จำนวนการจองที่ไม่สำเร็จ</th>
-                        <th scope="col">รายได้</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    if ($resultUser->num_rows > 0) {
-                        $counter = 1; // เริ่มตัวนับที่ 1
-                        while ($rowUser = $resultUser->fetch_assoc()) {
-                    ?>
-                            <tr>
-                                <td><?php echo $counter++; ?></td> <!-- ใช้ตัวนับแทน id -->
-                                <td><?php echo $rowUser['type_work']; ?></td>
-                                <td><?php echo $rowUser['min_half_rate']; ?></td>
-                                <td><?php echo $rowUser['min_full_rate']; ?></td>
-                                <td><?php echo $rowUser['total_count_b']; ?></td>
-                                <td><?php echo $rowUser['total_count_a']; ?></td>
-                                <td><?php echo $rowUser['total_count_d']; ?></td>
-                                <td><?php echo $rowUser['total_count_s']; ?></td>
-                                <td><?php echo $rowUser['income']; ?></td>
-                            </tr>
-                    <?php
+    <div id="contentToConvert">
+        <div style="height: 100%;">
+            <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลประเภทงาน</b></div>
+            <div class="container-lg mt-2 table-responsive" style="max-width: 90%;">
+                <table id="example" class="table bg-white table-hover table-bordered-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">ลำดับที่</th>
+                            <th scope="col">ประเภทงาน</th>
+                            <th scope="col">ราคาครึ่งวันเริ่มต้น (บาท)</th>
+                            <th scope="col">ราคาเต็มวันเริ่มต้น (บาท)</th>
+                            <th scope="col">จำนวนการจอง</th>
+                            <th scope="col">จำนวนการจองที่ยังไม่สำเร็จ</th>
+                            <th scope="col">จำนวนการจองสำเร็จ</th>
+                            <th scope="col">จำนวนการจองที่ไม่สำเร็จ</th>
+                            <th scope="col">รายได้</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($resultUser->num_rows > 0) {
+                            $counter = 1; // เริ่มตัวนับที่ 1
+                            while ($rowUser = $resultUser->fetch_assoc()) {
+                        ?>
+                                <tr>
+                                    <td><?php echo $counter++; ?></td> <!-- ใช้ตัวนับแทน id -->
+                                    <td><?php echo $rowUser['type_work']; ?></td>
+                                    <td><?php echo $rowUser['min_half_rate']; ?></td>
+                                    <td><?php echo $rowUser['min_full_rate']; ?></td>
+                                    <td><?php echo $rowUser['total_count_b']; ?></td>
+                                    <td><?php echo $rowUser['total_count_a']; ?></td>
+                                    <td><?php echo $rowUser['total_count_d']; ?></td>
+                                    <td><?php echo $rowUser['total_count_s']; ?></td>
+                                    <td><?php echo $rowUser['income']; ?></td>
+                                </tr>
+                        <?php
+                            }
+                        } else {
+                            echo "<tr><td colspan='8'>ไม่พบข้อมูล</td></tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='8'>ไม่พบข้อมูล</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12">
-                <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
-                <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    <div class="row justify-content-center mt-3 container-center text-center">
+        <div class="col-md-12">
+            <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
+            <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
+            <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
+        </div><br><br><br>
+    </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
@@ -328,60 +333,111 @@ $resultUser = $stmtUser->get_result(); // Fetch result
     <script src="../js/main.js"></script>
     <script>
         document.getElementById("generatePDF").addEventListener("click", function() {
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF();
+            const content = document.getElementById("contentToConvert");
 
-            // Add custom font (THSarabunNew)
-            var fontBase64 = "<?php echo $fontBase64; ?>";
-            if (fontBase64) {
-                doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-                doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-                doc.setFont('customFont');
-            }
+            // Increase the scale of the canvas to improve resolution
+            html2canvas(content, {
+                scale: 5, // Increase scale for higher quality
+                useCORS: true, // Allows cross-origin resources
+            }).then(function(canvas) {
+                const imgData = canvas.toDataURL('image/png');
+                const {
+                    jsPDF
+                } = window.jspdf;
 
-            // Add image
-            var imgBase64 = "<?php echo $image_base64; ?>";
-            if (imgBase64) {
-                const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-                doc.addImage(imgBase64, imageType, 10, 10, 45, 12); // ปรับขนาดของภาพ
+                // Change orientation to landscape ('l')
+                const doc = new jsPDF('l', 'mm', 'a4');
 
-                // Add system name under the image
-                var informationName = "<?php echo $information_name; ?>";
-                doc.setFontSize(20); // ขนาดตัวอักษร
-                doc.text(informationName, 15, 30); // ปรับตำแหน่งตัวอักษรใต้ภาพ
+                // Add custom font (THSarabunNew)
+                var fontBase64 = "<?php echo $fontBase64; ?>";
+                if (fontBase64) {
+                    doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                    doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                    doc.setFont('customFont');
+                }
 
-                // Add detail text on a new line
-                var informationCaption = "<?php echo $information_caption; ?>";
-                doc.setFontSize(16); // ขนาดตัวอักษร
-                doc.text(informationCaption, 15, 37); // ปรับตำแหน่งข้อความเพิ่มเติม
-            }
+                // Process and invert the image (if provided)
+                var imgBase64 = "<?php echo $image_base64; ?>";
+                if (imgBase64) {
+                    const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
 
-            // Define table content
-            const table = document.getElementById("example");
-            const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
-                const cells = tr.querySelectorAll('td');
-                return [...cells].map(td => td.innerText);
-            });
+                    // Create a new image element to load the base64 data
+                    var image = new Image();
+                    image.src = imgBase64;
 
-            // Add table with adjusted position
-            doc.autoTable({
-                startY: 40, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
-                head: [
-                    ['ลำดับที่', 'ประเภทงาน', 'ราคาครึ่งวันเริ่มต้น (บาท)', 'ราคาเต็มวันเริ่มต้น (บาท)', 'จำนวนการจอง', 'จำนวนการจองที่ยังไม่สำเร็จ', 'จำนวนการจองที่สำเร็จ', 'จำนวนการจองที่ไม่สำเร็จ', 'รายได้']
-                ],
-                body: rows,
-                styles: {
-                    fontSize: 16, // ขนาดตัวอักษร
-                    font: 'customFont',
+                    image.onload = function() {
+                        // Create a canvas to manipulate the image
+                        var tempCanvas = document.createElement('canvas');
+                        var ctx = tempCanvas.getContext('2d');
+                        tempCanvas.width = image.width;
+                        tempCanvas.height = image.height;
+
+                        // Draw the image onto the canvas
+                        ctx.drawImage(image, 0, 0);
+
+                        // Get image data (pixels)
+                        var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        var data = imageData.data;
+
+                        // Loop through the pixels and invert colors
+                        for (var i = 0; i < data.length; i += 4) {
+                            data[i] = 255 - data[i]; // Invert red
+                            data[i + 1] = 255 - data[i + 1]; // Invert green
+                            data[i + 2] = 255 - data[i + 2]; // Invert blue
+                            // Alpha (data[i + 3]) remains unchanged
+                        }
+
+                        // Update the canvas with the inverted data
+                        ctx.putImageData(imageData, 0, 0);
+
+                        // Convert the updated canvas back to base64
+                        var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                        // Add the inverted image to the PDF
+                        doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                        // Add system name below the image
+                        var informationName = "<?php echo $information_name; ?>";
+                        doc.setFontSize(20);
+                        doc.text(informationName, 15, 30);
+
+                        // Add additional detail below the system name
+                        var informationCaption = "<?php echo $information_caption; ?>";
+                        doc.setFontSize(16);
+                        doc.text(informationCaption, 15, 37);
+
+                        // Now proceed with the rest of the content (canvas, etc.)
+                        generatePDFContent();
+                    };
+                } else {
+                    // If no image, just proceed with the rest of the content
+                    generatePDFContent();
+                }
+
+                function generatePDFContent() {
+                    const imgWidth = 297; // A4 width in landscape mode (297mm)
+                    const pageHeight = 210; // A4 height in landscape mode (210mm)
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 50; // Start at 50mm from the top
+
+                    // Add canvas image to the PDF
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
+
+                    heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+
+                    // Continue adding pages if content exceeds one page
+                    while (heightLeft > 0) {
+                        doc.addPage();
+                        position = heightLeft - imgHeight;
+                        doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                        heightLeft -= pageHeight;
+                    }
+
+                    // Save the generated PDF
+                    doc.save('report-photographer.pdf');
                 }
             });
-
-            // Save the PDF
-            doc.save("user_list.pdf");
-
-
         });
     </script>
     <script>
