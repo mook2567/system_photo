@@ -246,8 +246,97 @@ $jsonDeposits = json_encode($deposits, JSON_NUMERIC_CHECK);
 $jsonRemainings = json_encode($remainings, JSON_NUMERIC_CHECK);
 $jsonIncomes = json_encode($incomes, JSON_NUMERIC_CHECK);
 $jsonTypeData = json_encode($type_data, JSON_NUMERIC_CHECK);
-?>
 
+// Assuming $id_photographer is defined and holds the correct photographer ID
+$id_photographer = 2; // Replace with the actual photographer ID
+
+// SQL Query 6: Most Popular Type of Work
+$sql6 = "SELECT t.type_work, COUNT(b.booking_id) AS total_count
+FROM booking b
+JOIN photographer p ON p.photographer_id = b.photographer_id
+JOIN type_of_work tow ON tow.type_of_work_id = b.type_of_work_id
+JOIN type t ON t.type_id = tow.type_id
+WHERE p.photographer_id = ?
+GROUP BY t.type_work
+ORDER BY total_count DESC
+LIMIT 1;";
+
+$stmt6 = $conn->prepare($sql6); // Prepare the SQL statement
+if (!$stmt6) {
+    die("Prepare failed for Query 6: " . $conn->error); // Handle preparation error
+}
+
+$stmt6->bind_param('i', $id_photographer); // Bind the photographer ID parameter
+if (!$stmt6->execute()) {
+    die("Execute failed for Query 6: " . $stmt6->error); // Handle execution error
+}
+
+$result6 = $stmt6->get_result(); // Get the result
+$row_count_data6 = $result6->fetch_all(MYSQLI_ASSOC); // Fetch all results as an associative array
+
+// SQL Query 7: Total Income
+$sql7 = "SELECT 
+    DATE_FORMAT(p.pay_date, '%Y') AS years, 
+    SUM(CASE 
+            WHEN p.pay_status = 0 THEN b.booking_price * 0.3 
+            WHEN p.pay_status = 1 THEN b.booking_price * 0.7
+            ELSE 0 
+        END) AS total_income
+FROM 
+    pay p
+JOIN 
+    booking b ON p.booking_id = b.booking_id
+JOIN 
+    photographer ph ON b.photographer_id = ph.photographer_id
+WHERE 
+    YEAR(p.pay_date) = YEAR(CURDATE())  -- Restrict to current year
+    AND ph.photographer_id = ?
+GROUP BY 
+    DATE_FORMAT(p.pay_date, '%Y')  
+ORDER BY 
+    years ASC;";
+
+$stmt7 = $conn->prepare($sql7); // Prepare the SQL statement
+if (!$stmt7) {
+    die("Prepare failed for Query 7: " . $conn->error); // Handle preparation error
+}
+
+$stmt7->bind_param('i', $id_photographer); // Bind the photographer ID parameter
+if (!$stmt7->execute()) {
+    die("Execute failed for Query 7: " . $stmt7->error); // Handle execution error
+}
+
+$result7 = $stmt7->get_result(); // Get the result
+$row_count_data7 = $result7->fetch_all(MYSQLI_ASSOC); // Fetch all results as an associative array
+
+$sql8 = "SELECT 
+    p.photographer_id, 
+    (SUM(r.review_level)) / COUNT(b.booking_id) AS point
+FROM 
+    review r
+JOIN 
+    booking b ON r.booking_id = b.booking_id
+JOIN 
+    photographer p ON p.photographer_id = b.photographer_id
+WHERE 
+    p.photographer_id = ?
+GROUP BY 
+    p.photographer_id"; // Group by photographer_id to aggregate points
+
+
+$stmt8 = $conn->prepare($sql8);
+if (!$stmt8) {
+    die("Prepare failed for Query 8: " . $conn->error); // Handle preparation error
+}
+
+$stmt8->bind_param('i', $id_photographer); // Bind the photographer ID parameter
+if (!$stmt8->execute()) {
+    die("Execute failed for Query 8: " . $stmt8->error); // Handle execution error
+}
+
+$result8 = $stmt8->get_result(); // Get the result
+$row_count_data8 = $result8->fetch_all(MYSQLI_ASSOC); // Fetch all results
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -299,8 +388,7 @@ $jsonTypeData = json_encode($type_data, JSON_NUMERIC_CHECK);
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         body {
@@ -517,11 +605,11 @@ $jsonTypeData = json_encode($type_data, JSON_NUMERIC_CHECK);
 <body>
     <div class="content">
         <!-- Spinner Start -->
-        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-        </div>
+        </div> -->
         <!-- Spinner End -->
 
         <!-- Navbar Start -->
@@ -581,67 +669,96 @@ $jsonTypeData = json_encode($type_data, JSON_NUMERIC_CHECK);
                         <div class="row">
                             <!-- Customer Popular Work Types -->
                             <div class="col-4">
-                                <div class="card text-dark shadow" style="height: 210px;">
+                                <div class="card text-dark shadow" style="height: 190px;">
                                     <div class="card-header">
                                         <h4 class="mt-2">ประเภทงานที่ลูกค้านิยมจ้าง</h4>
                                     </div>
                                     <div class="card-body" style="text-align:left; padding: 15px;">
                                         <?php if (!empty($row_count_data6)): ?>
-                                            <ol>
-                                                <?php foreach ($row_count_data6 as $index => $row): ?>
-                                                    <li style="font-size: 20px; margin-bottom: 10px;">
-                                                        <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' ครั้ง'; ?>
+                                            <ul style="list-style-type: none; padding-left: 0; text-align: center;">
+                                                <?php foreach ($row_count_data6 as $row): ?>
+                                                    <li class="center mt-4" style="font-size: 20px; margin-bottom: 10px;">
+                                                        <h2 style="margin: 0;"><?php echo htmlspecialchars($row['type_work']); ?></h2>
                                                     </li>
                                                 <?php endforeach; ?>
-                                            </ol>
+                                            </ul>
                                         <?php else: ?>
-                                            <p style="font-size: 16px; color: #888;">ไม่มีข้อมูลการจ้างงาน</p>
+                                            <p style="font-size: 16px; color: #888; text-align: center;">ไม่มีข้อมูล</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Photographer Popular Work Types -->
+                            <div class="col-4">
+                                <div class="card text-dark shadow" style="height: 190px;">
+                                    <div class="card-header">
+                                        <h4 class="mt-2">ประเภทงานที่ลูกค้านิยมจ้าง</h4>
+                                    </div>
+                                    <div class="card-body" style="text-align:left; padding: 15px;">
+                                        <?php if (!empty($row_count_data7)): ?>
+                                            <ul style="list-style-type: none; padding-left: 0; text-align: center;">
+                                                <?php foreach ($row_count_data7 as $row): ?>
+                                                    <li class="center mt-4" style="font-size: 20px; margin-bottom: 10px;">
+                                                        <h2 style="margin: 0;"><?php echo htmlspecialchars(number_format($row['total_income'])) . ' บาท'; ?></h2>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <p style="font-size: 16px; color: #888; text-align: center;">ไม่มีข้อมูล</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card text-dark shadow" style="height: 190px;">
+                                    <div class="card-header">
+                                        <h4 class="mt-2">คะแนน</h4>
+                                    </div>
+                                    <div class="card-body" style="text-align:left; padding: 15px;">
+                                        <?php if (!empty($row_count_data8)): ?>
+                                            <ul style="list-style-type: none; padding-left: 0; text-align: center;">
+                                                <?php foreach ($row_count_data8 as $row):
+                                                    $score = (float) $row['point']; // คะแนนที่ได้รับ
+                                                    $max_score = 5; // คะแนนสูงสุด
+                                                    $percentage = ($score / $max_score) * 100; // เปอร์เซ็นต์คะแนน
+                                                ?>
+                                                    <li class="center mt-2" style="font-size: 20px; margin-bottom: 10px;">
+                                                        <h2 style="margin: 0;"><?php echo number_format($score, 1) . ' / ' . $max_score; // แสดงคะแนนเต็ม 5 
+                                                                                ?></h2>
+                                                        <!-- <h4 style="margin: 0; color: #666;"><?php echo number_format($percentage, 2) . '%'; // แสดงเปอร์เซ็นต์คะแนน 
+                                                                                                    ?></h4> -->
+                                                        <div>
+                                                            <?php
+                                                            // คำนวณจำนวนดาวที่จะแสดง
+                                                            $stars = round($score / ($max_score / 5)); // สมมติว่าคะแนนสูงสุดคือ 5 ดาว
+                                                            for ($i = 1; $i <= 5; $i++): ?>
+                                                                <span class="fa fa-star <?php echo ($i <= $stars) ? 'checked' : ''; ?>"></span>
+                                                            <?php endfor; ?>
+                                                        </div>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <p style="font-size: 16px; color: #888; text-align: center;">ไม่มีข้อมูล</p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Photographer Popular Work Types -->
-                            <div class="col-4">
-                                <div class="card text-dark shadow" style="height: 210px;">
-                                    <div class="card-header">
-                                        <h4 class="mt-2">รายได้ในปี <?php echo date('Y'); ?></h4>
-                                    </div>
-                                    <div class="card-body" style="text-align:left;">
-                                        <?php if (!empty($row_count_data5)): ?>
-                                            <ol>
-                                                <?php foreach ($row_count_data5 as $index => $row): ?>
-                                                    <li style="font-size: 20px; margin-bottom: 10px;">
-                                                        <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' คน'; ?>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            </ol>
-                                        <?php else: ?>
-                                            <p>ไม่มีข้อมูลประเภทงาน</p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="card text-dark shadow" style="height: 210px;">
-                                    <div class="card-header">
-                                        <h4 class="mt-2">คะแนน</h4>
-                                    </div>
-                                    <div class="card-body" style="text-align:left;">
-                                        <?php if (!empty($row_count_data5)): ?>
-                                            <ol>
-                                                <?php foreach ($row_count_data5 as $index => $row): ?>
-                                                    <li style="font-size: 20px; margin-bottom: 10px;">
-                                                        <b><?php echo htmlspecialchars($row['type_work']); ?></b> - จำนวน: <?php echo htmlspecialchars($row['total_count']) . ' คน'; ?>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            </ol>
-                                        <?php else: ?>
-                                            <p>ไม่มีข้อมูลประเภทงาน</p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
+                            <style>
+                                .fa-star {
+                                    font-size: 20px;
+                                    /* Adjust star size */
+                                    color: #ccc;
+                                    /* Default star color */
+                                }
+
+                                .fa-star.checked {
+                                    color: gold;
+                                    /* Color for checked stars */
+                                }
+                            </style>
+
                         </div>
                         <div class="row mt-4">
                             <div class="col-12">

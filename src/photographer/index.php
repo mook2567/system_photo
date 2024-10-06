@@ -843,9 +843,7 @@ if (isset($_POST['submit_type_of_work'])) {
                                         JOIN
                                             customer c ON b.cus_id = c.cus_id
                                         WHERE
-                                            p.photographer_id = $id_photographer
-                                        GROUP BY
-                                            r.review_caption, c.cus_name, c.cus_surname
+                                            p.photographer_id = 2
                                         ORDER BY
                                             r.review_date DESC -- เรียงลำดับตามวันที่รีวิวล่าสุด
                                         LIMIT 3 -- ดึงข้อมูล 5 ชุดล่าสุด
