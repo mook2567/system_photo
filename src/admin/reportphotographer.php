@@ -121,9 +121,11 @@ $resultUser = $conn->query($sqlUser);
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.0.0-rc.5/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -283,71 +285,74 @@ $resultUser = $conn->query($sqlUser);
         </div>
     </nav>
     <!-- Navbar End -->
-    <div style="height: 100%;">
-        <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลช่างภาพ</b></div>
-        <div class="container-sm mt-2 table-responsive col-10">
-            <table id="example" class="table bg-white table-hover table-bordered-3">
-                <thead>
-                    <tr>
-                        <th scope="col">ลำดับที่</th>
-                        <th scope="col">ชื่อ-นามสกุล</th>
-                        <th scope="col">เบอร์โทรศัพท์</th>
-                        <th scope="col">อีเมล</th>
-                        <th scope="col">จำนวนการรับงาน</th>
-                        <th scope="col">จำนวนงานที่ปฏิเสธ</th>
-                        <th scope="col">จำนวนงานที่ยังไม่สำเร็จ</th>
-                        <th scope="col">จำนวนงานที่สำเร็จแล้ว</th>
-                        <th scope="col">คะแนน</th>
-                        <!-- <th scope="col">เริ่มใช้งาน</th> -->
-                        <th scope="col">เดือน</th> <!-- New column for month -->
-                        <th scope="col">ปี</th> <!-- New column for year -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    if ($resultUser->num_rows > 0) {
-                        $counter = 1; // เริ่มตัวนับที่ 1
-                        while ($rowUser = $resultUser->fetch_assoc()) {
-                    ?>
-                            <tr>
-                                <td><?php echo $counter++; ?></td>
-                                <td><?php echo $rowUser['prefix'] . $rowUser['firstname'] . ' ' . $rowUser['surname']; ?></td>
-                                <td><?php echo $rowUser['phone']; ?></td>
-                                <td><?php echo $rowUser['email']; ?></td>
-                                <td><?php echo $rowUser['num']; ?></td>
-                                <td><?php echo $rowUser['num_rejected']; ?></td>
-                                <td><?php echo $rowUser['num_pending']; ?></td>
-                                <td><?php echo $rowUser['num_completed']; ?></td>
-                                <td><?php echo number_format($rowUser['scor'], 2); ?></td>
-                                <!-- <td><?php echo $rowUser['first_portfolio_date'] ? date('d/m/Y', strtotime($rowUser['first_portfolio_date'])) : 'ยังไม่มี'; ?></td> -->
-                                <td>
-                                    <?php echo !empty($rowUser['booking_month']) ? $rowUser['booking_month'] : 'N/A'; ?>
-                                </td> <!-- Show month -->
+    <div id="contentToConvert">
+        <div style="height: 100%;">
+            <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลช่างภาพ</b></div>
+            <div class="container-lg mt-2 table-responsive" style="max-width: 90%;">
+                <table id="example" class="table bg-white table-hover table-bordered-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">ลำดับที่</th>
+                            <th scope="col">ชื่อ-นามสกุล</th>
+                            <th scope="col">เบอร์โทรศัพท์</th>
+                            <th scope="col">อีเมล</th>
+                            <th scope="col">จำนวนการรับงาน</th>
+                            <th scope="col">จำนวนงานที่ปฏิเสธ</th>
+                            <th scope="col">จำนวนงานที่ยังไม่สำเร็จ</th>
+                            <th scope="col">จำนวนงานที่สำเร็จแล้ว</th>
+                            <th scope="col">คะแนน</th>
+                            <!-- <th scope="col">เริ่มใช้งาน</th> -->
+                            <th scope="col">เดือน</th> <!-- New column for month -->
+                            <th scope="col">ปี</th> <!-- New column for year -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($resultUser->num_rows > 0) {
+                            $counter = 1; // เริ่มตัวนับที่ 1
+                            while ($rowUser = $resultUser->fetch_assoc()) {
+                        ?>
+                                <tr>
+                                    <td><?php echo $counter++; ?></td>
+                                    <td><?php echo $rowUser['prefix'] . $rowUser['firstname'] . ' ' . $rowUser['surname']; ?></td>
+                                    <td><?php echo $rowUser['phone']; ?></td>
+                                    <td><?php echo $rowUser['email']; ?></td>
+                                    <td><?php echo $rowUser['num']; ?></td>
+                                    <td><?php echo $rowUser['num_rejected']; ?></td>
+                                    <td><?php echo $rowUser['num_pending']; ?></td>
+                                    <td><?php echo $rowUser['num_completed']; ?></td>
+                                    <td><?php echo number_format($rowUser['scor'], 2); ?></td>
+                                    <!-- <td><?php echo $rowUser['first_portfolio_date'] ? date('d/m/Y', strtotime($rowUser['first_portfolio_date'])) : 'ยังไม่มี'; ?></td> -->
+                                    <td>
+                                        <?php echo !empty($rowUser['booking_month']) ? $rowUser['booking_month'] : 'N/A'; ?>
+                                    </td> <!-- Show month -->
 
-                                <td>
-                                    <?php echo !empty($rowUser['booking_year']) ? $rowUser['booking_year'] : 'N/A'; ?>
-                                </td> <!-- Show year -->
+                                    <td>
+                                        <?php echo !empty($rowUser['booking_year']) ? $rowUser['booking_year'] : 'N/A'; ?>
+                                    </td> <!-- Show year -->
 
-                            </tr>
-                    <?php
+                                </tr>
+                        <?php
+                            }
+                        } else {
+                            echo "<tr><td colspan='12'>ไม่พบข้อมูล</td></tr>"; // Changed colspan to 12 to match the number of columns
                         }
-                    } else {
-                        echo "<tr><td colspan='12'>ไม่พบข้อมูล</td></tr>"; // Changed colspan to 12 to match the number of columns
-                    }
-                    ?>
-                </tbody>
+                        ?>
+                    </tbody>
 
 
-            </table>
-        </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12">
-                <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
-                <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
-                <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
+                </table>
             </div>
         </div>
     </div>
+    <div class="row justify-content-center mt-3 container-center text-center">
+        <div class="col-md-12">
+            <!-- ตำแหน่งสำหรับปุ่ม "ย้อนกลับ" -->
+            <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
+            <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
+        </div><br><br><br>
+    </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
         <div class="copyright">
@@ -364,58 +369,111 @@ $resultUser = $conn->query($sqlUser);
     <script src="../js/main.js"></script>
     <script>
         document.getElementById("generatePDF").addEventListener("click", function() {
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF();
+            const content = document.getElementById("contentToConvert");
 
-            // Add custom font (THSarabunNew)
-            var fontBase64 = "<?php echo $fontBase64; ?>"; // Ensure this is set correctly
-            if (fontBase64) {
-                doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-                doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
-                doc.setFont('customFont');
-            }
+            // Increase the scale of the canvas to improve resolution
+            html2canvas(content, {
+                scale: 5, // Increase scale for higher quality
+                useCORS: true, // Allows cross-origin resources
+            }).then(function(canvas) {
+                const imgData = canvas.toDataURL('image/png');
+                const {
+                    jsPDF
+                } = window.jspdf;
 
-            // Add image
-            var imgBase64 = "<?php echo $image_base64; ?>"; // Ensure this is set correctly
-            if (imgBase64) {
-                const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-                doc.addImage(imgBase64, imageType, 10, 10, 45, 12); // Adjust image size
+                // Change orientation to landscape ('l')
+                const doc = new jsPDF('l', 'mm', 'a4');
 
-                // Add system name under the image
-                var informationName = "<?php echo $information_name; ?>";
-                doc.setFontSize(20); // Font size
-                doc.text(informationName, 15, 30); // Position text under the image
+                // Add custom font (THSarabunNew)
+                var fontBase64 = "<?php echo $fontBase64; ?>";
+                if (fontBase64) {
+                    doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+                    doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
+                    doc.setFont('customFont');
+                }
 
-                // Add detail text on a new line
-                var informationCaption = "<?php echo $information_caption; ?>";
-                doc.setFontSize(16); // Font size
-                doc.text(informationCaption, 15, 37); // Position additional text
-            }
+                // Process and invert the image (if provided)
+                var imgBase64 = "<?php echo $image_base64; ?>";
+                if (imgBase64) {
+                    const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
 
-            // Define table content
-            const table = document.getElementById("example");
-            const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
-                const cells = tr.querySelectorAll('td');
-                return [...cells].map(td => td.innerText);
-            });
+                    // Create a new image element to load the base64 data
+                    var image = new Image();
+                    image.src = imgBase64;
 
-            // Add table with adjusted position
-            doc.autoTable({
-                startY: 45, // Adjust this if needed based on the content above
-                head: [
-                    ['ลำดับที่', 'ชื่อจฃ-นามสกุล', 'เบอร์โทรศัพท์', 'อีเมล', 'จำนวนการรับงาน', 'จำนวนงานที่ปฏิเสธ', 'จำนวนงานที่ยังไม่สำเร็จ', 'จำนวนงานที่สำเร็จแล้ว', 'คะแนน', 'เริ่มใช้งาน']
-                ],
-                body: rows,
-                styles: {
-                    fontSize: 16, // Font size
-                    font: 'customFont', // Use the custom font
+                    image.onload = function() {
+                        // Create a canvas to manipulate the image
+                        var tempCanvas = document.createElement('canvas');
+                        var ctx = tempCanvas.getContext('2d');
+                        tempCanvas.width = image.width;
+                        tempCanvas.height = image.height;
+
+                        // Draw the image onto the canvas
+                        ctx.drawImage(image, 0, 0);
+
+                        // Get image data (pixels)
+                        var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        var data = imageData.data;
+
+                        // Loop through the pixels and invert colors
+                        for (var i = 0; i < data.length; i += 4) {
+                            data[i] = 255 - data[i]; // Invert red
+                            data[i + 1] = 255 - data[i + 1]; // Invert green
+                            data[i + 2] = 255 - data[i + 2]; // Invert blue
+                            // Alpha (data[i + 3]) remains unchanged
+                        }
+
+                        // Update the canvas with the inverted data
+                        ctx.putImageData(imageData, 0, 0);
+
+                        // Convert the updated canvas back to base64
+                        var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                        // Add the inverted image to the PDF
+                        doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                        // Add system name below the image
+                        var informationName = "<?php echo $information_name; ?>";
+                        doc.setFontSize(20);
+                        doc.text(informationName, 15, 30);
+
+                        // Add additional detail below the system name
+                        var informationCaption = "<?php echo $information_caption; ?>";
+                        doc.setFontSize(16);
+                        doc.text(informationCaption, 15, 37);
+
+                        // Now proceed with the rest of the content (canvas, etc.)
+                        generatePDFContent();
+                    };
+                } else {
+                    // If no image, just proceed with the rest of the content
+                    generatePDFContent();
+                }
+
+                function generatePDFContent() {
+                    const imgWidth = 297; // A4 width in landscape mode (297mm)
+                    const pageHeight = 210; // A4 height in landscape mode (210mm)
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 50; // Start at 50mm from the top
+
+                    // Add canvas image to the PDF
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
+
+                    heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+
+                    // Continue adding pages if content exceeds one page
+                    while (heightLeft > 0) {
+                        doc.addPage();
+                        position = heightLeft - imgHeight;
+                        doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                        heightLeft -= pageHeight;
+                    }
+
+                    // Save the generated PDF
+                    doc.save('report-photographer.pdf');
                 }
             });
-
-            // Save the PDF
-            doc.save("user_list.pdf");
         });
     </script>
 

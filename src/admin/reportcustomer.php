@@ -108,9 +108,11 @@ $resultUser = $conn->query($sqlUser);
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.0.0-rc.5/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -269,56 +271,59 @@ $resultUser = $conn->query($sqlUser);
         </div>
     </nav>
     <!-- Navbar End -->
-    <div style="height: 100%; ">
-        <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลลูกค้า</b></div>
-        <div class="container-lg mt-2 table-responsive">
-            <table id="example" class="mt-5 table bg-white table-hover table-bordered-3">
-                <thead>
-                    <tr>
-                        <th scope="col">ลำดับที่</th>
-                        <th scope="col">ชื่อ-นามสกุล</th>
-                        <th scope="col">เบอร์โทรศัพท์</th>
-                        <th scope="col">อีเมล</th>
-                        <th scope="col">จำนวนการจอง</th>
-                        <th scope="col">จำนวนการจองที่ถูกปฏิเสธ</th>
-                        <th scope="col">จำนวนการจองที่ยังไม่ชำระ</th>
-                        <th scope="col">จำนวนการจองที่ชำระเสร็จสิ้น</th>
-                        <th scope="col">จำนวนการจองที่รีวิว</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    if ($resultUser->num_rows > 0) {
-                        $counter = 1;
-                        while ($rowUser = $resultUser->fetch_assoc()) {
-                    ?>
-                            <tr>
-                                <td><?php echo $counter++; ?></td>
-                                <td><?php echo $rowUser['prefix'] . $rowUser['firstname'] . ' ' . $rowUser['surname']; ?></td>
-                                <td><?php echo $rowUser['phone']; ?></td>
-                                <td><?php echo $rowUser['email']; ?></td>
-                                <td><?php echo $rowUser['num']; ?></td>
-                                <td><?php echo $rowUser['not_bookings']; ?></td>
-                                <td><?php echo $rowUser['unpaid_bookings']; ?></td>
-                                <td><?php echo $rowUser['completed_bookings']; ?></td>
-                                <td><?php echo $rowUser['review_count']; ?></td>
-                            </tr>
-                    <?php
+    <div id="contentToConvert">
+        <div style="height: 100%; ">
+            <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลลูกค้า</b></div>
+            <div class="container-lg mt-2 table-responsive" style="max-width: 90%;">
+                <table id="example" class="mt-5 table bg-white table-hover table-bordered-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">ลำดับที่</th>
+                            <th scope="col">ชื่อ-นามสกุล</th>
+                            <th scope="col">เบอร์โทรศัพท์</th>
+                            <th scope="col">อีเมล</th>
+                            <th scope="col">จำนวนการจอง</th>
+                            <th scope="col">จำนวนการจองที่ถูกปฏิเสธ</th>
+                            <th scope="col">จำนวนการจองที่ยังไม่ชำระ</th>
+                            <th scope="col">จำนวนการจองที่ชำระเสร็จสิ้น</th>
+                            <th scope="col">จำนวนการจองที่รีวิว</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($resultUser->num_rows > 0) {
+                            $counter = 1;
+                            while ($rowUser = $resultUser->fetch_assoc()) {
+                        ?>
+                                <tr>
+                                    <td><?php echo $counter++; ?></td>
+                                    <td><?php echo $rowUser['prefix'] . $rowUser['firstname'] . ' ' . $rowUser['surname']; ?></td>
+                                    <td><?php echo $rowUser['phone']; ?></td>
+                                    <td><?php echo $rowUser['email']; ?></td>
+                                    <td><?php echo $rowUser['num']; ?></td>
+                                    <td><?php echo $rowUser['not_bookings']; ?></td>
+                                    <td><?php echo $rowUser['unpaid_bookings']; ?></td>
+                                    <td><?php echo $rowUser['completed_bookings']; ?></td>
+                                    <td><?php echo $rowUser['review_count']; ?></td>
+                                </tr>
+                        <?php
+                            }
+                        } else {
+                            echo "<tr><td colspan='9'>ไม่พบข้อมูล</td></tr>"; // แก้ไขให้ colspan = 9
                         }
-                    } else {
-                        echo "<tr><td colspan='9'>ไม่พบข้อมูล</td></tr>"; // แก้ไขให้ colspan = 9
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="row justify-content-center mt-3 container-center text-center">
-            <div class="col-md-12">
-                <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
-                <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    <div class="row justify-content-center mt-3 container-center text-center">
+        <div class="col-md-12">
+            <button onclick="window.history.back();" class="btn me-4" style="background-color:gray; color:#fff; width: 150px; height:45px;">ย้อนกลับ</button>
+            <button id="generatePDF" class="btn btn-primary" style="width: 150px; height:45px;">ออก PDF</button>
+        </div><br><br><br>
+    </div>
+
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
@@ -334,88 +339,113 @@ $resultUser = $conn->query($sqlUser);
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
-        document.getElementById("generatePDF").addEventListener("click", function() {
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF('landscape'); // Set orientation to landscape
+    document.getElementById("generatePDF").addEventListener("click", function() {
+        const content = document.getElementById("contentToConvert");
+
+        // Increase the scale of the canvas to improve resolution
+        html2canvas(content, {
+            scale: 5, // Increase scale for higher quality
+            useCORS: true, // Allows cross-origin resources
+        }).then(function(canvas) {
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+
+            // Change orientation to landscape ('l')
+            const doc = new jsPDF('l', 'mm', 'a4');
 
             // Add custom font (THSarabunNew)
-            const fontBase64 = "<?php echo $fontBase64; ?>";
+            var fontBase64 = "<?php echo $fontBase64; ?>";
             if (fontBase64) {
                 doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
                 doc.addFont('THSarabunNew.ttf', 'customFont', 'normal');
                 doc.setFont('customFont');
             }
 
-            // Add image
-            const imgBase64 = "<?php echo $image_base64; ?>";
+            // Process and invert the image (if provided)
+            var imgBase64 = "<?php echo $image_base64; ?>";
             if (imgBase64) {
                 const imageType = imgBase64.includes("jpeg") || imgBase64.includes("jpg") ? 'JPEG' : 'PNG';
-                doc.addImage(imgBase64, imageType, 10, 10, 45, 12); // Adjust image size
 
-                // Add system name under the image
-                const informationName = "<?php echo $information_name; ?>";
-                doc.setFontSize(20); // Set font size
-                doc.text(informationName, 15, 30); // Position text below image
+                // Create a new image element to load the base64 data
+                var image = new Image();
+                image.src = imgBase64;
 
-                // Add detail text on a new line
-                const informationCaption = "<?php echo $information_caption; ?>";
-                doc.setFontSize(16); // Set font size
-                doc.text(informationCaption, 15, 37); // Position additional text
+                image.onload = function() {
+                    // Create a canvas to manipulate the image
+                    var tempCanvas = document.createElement('canvas');
+                    var ctx = tempCanvas.getContext('2d');
+                    tempCanvas.width = image.width;
+                    tempCanvas.height = image.height;
+
+                    // Draw the image onto the canvas
+                    ctx.drawImage(image, 0, 0);
+
+                    // Get image data (pixels)
+                    var imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    var data = imageData.data;
+
+                    // Loop through the pixels and invert colors
+                    for (var i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i]; // Invert red
+                        data[i + 1] = 255 - data[i + 1]; // Invert green
+                        data[i + 2] = 255 - data[i + 2]; // Invert blue
+                        // Alpha (data[i + 3]) remains unchanged
+                    }
+
+                    // Update the canvas with the inverted data
+                    ctx.putImageData(imageData, 0, 0);
+
+                    // Convert the updated canvas back to base64
+                    var invertedImgBase64 = tempCanvas.toDataURL('image/png');
+
+                    // Add the inverted image to the PDF
+                    doc.addImage(invertedImgBase64, imageType, 10, 10, 45, 12); // Resize and position the image
+
+                    // Add system name below the image
+                    var informationName = "<?php echo $information_name; ?>";
+                    doc.setFontSize(20);
+                    doc.text(informationName, 15, 30);
+
+                    // Add additional detail below the system name
+                    var informationCaption = "<?php echo $information_caption; ?>";
+                    doc.setFontSize(16);
+                    doc.text(informationCaption, 15, 37);
+
+                    // Now proceed with the rest of the content (canvas, etc.)
+                    generatePDFContent();
+                };
+            } else {
+                // If no image, just proceed with the rest of the content
+                generatePDFContent();
             }
 
-            // Define table content
-            const table = document.getElementById("example");
-            const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
-                const cells = tr.querySelectorAll('td');
-                return [...cells].map(td => td.innerText);
-            });
+            function generatePDFContent() {
+                const imgWidth = 297; // A4 width in landscape mode (297mm)
+                const pageHeight = 210; // A4 height in landscape mode (210mm)
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 50; // Start at 50mm from the top
 
-            // Set column widths
-            const columnWidths = [
-                20, // ลำดับที่
-                50, // ชื่อ-นามสกุล
-                30, // เบอร์โทรศัพท์
-                40, // อีเมล
-                15, // จำนวนการจอง (narrowed)
-                15, // จำนวนการจองที่ถูกปฏิเสธ (narrowed)
-                15, // จำนวนการจองที่ยังไม่ชำระ (narrowed)
-                15, // จำนวนการจองที่ชำระเสร็จสิ้น (narrowed)
-                15 // จำนวนการจองที่รีวิว (narrowed)
-            ];
+                // Add canvas image to the PDF
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
 
-            // Add table with adjusted position and column widths
-            doc.autoTable({
-                startY: 50, // Adjusted position for the table to fit better below the text
-                head: [
-                    [
-                        'ลำดับที่',
-                        'ชื่อ-นามสกุล',
-                        'เบอร์โทรศัพท์',
-                        'อีเมล',
-                        'จำนวนการจอง',
-                        'จำนวนการจองที่ถูกปฏิเสธ',
-                        'จำนวนการจองที่ยังไม่ชำระ',
-                        'จำนวนการจองที่ชำระเสร็จสิ้น',
-                        'จำนวนการจองที่รีวิว'
-                    ]
-                ],
-                body: rows,
-                styles: {
-                    fontSize: 16, // Font size
-                    font: 'customFont',
-                    cellPadding: 3, // Padding for cells
-                    halign: 'center', // Center align text in cells
-                    valign: 'middle' // Vertically align text in cells
-                },
-                columnWidths: columnWidths // Apply custom column widths
-            });
+                heightLeft -= (pageHeight - 10); // Adjust height left after the first page
 
-            // Save the PDF
-            doc.save("user_list.pdf");
+                // Continue adding pages if content exceeds one page
+                while (heightLeft > 0) {
+                    doc.addPage();
+                    position = heightLeft - imgHeight;
+                    doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                    heightLeft -= pageHeight;
+                }
+
+                // Save the generated PDF
+                doc.save('report-cus.pdf');
+            }
         });
-    </script>
+    });
+</script>
+
 
 
     <script>
