@@ -245,7 +245,6 @@ $resultUser = $conn->query($sqlUser);
                         <th scope="col">ประเภทงาน</th>
                         <th scope="col">ราคาครึ่งวันเริ่มต้น (บาท)</th>
                         <th scope="col">ราคาเต็มวันเริ่มต้น (บาท)</th>
-                        <th scope="col">จำนวนลงประเภทงาน</th>
                         <th scope="col">จำนวนการจอง</th>
                         <th scope="col">จำนวนการจองที่ยังไม่สำเร็จ</th>
                         <th scope="col">จำนวนการจองสำเร็จ</th>
@@ -264,7 +263,6 @@ $resultUser = $conn->query($sqlUser);
                                 <td><?php echo $rowUser['type_work']; ?></td>
                                 <td><?php echo $rowUser['min_half_rate']; ?></td>
                                 <td><?php echo $rowUser['min_full_rate']; ?></td>
-                                <td><?php echo $rowUser['total_count']; ?></td>
                                 <td><?php echo $rowUser['total_count_b']; ?></td>
                                 <td><?php echo $rowUser['total_count_a']; ?></td>
                                 <td><?php echo $rowUser['total_count_d']; ?></td>

@@ -39,26 +39,27 @@ if (file_exists($image_path)) {
 // Prepare SQL query for user data using prepared statement
 $sqlUser = "SELECT 
     t.type_work, 
-    COUNT(DISTINCT po.portfolio_id) AS total_count_p, 
-    COUNT(DISTINCT b.booking_id) AS total_count_b,
+    COUNT(b.booking_id) AS total_count_b,
+    SUM(CASE WHEN b.booking_confirm_status = 1 THEN 1 ELSE 0 END) AS total_count_a,
+    SUM(CASE WHEN b.booking_confirm_status = 3 THEN 1 ELSE 0 END) AS total_count_s,
+    SUM(CASE WHEN b.booking_confirm_status = 2 THEN 1 ELSE 0 END) AS total_count_d,
     MIN(CASE WHEN tow.type_of_work_rate_half_start != 0 THEN tow.type_of_work_rate_half_start END) AS min_half_rate,
     MIN(CASE WHEN tow.type_of_work_rate_full_start != 0 THEN tow.type_of_work_rate_full_start END) AS min_full_rate,
-    MAX(CASE WHEN tow.type_of_work_rate_half_end != 0 THEN tow.type_of_work_rate_half_end END) AS max_half_rate,
-    MAX(CASE WHEN tow.type_of_work_rate_full_end != 0 THEN tow.type_of_work_rate_full_end END) AS max_full_rate
+    SUM(b.booking_price) AS income
 FROM 
-    type_of_work tow 
+    type_of_work tow
 JOIN 
-    `type` t ON t.type_id = tow.type_id
-JOIN 
-    photographer p ON p.photographer_id = tow.photographer_id
-LEFT JOIN 
-    portfolio po ON po.type_of_work_id = tow.type_of_work_id 
+    type t ON t.type_id = tow.type_id
 LEFT JOIN 
     booking b ON b.type_of_work_id = tow.type_of_work_id
+JOIN 
+    photographer p ON p.photographer_id = b.photographer_id    
 WHERE 
     p.photographer_id = ?
 GROUP BY 
-    t.type_work";
+    t.type_work;
+
+    ";
 
 // Use a prepared statement for $sqlUser
 $stmtUser = $conn->prepare($sqlUser);
@@ -184,7 +185,7 @@ $resultUser = $stmtUser->get_result(); // Fetch result
         /* .table td:nth-child(4), */
         /* .table td:nth-child(5), */
         .table td:nth-child(4) {
-            width: 220;
+            width: 130;
             height: 50px;
         }
 
@@ -192,8 +193,14 @@ $resultUser = $stmtUser->get_result(); // Fetch result
 
         .table th:nth-child(5),
         .table th:nth-child(6),
+        .table th:nth-child(7),
+        .table th:nth-child(8),
+        .table th:nth-child(9),
         .table td:nth-child(5),
-        .table td:nth-child(6) {
+        .table td:nth-child(6),
+        .table td:nth-child(7),
+        .table td:nth-child(8),
+        .table td:nth-child(9) {
             width: 100px;
             text-align: center;
             height: 50px;
@@ -246,8 +253,8 @@ $resultUser = $stmtUser->get_result(); // Fetch result
                     <div class="dropdown-menu rounded-0 m-0">
                         <a href="profile.php" class="dropdown-item">โปรไฟล์</a>
                         <a href="editProfile.php" class="dropdown-item">แก้ไขข้อมูลส่วนตัว</a>
-                        <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
-                        <a href="contact.php" class="dropdown-item">ติดต่อ</a>
+                        <!-- <a href="about.php" class="dropdown-item">เกี่ยวกับ</a>
+                        <a href="contact.php" class="dropdown-item">ติดต่อ</a> -->
                         <a href="../logout.php" class="dropdown-item">ออกจากระบบ</a>
                     </div>
                 </div>
@@ -258,17 +265,18 @@ $resultUser = $stmtUser->get_result(); // Fetch result
     <div style="height: 100%;">
         <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลประเภทงาน</b></div>
         <div class="container-sm mt-2 table-responsive col-10">
-            <table id="example" class="table bg-white table-hover table-bordered-3">
+        <table id="example" class="table bg-white table-hover table-bordered-3">
                 <thead>
                     <tr>
                         <th scope="col">ลำดับที่</th>
                         <th scope="col">ประเภทงาน</th>
                         <th scope="col">ราคาครึ่งวันเริ่มต้น (บาท)</th>
-                        <!-- <th scope="col">ราคาครึ่งวันสิ้นสุด (บาท)</th> -->
                         <th scope="col">ราคาเต็มวันเริ่มต้น (บาท)</th>
-                        <!-- <th scope="col">ราคาเต็มวันสิ้นสุด (บาท)</th> -->
-                        <th scope="col">จำนวนลงผลงาน</th>
                         <th scope="col">จำนวนการจอง</th>
+                        <th scope="col">จำนวนการจองที่ยังไม่สำเร็จ</th>
+                        <th scope="col">จำนวนการจองสำเร็จ</th>
+                        <th scope="col">จำนวนการจองที่ไม่สำเร็จ</th>
+                        <th scope="col">รายได้</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -281,11 +289,12 @@ $resultUser = $stmtUser->get_result(); // Fetch result
                                 <td><?php echo $counter++; ?></td> <!-- ใช้ตัวนับแทน id -->
                                 <td><?php echo $rowUser['type_work']; ?></td>
                                 <td><?php echo $rowUser['min_half_rate']; ?></td>
-                                <!-- <td><?php echo $rowUser['max_half_rate']; ?></td> -->
                                 <td><?php echo $rowUser['min_full_rate']; ?></td>
-                                <!-- <td><?php echo $rowUser['max_full_rate']; ?></td> -->
-                                <td><?php echo $rowUser['total_count_p']; ?></td>
                                 <td><?php echo $rowUser['total_count_b']; ?></td>
+                                <td><?php echo $rowUser['total_count_a']; ?></td>
+                                <td><?php echo $rowUser['total_count_d']; ?></td>
+                                <td><?php echo $rowUser['total_count_s']; ?></td>
+                                <td><?php echo $rowUser['income']; ?></td>
                             </tr>
                     <?php
                         }
@@ -360,7 +369,7 @@ $resultUser = $stmtUser->get_result(); // Fetch result
             doc.autoTable({
                 startY: 40, // เริ่มแสดงตารางที่ตำแหน่ง Y หลังจากภาพ
                 head: [
-                    ['ลำดับที่', 'ประเภทงาน', 'ราคาครึ่งวันเริ่มต้น (บาท)', 'ราคาเต็มวันเริ่มต้น (บาท)', 'จำนวนลงผลงาน', 'จำนวนการจอง']
+                    ['ลำดับที่', 'ประเภทงาน', 'ราคาครึ่งวันเริ่มต้น (บาท)', 'ราคาเต็มวันเริ่มต้น (บาท)', 'จำนวนการจอง', 'จำนวนการจองที่ยังไม่สำเร็จ', 'จำนวนการจองที่สำเร็จ', 'จำนวนการจองที่ไม่สำเร็จ', 'รายได้']
                 ],
                 body: rows,
                 styles: {
