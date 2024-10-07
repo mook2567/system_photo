@@ -394,7 +394,7 @@ $fullcalendar_path = "fullcalendar-4.4.2/packages/";
         <div class="row justify-content-center mb-5 mt-3 container-center text-center">
             <div class="col-md-12">
                 <button onclick="window.history.back();" class="btn btn-danger me-4" style="width: 150px; height:45px;">ย้อนกลับ</button>
-                <button type="button" data-bs-toggle="modal" data-bs-target="#details" class="btn btn-primary" style="width: 150px; height: 45px;">จองคิว</button>
+                <!-- <button type="button" data-bs-toggle="modal" data-bs-target="#details" class="btn btn-primary" style="width: 150px; height: 45px;">จองคิว</button> -->
             </div>
         </div>
         <div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">

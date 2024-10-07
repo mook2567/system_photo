@@ -19,9 +19,8 @@ if (isset($_SESSION['customer_login'])) {
     $rowCus = $resultCus->fetch_assoc();
     $id_cus = $rowCus['cus_id'];
 }
-$sql1 = "SELECT *
-        FROM `booking` 
-        WHERE photographer_id = $id_photographer";
+
+$sql1 = "SELECT * FROM `booking` WHERE photographer_id = $id_photographer";
 $resultBooking = $conn->query($sql1);
 
 $sql = "SELECT 
@@ -53,178 +52,139 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $end_date = $_POST['end_date'];
         $start_time = $_POST["start_time"];
         $end_time = $_POST["end_time"];
-        $cus_id = $_POST['cus_id']; // ID ของลูกค้าที่จอง
+        $cus_id = $_POST['cus_id'];
         $date = $_POST["date"];
         $type = $_POST["type"];
         $id_photographer = $_POST["photographer_id"];
-        $booking_type = $_POST["userIcon"]; // "half" หรือ "full"
+        $booking_type = $_POST["userIcon"]; // "half" or "full"
 
-        // ตรวจสอบว่าลูกค้าคนนี้ได้ทำการจองวันนี้อยู่แล้วหรือไม่
-        $check_cus_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` 
-            WHERE `booking_start_date` = ? 
-            AND `cus_id` = ? 
-            AND `booking_confirm_status` = 0");
-        if ($check_cus_stmt) {
-            $check_cus_stmt->bind_param("si", $start_date, $cus_id);
-            $check_cus_stmt->execute();
-            $check_cus_stmt->bind_result($cus_count);
-            $check_cus_stmt->fetch();
-            $check_cus_stmt->close();
+        // Check if the customer already has a booking on the specified date
+        $existingBookingQuery = $conn->prepare("SELECT * FROM `booking` 
+            WHERE `cus_id` = ? 
+            AND `booking_start_date` <= ? 
+            AND `booking_end_date` >= ? 
+            AND booking_confirm_status IN (0, 1, 3)");
 
-            if ($cus_count > 0) {
-                // ลูกค้าคนนี้ได้จองวันนี้อยู่แล้ว
+        // Bind parameters
+        $existingBookingQuery->bind_param("iss", $cus_id, $end_date, $start_date);
+        $existingBookingQuery->execute();
+        $existingBookingResult = $existingBookingQuery->get_result();
+
+        if ($existingBookingResult->num_rows > 0) {
+            // Customer has a booking on this date
 ?>
-                <div>
-                    <script>
-                        setTimeout(function() {
+            <div>
+                <script>
+                    Swal.fire({
+                        title: 'คุณได้ทำรายการจองในวันนี้แล้ว โปรดตรวจสอบรายการจองของคุณ',
+                        icon: 'warning',
+                        confirmButtonText: 'ตกลง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '';
+                        }
+                    });
+                </script>
+            </div>
+            <?php
+        } else {
+            // No existing booking, proceed to check for conflicts
+            if ($booking_type === "full") {
+                // Check for full-day booking conflicts
+                $conflictQuery = $conn->prepare("SELECT * FROM `booking` 
+                    WHERE `photographer_id` = ? 
+                    AND `booking_start_date` <= ? 
+                    AND `booking_end_date` >= ? 
+                    AND booking_confirm_status IN (0, 1, 3)");
+
+                // Bind parameters
+                $conflictQuery->bind_param("iss", $id_photographer, $end_date, $start_date);
+                $conflictQuery->execute();
+                $conflictResult = $conflictQuery->get_result();
+
+                if ($conflictResult->num_rows > 0) {
+                    // There is a conflict with an existing full-day booking
+            ?>
+                    <div>
+                        <script>
                             Swal.fire({
-                                title: '<div class="t1">คุณได้ทำการจองวันนี้แล้ว</div>',
-                                text: 'โปรดตรวจสอบรายการจองคิวของคุณ',
+                                title: 'มีรายการจองที่รออนุมัติจากช่างภาพท่านนี้อยู่',
                                 icon: 'warning',
-                                confirmButtonText: 'ตกลง',
-                                allowOutsideClick: true,
-                                allowEscapeKey: true,
-                                allowEnterKey: false
+                                confirmButtonText: 'ตกลง'
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.location.href = "";
+                                    window.location.href = '';
                                 }
                             });
-                        });
-                    </script>
-                </div>
+                        </script>
+                    </div>
                 <?php
-            } else {
-                // ตรวจสอบการจองสำหรับครึ่งวันว่าทับกันหรือไม่
-                if ($booking_type === 'half') {
-                    // Check for overlapping half-day bookings or full-day bookings on the same day
-                    $check_stmt = $conn->prepare("
-                        SELECT COUNT(*) 
-                        FROM `booking` 
-                        WHERE `booking_start_date` = ? 
-                        AND `photographer_id` = ? 
-                        AND `booking_confirm_status` = 0 
-                        AND (
-                            ((`booking_start_time` < ? AND `booking_end_time` > ?) 
-                            OR (`booking_start_time` < ? AND `booking_end_time` > ?) 
-                            OR (? < `booking_start_time` AND ? > `booking_end_time`))
-                            OR EXISTS (
-                                SELECT 1 FROM `booking` 
-                                WHERE `booking_start_date` = ? 
-                                AND `photographer_id` = ? 
-                                AND `booking_confirm_status` = 0 
-                            )
-                        )
-                    ");
-                
-                    if ($check_stmt) {
-                        $check_stmt->bind_param("sissssssss", $start_date, $id_photographer, $end_time, $start_time, $start_time, $end_time, $start_time, $end_time, $start_date, $id_photographer);
-                        $check_stmt->execute();
-                        $check_stmt->bind_result($count);
-                        $check_stmt->fetch();
-                        $check_stmt->close();
-                
-                        if ($count > 0) {
-                            // There is an overlap or a full-day booking on the same day
-                            ?>
-                            <div>
-                                <script>
-                                    setTimeout(function() {
-                                        Swal.fire({
-                                            title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
-                                            text: 'มีการจองครึ่งวันที่ทับเวลาการเริ่มต้นและสิ้นสุดอยู่แล้ว หรือมีการจองเต็มวันในวันนั้น โปรดเลือกเวลาอื่น',
-                                            icon: 'error',
-                                            confirmButtonText: 'ตกลง',
-                                            allowOutsideClick: true,
-                                            allowEscapeKey: true,
-                                            allowEnterKey: false
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                window.location.href = "";
-                                            }
-                                        });
-                                    });
-                                </script>
-                            </div>
-                            <?php
-                        } else {
-                            // No conflicts, proceed with the booking
-                            proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
-                        }
-                    } else {
-                        echo "Error preparing check statement: " . $conn->error;
-                    }
                 } else {
-                    // Full-day booking, check for overlapping dates
-                    $check_stmt = $conn->prepare("
-                        SELECT COUNT(*) 
-                        FROM `booking` 
-                        WHERE (
-                            (`booking_start_date` BETWEEN ? AND ? 
-                             OR `booking_end_date` BETWEEN ? AND ? 
-                             OR `booking_start_date` = `booking_end_date`) 
-                        ) 
-                        AND `photographer_id` = ? 
-                        AND `booking_confirm_status` = 0
-                    ");
-                    
-                    if ($check_stmt) {
-                        $check_stmt->bind_param("ssssi", $start_date, $end_date, $start_date, $end_date, $id_photographer);
-                        $check_stmt->execute();
-                        $check_stmt->bind_result($count);
-                        $check_stmt->fetch();
-                        $check_stmt->close();
-                
-                        if ($count > 0) {
-                            ?>
-                            <div>
-                                <script>
-                                    setTimeout(function() {
-                                        Swal.fire({
-                                            title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
-                                            text: 'เนื่องจากมีรายการจองของลูกค้าท่านอื่นที่รออนุมัติอยู่สำหรับช่างภาพท่านนี้',
-                                            icon: 'error',
-                                            confirmButtonText: 'ตกลง',
-                                            allowOutsideClick: true,
-                                            allowEscapeKey: true,
-                                            allowEnterKey: false
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                window.location.href = "";
-                                            }
-                                        });
-                                    });
-                                </script>
-                            </div>
-                            <?php
-                        } else {
-                            // No overlapping bookings, proceed with the booking
-                            proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
-                        }
-                    } else {
-                        echo "Error preparing check statement: " . $conn->error;
-                    }                
+                    // No conflicts, proceed with booking
+                    proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
+                }
+            } elseif ($booking_type === "half") {
+                // Check for conflicts with full-day bookings
+                $fullDayConflictQuery = $conn->prepare("SELECT * FROM booking 
+                    WHERE photographer_id = ? 
+                    AND booking_confirm_status IN (0, 1, 3) 
+                    AND booking_start_date = ? 
+                    AND (
+                        (booking_start_time < ? AND booking_end_time > ?) OR 
+                        (booking_start_time < ? AND booking_end_time > ?) OR
+                        (booking_start_time >= ? AND booking_end_time <= ?)
+                    )");
+
+                // Bind parameters
+                $fullDayConflictQuery->bind_param("isssssss", $id_photographer, $start_date, $start_time, $end_time, $end_time, $start_time, $start_time, $start_date);
+
+                $fullDayConflictQuery->execute();
+                $fullDayConflictResult = $fullDayConflictQuery->get_result();
+
+                if ($fullDayConflictResult->num_rows > 0) {
+                    // There is a conflict with an existing full-day booking
+                ?>
+                    <div>
+                        <script>
+                            Swal.fire({
+                                title: 'มีรายการจองครึ่งวันที่รออนุมัติจากช่างภาพท่านนี้อยู่',
+                                icon: 'warning',
+                                confirmButtonText: 'ตกลง'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '';
+                                }
+                            });
+                        </script>
+                    </div>
+
+
+            <?php
+                } else {
+                    // No conflicts, proceed with booking
+                    proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
                 }
             }
-        } else {
-            echo "Error preparing customer check statement: " . $conn->error;
         }
     }
+    $existingBookingQuery->close();
 }
+
 
 // Function to proceed with booking
 function proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type)
 {
     $stmt = $conn->prepare("INSERT INTO `booking` (`booking_location`, `booking_details`, `booking_start_date`, `booking_end_date`, `booking_start_time`, `booking_end_time`, `booking_date`, `photographer_id`, `cus_id`, `type_of_work_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
     if ($stmt) {
         $stmt->bind_param("sssssssiii", $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
+
         if ($stmt->execute()) {
-            ?>
-            <div>
+            ?><div>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
-                            title: '<div class="t1">บันทึกการจองสำเร็จ</div>',
+                            title: '<div class=\"t1\">บันทึกการจองสำเร็จ</div>',
                             icon: 'success',
                             confirmButtonText: 'ไปยังหน้ารายการจอง',
                             allowOutsideClick: true,
@@ -232,20 +192,18 @@ function proceedWithBooking($conn, $location, $details, $start_date, $end_date, 
                             allowEnterKey: false
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = "bookingLists.php";
+                                window.location.href = 'bookingLists.php';
                             }
                         });
                     }, 0);
                 </script>
-            </div>
-        <?php
-        } else {
-        ?>
-            <div>
+            </div><?php
+                } else {
+                    ?><div>
                 <script>
                     setTimeout(function() {
                         Swal.fire({
-                            title: '<div class="t1">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
+                            title: '<div class=\"t1\">เกิดข้อผิดพลาดในการบันทึกการจอง</div>',
                             icon: 'error',
                             confirmButtonText: 'ออก',
                             allowOutsideClick: true,
@@ -253,22 +211,19 @@ function proceedWithBooking($conn, $location, $details, $start_date, $end_date, 
                             allowEnterKey: false
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = "";
+                                window.location.href = '';
                             }
                         });
                     });
                 </script>
-            </div>
-<?php
+            </div><?php
+                }
+                $stmt->close();
+            } else {
+                echo "Error preparing statement: " . $conn->error;
+            }
         }
-        $stmt->close();
-    } else {
-        echo "Error preparing statement: " . $conn->error;
-    }
-}
-
-
-?>
+                    ?>
 
 
 <!DOCTYPE html>
