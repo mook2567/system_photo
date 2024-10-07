@@ -265,8 +265,8 @@ $resultUser = $conn->query($sqlUser);
                                 <td><?php echo $rowUser['min_full_rate']; ?></td>
                                 <td><?php echo $rowUser['total_count_b']; ?></td>
                                 <td><?php echo $rowUser['total_count_a']; ?></td>
-                                <td><?php echo $rowUser['total_count_d']; ?></td>
                                 <td><?php echo $rowUser['total_count_s']; ?></td>
+                                <td><?php echo $rowUser['total_count_d']; ?></td>
                                 <td><?php echo $rowUser['income']; ?></td>
                             </tr>
                     <?php

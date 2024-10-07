@@ -171,7 +171,7 @@ $stmt2->close();
 // === Query 3: Fetch Booking Status Data ===
 $query3 = "
     SELECT 
-        MONTH(booking_date) AS booking_month,
+        MONTH(booking_start_date) AS booking_month,
         SUM(booking_confirm_status = 0) AS total_reserved,
         SUM(booking_confirm_status = 1) AS total_pending,
         SUM(booking_confirm_status = 2) AS total_canceled,

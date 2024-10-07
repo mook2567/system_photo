@@ -48,7 +48,7 @@ WHERE
     b.photographer_id = $id_photographer
     AND b.booking_confirm_status = '1'
     AND b.booking_pay_status = '2'
-    -- AND (b.booking_end_date <= CURDATE())  -- แสดงรายการวันนี้และเลยวันสิ้นสุดแล้ว
+    AND (b.booking_end_date <= CURDATE())  -- แสดงรายการวันนี้และเลยวันสิ้นสุดแล้ว
 ORDER BY 
     b.booking_id DESC;
 ";

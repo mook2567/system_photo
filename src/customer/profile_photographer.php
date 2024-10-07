@@ -97,30 +97,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             } else {
                 // ตรวจสอบการจองสำหรับครึ่งวันว่าทับกันหรือไม่
                 if ($booking_type === 'half') {
-                    $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` 
+                    // Check for overlapping half-day bookings or full-day bookings on the same day
+                    $check_stmt = $conn->prepare("
+                        SELECT COUNT(*) 
+                        FROM `booking` 
                         WHERE `booking_start_date` = ? 
                         AND `photographer_id` = ? 
                         AND `booking_confirm_status` = 0 
-                        AND ((`booking_start_time` < ? AND `booking_end_time` > ?) 
-                            OR (`booking_start_time` < ? AND `booking_end_time` > ?)
-                            OR (? < `booking_start_time` AND ? > `booking_end_time`))");
-
+                        AND (
+                            ((`booking_start_time` < ? AND `booking_end_time` > ?) 
+                            OR (`booking_start_time` < ? AND `booking_end_time` > ?) 
+                            OR (? < `booking_start_time` AND ? > `booking_end_time`))
+                            OR EXISTS (
+                                SELECT 1 FROM `booking` 
+                                WHERE `booking_start_date` = ? 
+                                AND `photographer_id` = ? 
+                                AND `booking_confirm_status` = 0 
+                            )
+                        )
+                    ");
+                
                     if ($check_stmt) {
-                        $check_stmt->bind_param("sissssss", $start_date, $id_photographer, $end_time, $start_time, $start_time, $end_time, $start_time, $end_time);
+                        $check_stmt->bind_param("sissssssss", $start_date, $id_photographer, $end_time, $start_time, $start_time, $end_time, $start_time, $end_time, $start_date, $id_photographer);
                         $check_stmt->execute();
                         $check_stmt->bind_result($count);
                         $check_stmt->fetch();
                         $check_stmt->close();
-
+                
                         if ($count > 0) {
-                            // มีการจองเวลาทับกันอยู่แล้ว
-                ?>
+                            // There is an overlap or a full-day booking on the same day
+                            ?>
                             <div>
                                 <script>
                                     setTimeout(function() {
                                         Swal.fire({
                                             title: '<div class="t1">ทำการจองไม่สำเร็จ</div>',
-                                            text: 'มีการจองครึ่งวันที่ทับเวลาการเริ่มต้นและสิ้นสุดอยู่แล้ว โปรดเลือกเวลาอื่น',
+                                            text: 'มีการจองครึ่งวันที่ทับเวลาการเริ่มต้นและสิ้นสุดอยู่แล้ว หรือมีการจองเต็มวันในวันนั้น โปรดเลือกเวลาอื่น',
                                             icon: 'error',
                                             confirmButtonText: 'ตกลง',
                                             allowOutsideClick: true,
@@ -134,26 +146,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     });
                                 </script>
                             </div>
-                        <?php
+                            <?php
                         } else {
-                            // ไม่มีการจองทับกัน ทำการบันทึกการจอง
+                            // No conflicts, proceed with the booking
                             proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
                         }
                     } else {
                         echo "Error preparing check statement: " . $conn->error;
                     }
                 } else {
-                    // การจองเต็มวัน ตรวจสอบวันที่ทับกันเท่านั้น
-                    $check_stmt = $conn->prepare("SELECT COUNT(*) FROM `booking` WHERE (`booking_start_date` BETWEEN ? AND ? OR `booking_end_date` BETWEEN ? AND ?) AND `photographer_id` = ? AND `booking_confirm_status` = 0");
+                    // Full-day booking, check for overlapping dates
+                    $check_stmt = $conn->prepare("
+                        SELECT COUNT(*) 
+                        FROM `booking` 
+                        WHERE (
+                            (`booking_start_date` BETWEEN ? AND ? 
+                             OR `booking_end_date` BETWEEN ? AND ? 
+                             OR `booking_start_date` = `booking_end_date`) 
+                        ) 
+                        AND `photographer_id` = ? 
+                        AND `booking_confirm_status` = 0
+                    ");
+                    
                     if ($check_stmt) {
                         $check_stmt->bind_param("ssssi", $start_date, $end_date, $start_date, $end_date, $id_photographer);
                         $check_stmt->execute();
                         $check_stmt->bind_result($count);
                         $check_stmt->fetch();
                         $check_stmt->close();
-
+                
                         if ($count > 0) {
-                        ?>
+                            ?>
                             <div>
                                 <script>
                                     setTimeout(function() {
@@ -173,14 +196,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     });
                                 </script>
                             </div>
-            <?php
+                            <?php
                         } else {
-                            // ไม่มีการจองซ้ำ ทำการบันทึกการจอง
+                            // No overlapping bookings, proceed with the booking
                             proceedWithBooking($conn, $location, $details, $start_date, $end_date, $start_time, $end_time, $date, $id_photographer, $cus_id, $type);
                         }
                     } else {
                         echo "Error preparing check statement: " . $conn->error;
-                    }
+                    }                
                 }
             }
         } else {
@@ -1027,8 +1050,8 @@ function proceedWithBooking($conn, $location, $details, $start_date, $end_date, 
                                                 <span style="color: black; margin-right: 5px;font-size: 13px;">วันที่เริ่มจอง</span>
                                                 <span style="color: red;">*</span>
                                             </label>
-                                            <input type="date" name="start_date" class="form-control mt-1" style="resize: none;" required>
-                                            <!-- <input type="date" id="start_date" name="start_date" class="form-control mt-1" style="resize: none;" required> -->
+                                            <!-- <input type="date" name="start_date" class="form-control mt-1" style="resize: none;" required> -->
+                                            <input type="date" id="start_date" name="start_date" class="form-control mt-1" style="resize: none;" required>
                                         </div>
                                         <div class="col-4 text-center">
                                             <label for="booking-end-date" style="font-weight: bold; display: flex; align-items: center;">

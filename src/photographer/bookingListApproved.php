@@ -387,7 +387,7 @@ $resultBooking = $conn->query($sql2);
                             }
                         }
                     } else {
-                        echo "<tr><td colspan='7'>ไม่พบข้อมูลรายการที่อนุมัติ</td></tr>";
+                        echo "<tr><td colspan='8'>ไม่พบข้อมูลรายการที่อนุมัติ</td></tr>";
                     }
                     ?>
                 </tbody>

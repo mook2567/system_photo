@@ -39,13 +39,17 @@ if (file_exists($image_path)) {
 // Prepare SQL query for user data using prepared statement
 $sqlUser = "SELECT 
     t.type_work, 
+    COUNT(tow.type_id) AS total_count, 
     COUNT(b.booking_id) AS total_count_b,
     SUM(CASE WHEN b.booking_confirm_status = 1 THEN 1 ELSE 0 END) AS total_count_a,
     SUM(CASE WHEN b.booking_confirm_status = 3 THEN 1 ELSE 0 END) AS total_count_s,
     SUM(CASE WHEN b.booking_confirm_status = 2 THEN 1 ELSE 0 END) AS total_count_d,
     MIN(CASE WHEN tow.type_of_work_rate_half_start != 0 THEN tow.type_of_work_rate_half_start END) AS min_half_rate,
     MIN(CASE WHEN tow.type_of_work_rate_full_start != 0 THEN tow.type_of_work_rate_full_start END) AS min_full_rate,
-    SUM(b.booking_price) AS income
+    SUM(CASE 
+        WHEN b.booking_pay_status IN (2, 5) THEN b.booking_price 
+        ELSE 0 
+    END) AS income
 FROM 
     type_of_work tow
 JOIN 
@@ -53,11 +57,12 @@ JOIN
 LEFT JOIN 
     booking b ON b.type_of_work_id = tow.type_of_work_id
 JOIN 
-    photographer p ON p.photographer_id = b.photographer_id    
+    photographer p ON p.photographer_id = b.photographer_id
 WHERE 
-    p.photographer_id = ?
+    p.photographer_id = ? 
 GROUP BY 
     t.type_work;
+
 
     ";
 
@@ -180,12 +185,8 @@ $resultUser = $stmtUser->get_result(); // Fetch result
         .table th:nth-child(2),
         .table th:nth-child(3),
         .table th:nth-child(4),
-        /* .table th:nth-child(5),
-        .table th:nth-child(6), */
         .table td:nth-child(2),
         .table td:nth-child(3),
-        /* .table td:nth-child(4), */
-        /* .table td:nth-child(5), */
         .table td:nth-child(4) {
             width: 130;
             height: 50px;
@@ -265,7 +266,7 @@ $resultUser = $stmtUser->get_result(); // Fetch result
     </nav>
     <!-- Navbar End -->
     <div id="contentToConvert">
-        <div style="height: 100%;">
+        <div style="height: auto;">
             <div class="footer-box text-center mt-5" style="font-size: 18px;"><b>รายการข้อมูลประเภทงาน</b></div>
             <div class="container-lg mt-2 table-responsive" style="max-width: 90%;">
                 <table id="example" class="table bg-white table-hover table-bordered-3">
@@ -278,7 +279,7 @@ $resultUser = $stmtUser->get_result(); // Fetch result
                             <th scope="col">จำนวนการจอง</th>
                             <th scope="col">จำนวนการจองที่ยังไม่สำเร็จ</th>
                             <th scope="col">จำนวนการจองสำเร็จ</th>
-                            <th scope="col">จำนวนการจองที่ไม่สำเร็จ</th>
+                            <th scope="col">จำนวนการจองที่ไม่อนุมัติ</th>
                             <th scope="col">รายได้</th>
                         </tr>
                     </thead>
@@ -295,8 +296,8 @@ $resultUser = $stmtUser->get_result(); // Fetch result
                                     <td><?php echo $rowUser['min_full_rate']; ?></td>
                                     <td><?php echo $rowUser['total_count_b']; ?></td>
                                     <td><?php echo $rowUser['total_count_a']; ?></td>
-                                    <td><?php echo $rowUser['total_count_d']; ?></td>
                                     <td><?php echo $rowUser['total_count_s']; ?></td>
+                                    <td><?php echo $rowUser['total_count_d']; ?></td>
                                     <td><?php echo $rowUser['income']; ?></td>
                                 </tr>
                         <?php
@@ -318,17 +319,6 @@ $resultUser = $stmtUser->get_result(); // Fetch result
         </div><br><br><br>
     </div>
 
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-white-50 footer" data-wow-delay="0.1s">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">2024 Photo Match</a>, All Right Reserved.
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Footer End -->
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
@@ -415,22 +405,21 @@ $resultUser = $stmtUser->get_result(); // Fetch result
                 }
 
                 function generatePDFContent() {
-                    const imgWidth = 297; // A4 width in landscape mode (297mm)
-                    const pageHeight = 210; // A4 height in landscape mode (210mm)
+                    const imgWidth = 297; 
+                    const pageHeight = 210; 
                     const imgHeight = (canvas.height * imgWidth) / canvas.width;
                     let heightLeft = imgHeight;
-                    let position = 50; // Start at 50mm from the top
+                    let position = 50;
 
                     // Add canvas image to the PDF
                     doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, null, 'FAST');
 
-                    heightLeft -= (pageHeight - 10); // Adjust height left after the first page
+                    heightLeft -= (pageHeight - 10); 
 
-                    // Continue adding pages if content exceeds one page
                     while (heightLeft > 0) {
                         doc.addPage();
                         position = heightLeft - imgHeight;
-                        doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); // New page image
+                        doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight, null, 'FAST'); 
                         heightLeft -= pageHeight;
                     }
 
